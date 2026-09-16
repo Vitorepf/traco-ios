@@ -338,7 +338,7 @@ enum Corpus {
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
             if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false, 0) }
-            return ([(limpo, nil, .now, pareceObra(limpo) ? .obra : .autor)], true, 1)
+            return ([(limpo, nil, .now, pareceObra(limpo) ? .obraSuposta : .autor)], true, 1)
         }
         let tinta = comTinta(conteudo)
         var saida: [ItemImportado] = []
@@ -360,7 +360,7 @@ enum Corpus {
                     guard l.hasPrefix("origem: ") else { return nil }
                     // origem que esta versão não conhece não é o autor: quem
                     // declarou origem declarou que não foi ele (ADR 2026-09-16a)
-                    return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces)) ?? .obra
+                    return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces)) ?? .obraSuposta
                 }
                 .first ?? .autor
             if cabecalho.split(whereSeparator: \.isNewline).contains(where: {
@@ -403,7 +403,8 @@ enum Corpus {
     /// ponytail: heurística de três sinais; o que escapa dela é texto curto sem
     /// seção nem link solto, e quem quiser outra coisa declara `origem:`.
     nonisolated static func pareceObra(_ texto: String) -> Bool {
-        texto.count > 20_000
+        // o tamanho primeiro: num texto de 1,5 MB a regex custava 35 ms
+        (texto.utf8.count > 20_000 && texto.count > 20_000)
             || texto.range(of: #"(?m)^#{1,3}[ \t]+\d+\."#, options: .regularExpression) != nil
             || texto.range(of: #"(?m)^[ \t]*https?://\S+[ \t]*$"#, options: .regularExpression) != nil
     }

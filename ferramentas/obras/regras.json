@@ -1,0 +1,792 @@
+[
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 136,
+  "regra": "Regra: quase nunca baixar preço para \"consertar\" churn; preferir subir valor/convicção.",
+  "condicao": "",
+  "caso": "Abaixar (erro caro): programa a US$ 42k/ano (~US$ 800/semana). Time pedia baixar preço para cortar churn/LTV. Ele cede: US$ 600/semana (~US$ 31k/ano), pitch de \"desconto + stack de extras\". Churn não mudou. Topline −25%",
+  "etiqueta": "mecanismo",
+  "ancora": "99 times out of 100",
+  "conta": {
+   "expressao": "(600-800)/800*100",
+   "afirma": -25
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 233,
+  "regra": "os degraus têm que bater em personas de compra diferentes: US$ 100, US$ 200 e US$ 1.000/mês, porque as necessidades desses clientes são distintas.",
+  "condicao": "",
+  "caso": "Menu de US$ 100 / 110 / 120 por mês é desperdício",
+  "etiqueta": "mecanismo",
+  "ancora": "you want to meet buying personas"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 228,
+  "regra": "Teste de preço ao vivo: pediu $6k, fechou rápido demais → subiu para $8k → $10k, ainda fechava.",
+  "condicao": "Reposicionou como \"estou saindo do negócio de academias e vendendo meus segredos\"",
+  "caso": "$60k naquele dia, $100k em 4 dias.",
+  "etiqueta": "relato",
+  "ancora": "said six grand"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 212,
+  "regra": "Objeção \"não tenho dinheiro suficiente\": pergunte \"que dia você recebe?\" Se a resposta for sexta e hoje é quarta, agende a cobrança para sexta.",
+  "condicao": "Use o rapport para distinguir os dois tipos de hesitação - falta de dinheiro vs. não querer o programa.",
+  "caso": "Muitas vezes o deal fecha só por identificar qual é o problema real.",
+  "etiqueta": "mecanismo",
+  "ancora": "day do you get paid"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 235,
+  "regra": "o que você manda para o outro lado da rua tem que ser sempre o produto de menor margem; segure o de alta margem para você",
+  "condicao": "se você acredita no que vende, agir contra o próprio interesse imediato é o que compra confiança rápido",
+  "caso": "Depois desse único corte, ela comprou tudo o que ele recomendou em seguida.",
+  "etiqueta": "mecanismo",
+  "ancora": "lowest margin product gain the trust"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 238,
+  "regra": "Quem aceita feedback sem ego e melhora na segunda tentativa é contratável; quem não aceita já está condenado.",
+  "condicao": "coachabilidade - testada com role-play na entrevista: dá contexto, pede para falar, dá feedback e manda tentar de novo.",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "feedback without an ego"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 219,
+  "regra": "Comunicar expectativa tem três exigências: (1) comunicar; (2) repetir a comunicação; (3) documentar por escrito, idealmente em múltiplos lugares, e embutir em checklist diário/semanal ou em report.",
+  "condicao": "",
+  "caso": "contratou um sales manager, semanas depois cobrou \"você não fez nenhuma call review, WTF bro\"; resposta: \"eu não sabia que você queria isso\".",
+  "etiqueta": "mecanismo",
+  "ancora": "repeat the communication number three"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 218,
+  "regra": "você tem boca a boca negativo quando seu custo de aquisição sobe mais rápido que o CPM",
+  "condicao": "(a) produtos de consumo mass market, (b) business opportunity, (c) serviços vendidos para mass market",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "faster rate than the cost per impression"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 223,
+  "regra": "O papel do orgânico aí é o teste de legitimidade: quem chega por afiliado, anúncio ou SDR vai olhar seu perfil e site; o único critério a passar é ter postado algo recente que não seja lixo.",
+  "condicao": "Se seus canais primários são outbound manual, afiliados ou tráfego pago (fora indicação), não tire o olho do que paga as contas",
+  "caso": "A pessoa consome 2-4 peças e conclui \"essa pessoa sabe do que fala, isso é recente, o negócio existe\".",
+  "etiqueta": "mecanismo",
+  "ancora": "only litmus test you have to pass"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 152,
+  "regra": "Processo: achar outliers, extrair playbook, padronizar - não inventar no escuro.",
+  "condicao": "Aquisição resolvida (6 gyms cash-flow; turnarounds %; licensing); churn da indústria não.",
+  "caso": "Método: poll na comunidade - quem teve ≤3% churn mensal por 6 meses? ~20 de ~1000 (top ~2%).",
+  "etiqueta": "mecanismo",
+  "ancora": "put a poll in the group",
+  "conta": {
+   "expressao": "20/1000*100",
+   "afirma": 2
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 248,
+  "regra": "O erro típico no platô é fazer mais marketing (mais gente descobrindo a porcaria que você vende) ou lançar outro produto, em vez de consertar o mesmo produto repetidamente.",
+  "condicao": "Se as pessoas não consomem, não é que sejam preguiçosas - é que você é ruim e criou onboarding e experiência difíceis demais para chegarem ao benefício.",
+  "caso": "Mas 10 clientes/mês que nunca saem viram 600 clientes/mês em 5 anos.",
+  "etiqueta": "mecanismo",
+  "ancora": "they start marketing more"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 246,
+  "regra": "liste as 25 coisas óbvias que você sabe que dariam dinheiro e não está fazendo (mais e-mail, mais conteúdo, mais outreach, review de calls, refazer onboarding, cadência de customer success) e execute a lista inteira antes de qualquer coisa nova.",
+  "condicao": "A inovação termina quando chega o product-market fit - daí em diante é só melhor e mais",
+  "caso": "Autodiagnóstico dele: se não estamos em todas as plataformas, não fazemos e-mail marketing pesado, não construímos SEO e não terminamos o treinamento de vendas, por que pensar em outro negócio?",
+  "etiqueta": "mecanismo",
+  "ancora": "top 25 things that you could do"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 217,
+  "regra": "Regra de cálculo que ele dá: retorno ajustado ao risco = payoff × probabilidade.",
+  "condicao": "Ele pega o 4-em-5 de upside menor mesmo assim, porque os jogos montados desse jeito costumam ser puro execution risk.",
+  "caso": "6x com 4 em 5 = 4,8x.",
+  "etiqueta": "mecanismo",
+  "ancora": "multiply the payoff by the",
+  "conta": {
+   "expressao": "6*4/5",
+   "afirma": 4.8
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 243,
+  "regra": "Framework de 4 pontos para qualquer deal: sua necessidade hoje, sua necessidade em 10 anos, a necessidade do outro hoje, a necessidade do outro em 10 anos.",
+  "condicao": "",
+  "caso": "Nos deals da Acquisition.com ele diz que poderia pedir bem mais e recusa quando alguém oferece demais",
+  "etiqueta": "mecanismo",
+  "ancora": "balancing both your need today"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 258,
+  "regra": "Nunca aceite o deal padrão: sempre existe um melhor, e quase sempre basta pedir (\"estes termos me preocupam, dá pra mexer?\").",
+  "condicao": "Venda a partir da carteira do outro, não da sua, e chegue à mesa com outras opções.",
+  "caso": "Ele já saiu de negociações e viu a contraparte voltar em três ou quatro dias aceitando.",
+  "etiqueta": "mecanismo",
+  "ancora": "never take a standard deal"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 256,
+  "regra": "Num negócio de 10% de margem, esses 6% equivalem a 60% do lucro do operador.",
+  "condicao": "A maioria cobra cerca de 6% do faturamento bruto.",
+  "caso": "Um franqueado médio de Menchie's leva para casa algo como US$ 93 mil por ano",
+  "etiqueta": "mecanismo",
+  "ancora": "six percent ish of top line",
+  "conta": {
+   "expressao": "6/10*100",
+   "afirma": 60
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 358,
+  "regra": "some tudo que você gastou para conseguir o cliente — folha de marketing e vendas mais verba de anúncio — e divida pelo número de clientes",
+  "condicao": "",
+  "caso": "Se gastou 20.000 entre folha de marketing e mídia e trouxe 20 clientes, o CAC é 1.000.",
+  "etiqueta": "mecanismo",
+  "ancora": "divide that by how many customers"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 355,
+  "regra": "os melhores leads para o melhor vendedor, os piores para o pior",
+  "condicao": "",
+  "caso": "Ele conta o vendedor que ganhou uma hora com o CEO como prêmio e, perguntado o que fazia diferente, respondeu que simplesmente pediu os melhores leads; a empresa adotou e rolou para todo o time.",
+  "etiqueta": "relato",
+  "ancora": "worst leads to go to the worst"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 376,
+  "regra": "venda mais da mesma coisa que ele acabou de comprar ou mais ajuda com aquilo",
+  "condicao": "Sobre o que vender no upsell",
+  "caso": "não fechar duro imediatamente, mas deixar a solução disponível para quem tem o problema agora",
+  "etiqueta": "mecanismo",
+  "ancora": "more help with that thing you just bought"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 367,
+  "regra": "Quando a isca é paga, ele sugere começar entre 19 e 29 dólares em vez de grátis.",
+  "condicao": "A estratégia base que ele dá para negócio local é rodar lead ads de uma isca",
+  "caso": "você mesmo liga, fecha na ligação e depois vende o plano maior; para serviços recorrentes, usa-se o cartão já em arquivo",
+  "etiqueta": "mecanismo",
+  "ancora": "19 to 29 would be where"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 382,
+  "regra": "não responda a pergunta, faça uma pergunta sobre a pergunta",
+  "condicao": "a pergunta-armadilha — \"quantas certificações seus treinadores têm?\" — onde qualquer número que você responda vira julgamento do prospecto e você não sabe qual é a resposta certa",
+  "caso": "(\"quais certificações especificamente você está procurando?\")",
+  "etiqueta": "mecanismo",
+  "ancora": "rather than answer the question"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 490,
+  "regra": "retenção é sua maior alavanca de ROI — antes de qualquer coisa",
+  "condicao": "se menos de 7 em 10 pessoas querem ficar todo mês",
+  "caso": "sair de 20% para 10% de churn não é ganho de 10–12%, é o dobro de LTV",
+  "etiqueta": "mecanismo",
+  "ancora": "tactically if less than seven out of 10",
+  "conta": {
+   "expressao": "(1/0.10)/(1/0.20)",
+   "afirma": 2
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 440,
+  "regra": "A pergunta de triagem que vem antes de qualquer tática: o negócio está travado por demanda ou por oferta?",
+  "condicao": "Problema de oferta: tem gente e não tem capacidade (lista de espera, recusando cliente, não consegue produzir ou atender no ritmo que entra).",
+  "caso": "Consultor lotado, agenda cheia 3 meses à frente, 60h/semana, renda estagnada — e nas horas livres ele faz mais conteúdo e mais anúncio. Está consertando um problema de demanda que não tem.",
+  "etiqueta": "mecanismo",
+  "ancora": "one triage question up front"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 437,
+  "regra": "que uma coisa, se fosse verdade daqui a 12 meses, mudaria tudo?",
+  "condicao": "se a empresa tem 5 objetivos com 5 subobjetivos cada e o CEO não sabe dizer qual é O um, o CEO falhou",
+  "caso": "Um canal de leads próprio. Fornecimento constante de técnicos de HVAC. Puxar o caixa de 90 para 30 dias por venda.",
+  "etiqueta": "crença",
+  "ancora": "if it were true 12 months from now"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 477,
+  "regra": "Todo negócio dele que ficou realmente grande recuperou o CAC nos primeiros 30 dias.",
+  "condicao": "o resto é bootstrapped, financiado pelo \"Banco do Alex\"",
+  "caso": "taxa de iniciação, setup fee, onboarding/on-ramp cobrado, um programa de front-end definido, embutir produto físico junto do serviço, vender um bloco de período estendido para faturar no dia 1, compre-um-leve-dois, cobrar o último mês adiantado",
+  "etiqueta": "relato",
+  "ancora": "every single one that s gotten really big"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 465,
+  "regra": "ele antes media funcionários por quão bem começavam; hoje mede por quão rápido melhoram",
+  "condicao": "",
+  "caso": "Entre alguém que começa alto e fica plano e alguém que começa baixo com inclinação, em 3 a 6 meses o segundo ultrapassa",
+  "etiqueta": "mecanismo",
+  "ancora": "measure employees today on how fast they improve"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 466,
+  "regra": "Defina seu lead perfeito — tem orçamento, tem autoridade para decidir, claramente precisa, e quer agir agora — e só dê o serviço a quem concorda com esses pontos antes.",
+  "condicao": "A objeção padrão é \"não quero trabalhar de graça e atrair caçador de brinde\"",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "only give the services away to people who agree"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 330,
+  "regra": "medir uso em vez de esperar o cancelamento — cancelamento é indicador atrasado",
+  "condicao": "quem paga e não usa acaba cancelando porque sente desperdício",
+  "caso": "com lead você para de insistir quando ele não compra; com cliente, você escala a insistência",
+  "etiqueta": "mecanismo",
+  "ancora": "canceling is a lagging indicator"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 425,
+  "regra": "Sua BATNA funciona como contra-âncora mental e como critério de decisão: só aceite acordo melhor que sua melhor alternativa.",
+  "condicao": "se constrói antes de sentar à mesa",
+  "caso": "Comprador de serviço: pegue 4, 5, 6 orçamentos; além do preço você aprende cláusulas que uns incluem e outros não, e passa a usá-las.",
+  "etiqueta": "mecanismo",
+  "ancora": "decision standard that you only accept deals"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 500,
+  "regra": "Para passar de 100% de NRR: crie um caminho claro para o cliente barato gastar mais.",
+  "condicao": "",
+  "caso": "membership de US$ 9 e outra de US$ 99 — quem sobe entrega 11x de valor",
+  "etiqueta": "mecanismo",
+  "ancora": "get an 11x in terms of value",
+  "conta": {
+   "expressao": "99/9",
+   "afirma": 11
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 386,
+  "regra": "cobrar o equivalente a cerca de dois meses uma vez por ano, lançada só um ano depois da entrada, para não interferir no preço de frente que governa a conversão",
+  "condicao": "taxa anual de renovação cobrada por cima da mensalidade recorrente",
+  "caso": "cobrar de quem já ficou um ano e portanto é pouco provável que saia",
+  "etiqueta": "mecanismo",
+  "ancora": "onetime annual fee on top of your monthly"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 312,
+  "regra": "velocidade de vendas dividida por churn, que projeta o teto de clientes",
+  "condicao": "",
+  "caso": "se entram 100 por mês e o churn é 10%, o platô fica em mil, e a pergunta operacional vira o que quebra no caminho até lá",
+  "etiqueta": "mecanismo",
+  "ancora": "sales velocity divided by churn",
+  "conta": {
+   "expressao": "100/0.10",
+   "afirma": 1000
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 480,
+  "regra": "E o segredo da copy: uma vez que ela está certa, não se mexe.",
+  "condicao": "",
+  "caso": "Um dos negócios dele gastou dezenas de milhões em ads num ano sem trocar a copy uma vez; muda-se o criativo e o hook, não as palavras.",
+  "etiqueta": "relato",
+  "ancora": "we never changed the copy once"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 442,
+  "regra": "só mudo se enxergo ganho ajustado ao risco de 20% — ou seja, uma melhoria de 40% com chance estimada de 50/50",
+  "condicao": "toda mudança derruba a performance primeiro — na experiência de Hormozi, cerca de −20%",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "40 improvement that i think has a 50 50 shot",
+  "conta": {
+   "expressao": "40*0.5",
+   "afirma": 20
+  }
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 347,
+  "regra": "olhar quantas transações existem naquele tipo de negócio, e se houver poucas, aceitar que talvez não exista mercado",
+  "condicao": "Os critérios que ele nomeia para atratividade: recorrência, retenção de receita, ausência de risco de homem-chave, baixa volatilidade, e não depender de um rosto.",
+  "caso": "Academias micro, por exemplo, quase não são vendidas — não há mercado para negócios de serviço pequenos; já firmas de contabilidade são procuradas porque têm alta retenção de receita.",
+  "etiqueta": "mecanismo",
+  "ancora": "mergers and acquisitions activity for that type"
+ },
+ {
+  "mestre": "Alex Hormozi",
+  "dossie": "hormozi-videos.md",
+  "secao": 336,
+  "regra": "quem está em plano de pagamento evade menos do que quem está em recorrência mensal, mesmo pagando o mesmo",
+  "condicao": "",
+  "caso": "Um amigo com receita recorrente que não segurava gente refinanciou os planos em parcelamento, e as pessoas ficaram mais tempo",
+  "etiqueta": "relato",
+  "ancora": "way less likely to turn out of a payment plan"
+ },
+ {
+  "mestre": "Yuriy Timen",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 11,
+  "regra": "A regra é foco com guardrails definidos antes do teste: número mínimo de impressões, dois a três ângulos criativos distintos, e a faixa de CTR aceitável. Dentro da faixa, continue; fora dela, abandone.",
+  "condicao": "os que têm benchmarks públicos (CTR, custo, criativo) e permitem guardrails objetivos",
+  "caso": "se você roda cinco coisas ao mesmo tempo, nenhuma recebe esforço suficiente para dar sinal",
+  "etiqueta": "mecanismo",
+  "ancora": "minimum number of impressions"
+ },
+ {
+  "mestre": "Madhavan Ramanujam",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 37,
+  "regra": "Quem organiza o meetup do clube de vinho local só precisa de general admission; quem é profissional precisa de múltiplos tipos e paga mais. O plano de um tipo é mais barato justamente porque entrega menos — a diferenciação é a régua.",
+  "condicao": "",
+  "caso": "Eventbrite era um produto único para todos os clientes; após o exercício de segmentação virou três planos, com a diferenciação amarrada em feature real de necessidade",
+  "etiqueta": "mecanismo",
+  "ancora": "local wine club meetup"
+ },
+ {
+  "mestre": "Naomi Ionita",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 45,
+  "regra": "Regra operacional: a cada 6 a 12 meses você provavelmente lança algo relevante para o usuário; trate cada lançamento desses como gatilho para revisar a estratégia de monetização e checar se está sendo remunerado pelo valor criado.",
+  "condicao": "",
+  "caso": "Foi o caso da Evernote — passaram-se \"muitos e muitos anos\" até fazerem a revisão completa de pricing.",
+  "etiqueta": "mecanismo",
+  "ancora": "yes yes so do not set"
+ },
+ {
+  "mestre": "Lauryn Isford",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 57,
+  "regra": "existem apenas dois motivos legítimos para rodar um A/B test — (1) medir com precisão o impacto de métrica do que você construiu; (2) mitigação de risco quando a mudança é dramática e pode ser muito boa ou muito ruim em produção. Fora disso, não experimente.",
+  "condicao": "Se você tem convicção suficiente para todo cliente ver aquilo amanhã, o teste não importa tanto.",
+  "caso": "E experimento é caro: engenheiro, analista e PM gastando tempo interpretando resultado em vez de fazer roadmap, análise fundacional e envio de features.",
+  "etiqueta": "mecanismo",
+  "ancora": "generally two reasons growth team experiment"
+ },
+ {
+  "mestre": "Ronny Kohavi",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 105,
+  "regra": "A lição de priorização não é \"ideias pequenas ganham\", é ROI: quando o custo de implementação é de horas, o custo de descobrir é menor que o custo de continuar debatendo.",
+  "condicao": "",
+  "caso": "Ficou meses no backlog, sempre ranqueado abaixo de ideias \"maiores\". Um engenheiro cansou da discussão e implementou em alguns dias.",
+  "etiqueta": "mecanismo",
+  "ancora": "trivial to implement return on investment"
+ },
+ {
+  "mestre": "Dan Hockenmaier",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 21,
+  "regra": "Regra de corte: só adquira supply na medida em que você entende o impacto dela na demanda",
+  "condicao": "",
+  "caso": "existe um ponto em que mais motorista não reduz tempo de espera, e mais vendedor de pet shop na Amazon não melhora nada para o comprador.",
+  "etiqueta": "mecanismo",
+  "ancora": "only should acquire supply extent"
+ },
+ {
+  "mestre": "Lauren Ipsen",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 28,
+  "regra": "Maior erro de founder na primeira contratação sênior de produto: se distrair com shiny objects e caçar nomes grandes (CPO do Google, do YouTube).",
+  "condicao": "Em early stage com recursos limitados, perseguir o nome grande raramente é o caminho.",
+  "caso": "esses executivos costumam estar longe do trabalho — quem está no barro são os executores que eles montaram",
+  "etiqueta": "mecanismo",
+  "ancora": "distracted by shiny objects huge names"
+ },
+ {
+  "mestre": "Patrick Campbell",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 60,
+  "regra": "Valor não é valor se não tem trade-off.",
+  "condicao": "",
+  "caso": "Em ProfitWell, \"otimizar para o longo prazo\" tinha custo explícito: abrir mão de receita de curto prazo.",
+  "etiqueta": "mecanismo",
+  "ancora": "values unless actual trade off"
+ },
+ {
+  "mestre": "Christina Wodtke",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 68,
+  "regra": "O rollout correto é por contágio, não por decreto. Escolha o seu melhor time multidisciplinar, entregue o material e diga \"vejam se funciona\". Volte em três meses e pergunte o que descobriram.",
+  "condicao": "Os pré-requisitos vêm antes e não são negociáveis: estratégia existente, times empoderados e segurança psicológica.",
+  "caso": "líder passa o olho num artigo, manda o RH implantar para a empresa inteira, todo mundo fica animado, depois triste, cospe fora e conclui \"OKR não funciona\"",
+  "etiqueta": "mecanismo",
+  "ancora": "best team three months later check"
+ },
+ {
+  "mestre": "Bill Carr",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 131,
+  "regra": "A regra é funil de produto, não túnel: túnel significa que tudo que entra sai do outro lado, ou seja, não existe mecanismo de consideração e comparação entre alternativas.",
+  "condicao": "",
+  "caso": "Num cenário ilustrativo, de 100 PR/FAQs escritas num ano, talvez 20 cheguem ao CEO.",
+  "etiqueta": "mecanismo",
+  "ancora": "product funnel not product tunnel"
+ },
+ {
+  "mestre": "Geoffrey Moore",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 155,
+  "regra": "Para dimensionar oportunidade, use trapped value: ao liberar valor preso, o mundo lhe devolve cerca de 10% do ganho.",
+  "condicao": "",
+  "caso": "Quer uma empresa de US$ 1 bilhão? Ache US$ 10 bilhões de valor aprisionado.",
+  "etiqueta": "mecanismo",
+  "ancora": "release trap value world give",
+  "conta": {
+   "expressao": "1/10*100",
+   "afirma": 10
+  }
+ },
+ {
+  "mestre": "Jason Lemkin",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 160,
+  "regra": "O teste é olhar como chegaram os primeiros 10–20 clientes não afiliados: se colocaram o cartão sem falar com ninguém, esse é seu DNA — invista em loops virais e motion quase B2C.",
+  "condicao": "Nem toda empresa precisa de time de vendas, mas o sequenciamento tem que ser honesto.",
+  "caso": "Se eles disseram \"pago US$ 5.000, mas resolve esse problema pra mim\", não é self-serve, e escolher PLG porque vendas parece \"icky\" leva ao fracasso.",
+  "etiqueta": "mecanismo",
+  "ancora": "putting credit card your dna"
+ },
+ {
+  "mestre": "Todd Jackson",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 171,
+  "regra": "Lição: entre na categoria que o cliente já procura e expanda a definição dela.",
+  "condicao": "",
+  "caso": "Um e-mail de uma linha de uma empresa de capital aberto — \"vocês são um CLM?\" — revelou uma categoria existente (contract lifecycle management) com orçamento já alocado e compradores já em busca.",
+  "etiqueta": "mecanismo",
+  "ancora": "positioning play existing category clm"
+ },
+ {
+  "mestre": "Annie Duke",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 177,
+  "regra": "Descoberta (brainstorm, forecast, estimativa, planejamento, orçamento) tem que ser feita de forma independente, antes, por escrito. Motivo mecânico: opinião dita em grupo estreita o espaço de respostas.",
+  "condicao": "",
+  "caso": "Se alguém sênior diz \"isso leva três meses\" e você pensava quatro semanas, você nunca mais vai dizer quatro semanas.",
+  "etiqueta": "mecanismo",
+  "ancora": "discover what people think before room"
+ },
+ {
+  "mestre": "Matt Dixon",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 183,
+  "regra": "Lição de GTM: promessa inflada destrói o business case interno; número conservador e defensável fecha.",
+  "condicao": "",
+  "caso": "me ajuda a chegar num número crível que eu consiga defender e bater",
+  "etiqueta": "mecanismo",
+  "ancora": "help me get grounded believable outcome"
+ },
+ {
+  "mestre": "Dalton Caldwell",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 173,
+  "regra": "Heurística para decidir parar: você ainda está se divertindo? Gosta de trabalhar com os cofundadores, do produto, dos clientes, do problema? Se sim, incline-se a continuar.",
+  "condicao": "",
+  "caso": "Quem vira o jogo tem em comum amar cliente e produto mesmo na fase ruim — os fundadores do Airbnb sabiam o nome dos primeiros hosts.",
+  "etiqueta": "crença",
+  "ancora": "still having fun enjoy doing"
+ },
+ {
+  "mestre": "Kim Scott",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 142,
+  "regra": "comece pedindo crítica, não dando. \"Você tem algum feedback para mim?\" é desperdício — a resposta será \"não, está tudo ótimo\". Pergunta que funciona: \"O que eu poderia fazer ou parar de fazer que tornaria mais fácil trabalhar comigo?\"",
+  "condicao": "Não copie a formulação de outra pessoa: se você soa como a Kim Scott e não como você, ninguém acredita que você quer a resposta.",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "elicit response question like ask"
+ },
+ {
+  "mestre": "Elena Verna",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 17,
+  "regra": "growth só pode ser discutido com product-market fit forte, definido por dois testes — (1) retenção comprovada, o que exige de 6 meses a quase 1 ano depois da oferta inicial para medir de verdade; (2) alguma capacidade demonstrada de adquirir e monetizar, green shoots de distribuição.",
+  "condicao": "",
+  "caso": "contratar growth para descobrir o modelo do zero é delegar a parte mais importante do negócio — o equivalente a contratar um PM e dizer \"não sei o que quero construir, construa\".",
+  "etiqueta": "mecanismo",
+  "ancora": "growth can only be discussed strong"
+ },
+ {
+  "mestre": "Adam Fishman",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 22,
+  "regra": "Consequência prática e contraintuitiva: use essa janela para inserir fricção deliberada e aprender muito sobre o usuário, porque ele vai derrubar portas para chegar ao produto.",
+  "condicao": "é o momento de maior motivação do usuário, porque ele chega dizendo \"preciso muito disso\"",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "friction in place learn knock doors"
+ },
+ {
+  "mestre": "Sarah Tavel",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 147,
+  "regra": "Meça usuários que completam a core action por coorte, na cadência certa (diária ou semanal).",
+  "condicao": "Critérios para escolher a ação: precisa escalar para usuários suficientes, e você deve simular o que acontece com o roadmap se otimizar para ela.",
+  "caso": "No início do Pinterest mediam follows, cliques, likes, pins, tempo no site — experimentos moviam métricas em direções opostas sem clareza do que otimizar.",
+  "etiqueta": "mecanismo",
+  "ancora": "users completing core action cohort"
+ },
+ {
+  "mestre": "Timothy Davis",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 196,
+  "regra": "Auditoria de agência ou de time interno: abra o change history — existe em Google e em Meta. Se há testes rodando para melhorar, você tem as pessoas certas; se não há mudanças, é indicação clara de espaço ocioso.",
+  "condicao": "",
+  "caso": "O próprio Google entrega as recomendações (adicionar headlines únicas, despinar assets, incluir mais keywords em headlines e descrições) e a maioria simplesmente não executa.",
+  "etiqueta": "mecanismo",
+  "ancora": "change history available every account"
+ },
+ {
+  "mestre": "Sean Ellis",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 204,
+  "regra": "Ordem de prioridade ao entrar numa empresa para crescer: 1) ativação/onboarding, 2) engajamento e referral, 3) modelo de receita, 4) só então aquisição em escala.",
+  "condicao": "Aquisição mínima entra antes apenas para gerar fluxo suficiente de teste — sem obsessão por escalabilidade.",
+  "caso": "Os mesmos canais que travavam em US$ 10 mil/mês passaram a escalar a US$ 1 milhão/mês com payback de três meses",
+  "etiqueta": "mecanismo",
+  "ancora": "sequence like start with activation"
+ },
+ {
+  "mestre": "Benjamin Lauzier",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 211,
+  "regra": "A regra é: se você não tem PMF e não tem estratégia de crescimento boa o suficiente para pelo menos um lado, ignore a camada de marketplace. Vá fundo em um lado só, ataque a troca de valor central e use uma muleta/hack para o outro lado temporariamente",
+  "condicao": "",
+  "caso": "Airbnb e Thumbtack usaram o Craigslist para dar partida.",
+  "etiqueta": "mecanismo",
+  "ancora": "rely on some crutch some hack"
+ },
+ {
+  "mestre": "Archie Abrams",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 224,
+  "regra": "O objetivo correto é número absoluto de ativados, não a taxa; trazer mais gente pela porta sempre machuca a conversão e frequentemente aumenta o total do outro lado.",
+  "condicao": "quando times são divididos por etapa da jornada, cada um adota sua taxa de conversão local como Northstar.",
+  "caso": "Na prática, a forma mais fácil de subir sua conversão é dificultar o passo imediatamente anterior — filtrar gente na entrada.",
+  "etiqueta": "mecanismo",
+  "ancora": "absolute number people made through"
+ },
+ {
+  "mestre": "Jen Abel",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 232,
+  "regra": "Fechamento da call: agende a segunda call ainda dentro da primeira, dentro dos 30 minutos. Abra os calendários juntos, pergunte quem mais deveria ser convidado.",
+  "condicao": "",
+  "caso": "Se a resposta for \"eu te mando um e-mail\", nove em cada dez vezes significa \"não tenho coragem de dizer que não tenho interesse\" — é indicador antecipado, não logística.",
+  "etiqueta": "mecanismo",
+  "ancora": "second call booked first call"
+ },
+ {
+  "mestre": "Jackson Shuttleworth",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 238,
+  "regra": "Regra prática derivada: dê mais flexibilidade no início do streak e menos quando ele já é longo.",
+  "condicao": "",
+  "caso": "Com streak de 1 a 3 dias é trivial deixar morrer e recomeçar; os dados mostram que o hábito só trava por volta de 7 dias.",
+  "etiqueta": "mecanismo",
+  "ancora": "give more flexibility user starting"
+ },
+ {
+  "mestre": "Alisa Cohn",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 243,
+  "regra": "Lei central: seu trabalho como líder não é deixar as pessoas felizes. A cadeia operacional é expectativas claras → cada um entende o impacto do próprio papel → marcos atingidos juntos → celebrar a vitória → repetir.",
+  "condicao": "",
+  "caso": "Trabalhe de trás pra frente: se a gente ganha, as pessoas ficam felizes.",
+  "etiqueta": "mecanismo",
+  "ancora": "working backwards from if we win"
+ },
+ {
+  "mestre": "Elena Verna",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 248,
+  "regra": "A primeira onda de crescimento tem que ser founder-led: fundador e time fundador levam a empresa até o primeiro US$ 1M, 5M ou 10M de ARR.",
+  "condicao": "Dois pré-requisitos antes de montar o time: (a) PMF sólido — solução para um problema, com clientes entrando e retendo",
+  "caso": "Algumas empresas só criam time de growth entre US$ 100M e 200M de ARR.",
+  "etiqueta": "mecanismo",
+  "ancora": "first wave of growth founder led"
+ },
+ {
+  "mestre": "Madhavan Ramanujam",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 290,
+  "regra": "Se você entrega valor grande e treina o cliente a esperar $20/mês, você se ancorou num ponto baixo — e a única saída conhecida é empilhar SKUs mais sofisticados e muito mais caros por cima, o que é caro e lento.",
+  "condicao": "O risco específico de IA é subprecificar porque o time ainda raciocina como SaaS",
+  "caso": "Sobre as startups de IDE populares: parte delas subprecificou e vai sentir",
+  "etiqueta": "mecanismo",
+  "ancora": "anchored yourself low price point"
+ },
+ {
+  "mestre": "Roger Martin",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 195,
+  "regra": "A razão boa é enunciada em benefício do cliente: clientes que amam o que fazemos, mas acham estreito demais; ampliar deixaria esses clientes muito satisfeitos.",
+  "condicao": "Justificativa de entrada em mercado adjacente",
+  "caso": "\"há um mercado grande ali, queremos uma fatia\" é razão péssima — é o mesmo raciocínio de empresas estrangeiras que se estrepam na China.",
+  "etiqueta": "mecanismo",
+  "ancora": "big market over there terrible reason"
+ },
+ {
+  "mestre": "Michael Margolis",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 233,
+  "regra": "Regra prática sobre critérios: eles precisam ser concretos e mensuráveis, porque viram um questionário de triagem. \"Comprador ativo\" não serve. Traduza para algo como \"compra este tipo específico de item três vezes por semana\".",
+  "condicao": "Bullseye customer é o subconjunto muito específico do mercado-alvo com maior probabilidade de adotar seu produto no início",
+  "caso": "",
+  "etiqueta": "mecanismo",
+  "ancora": "very concrete and very measurable"
+ },
+ {
+  "mestre": "Rahul Vohra",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 261,
+  "regra": "Para decisões importantes, você tem que conseguir isolar uma razão que sustente a decisão sozinha. O vício que ela ataca: justificar decisão com coleção de razões fracas.",
+  "condicao": "",
+  "caso": "A pergunta que Rahul faz quando alguém traz uma decisão com X, Y e Z: \"qual é o SDR? Se só uma dessas fosse verdadeira e as outras não, você ainda faria?\"",
+  "etiqueta": "mecanismo",
+  "ancora": "thinking tool picked up reed hoffman"
+ },
+ {
+  "mestre": "Ryan Singer",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 263,
+  "regra": "Em vez de pegar um conceito grande e perguntar \"qual a estimativa disso?\", inverte-se a pergunta — qual é o tempo máximo que o negócio está disposto a gastar antes de terminar algo?",
+  "condicao": "o método pressupõe que o projeto seja viável com a tecnologia existente — sem inventar algoritmo novo, banco novo ou modelo de IA novo",
+  "caso": "Apetite substitui prazo; a variável de ajuste é o escopo, não a data.",
+  "etiqueta": "mecanismo",
+  "ancora": "what is our appetite for this"
+ },
+ {
+  "mestre": "Nesrine Changuel",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 306,
+  "regra": "Familiaridade importa porque dizemos amar surpresa, mas não queremos ser muito surpreendidos.",
+  "condicao": "",
+  "caso": "Corrigiram o bug e todas as métricas de sucesso caíram. Perceberam que o que o usuário amava não era a novidade total, era a familiaridade injetada.",
+  "etiqueta": "mecanismo",
+  "ancora": "engineers fixed the bug"
+ },
+ {
+  "mestre": "Albert Cheng",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 307,
+  "regra": "Regra transferível: quando o plano free esconde as capacidades caras, o usuário nunca forma o desejo que justifica o upgrade; dê amostras distribuídas dentro do fluxo real de uso, não em uma paywall isolada.",
+  "condicao": "",
+  "caso": "A intervenção foi amostrar sugestões pagas e intercalá-las ao longo do texto do usuário free — de repente o produto era percebido como muito mais poderoso.",
+  "etiqueta": "mecanismo",
+  "ancora": "flip that on its head entirely"
+ },
+ {
+  "mestre": "Jason Cohen",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 332,
+  "regra": "acompanhe também a retenção bruta, que só cai (não tem upgrade) e mantém você honesto sobre o que acontece em cada coorte.",
+  "condicao": "Se o NRR é positivo mas a base de clientes encolhe rápido demais, não sobra gente para dar upgrade",
+  "caso": "cair 20% e depois subir 20% te leva a 96, não a 100",
+  "etiqueta": "mecanismo",
+  "ancora": "keeps you honest really going on customer cohorts",
+  "conta": {
+   "expressao": "100 * (1 - 20/100) * (1 + 20/100)",
+   "afirma": 96
+  }
+ },
+ {
+  "mestre": "Jacob Warwick",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 343,
+  "regra": "Nunca negocie por canal escrito. E-mail é o caminho mais fácil e o pior: você não controla o tom.",
+  "condicao": "",
+  "caso": "A mesma frase de pushback lida por um CEO irritado na fila do raio-X do aeroporto vira \"esse sujeito quer mais dinheiro\".",
+  "etiqueta": "mecanismo",
+  "ancora": "my negotiation problem control tone"
+ },
+ {
+  "mestre": "Adam Ward",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 366,
+  "regra": "work samples são o maior preditor de sucesso, e ainda assim a maioria das empresas gasta o tempo em entrevistas 1:1 do outro lado da mesa. O modelo é on-site longo, com projeto real e trabalho lado a lado.",
+  "condicao": "Se talento é a prioridade nº 1, o custo em tempo é investimento correto",
+  "caso": "Quando removeram o work trial por causa da carga operacional, o sinal despencou e tiveram de trazê-lo de volta.",
+  "etiqueta": "mecanismo",
+  "ancora": "work samples highest predictor success"
+ },
+ {
+  "mestre": "Kevin Yien",
+  "dossie": "lenny-podcast-videos.md",
+  "secao": 200,
+  "regra": "Product sense é só um nome bonito para tomar boas decisões com dados insuficientes. Treina-se com repetições: decidir, documentar o racional e — o passo que quase todo mundo pula — voltar para ver o resultado.",
+  "condicao": "",
+  "caso": "Formato mínimo do decision log: um Google Doc ou página no Notion chamado \"daily log\"; bullet com a data",
+  "etiqueta": "mecanismo",
+  "ancora": "product sense super mystical thing"
+ }
+]

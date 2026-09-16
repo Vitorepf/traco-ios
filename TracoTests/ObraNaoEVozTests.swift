@@ -52,12 +52,12 @@ struct ObraNaoEVozTests {
     // MARK: a importação
 
     @Test func dossieSemCabecalhoEntraComoObra() {
-        #expect(Corpus.importar(Self.dossie).map(\.origem) == [.obra])
+        #expect(Corpus.importar(Self.dossie).map(\.origem) == [.obraSuposta])
         // cada sinal sozinho basta
-        #expect(Corpus.importar("## 12. Uma seção numerada\n\ntexto").map(\.origem) == [.obra])
-        #expect(Corpus.importar("Sell Anywhere\nhttps://www.youtube.com/watch?v=aiS5qH7UMX4\n\nregra").map(\.origem) == [.obra])
-        #expect(Corpus.importar("### 3. Terceira seção\n\ntexto").map(\.origem) == [.obra])
-        #expect(Corpus.importar(String(repeating: "palavra ", count: 2_600)).map(\.origem) == [.obra])
+        #expect(Corpus.importar("## 12. Uma seção numerada\n\ntexto").map(\.origem) == [.obraSuposta])
+        #expect(Corpus.importar("Sell Anywhere\nhttps://www.youtube.com/watch?v=aiS5qH7UMX4\n\nregra").map(\.origem) == [.obraSuposta])
+        #expect(Corpus.importar("### 3. Terceira seção\n\ntexto").map(\.origem) == [.obraSuposta])
+        #expect(Corpus.importar(String(repeating: "palavra ", count: 2_600)).map(\.origem) == [.obraSuposta])
         // a anotação curta, sem link nem seção numerada, continua do autor
         #expect(Corpus.importar("Hoje decidi correr antes do trabalho.").map(\.origem) == [.autor])
         #expect(Corpus.importar("## Lições\n\nfalar menos").map(\.origem) == [.autor])
@@ -67,13 +67,13 @@ struct ObraNaoEVozTests {
 
     @Test func origemQueOAppNaoConheceNaoViraAutor() {
         let md = "---\ncriada: 2026-09-16T10:00:00Z\norigem: mestre\n---\n\nregra do mestre\n"
-        #expect(Corpus.importar(md).map(\.origem) == [.obra])
+        #expect(Corpus.importar(md).map(\.origem) == [.obraSuposta])
         let semOrigem = "---\ncriada: 2026-09-16T10:00:00Z\n---\n\nminha frase\n"
         #expect(Corpus.importar(semOrigem).map(\.origem) == [.autor])
 
         let n = Nota(texto: "regra do mestre")
         n.origemRaw = "mestre"
-        #expect(n.origem == .obra)
+        #expect(n.origem == .obraSuposta)
         #expect(n.vozDoAutor.isEmpty)
         #expect(n.textoDeQualquerOrigem.contains("regra do mestre"))
         n.origemRaw = ""
@@ -166,7 +166,7 @@ struct ObraNaoEVozTests {
             Sessao().recolherEntrada(no: c.mainContext)
 
             let todas = try c.mainContext.fetch(FetchDescriptor<Nota>())
-            let obras = todas.filter { $0.origem == .obra }
+            let obras = todas.filter { $0.origem.eObra }
             #expect(todas.count == 5 && obras.count == 1, "o dossiê entra, e entra como obra")
             #expect(obras.first?.textoDeQualquerOrigem.contains("Hormozi") == true, "e continua encontrável")
             let depois = try ler(c.mainContext, agora: agora)

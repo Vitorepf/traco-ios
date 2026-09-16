@@ -13,6 +13,11 @@ enum NotasFiltro {
                          dominio: Dominio? = nil) -> [Nota] {
         notas.filter { nota in
             if filtro == .trancadas { return nota.trancada }
+            // ADR 2026-09-16b: obra DECLARADA (`origem: obra`, a biblioteca dos
+            // mestres) é consulta da sábia, não página do caderno — não enche a
+            // lista nem a busca. A que o app deduziu fica à vista com «parece
+            // obra»: pode ser a nota dele, e só na lista ele a vê e apaga.
+            if nota.origem == .obra { return false }
             if nota.trancada { return busca.isEmpty && filtro == nil && dominio == nil }
             // Série em voo grava a página vazia para o kill não a perder.
             // O arquivo é o que o autor escreveu — sem voz, não é nota.

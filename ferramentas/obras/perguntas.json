@@ -1,0 +1,142 @@
+[
+ {
+  "pergunta": "os clientes estão cancelando depois de uns dois meses e meu sócio acha que a mensalidade tá cara. tô pensando em baixar o preço pra segurar eles, faz sentido?",
+  "arquivo": "hormozi.md",
+  "secao": 1,
+  "porque": "Baixar preço para conter cancelamento não resolve; sobe-se valor.",
+  "video": "https://www.youtube.com/watch?v=BZQtuK-ucDM"
+ },
+ {
+  "pergunta": "cliente disse que tá sem dinheiro agora, como respondo?",
+  "arquivo": "hormozi.md",
+  "secao": 4,
+  "porque": "Trata a objeção de falta de dinheiro perguntando quando a pessoa recebe.",
+  "video": "https://www.youtube.com/watch?v=Ul87yrDKZ78"
+ },
+ {
+  "pergunta": "vou contratar meu primeiro vendedor e tenho medo de pegar alguém que não aceita correção. como testo isso na entrevista antes de fechar?",
+  "arquivo": "hormozi.md",
+  "secao": 6,
+  "porque": "Teste de coachabilidade com simulação e segunda tentativa na entrevista.",
+  "video": "https://www.youtube.com/watch?v=2lA_A8BGRRs"
+ },
+ {
+  "pergunta": "pedi pro gerente novo me mandar um relatório toda sexta e semanas depois ele nunca tinha mandado. a culpa é dele ou minha?",
+  "arquivo": "hormozi.md",
+  "secao": 7,
+  "porque": "Expectativa precisa ser comunicada, repetida e documentada.",
+  "video": "https://www.youtube.com/watch?v=IMowPVgcWbA"
+ },
+ {
+  "pergunta": "como calculo quanto me custa cada cliente novo?",
+  "arquivo": "hormozi.md",
+  "secao": 17,
+  "porque": "Dá a conta do CAC: tudo gasto em aquisição dividido pelos clientes.",
+  "video": "https://www.youtube.com/watch?v=jzKpAtzKQ54"
+ },
+ {
+  "pergunta": "tenho mais gente querendo contratar do que consigo atender, tô trabalhando o dia inteiro e o faturamento não sobe. devo investir mais em anúncio?",
+  "arquivo": "hormozi.md",
+  "secao": 23,
+  "porque": "Triagem entre gargalo de demanda e de oferta antes de qualquer tática.",
+  "video": "https://www.youtube.com/watch?v=sGv2BTUCcCM"
+ },
+ {
+  "pergunta": "tenho uns dez objetivos pro ano que vem, qual escolher?",
+  "arquivo": "hormozi.md",
+  "secao": 24,
+  "porque": "Pede a única coisa que, verdadeira em 12 meses, mudaria tudo.",
+  "video": "https://www.youtube.com/watch?v=-JLN1d1ZKUU"
+ },
+ {
+  "pergunta": "como saber se um cliente vai cancelar antes dele cancelar?",
+  "arquivo": "hormozi.md",
+  "secao": 28,
+  "porque": "Medir uso, porque o cancelamento é indicador atrasado.",
+  "video": "https://www.youtube.com/watch?v=sPkMHh8zTMI"
+ },
+ {
+  "pergunta": "só pedi orçamento pra uma agência de marketing, fecho logo com ela?",
+  "arquivo": "hormozi.md",
+  "secao": 29,
+  "porque": "Construir alternativas antes de negociar e só aceitar o que supera a melhor delas.",
+  "video": "https://www.youtube.com/watch?v=Jc2UW3nlNBA"
+ },
+ {
+  "pergunta": "o processo de vendas funciona bem, mas meu sócio quer trocar tudo por um método novo que ele acha melhor. quanto de melhora precisa prometer pra valer a mudança?",
+  "arquivo": "hormozi.md",
+  "secao": 34,
+  "porque": "Só mudar com ganho ajustado ao risco alto, pois toda mudança derruba a performance antes.",
+  "video": "https://www.youtube.com/watch?v=hfwZwPGsbIo"
+ },
+ {
+  "pergunta": "vale a pena fazer teste A/B de toda mudança no app?",
+  "arquivo": "lenny.md",
+  "secao": 4,
+  "porque": "Só dois motivos legítimos para rodar A/B test; fora disso não experimente.",
+  "video": "https://www.youtube.com/watch?v=dLku0AiGPVA"
+ },
+ {
+  "pergunta": "não sei se contrato vendedor ou se deixo as pessoas assinarem sozinhas pelo site. os primeiros clientes chegaram de jeitos bem diferentes, como decido?",
+  "arquivo": "lenny.md",
+  "secao": 12,
+  "porque": "Olhar como chegaram os primeiros clientes decide entre self-serve e vendas.",
+  "video": "https://www.youtube.com/watch?v=eMe_FWldQF0"
+ },
+ {
+  "pergunta": "dois anos sem tração, tô pensando em desistir da empresa. como decido?",
+  "arquivo": "lenny.md",
+  "secao": 16,
+  "porque": "Heurística para decidir parar ou continuar.",
+  "video": "https://www.youtube.com/watch?v=m7LvNTbaqSI"
+ },
+ {
+  "pergunta": "meu time nunca me critica, como faço eles falarem o que eu faço de errado?",
+  "arquivo": "lenny.md",
+  "secao": 17,
+  "porque": "Pedir crítica com uma pergunta que funciona, antes de dar.",
+  "video": "https://www.youtube.com/watch?v=V7tnbx-6Ayc"
+ },
+ {
+  "pergunta": "quero colocar dinheiro em crescimento agora, mas o app só tem três meses de usuários. já dá pra saber se o produto encaixou no mercado?",
+  "arquivo": "lenny.md",
+  "secao": 18,
+  "porque": "Growth só com PMF forte, que exige retenção medida por 6 meses a 1 ano.",
+  "video": "https://www.youtube.com/watch?v=UTmFuSZfJ9U"
+ },
+ {
+  "pergunta": "tô criando uma contagem de dias seguidos de escrita no app. se a pessoa falha um dia, perdoo ou zero a contagem?",
+  "arquivo": "lenny.md",
+  "secao": 26,
+  "porque": "Mais flexibilidade no começo da sequência e menos quando ela é longa.",
+  "video": "https://www.youtube.com/watch?v=_CCwoQZH5hI"
+ },
+ {
+  "pergunta": "meu app tem IA e pensei em cobrar baratinho por mês pra ganhar mercado rápido, é um erro?",
+  "arquivo": "lenny.md",
+  "secao": 29,
+  "porque": "Subprecificar produto de IA ancora o cliente num ponto baixo difícil de sair.",
+  "video": "https://www.youtube.com/watch?v=NR85H55eYkM"
+ },
+ {
+  "pergunta": "vou negociar contrato com um cliente grande, posso fazer por email?",
+  "arquivo": "lenny.md",
+  "secao": 37,
+  "porque": "Nunca negociar por canal escrito, pois não se controla o tom.",
+  "video": "https://www.youtube.com/watch?v=pEis2CBomVA"
+ },
+ {
+  "pergunta": "as entrevistas de conversa não me mostram se o programador é bom mesmo. qual jeito melhor de avaliar antes de contratar?",
+  "arquivo": "lenny.md",
+  "secao": 38,
+  "porque": "Trabalho real lado a lado prediz sucesso melhor que entrevista.",
+  "video": "https://www.youtube.com/watch?v=zegYJ6dhIg4"
+ },
+ {
+  "pergunta": "como fico melhor em decidir quando não tenho dados?",
+  "arquivo": "lenny.md",
+  "secao": 39,
+  "porque": "Treinar decisão com poucos dados registrando o racional e voltando ao resultado.",
+  "video": "https://www.youtube.com/watch?v=xOTO98MXG9o"
+ }
+]

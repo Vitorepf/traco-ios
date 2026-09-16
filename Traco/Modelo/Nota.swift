@@ -4,9 +4,15 @@ import SwiftData
 /// Quem escreveu o texto (ADR 2026-09-08u). O padrão é o autor; qualquer outra
 /// origem é o bot falando, e o app diz isso na tela, mantém a nota fora do
 /// Retrato e nunca a conta como voz do autor. `obra` (ADR 2026-09-16a) é texto
-/// de um mestre — dossiê, livro, transcrição: consulta, nunca voz.
+/// de um mestre — dossiê, livro, transcrição: consulta, nunca voz. `obraSuposta`
+/// (16b) é a que o app DEDUZIU (arquivo sem cabeçalho, origem desconhecida):
+/// fora da voz igual, mas à vista na lista — pode ser a nota dele.
 nonisolated enum OrigemNota: String, Sendable, CaseIterable {
     case autor, grokbot, pesquisa, obra
+    case obraSuposta = "obra-suposta"
+
+    /// Texto de mestre, declarado ou deduzido: consulta-se por seção.
+    var eObra: Bool { self == .obra || self == .obraSuposta }
 
     /// A palavra que aparece na etiqueta. Diz o essencial: não é voz do autor.
     var etiqueta: String? {
@@ -15,6 +21,7 @@ nonisolated enum OrigemNota: String, Sendable, CaseIterable {
         case .grokbot: "feito pelo bot"
         case .pesquisa: "pesquisa do bot"
         case .obra: "obra"
+        case .obraSuposta: "parece obra"
         }
     }
 }
@@ -94,7 +101,7 @@ final class Nota {
     var origem: OrigemNota {
         // vazio é o autor (toda nota anterior à 08u); um valor que esta versão
         // não conhece NÃO é: cai em obra, fora da voz (ADR 2026-09-16a)
-        get { origemRaw.isEmpty ? .autor : OrigemNota(rawValue: origemRaw) ?? .obra }
+        get { origemRaw.isEmpty ? .autor : OrigemNota(rawValue: origemRaw) ?? .obraSuposta }
         set { origemRaw = newValue == .autor ? "" : newValue.rawValue }
     }
 
