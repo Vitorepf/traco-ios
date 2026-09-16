@@ -382,7 +382,8 @@ struct CalendarioView: View {
                         .padding(.horizontal, 10)
                         .frame(height: 32)
                         .background(CalendarioTema.chipActivo, in: Capsule())
-                        .frame(height: Tema.alvo)
+                        // 32 como as letras do trilho: com 44 o campo crescia 12 para
+                        // cima quando o Hoje aparecia (medido 16/09)
                         .contentShape(Capsule())
                 }
                 .buttonStyle(PressaoClara())
