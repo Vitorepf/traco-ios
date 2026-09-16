@@ -28,14 +28,14 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 - [~] Calendário: D/S/M/A x D S T Q Q S S (36, dono mantém); [x] "Marcar" encolhe a ~60 pt com Hoje e corta o texto ao digitar (42, 49); lista sem data e com "A" marcado (40, 45).
 - [x] Compromisso: ✕/Pronto rolam e somem; cabeçalhos 4 pt dentro; "Repete: não repete" sem sinal (43, 47); apagar sem confirmar (48) — 32bb58ac.
 - [x] Padrões/Perfil: "soltas"/"sem forma"/"Decisão" com números diferentes (51, 64) — «4 decisões», 32bb58ac; [ ] cartão da pergunta com margem 11 e "‹ Notas" que leva a Padrões (53, 54).
-- [x] Perfil: "Quem responde" mostra a lista interna de defeitos (58, 59); jargão de motor na Conta e Avisos (57, 64); "Sair da conta" destrutivo com confirmação (57); "Um JSON com id…" (61); subtítulos cortados (64, 66); «devido» e «.md» — 32bb58ac. [ ] hipóteses 2 x 4 (63).
+- [x] Perfil: "Quem responde" mostra a lista interna de defeitos (58, 59); jargão de motor na Conta e Avisos (57, 64); "Sair da conta" destrutivo com confirmação (57); "Um JSON com id…" (61); subtítulos cortados (64, 66); «devido» e «.md» — 32bb58ac. [x] hipóteses 2 x 4 (63).
 
 ## BAIXA
-- [ ] Sombra do Dock escondido; "voltas a conferir" x "Hora de conferir" (01).
+- [x] Sombra do Dock escondido (era o fio da régua vazia); "voltas a conferir" x "Hora de conferir" (01).
 - [x] Lente: "FRASES DE OUTRO", ícone de nuvem, divisórias desiguais (07). Três estilos de "Pronto" (07, 16, 43, 62) — 32bb58ac.
 - [x] Notas: títulos com ponto final, prévias em minúscula (e começando por «.»), cabeçalhos 4 pt dentro — 32bb58ac. [x] toque longo em "Hora de conferir" abre em vez de menu (12, 14, 68, 70).
 - [x] Compartilhar exporta tudo sem dizer (31) — rótulo de acessibilidade, 32bb58ac.
 - [x] Conversa: "· obra" órfão; placeholder muda 3 vezes; topo sem fundo ao rolar — 32bb58ac. [x] abrir fontes empurra ações para baixo do campo; "leu 1 nota sua e 2 obras" confere com a lista (21–28, 73).
 - [x] Decisão: sublinhado âmbar em campo sem foco (33) — 32bb58ac.
 - [x] Calendário: grade do dia para em 23:00 (32bb58ac); [x] cápsula sem domínio sumia na semana (f5378c4f); [ ] faixas no gradiente da lista; semana do ano em azul (36, 37, 39, 40).
-- [x] Padrões: aspas retas, ícone de lápis repetido, minúsculas (51, 52) — 32bb58ac. [ ] Perfil: vãos de 80 pt entre seções recolhidas, divisórias desiguais (60, 65). Métodos: "Expressiva" sem seta (62).
+- [x] Padrões: aspas retas, ícone de lápis repetido, minúsculas (51, 52) — 32bb58ac. [ ] Perfil: vãos de 80 pt entre seções recolhidas, divisórias desiguais (60, 65). Métodos: "Expressiva" sem seta (62) — de propósito: não tem campos para abrir.
