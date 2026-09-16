@@ -11,7 +11,8 @@ import SwiftUI
 /// vez — quem disse, o que disse, quando vale, e onde ouvir.
 struct CartaoDoConselhoView: View {
     let voz: Conselho.Cartao.Voz
-    let fechar: () -> Void
+    /// Nil na leitura da obra: a capa está numa lista, não sobre a página.
+    let fechar: (() -> Void)?
     /// O que sobra de altura acima do pé: além disso, a regra rola dentro da capa.
     var teto: CGFloat = .infinity
     /// O título da decisão que chamou o conselho — por que ele apareceu.
@@ -46,6 +47,7 @@ struct CartaoDoConselhoView: View {
                     .foregroundStyle(Color(hex: 0xD9A542))
                     .lineLimit(1)
                 Spacer(minLength: 8)
+                if let fechar {
                 Button(action: fechar) {
                     Image(systemName: "xmark")
                         .font(.footnote.weight(.bold))
@@ -59,7 +61,9 @@ struct CartaoDoConselhoView: View {
                 .padding(.trailing, -8)
                 .accessibilityLabel("Fechar o conselho")
                 .accessibilityIdentifier("fechar-conselho")
+                }
             }
+            .frame(minHeight: 44)
             .padding(.bottom, -8)
 
             // `verbatim`: texto de obra não é markdown nem instrução

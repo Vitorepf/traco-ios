@@ -14,6 +14,7 @@ struct CalendarioView: View {
     @Query(filter: #Predicate<Nota> { $0.gatilhoEm != nil && !$0.trancada && !$0.queimada })
     private var notasComDeixa: [Nota]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.tecladoAberto) private var tecladoAberto
     @Namespace private var morph
     /// 32pt bold com tracking −0,6, escalando com o texto do sistema.
     @ScaledMetric(relativeTo: .largeTitle) private var tamTitulo: CGFloat = 32
@@ -290,7 +291,7 @@ struct CalendarioView: View {
         campoProsa(agora: agora)
         .frame(width: Tema.larguraDoPe)
             .frame(maxWidth: .infinity)
-        .padding(.bottom, Tema.doca - 14)   // 1u até o Dock, a folga da grade
+        .padding(.bottom, tecladoAberto ? 8 : Tema.doca - 14)   // 1u até o Dock; com teclado, 8 acima dele (dono, 16/09: o campo entrava no teclado)
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 

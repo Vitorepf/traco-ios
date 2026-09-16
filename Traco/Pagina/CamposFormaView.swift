@@ -46,6 +46,8 @@ struct CamposFormaView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("forma-\(gesto.rawValue)")
+        // a Página esconde o pé enquanto um campo da forma é escrito
+        .preference(key: CampoDaFormaEmFoco.self, value: campoFocado != nil)
     }
 
     /// ADR 04k — a linha DEPOIS DISTO: um botão por encadeamento, aceso quando
@@ -170,4 +172,12 @@ private struct LinhaCampo: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 12)
     }
+}
+
+/// Algum campo da forma está sendo escrito. Auditoria 16/09 noite: o último
+/// campo crescia atrás da barra "Fale com o Traço" e o cursor sumia — com o
+/// campo em foco a barra sai, como no Journal, e o papel ganha a altura dela.
+struct CampoDaFormaEmFoco: PreferenceKey {
+    static let defaultValue = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) { value = value || nextValue() }
 }

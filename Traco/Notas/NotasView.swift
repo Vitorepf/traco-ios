@@ -7,6 +7,7 @@ struct NotasView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var faseDaCena
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.tecladoAberto) private var tecladoAberto
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @Query private var trabalhos: [Trabalho]
@@ -38,6 +39,14 @@ struct NotasView: View {
     /// A altura visível da conversa: o último bloco ocupa ao menos isso, para
     /// a pergunta enviada poder subir ao topo mesmo com resposta curta.
     @State private var alturaDaConversa: CGFloat = 0
+    @State private var obraEmLeitura: ObraEmLeitura?
+
+    struct ObraEmLeitura: Identifiable {
+        let id = UUID()
+        let titulo: String
+        let texto: String
+        let citadas: [String]
+    }
     @FocusState private var perguntaFocada: Bool
 
     var body: some View {
@@ -177,6 +186,14 @@ struct NotasView: View {
     /// mesmas guardas. A conversa fica na sessão (ADR 09c) e está aqui na volta.
     private func abrirFonte(_ id: UUID) {
         guard let nota = notas.first(where: { $0.uuid == id }) else { return }
+        // a obra se LÊ numa folha (as regras citadas em capas), não se abre no
+        // editor: abrir no editor a salvava e recolhia a resposta (auditoria 16/09)
+        if nota.origem.eObra {
+            let referencia = conversa.last.map { RespostaDaSabia.separar($0.resposta).referencia ?? "" } ?? ""
+            obraEmLeitura = .init(titulo: nota.tituloNaLista, texto: nota.texto,
+                                  citadas: ReferenciasDaResposta.itens(referencia).compactMap { $0.link?.absoluteString })
+            return
+        }
         abrirDaLista(nota)
     }
 
@@ -306,6 +323,10 @@ struct NotasView: View {
         linhaDaPergunta
             .padding(.horizontal, Tema.margem)
             .padding(.top, 8)
+            .padding(.bottom, tecladoAberto ? 8 : 0)
+        }
+        .sheet(item: $obraEmLeitura) { obra in
+            LeituraDaObra(titulo: obra.titulo, texto: obra.texto, citadas: obra.citadas)
         }
         .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
     }
@@ -402,7 +423,8 @@ struct NotasView: View {
                 conversaNotas.perguntando = true
                 perguntaFocada = true
             } label: {
-                Image(systemName: "square.and.pencil")
+                // não o lápis: ele é "nova nota" no Dock, na mesma tela
+                Image(systemName: "plus.bubble")
                     .font(.body.weight(.medium))
                     .foregroundStyle(Tema.tinta)
                     .frame(width: 44, height: 44)
@@ -664,7 +686,7 @@ struct NotasView: View {
             // pontas do campo alinham com as pontas da fileira de baixo
             .frame(width: Tema.larguraDoPe)
             .frame(maxWidth: .infinity)
-            .padding(.bottom, Tema.doca - 14)   // 1u até o Dock, a folga da grade
+            .padding(.bottom, tecladoAberto ? 8 : Tema.doca - 14)   // 1u até o Dock; com teclado, 8 acima dele (dono, 16/09: o campo entrava no teclado)
             .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
             .onDisappear { ditado.parar() }
     }
@@ -823,6 +845,11 @@ struct NotasView: View {
                                   sessao.novaPagina()
                                   sessao.mostrarNotas = false
                               }
+                              // uma pergunta digitada que não casa com nota nenhuma
+                              // é pergunta, não busca vazia (auditoria 16/09)
+                              : !busca.isEmpty && filtro == nil && filtroDominio == nil
+                                && Politica.provedor(.responderNasNotas) != nil
+                              ? .init("Perguntar às suas notas", id: "perguntar-da-busca") { perguntarDaBusca() }
                               : .init("ver todas as notas", id: "limpar-busca") {
                                   busca = ""
                                   filtro = nil

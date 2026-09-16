@@ -23,6 +23,7 @@ struct PaginaView: View {
     /// pé por ~100 ms, sem e com Reduzir Movimento (G4 final da V12, A1; ADR
     /// 08f, V12-E). Sem encaixe, a única superfície naquela faixa é o papel.
     @State private var folhaEmCena = false
+    @State private var campoDaFormaEmFoco = false
     @State private var trabalhoAberto: Trabalho?
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
@@ -498,7 +499,7 @@ struct PaginaView: View {
         CadernoView(
             // o pé é voz + pergunta + "+": a página em branco é a hora de ditar
             // (dono, 14/09: "microfone nas notas, sempre à mão"); só a folha o cobre
-            rodape: folhaEmCena ? nil : AnyView(bottomBar),
+            rodape: folhaEmCena || campoDaFormaEmFoco ? nil : AnyView(bottomBar),
             abaixo: camposAbaixo,
             acima: folhaEmCena ? nil : AnyView(acimaDoPe),
             esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
@@ -524,6 +525,7 @@ struct PaginaView: View {
         }
         .frame(maxWidth: 680)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onPreferenceChange(CampoDaFormaEmFoco.self) { emFoco in campoDaFormaEmFoco = emFoco }
     }
 
     /// Só o que pode ser ligado: o selo vale aqui como vale na rede (ADR 03b),

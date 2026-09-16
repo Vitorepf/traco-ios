@@ -80,12 +80,7 @@ struct RespostaDaSabia: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if mostrarReferencia, let referencia = partes.referencia, !referencia.isEmpty {
-                Text("De " + referencia)
-                    .font(.subheadline)
-                    .lineSpacing(2)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .tint(Tema.tintaSuave)
-                    .fixedSize(horizontal: false, vertical: true)
+                ReferenciasDaResposta(referencia: referencia)
             }
         }
         .textSelection(.enabled)
@@ -189,7 +184,8 @@ struct FontesDaResposta: View {
                                     .font(.subheadline)
                                     .foregroundStyle(Tema.tintaFraca)
                                     .frame(width: 20)
-                                Text(fonte.titulo)
+                                // o ícone já diz que é obra: o sufixo " · obra" do título sai
+                                Text(fonte.titulo.replacingOccurrences(of: " · obra", with: ""))
                                     .font(.subheadline.weight(.medium))
                                     .foregroundStyle(Tema.tinta)
                                     .multilineTextAlignment(.leading)
@@ -312,5 +308,129 @@ struct AberturaDaConversa: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// O rodapé "Referência:" lido como objetos (auditoria 16/09 noite: três URLs
+/// cruas do YouTube num parágrafo de 9 linhas). Cada regra de mestre vira uma
+/// cápsula tocável — ▶ minuto · “vídeo” —; nota do autor fica como título curto.
+struct ReferenciasDaResposta: View {
+    let referencia: String
+
+    struct Item: Equatable {
+        var mestre: String?
+        var video: String?
+        var minuto: String?
+        var link: URL?
+        var texto: String
+    }
+
+    /// "Mestre, “Vídeo”, minuto 7:20 — https://…" (`Obra.referencia`), separados por "; ".
+    static func itens(_ referencia: String) -> [Item] {
+        referencia.components(separatedBy: "; ").compactMap { bruto in
+            let item = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !item.isEmpty else { return nil }
+            let padrao = #"^(?:(.+?), )?“(.+?)”(?:, minuto (\S+))?(?: — (https://\S+))?$"#
+            guard let r = try? NSRegularExpression(pattern: padrao),
+                  let m = r.firstMatch(in: item, range: NSRange(item.startIndex..., in: item)) else {
+                return Item(texto: item)
+            }
+            func grupo(_ i: Int) -> String? {
+                Range(m.range(at: i), in: item).map { String(item[$0]) }
+            }
+            let link = grupo(4).flatMap(Obra.link)
+            return Item(mestre: grupo(1), video: grupo(2), minuto: grupo(3), link: link, texto: item)
+        }
+    }
+
+    var body: some View {
+        let itens = Self.itens(referencia)
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(Array(itens.enumerated()), id: \.offset) { _, item in
+                if item.minuto != nil || item.link != nil {
+                    capsula(item)
+                } else {
+                    Text(verbatim: "De " + item.texto)
+                        .font(.subheadline)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .lineLimit(2)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func capsula(_ item: Item) -> some View {
+        let corpo = HStack(spacing: 8) {
+            Image(systemName: item.link == nil ? "quote.opening" : "play.fill")
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 22, height: 22)
+                .background(Tema.chipAtivo, in: Circle())
+                .accessibilityHidden(true)
+            if let minuto = item.minuto {
+                Text(verbatim: minuto)
+                    .font(.footnote.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Tema.tinta)
+                    .fixedSize()
+            }
+            Text(verbatim: [item.mestre, item.video.map { "“\($0)”" }].compactMap { $0 }.joined(separator: " · "))
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaSuave)
+                .lineLimit(1)
+        }
+        .padding(.leading, 5)
+        .padding(.trailing, 12)
+        .padding(.vertical, 5)
+        .background(Tema.superficieBaixa, in: Capsule())
+        if let link = item.link {
+            Link(destination: link) { corpo }
+                .buttonStyle(.discreto)
+                .accessibilityLabel("Ouvir \(item.mestre ?? "o vídeo") no minuto \(item.minuto ?? "")")
+                .accessibilityIdentifier("referencia-video")
+        } else {
+            corpo
+        }
+    }
+}
+
+/// A obra citada lida como obra (auditoria 16/09 noite: abria no editor, crua e
+/// editável, e ao voltar a resposta era recolhida como se a fonte tivesse
+/// mudado). As regras citadas vêm como capas; nada aqui se edita.
+struct LeituraDaObra: View {
+    let titulo: String
+    let texto: String
+    /// Os links das regras que a resposta citou; vazio mostra todas.
+    let citadas: [String]
+    @Environment(\.dismiss) private var dismiss
+
+    private var vozes: [Conselho.Cartao.Voz] {
+        let secoes = Obra.secoes(texto)
+        let escolhidas = citadas.isEmpty ? secoes : secoes.filter { citadas.contains($0.chave) }
+        return (escolhidas.isEmpty ? secoes : escolhidas).compactMap { Conselho.voz($0.texto) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(Array(vozes.enumerated()), id: \.offset) { _, voz in
+                        CartaoDoConselhoView(voz: voz, fechar: nil)
+                    }
+                }
+                .padding(.horizontal, Tema.margem)
+                .padding(.vertical, 12)
+            }
+            .background(Tema.fundo)
+            .navigationTitle(titulo)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Fechar") { dismiss() }
+                        .accessibilityIdentifier("fechar-obra")
+                }
+            }
+        }
+        .presentationDragIndicator(.visible)
     }
 }

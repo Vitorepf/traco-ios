@@ -51,6 +51,9 @@ struct RaizView: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     Color.clear.frame(height: tecladoAberto ? 0 : Tema.barraNav)
                 }
+                // o pé de cada tela precisa saber: sem o Dock embaixo, o recuo
+                // negativo que o encosta no Dock enfiava o campo no teclado
+                .environment(\.tecladoAberto, tecladoAberto)
                 // sem animação na troca de aba: saída em corte + entrada em fade
                 // deixava um quadro inteiramente VAZIO no meio (k423). Troca
                 // seca não tem vão — e aba não tem direção espacial mesmo.
@@ -258,5 +261,17 @@ struct RaizView: View {
         #endif
         ditado = novo
         Task { await novo.comecar() }
+    }
+}
+
+private struct TecladoAbertoChave: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// O teclado de software está de pé (RaizView escuta o sistema).
+    var tecladoAberto: Bool {
+        get { self[TecladoAbertoChave.self] }
+        set { self[TecladoAbertoChave.self] = newValue }
     }
 }
