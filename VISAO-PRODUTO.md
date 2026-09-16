@@ -10,6 +10,31 @@ A amplitude é intencional: criação, raciocínio, planejamento, estratégia, l
 
 O Traço deve encurtar o caminho entre intenção e resultado com clareza, boa divisão de trabalho, métodos pertinentes e verificação. Um artefato pronto, uma ação executada e um resultado no mundo são avanços diferentes. A aplicação deve mostrar qual deles ocorreu. Resultados que dependem de outras pessoas, condições materiais ou tempo não podem ser declarados alcançados apenas porque a IA produziu um plano convincente.
 
+## Cinco tipos de app num caderno só
+
+Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço porque ele fica no cruzamento de cinco tipos de app que hoje existem separados. Cada um faz bem uma parte e falha exatamente onde o outro começa:
+
+| Tipo | Exemplos | O que falta nele | O que o Traço toma dele |
+|---|---|---|---|
+| **Caderno** | Apple Notas, Journal da Apple, Day One | Não sabe nada além do que você escreveu | A página em branco, rápida, sem menu, que veste a forma certa (Decisão, WOOP, Pré-mortem…) |
+| **Segundo cérebro** | Obsidian, Notion, Reflect, Mem, Capacities | Lembra, mas não sabe das suas decisões nem do que aconteceu depois | Notas ligadas, busca pelo sentido, perguntar às próprias notas com a fonte, Recordar e Padrões |
+| **Biblioteca com IA** | NotebookLM, Readwise, Recall | Guarda os mestres, mas não sabe da sua vida | As obras dos mestres como consulta com fonte (vídeo, minuto), nunca como voz do autor (ADR 16a) |
+| **Diário de decisões** | Planilha de decisões | Não traz conselho nem aprende sozinho | A Decisão com data de conferir e o «o que aconteceu» que volta (ADR 05b, 16e) |
+| **Tutor com IA** | ChatGPT como estudo | Esquece você e pensa por você | A IA que pergunta, contrapõe e ensina sem escrever como o autor (ADR o, 14a) |
+
+**O segundo cérebro é a base.** É a memória que torna os outros quatro possíveis: sem ela não há mestre certo na hora certa nem resultado para comparar. É também o tipo mais disputado — como segundo cérebro puro, o Traço compete de igual para igual com apps que fazem isso há anos.
+
+**O diferencial fica em cima da base.** A decisão que você escreve encontra, na hora e com a fonte, o que seus mestres disseram, e depois é confrontada com o que de fato aconteceu. Nenhum dos cinco tipos faz isso sozinho, porque nenhum junta a sua escrita, o acervo dos mestres e o resultado. Nome sugerido para a categoria: **um conselho de mestres que vive no seu caderno.**
+
+**Estado em 16/09/2026 (datado, não certificado):**
+- *Caderno:* forte — 28 formas reconhecidas sem menu.
+- *Segundo cérebro:* responder com as suas notas funciona com a conta Grok, citando de qual nota veio; ligações só manuais (`[[título]]`); «sugerir notas parecidas» (rota `ecos`) está **cortada por qualidade** e volta a ser medida na entrega E6 (`ferramentas/orca/PROMPT-LIDER-CONSELHO.md`); não há mapa de ligações.
+- *Biblioteca:* 75 regras conferidas de Hormozi e Lenny; o Grok escolhe a regra certa em 38 de 40 (ADR 16g).
+- *Diário de decisões:* a Decisão cobra a conferência na data e o resultado ajusta as regras (ADR 16e).
+- *Tutor:* instigar e contrapor seguem cortados por qualidade (ADR 08q).
+
+Uma mudança que fortalece só um tipo isolado, sem ligá-lo aos outros, tende a copiar um concorrente. A que aproxima dois tipos — a nota que encontra o mestre, a decisão que volta com o resultado — é a que só o Traço pode fazer.
+
 ## Três participantes
 
 | Participante | Responsabilidade |
