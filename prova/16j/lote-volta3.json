@@ -1,0 +1,1524 @@
+{
+ "casos": [
+  {
+   "id": "com-p-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "os clientes estão cancelando depois de uns dois meses e meu sócio acha que a mensalidade tá cara. tô pensando em baixar o preço pra segurar eles, faz sentido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "cliente disse que tá sem dinheiro agora, como respondo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou contratar meu primeiro vendedor e tenho medo de pegar alguém que não aceita correção. como testo isso na entrevista antes de fechar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "pedi pro gerente novo me mandar um relatório toda sexta e semanas depois ele nunca tinha mandado. a culpa é dele ou minha?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como calculo quanto me custa cada cliente novo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho mais gente querendo contratar do que consigo atender, tô trabalhando o dia inteiro e o faturamento não sobe. devo investir mais em anúncio?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho uns dez objetivos pro ano que vem, qual escolher?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como saber se um cliente vai cancelar antes dele cancelar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "só pedi orçamento pra uma agência de marketing, fecho logo com ela?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "o processo de vendas funciona bem, mas meu sócio quer trocar tudo por um método novo que ele acha melhor. quanto de melhora precisa prometer pra valer a mudança?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-11",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vale a pena fazer teste A/B de toda mudança no app?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-12",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "não sei se contrato vendedor ou se deixo as pessoas assinarem sozinhas pelo site. os primeiros clientes chegaram de jeitos bem diferentes, como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-13",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "dois anos sem tração, tô pensando em desistir da empresa. como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-14",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu time nunca me critica, como faço eles falarem o que eu faço de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-15",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "quero colocar dinheiro em crescimento agora, mas o app só tem três meses de usuários. já dá pra saber se o produto encaixou no mercado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-16",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tô criando uma contagem de dias seguidos de escrita no app. se a pessoa falha um dia, perdoo ou zero a contagem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-17",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu app tem IA e pensei em cobrar baratinho por mês pra ganhar mercado rápido, é um erro?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-18",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou negociar contrato com um cliente grande, posso fazer por email?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-19",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "as entrevistas de conversa não me mostram se o programador é bom mesmo. qual jeito melhor de avaliar antes de contratar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-p-20",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como fico melhor em decidir quando não tenho dados?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Um cliente me perguntou na ligação quantos alunos eu já atendi e eu travei, porque qualquer número parecia pouco ou demais. Como eu devia ter respondido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quem da equipe deve atender os contatos mais quentes?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Posso mudar o texto do anúncio que já vende bem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cobrar parcelado em vez de mensalidade segura mais o cliente?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Gasto uns 500 reais em anúncio pra fechar cada aluno e só recupero isso lá pelo terceiro mês, o caixa não aguenta crescer. Dá pra receber mais logo na entrada?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Tive uma reunião boa com uma empresa interessada, no final o diretor disse que ia me escrever depois pra combinar os próximos passos e sumiu. O que eu fiz de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Na reunião de planejamento meu sócio chuta um prazo primeiro e aí todo mundo concorda com ele, ninguém fala o que realmente acha. Como faço essa conversa de outro jeito?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Devo trazer um figurão do Google pra liderar produto?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Ninguém do plano gratuito assina o pago, o que faço?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-pr-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Estou fazendo um app que junta diaristas e famílias, mas ainda não tenho quase ninguém de nenhum dos dois lados e não sei qual atacar primeiro.",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-d-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Qual contrato a agência pega no próximo semestre, já que a equipe só dá conta de um\nEntrar na concorrência da rede de supermercados, que pagaria umas seis vezes mais, mas a gente disputa com três agências grandes\nFechar o contrato menor com a rede de farmácias, que já disse que quer e só falta assinar\nQuanto cada um rende de verdade quando eu desconto a chance de não sair, e não só o valor no papel",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-d-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Abrir a lavanderia como franquia ou com marca própria\nComprar a franquia de lavanderia, que cobra 5% do faturamento mais 1% de fundo de propaganda\nAbrir com marca própria usando as mesmas máquinas e o mesmo ponto\nQuanto sobra para mim no fim do mês, sabendo que lavanderia deixa uns 10% de lucro sobre o que fatura",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-d-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quanto tempo meu e do time vai para Instagram e YouTube\nPostar todo dia e gravar dois vídeos por semana, umas dez horas semanais\nPostar uma vez por semana só para o perfil parecer vivo e jogar o resto do tempo nas ligações e nos parceiros\nQuem vira cliente chega pelas ligações do time e pelos parceiros; o perfil só é aberto por quem já foi contatado e quer ver se a empresa existe e é séria",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-d-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se o app que liga condomínios a eletricistas e encanadores faz agora uma campanha para cadastrar mais profissionais\nPagar anúncio e indicação para cadastrar mais 300 profissionais na cidade\nParar de cadastrar e primeiro ver se mais profissional faz o síndico ser atendido mais rápido\nSe ter mais gente cadastrada melhora o que o síndico sente, ou se já passamos do ponto em que isso muda alguma coisa",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-d-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como tocar a reforma do sistema de agendamento da clínica\nPedir estimativa de tudo que queremos e esperar o tempo que o dev disser, que ele chutou em quatro meses\nDizer que o projeto vale no máximo seis semanas e cortar o que não couber nesse tempo\nQuanto tempo esse projeto vale para a clínica, e não quanto tempo ele leva para ficar completo",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-dr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cliente novo da marcenaria quer cozinha e guarda-roupa comigo, e o guarda-roupa quase não me deixa lucro\nFazer os dois aqui na marcenaria\nIndicar o Rafa, que faz guarda-roupa mais barato, e ficar com a cozinha\nIndicar outra marcenaria para o projeto inteiro\nGanhar a confiança dele logo de cara sem largar o serviço que paga as contas da oficina",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-dr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "O que fazer com as três barbearias pensando em vender o negócio daqui a uns cinco anos\nAbrir mais duas unidades do mesmo jeito\nCriar um clube de assinatura mensal e tirar meu nome da marca\nDesistir de vender e só retirar o lucro todo mês\nSe existe comprador de verdade para barbearia desse tamanho, quanto se paga, e se o negócio anda sem depender de mim",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-dr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como melhorar a venda de matrícula nas 28 franquias da escola de inglês\nContratar uma consultoria para criar um método de venda do zero\nEu mesmo escrever um roteiro e mandar para todas\nOlhar as unidades que vendem bem e ver o que dá para aproveitar\nO que tem mais chance de dar certo na nossa realidade, sem apostar em coisa que ninguém da rede já provou",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-dr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se mantenho a agência que cuida dos anúncios no Google e no Instagram\nManter e pedir relatório toda semana\nTrocar por outra agência\nTrazer para dentro e contratar uma pessoa\nSe eles estão de fato mexendo nas campanhas e tentando coisa nova, ou só deixando rodar e mandando relatório bonito",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "com-dr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como descrever o produto no site, depois que três clínicas me perguntaram se era um prontuário eletrônico\nInventar um nome novo para o que a gente faz\nDizer que é prontuário eletrônico e mostrar o que fazemos a mais\nFalar só das funções, sem dizer o que o produto é\nO jeito que faz o dono da clínica reconhecer na hora o que é e já saber onde encaixar no que ele gasta",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "responda-zero.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "os clientes estão cancelando depois de uns dois meses e meu sócio acha que a mensalidade tá cara. tô pensando em baixar o preço pra segurar eles, faz sentido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "cliente disse que tá sem dinheiro agora, como respondo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou contratar meu primeiro vendedor e tenho medo de pegar alguém que não aceita correção. como testo isso na entrevista antes de fechar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "pedi pro gerente novo me mandar um relatório toda sexta e semanas depois ele nunca tinha mandado. a culpa é dele ou minha?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como calculo quanto me custa cada cliente novo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho mais gente querendo contratar do que consigo atender, tô trabalhando o dia inteiro e o faturamento não sobe. devo investir mais em anúncio?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho uns dez objetivos pro ano que vem, qual escolher?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como saber se um cliente vai cancelar antes dele cancelar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "só pedi orçamento pra uma agência de marketing, fecho logo com ela?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "o processo de vendas funciona bem, mas meu sócio quer trocar tudo por um método novo que ele acha melhor. quanto de melhora precisa prometer pra valer a mudança?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-11",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vale a pena fazer teste A/B de toda mudança no app?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-12",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "não sei se contrato vendedor ou se deixo as pessoas assinarem sozinhas pelo site. os primeiros clientes chegaram de jeitos bem diferentes, como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-13",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "dois anos sem tração, tô pensando em desistir da empresa. como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-14",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu time nunca me critica, como faço eles falarem o que eu faço de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-15",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "quero colocar dinheiro em crescimento agora, mas o app só tem três meses de usuários. já dá pra saber se o produto encaixou no mercado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-16",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tô criando uma contagem de dias seguidos de escrita no app. se a pessoa falha um dia, perdoo ou zero a contagem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-17",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu app tem IA e pensei em cobrar baratinho por mês pra ganhar mercado rápido, é um erro?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-18",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou negociar contrato com um cliente grande, posso fazer por email?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-19",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "as entrevistas de conversa não me mostram se o programador é bom mesmo. qual jeito melhor de avaliar antes de contratar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-p-20",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como fico melhor em decidir quando não tenho dados?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Um cliente me perguntou na ligação quantos alunos eu já atendi e eu travei, porque qualquer número parecia pouco ou demais. Como eu devia ter respondido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quem da equipe deve atender os contatos mais quentes?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Posso mudar o texto do anúncio que já vende bem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cobrar parcelado em vez de mensalidade segura mais o cliente?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Gasto uns 500 reais em anúncio pra fechar cada aluno e só recupero isso lá pelo terceiro mês, o caixa não aguenta crescer. Dá pra receber mais logo na entrada?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Tive uma reunião boa com uma empresa interessada, no final o diretor disse que ia me escrever depois pra combinar os próximos passos e sumiu. O que eu fiz de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Na reunião de planejamento meu sócio chuta um prazo primeiro e aí todo mundo concorda com ele, ninguém fala o que realmente acha. Como faço essa conversa de outro jeito?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Devo trazer um figurão do Google pra liderar produto?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Ninguém do plano gratuito assina o pago, o que faço?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-pr-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Estou fazendo um app que junta diaristas e famílias, mas ainda não tenho quase ninguém de nenhum dos dois lados e não sei qual atacar primeiro.",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-d-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Qual contrato a agência pega no próximo semestre, já que a equipe só dá conta de um\nEntrar na concorrência da rede de supermercados, que pagaria umas seis vezes mais, mas a gente disputa com três agências grandes\nFechar o contrato menor com a rede de farmácias, que já disse que quer e só falta assinar\nQuanto cada um rende de verdade quando eu desconto a chance de não sair, e não só o valor no papel",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-d-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Abrir a lavanderia como franquia ou com marca própria\nComprar a franquia de lavanderia, que cobra 5% do faturamento mais 1% de fundo de propaganda\nAbrir com marca própria usando as mesmas máquinas e o mesmo ponto\nQuanto sobra para mim no fim do mês, sabendo que lavanderia deixa uns 10% de lucro sobre o que fatura",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-d-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quanto tempo meu e do time vai para Instagram e YouTube\nPostar todo dia e gravar dois vídeos por semana, umas dez horas semanais\nPostar uma vez por semana só para o perfil parecer vivo e jogar o resto do tempo nas ligações e nos parceiros\nQuem vira cliente chega pelas ligações do time e pelos parceiros; o perfil só é aberto por quem já foi contatado e quer ver se a empresa existe e é séria",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-d-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se o app que liga condomínios a eletricistas e encanadores faz agora uma campanha para cadastrar mais profissionais\nPagar anúncio e indicação para cadastrar mais 300 profissionais na cidade\nParar de cadastrar e primeiro ver se mais profissional faz o síndico ser atendido mais rápido\nSe ter mais gente cadastrada melhora o que o síndico sente, ou se já passamos do ponto em que isso muda alguma coisa",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-d-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como tocar a reforma do sistema de agendamento da clínica\nPedir estimativa de tudo que queremos e esperar o tempo que o dev disser, que ele chutou em quatro meses\nDizer que o projeto vale no máximo seis semanas e cortar o que não couber nesse tempo\nQuanto tempo esse projeto vale para a clínica, e não quanto tempo ele leva para ficar completo",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-dr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cliente novo da marcenaria quer cozinha e guarda-roupa comigo, e o guarda-roupa quase não me deixa lucro\nFazer os dois aqui na marcenaria\nIndicar o Rafa, que faz guarda-roupa mais barato, e ficar com a cozinha\nIndicar outra marcenaria para o projeto inteiro\nGanhar a confiança dele logo de cara sem largar o serviço que paga as contas da oficina",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-dr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "O que fazer com as três barbearias pensando em vender o negócio daqui a uns cinco anos\nAbrir mais duas unidades do mesmo jeito\nCriar um clube de assinatura mensal e tirar meu nome da marca\nDesistir de vender e só retirar o lucro todo mês\nSe existe comprador de verdade para barbearia desse tamanho, quanto se paga, e se o negócio anda sem depender de mim",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-dr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como melhorar a venda de matrícula nas 28 franquias da escola de inglês\nContratar uma consultoria para criar um método de venda do zero\nEu mesmo escrever um roteiro e mandar para todas\nOlhar as unidades que vendem bem e ver o que dá para aproveitar\nO que tem mais chance de dar certo na nossa realidade, sem apostar em coisa que ninguém da rede já provou",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-dr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se mantenho a agência que cuida dos anúncios no Google e no Instagram\nManter e pedir relatório toda semana\nTrocar por outra agência\nTrazer para dentro e contratar uma pessoa\nSe eles estão de fato mexendo nas campanhas e tentando coisa nova, ou só deixando rodar e mandando relatório bonito",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "res-dr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como descrever o produto no site, depois que três clínicas me perguntaram se era um prontuário eletrônico\nInventar um nome novo para o que a gente faz\nDizer que é prontuário eletrônico e mostrar o que fazemos a mais\nFalar só das funções, sem dizer o que o produto é\nO jeito que faz o dono da clínica reconhecer na hora o que é e já saber onde encaixar no que ele gasta",
+    "itens": [
+     "hormozi.md",
+     "lenny.md",
+     "ataque-reserva.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "os clientes estão cancelando depois de uns dois meses e meu sócio acha que a mensalidade tá cara. tô pensando em baixar o preço pra segurar eles, faz sentido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "cliente disse que tá sem dinheiro agora, como respondo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou contratar meu primeiro vendedor e tenho medo de pegar alguém que não aceita correção. como testo isso na entrevista antes de fechar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "pedi pro gerente novo me mandar um relatório toda sexta e semanas depois ele nunca tinha mandado. a culpa é dele ou minha?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como calculo quanto me custa cada cliente novo?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho mais gente querendo contratar do que consigo atender, tô trabalhando o dia inteiro e o faturamento não sobe. devo investir mais em anúncio?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tenho uns dez objetivos pro ano que vem, qual escolher?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como saber se um cliente vai cancelar antes dele cancelar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "só pedi orçamento pra uma agência de marketing, fecho logo com ela?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "o processo de vendas funciona bem, mas meu sócio quer trocar tudo por um método novo que ele acha melhor. quanto de melhora precisa prometer pra valer a mudança?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-11",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vale a pena fazer teste A/B de toda mudança no app?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-12",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "não sei se contrato vendedor ou se deixo as pessoas assinarem sozinhas pelo site. os primeiros clientes chegaram de jeitos bem diferentes, como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-13",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "dois anos sem tração, tô pensando em desistir da empresa. como decido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-14",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu time nunca me critica, como faço eles falarem o que eu faço de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-15",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "quero colocar dinheiro em crescimento agora, mas o app só tem três meses de usuários. já dá pra saber se o produto encaixou no mercado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-16",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "tô criando uma contagem de dias seguidos de escrita no app. se a pessoa falha um dia, perdoo ou zero a contagem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-17",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "meu app tem IA e pensei em cobrar baratinho por mês pra ganhar mercado rápido, é um erro?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-18",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "vou negociar contrato com um cliente grande, posso fazer por email?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-19",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "as entrevistas de conversa não me mostram se o programador é bom mesmo. qual jeito melhor de avaliar antes de contratar?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-p-20",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "como fico melhor em decidir quando não tenho dados?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Um cliente me perguntou na ligação quantos alunos eu já atendi e eu travei, porque qualquer número parecia pouco ou demais. Como eu devia ter respondido?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quem da equipe deve atender os contatos mais quentes?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Posso mudar o texto do anúncio que já vende bem?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cobrar parcelado em vez de mensalidade segura mais o cliente?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Gasto uns 500 reais em anúncio pra fechar cada aluno e só recupero isso lá pelo terceiro mês, o caixa não aguenta crescer. Dá pra receber mais logo na entrada?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-06",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Tive uma reunião boa com uma empresa interessada, no final o diretor disse que ia me escrever depois pra combinar os próximos passos e sumiu. O que eu fiz de errado?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-07",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Na reunião de planejamento meu sócio chuta um prazo primeiro e aí todo mundo concorda com ele, ninguém fala o que realmente acha. Como faço essa conversa de outro jeito?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-08",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Devo trazer um figurão do Google pra liderar produto?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-09",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Ninguém do plano gratuito assina o pago, o que faço?",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-pr-10",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Estou fazendo um app que junta diaristas e famílias, mas ainda não tenho quase ninguém de nenhum dos dois lados e não sei qual atacar primeiro.",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-d-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Qual contrato a agência pega no próximo semestre, já que a equipe só dá conta de um\nEntrar na concorrência da rede de supermercados, que pagaria umas seis vezes mais, mas a gente disputa com três agências grandes\nFechar o contrato menor com a rede de farmácias, que já disse que quer e só falta assinar\nQuanto cada um rende de verdade quando eu desconto a chance de não sair, e não só o valor no papel",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-d-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Abrir a lavanderia como franquia ou com marca própria\nComprar a franquia de lavanderia, que cobra 5% do faturamento mais 1% de fundo de propaganda\nAbrir com marca própria usando as mesmas máquinas e o mesmo ponto\nQuanto sobra para mim no fim do mês, sabendo que lavanderia deixa uns 10% de lucro sobre o que fatura",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-d-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Quanto tempo meu e do time vai para Instagram e YouTube\nPostar todo dia e gravar dois vídeos por semana, umas dez horas semanais\nPostar uma vez por semana só para o perfil parecer vivo e jogar o resto do tempo nas ligações e nos parceiros\nQuem vira cliente chega pelas ligações do time e pelos parceiros; o perfil só é aberto por quem já foi contatado e quer ver se a empresa existe e é séria",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-d-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se o app que liga condomínios a eletricistas e encanadores faz agora uma campanha para cadastrar mais profissionais\nPagar anúncio e indicação para cadastrar mais 300 profissionais na cidade\nParar de cadastrar e primeiro ver se mais profissional faz o síndico ser atendido mais rápido\nSe ter mais gente cadastrada melhora o que o síndico sente, ou se já passamos do ponto em que isso muda alguma coisa",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-d-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como tocar a reforma do sistema de agendamento da clínica\nPedir estimativa de tudo que queremos e esperar o tempo que o dev disser, que ele chutou em quatro meses\nDizer que o projeto vale no máximo seis semanas e cortar o que não couber nesse tempo\nQuanto tempo esse projeto vale para a clínica, e não quanto tempo ele leva para ficar completo",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-dr-01",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Cliente novo da marcenaria quer cozinha e guarda-roupa comigo, e o guarda-roupa quase não me deixa lucro\nFazer os dois aqui na marcenaria\nIndicar o Rafa, que faz guarda-roupa mais barato, e ficar com a cozinha\nIndicar outra marcenaria para o projeto inteiro\nGanhar a confiança dele logo de cara sem largar o serviço que paga as contas da oficina",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-dr-02",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "O que fazer com as três barbearias pensando em vender o negócio daqui a uns cinco anos\nAbrir mais duas unidades do mesmo jeito\nCriar um clube de assinatura mensal e tirar meu nome da marca\nDesistir de vender e só retirar o lucro todo mês\nSe existe comprador de verdade para barbearia desse tamanho, quanto se paga, e se o negócio anda sem depender de mim",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-dr-03",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como melhorar a venda de matrícula nas 28 franquias da escola de inglês\nContratar uma consultoria para criar um método de venda do zero\nEu mesmo escrever um roteiro e mandar para todas\nOlhar as unidades que vendem bem e ver o que dá para aproveitar\nO que tem mais chance de dar certo na nossa realidade, sem apostar em coisa que ninguém da rede já provou",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-dr-04",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Se mantenho a agência que cuida dos anúncios no Google e no Instagram\nManter e pedir relatório toda semana\nTrocar por outra agência\nTrazer para dentro e contratar uma pessoa\nSe eles estão de fato mexendo nas campanhas e tentando coisa nova, ou só deixando rodar e mandando relatório bonito",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "sem-dr-05",
+   "operacao": "escolherRegra",
+   "repeticoes": 3,
+   "entrada": {
+    "texto": "Como descrever o produto no site, depois que três clínicas me perguntaram se era um prontuário eletrônico\nInventar um nome novo para o que a gente faz\nDizer que é prontuário eletrônico e mostrar o que fazemos a mais\nFalar só das funções, sem dizer o que o produto é\nO jeito que faz o dono da clínica reconhecer na hora o que é e já saber onde encaixar no que ele gasta",
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  }
+ ]
+}

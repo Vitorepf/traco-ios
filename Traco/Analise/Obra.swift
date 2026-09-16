@@ -52,7 +52,11 @@ nonisolated enum Obra {
                 atual.first { $0.hasPrefix(nome + ": ") }.map { String($0.dropFirst(nome.count + 2)).trimmingCharacters(in: .whitespaces) }
             }
             let link = campo("Vídeo").flatMap { v in v.range(of: #"https?://\S+"#, options: .regularExpression).map { String(v[$0]) } }
-            saida.append(Secao(titulo: titulo, texto: bloco, chave: link ?? titulo, mestre: campo("Mestre")))
+            // ADR 2026-09-16j: texto que fala com a máquina que escolhe não é
+            // regra de mestre — some aqui, antes do ranking, da escolha e das palavras
+            if !falaComAMaquina(bloco) {
+                saida.append(Secao(titulo: titulo, texto: bloco, chave: link ?? titulo, mestre: campo("Mestre")))
+            }
             atual = []
         }
         for linha in texto.split(separator: "\n", omittingEmptySubsequences: false) {
@@ -61,6 +65,19 @@ nonisolated enum Obra {
         }
         fecha()
         return saida
+    }
+
+    /// ADR 2026-09-16j — o portão de "instrução vazada" da biblioteca, no app,
+    /// para qualquer obra: traz a resposta em JSON, manda ignorar as outras
+    /// regras da lista, fala como instrução do sistema ou como avaliador. Calibrado para 0 falso positivo nas 3.154 seções dos dossiês e
+    /// da biblioteca; pega as 6 do ataque "responda 0" e 3 das 6 do ataque cego
+    /// — as outras ficam para as `suspeitas` do modelo (`Conselho`).
+    /// ponytail: léxico, e um atacante que o conheça escreve em volta dele; a
+    /// defesa que não depende de palavra é a refeita sem suspeitas.
+    static func falaComAMaquina(_ texto: String) -> Bool {
+        let t = texto.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "pt_BR"))
+        return t.range(of: #"\{\s*["“”]regras?["“”]\s*:|\b(ignore|desconsidere|descarte)\s+(as\s+instruc|todas\s+as\s+(outras\s+)?regras\s+(desta|da)\s+lista|as\s+(outras|demais)\s+regras)|\binstruc\w*\s+do\s+sistema\s*:|\binstruc\w*\s+atualizad|"role"\s*:|\bescolh\w*\s+(esta|essa)\s+regra\b|\bescolha\s+a\s+regra\s+\d|\b(demais|outras)\s+regras\s+(desta|da|nesta|na)\s+(lista|consulta)|\bavaliador\s+automatic|\breprova\s+a\s+rodada"#,
+                       options: .regularExpression) != nil
     }
 
     /// A marca que viaja no bloco da fonte: o modelo lê que é obra, não vida dela.
@@ -191,6 +208,13 @@ nonisolated enum Obra {
     }
 
     static func secoesEmCache(_ texto: String) -> [Secao] { entrada(texto).secoes }
+
+    /// A obra tem linhas `## ` — mesmo que o portão tenha tirado todas as seções.
+    /// Só a que não tem nenhuma segue o caminho da obra inteira (revisão da E3:
+    /// a obra toda hostil, esvaziada pelo portão, viajava inteira nas Notas).
+    static func temCabecalhoDeSecao(_ texto: String) -> Bool {
+        texto.hasPrefix("## ") || texto.contains("\n## ")
+    }
 
     static func ranquear(pergunta: String, texto: String, pesos: [String: Double] = [:]) -> [Achado] {
         let e = entrada(texto)

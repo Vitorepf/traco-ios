@@ -798,7 +798,9 @@ final class Sessao {
     /// entra só se a pergunta toca DE FATO uma seção (dois radicais dela, 16c);
     /// sem seções, pela palavra.
     static func obraCandidata(_ fonte: FonteNotas, pergunta: String) -> Bool {
-        guard !Obra.secoesEmCache(fonte.texto).isEmpty else { return NotasFiltro.casa(fonte.texto, busca: pergunta) }
+        guard Obra.temCabecalhoDeSecao(fonte.texto) else {
+            return !Obra.falaComAMaquina(fonte.texto) && NotasFiltro.casa(fonte.texto, busca: pergunta)
+        }
         let ranking = Obra.ranquear(pergunta: pergunta, texto: fonte.texto)
         return fonte.obraConferida ? !ranking.isEmpty : ranking.contains(where: Obra.admite)
     }
@@ -1951,8 +1953,8 @@ final class Sessao {
     /// ADR 2026-09-16d: Decisão ou Pré-mortem concluídos com o ato escrito
     /// procuram nas obras CONFERIDAS a regra e a outra voz e registram
     /// (`Sinal.exposto`), uma vez por nota; o cartão (16h) mostra a regra.
-    /// `perguntar` é o Grok da conta (nil sem ela); `aoExpor` avisa quando a
-    /// escolha em segundo plano grava.
+    /// `perguntar` é o Grok da conta (nil sem ela), e só a Decisão o usa (16j);
+    /// `aoExpor` avisa quando a escolha em segundo plano grava.
     static func registrarConselho(_ nota: Nota, no context: ModelContext,
                                   perguntar: ((String, String, String) async -> String?)? = Politica.provedor(.escolherRegra) == nil ? nil : { s, u, e in
                                       await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
@@ -1987,12 +1989,17 @@ final class Sessao {
         }
         // ADR 2026-09-16g: com a conta, o Grok escolhe pelo sentido entre as 30
         // melhores — em segundo plano, porque concluir não espera a rede
-        guard let perguntar else {
+        // ADR 2026-09-16j: só a Decisão vai ao Grok (o dono aprovou o envio dela);
+        // o Pré-mortem volta às palavras
+        guard let perguntar, nota.gesto == .decisao else {
             if let achado = Conselho.escolher(consulta: consulta, obras: obras, pesos: pesos) { expor(achado) }
             return
         }
         Task { @MainActor in
-            let achado = await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos, perguntar: perguntar)
+            // em segundo plano, com queda própria: não mexe no aviso de falha de outra rota
+            let achado = await Grok.$semAviso.withValue(true) {
+                await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos, perguntar: perguntar)
+            }
             // a rede pode levar minutos: expõe só se a nota ainda é a mesma
             // decisão, aberta, sem a volta escrita (revisão E4: nunca depois do
             // fato) e sem exposição de outra conclusão nesse meio-tempo

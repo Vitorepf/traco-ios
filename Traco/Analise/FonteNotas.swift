@@ -174,8 +174,10 @@ nonisolated enum RespostaNotas {
             // INTEIRO): viajam, literais, as seções que a pergunta pede — até
             // três, uma a uma enquanto cabem. Sem seção que a pergunta
             // realmente toque, não é assunto: não entra nem conta como omitida.
-            guard !Obra.secoesEmCache(original.texto).isEmpty else {
-                if !caber(original) { pacote.omitidas += 1 }  // obra suposta sem `## `: vai inteira, se couber
+            guard Obra.temCabecalhoDeSecao(original.texto) else {
+                // obra suposta sem `## `: vai inteira, se couber — a que fala com a máquina, não (16j)
+                if Obra.falaComAMaquina(original.texto) { pacote.obrasForaDoAssunto.insert(original.id) }
+                else if !caber(original) { pacote.omitidas += 1 }
                 continue
             }
             let secoes: [String]
