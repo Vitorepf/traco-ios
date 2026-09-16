@@ -18,6 +18,9 @@ nonisolated struct Sinal: Codable, Sendable, Equatable, Identifiable {
         case resposta
         /// a conferência do Recordar: quantos pontos não voltaram
         case naoVoltou
+        /// ADR 16d: a regra de obra que a Decisão concluída achou, em sombra —
+        /// registrada, nunca mostrada
+        case exposto
     }
 
     var id: UUID = UUID()
@@ -33,6 +36,14 @@ nonisolated struct Sinal: Codable, Sendable, Equatable, Identifiable {
     /// `naoVoltou`: quantos pontos faltaram, e de quantos.
     var faltaram: Int?
     var deQuantos: Int?
+    /// `exposto`: a nota (Decisão/Pré-mortem) que achou a regra; `regra` é a
+    /// chave da seção (link do vídeo com o minuto), `texto` a seção literal,
+    /// `contraria` a seção literal da outra voz e `porque` as palavras que as
+    /// ligaram — tudo texto de obra ou do autor, nada gerado.
+    var nota: UUID?
+    var regra: String?
+    var contraria: String?
+    var porque: [String]?
 }
 
 nonisolated enum Sinais {
@@ -46,20 +57,24 @@ nonisolated enum Sinais {
 
     static func todos() -> [Sinal] {
         tranca.lock(); defer { tranca.unlock() }
-        return ler()
+        return ler() ?? []
     }
 
-    private static func ler() -> [Sinal] {
+    /// Nil quando o arquivo EXISTE e não decodifica — um tipo de sinal que este
+    /// build não conhece (ADR 16d trouxe `exposto`). Vazio é "ainda não há".
+    private static func ler() -> [Sinal]? {
         guard let dados = try? Data(contentsOf: url) else { return [] }
         let dec = JSONDecoder()
         dec.dateDecodingStrategy = .iso8601
-        return (try? dec.decode([Sinal].self, from: dados)) ?? []
+        return try? dec.decode([Sinal].self, from: dados)
     }
 
     @discardableResult
     static func registrar(_ sinal: Sinal) -> Bool {
         tranca.lock(); defer { tranca.unlock() }
-        var lista = ler()
+        // revisão E3: um build sem o tipo novo lia [] e gravava por cima — o
+        // diário inteiro do autor sumia. Arquivo ilegível não se sobrescreve.
+        guard var lista = ler() else { return false }
         lista.append(sinal)
         if lista.count > teto { lista.removeFirst(lista.count - teto) }
         return gravar(lista)
@@ -108,7 +123,8 @@ nonisolated enum Sinais {
 
     /// Em uma linha, para o Perfil.
     static func emPalavras() -> String {
-        let lista = todos()
+        // a sombra (ADR 16d) não é gesto do autor: fora da contagem
+        let lista = todos().filter { $0.tipo != .exposto }
         guard let primeiro = lista.first else { return "nenhum sinal ainda — eles nascem quando você solta uma forma, conclui uma, ou diz se uma pergunta serviu." }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")

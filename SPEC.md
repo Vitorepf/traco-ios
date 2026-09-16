@@ -10426,3 +10426,17 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Não muda:** a Página (`recusarSeAusente`, teto 5.000) e o pedido do sistema das Notas (`sistemaResponderNasNotas`, carimbado); a obra não entra no Retrato nem na voz.
 
 **Dívida:** BM25 léxico não acha a regra quando a pergunta não divide palavra com ela (reserva 5/10: "contatos mais quentes"↔leads, "figurão do Google"↔shiny objects); o degrau seguinte é embedding de frase no aparelho ou reordenação das 10 melhores; a ponte de sinônimos é escrita à mão.
+
+## ADR 2026-09-16d — Decidir, em sombra
+
+**Causa.** A tese do conselho (dissecação de gênios) é trazer a regra certa DEPOIS do ato do autor, ligada à decisão dele, e aprender só pelo resultado. Antes de mostrar qualquer cartão é preciso saber se o app acha a regra certa — sem pôr nada na frente do dono.
+
+**Decisão.** `Sessao.concluir`, depois da gravação confirmada, chama `registrarConselho`: numa Decisão com `decidido` e `espero` escritos (ou num Pré-mortem com `plano` e `mudo`), `Conselho.consulta` junta escolha, opções e critério (plano, falhou e sinal) e `Conselho.escolher` ranqueia as seções das obras DECLARADAS (`origem: obra`, a biblioteca conferida; a obra suposta não aconselha) com o BM25 da E2. Se a melhor é admitida (`Obra.admite`), grava UM `Sinal.exposto` por nota: a seção literal (`texto`), a chave da regra (link com o minuto), a seção literal da outra voz — a melhor de OUTRO mestre, «contrária» por assunto, não por tese provada — e `porque`, as palavras que ligaram (grafia da regra). Nada aparece: nem cartão, nem aviso; o fim do concluir é o de sempre.
+
+**Medida (motor da E2 congelado).** Fixture pré-registrada no commit da E2 (`decisoes-fixture.json`): **1/5**. Reserva escrita por outro agente com o motor congelado (`decisoes-reserva.json`): **2/5**. A meta do plano (5/5) não foi atingida; o teste é catraca do medido (≥1). As consultas de decisão são longas e genéricas e caem em seções-ímã ("Em vez de pegar um conceito grande…", "O teste é olhar como chegaram…").
+
+**Revisão adversária (confirmado e corrigido):** um build sem o tipo `exposto` lia o `sinais.json` como vazio e gravava por cima, apagando o diário do autor — agora arquivo que existe e não decodifica não é sobrescrito (`registrar` devolve falso); a catraca contava a exposição da decisão ANTERIOR como acerto — agora só a nova conta; o ranking usa o índice em cache; "Pré-mortem do que decidi" grava e sai sem concluir — o encadeamento também consulta; a contagem de sinais do Perfil não inclui a sombra. Suíte 1235/0.
+
+**Não muda:** a ponte de sinônimos (nada ampliado olhando fixture ou reserva), a E2, nenhuma tela.
+
+**Dívida:** a alavanca seguinte — reordenar as 10 melhores pelo modelo escolhendo SÓ o índice, em segundo plano, com o cartão continuando literal — precisa de medida com a conta viva, que mora no Air (onde a suíte não roda); fica para uma volta no aparelho da conta. Até lá o sinal `exposto` é hipótese, não conselho. "Uma vez por nota" vale dentro da janela de 500 sinais: uma Decisão reaberta depois disso ganha outra exposição.

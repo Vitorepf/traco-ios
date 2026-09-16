@@ -194,6 +194,12 @@ nonisolated enum Obra {
         return ranquear(pergunta: pergunta, secoes: e.secoes, docs: e.docs, pesos: pesos)
     }
 
+    /// Várias obras num ranking só, com os radicais em cache.
+    static func ranquear(pergunta: String, textos: [String], pesos: [String: Double] = [:]) -> [Achado] {
+        let entradas = textos.map(entrada)
+        return ranquear(pergunta: pergunta, secoes: entradas.flatMap(\.secoes), docs: entradas.flatMap(\.docs), pesos: pesos)
+    }
+
     static func ranquear(pergunta: String, secoes: [Secao], pesos: [String: Double] = [:]) -> [Achado] {
         ranquear(pergunta: pergunta, secoes: secoes, docs: secoes.map { palavras($0.texto) }, pesos: pesos)
     }

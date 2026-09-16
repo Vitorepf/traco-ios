@@ -1010,6 +1010,9 @@ final class Sessao {
     /// `[[título]]` da origem no destino. A IA não escreve nada aqui.
     func encadear(_ e: Metodo.Encadeamento, no context: ModelContext, agora: Date = .now) {
         guard let g = gesto, g != .expressiva, salvar(no: context) else { return }
+        // ADR 16d (revisão): "Pré-mortem do que decidi" grava e sai sem
+        // concluir — a Decisão com o ato escrito é consultada aqui também
+        if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) { Self.registrarConselho(nota, no: context) }
         let origemCampos = campos
         let origemTitulo = VozDoAutor.titulo(texto, gesto: g, campos: campos)
         if let c = e.compromisso {
@@ -1889,6 +1892,8 @@ final class Sessao {
             Holofote.indexar(notas: todas)
         }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
+            // ADR 16d: o conselho em sombra — registra, não mostra
+            Self.registrarConselho(nota, no: context)
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto, campos: nota.campos) { [weak self] in
                 Task { @MainActor in
                     self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
@@ -1897,6 +1902,21 @@ final class Sessao {
         }
         novaPagina()
         Toque.leve()
+    }
+
+    /// ADR 2026-09-16d: Decisão ou Pré-mortem concluídos com o ato escrito
+    /// procuram nas obras CONFERIDAS a regra e a outra voz e registram em
+    /// sombra (`Sinal.exposto`), uma vez por nota. Nada aparece ao autor.
+    static func registrarConselho(_ nota: Nota, no context: ModelContext) {
+        guard nota.origem == .autor, !nota.fechada,
+              let consulta = Conselho.consulta(gesto: nota.gesto, campos: nota.campos) else { return }
+        let sinais = Sinais.todos()
+        guard !sinais.contains(where: { $0.tipo == .exposto && $0.nota == nota.uuid }) else { return }
+        let obras = ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).filter { $0.origem == .obra && !$0.fechada }
+        guard let achado = Conselho.escolher(consulta: consulta, obras: obras.map(\.texto), pesos: [:]) else { return }
+        Sinais.registrar(Sinal(tipo: .exposto, forma: nota.gestoRaw, texto: achado.regra.secao.texto,
+                               nota: nota.uuid, regra: achado.regra.secao.chave,
+                               contraria: achado.outra?.secao.texto, porque: achado.regra.termos))
     }
 
     /// Trocar de aba NUNCA perde texto: salva antes de sair (§20).

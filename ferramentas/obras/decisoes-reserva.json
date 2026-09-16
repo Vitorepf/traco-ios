@@ -1,0 +1,57 @@
+[
+  {
+    "escolha": "Cliente novo da marcenaria quer cozinha e guarda-roupa comigo, e o guarda-roupa quase não me deixa lucro",
+    "opcoes": "Fazer os dois aqui na marcenaria\nIndicar o Rafa, que faz guarda-roupa mais barato, e ficar com a cozinha\nIndicar outra marcenaria para o projeto inteiro",
+    "criterio": "Ganhar a confiança dele logo de cara sem largar o serviço que paga as contas da oficina",
+    "decidido": "Vou indicar o Rafa para o guarda-roupa, que sai mais em conta para ele, e fico com a cozinha",
+    "espero": "Que ele feche a cozinha e depois me chame para a sala e o escritório; confiro no fim de novembro",
+    "arquivo": "hormozi.md",
+    "secao": 5,
+    "video": "https://www.youtube.com/watch?v=bx48qPlaGvE",
+    "porque": "A regra manda entregar a outro o serviço de menor margem e guardar o de maior, agindo contra o ganho imediato para comprar confiança."
+  },
+  {
+    "escolha": "O que fazer com as três barbearias pensando em vender o negócio daqui a uns cinco anos",
+    "opcoes": "Abrir mais duas unidades do mesmo jeito\nCriar um clube de assinatura mensal e tirar meu nome da marca\nDesistir de vender e só retirar o lucro todo mês",
+    "criterio": "Se existe comprador de verdade para barbearia desse tamanho, quanto se paga, e se o negócio anda sem depender de mim",
+    "decidido": "Antes de abrir unidade, vou procurar quantas barbearias foram vendidas na região nos últimos anos; enquanto isso começo o clube de assinatura",
+    "espero": "Saber até dezembro se houve venda de negócio parecido; se não houver, sigo tirando o lucro e paro de montar para vender",
+    "arquivo": "hormozi.md",
+    "secao": 35,
+    "video": "https://www.youtube.com/watch?v=VxKwz6hBVZU",
+    "porque": "A regra manda contar quantas vendas existem daquele tipo de negócio e aceitar que talvez não haja mercado, pesando recorrência e dependência do dono."
+  },
+  {
+    "escolha": "Como melhorar a venda de matrícula nas 28 franquias da escola de inglês",
+    "opcoes": "Contratar uma consultoria para criar um método de venda do zero\nEu mesmo escrever um roteiro e mandar para todas\nOlhar as unidades que vendem bem e ver o que dá para aproveitar",
+    "criterio": "O que tem mais chance de dar certo na nossa realidade, sem apostar em coisa que ninguém da rede já provou",
+    "decidido": "Vou levantar as unidades que mais transformam aula experimental em matrícula nos últimos seis meses, visitar as três melhores e escrever o passo a passo delas para a rede toda",
+    "espero": "Passo a passo pronto em 45 dias e a média de matrícula da rede subindo em 3 meses; confiro em janeiro",
+    "arquivo": "hormozi.md",
+    "secao": 10,
+    "video": "https://www.youtube.com/watch?v=y3T4GqoH0Us",
+    "porque": "A regra manda achar quem já está fora da curva, extrair o jeito deles e padronizar, em vez de inventar no escuro."
+  },
+  {
+    "escolha": "Se mantenho a agência que cuida dos anúncios no Google e no Instagram",
+    "opcoes": "Manter e pedir relatório toda semana\nTrocar por outra agência\nTrazer para dentro e contratar uma pessoa",
+    "criterio": "Se eles estão de fato mexendo nas campanhas e tentando coisa nova, ou só deixando rodar e mandando relatório bonito",
+    "decidido": "Entrei nas duas contas e ninguém mexeu nas campanhas desde julho; vou trocar de agência",
+    "espero": "Que a nova agência altere as campanhas já no primeiro mês e o custo por cliente caia; confiro em 60 dias",
+    "arquivo": "lenny.md",
+    "secao": 21,
+    "video": "https://www.youtube.com/watch?v=zNJyb3R_Pnc",
+    "porque": "A regra manda auditar a agência pelo que ela alterou nas contas: sem mudanças nem testes, há espaço ocioso."
+  },
+  {
+    "escolha": "Como descrever o produto no site, depois que três clínicas me perguntaram se era um prontuário eletrônico",
+    "opcoes": "Inventar um nome novo para o que a gente faz\nDizer que é prontuário eletrônico e mostrar o que fazemos a mais\nFalar só das funções, sem dizer o que o produto é",
+    "criterio": "O jeito que faz o dono da clínica reconhecer na hora o que é e já saber onde encaixar no que ele gasta",
+    "decidido": "Vou me apresentar como prontuário eletrônico e mostrar a parte de trazer paciente de volta como o que nos diferencia",
+    "espero": "Mais pedidos de demonstração vindos de busca no Google em 2 meses; confiro em meados de novembro",
+    "arquivo": "lenny.md",
+    "secao": 13,
+    "video": "https://www.youtube.com/watch?v=yc1Uwhfxacs",
+    "porque": "A regra manda entrar na categoria que o cliente já procura e ampliar a definição dela."
+  }
+]
