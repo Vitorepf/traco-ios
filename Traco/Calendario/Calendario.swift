@@ -310,15 +310,17 @@ nonisolated enum Calendario {
 
     nonisolated static func titulo(escala: EscalaCalendario, ancora: Date, _ cal: Calendar) -> String {
         switch escala {
+        // o mês é nome próprio no título, em toda escala (dono, 16/09:
+        // "o S de setembro maiúsculo, assim como o mensal")
         case .dia:
-            return formatar(ancora, "d 'de' MMMM", cal)
+            return "\(formatar(ancora, "d", cal)) de \(formatar(ancora, "MMMM", cal).capitalizadoNoInicio)"
         case .semana:
             let dias = semana(da: ancora, cal)
             guard let primeiro = dias.first, let ultimo = dias.last else { return "" }
             if cal.component(.month, from: primeiro) == cal.component(.month, from: ultimo) {
-                return "\(formatar(primeiro, "d", cal)) – \(formatar(ultimo, "d 'de' MMMM", cal))"
+                return "\(formatar(primeiro, "d", cal)) – \(formatar(ultimo, "d", cal)) de \(formatar(ultimo, "MMMM", cal).capitalizadoNoInicio)"
             }
-            return "\(formatar(primeiro, "d", cal)) \(mesCurto(primeiro, cal)) – \(formatar(ultimo, "d", cal)) \(mesCurto(ultimo, cal))"
+            return "\(formatar(primeiro, "d", cal)) \(mesCurto(primeiro, cal).capitalizadoNoInicio) – \(formatar(ultimo, "d", cal)) \(mesCurto(ultimo, cal).capitalizadoNoInicio)"
         case .mes:
             return formatar(ancora, "MMMM yyyy", cal).capitalizadoNoInicio
         case .ano:

@@ -26,12 +26,12 @@ struct CalendarioEscalaTests {
     }
 
     @Test func titulosEmPortugues() {
-        #expect(Calendario.titulo(escala: .dia, ancora: ancora, cal) == "20 de julho")
-        #expect(Calendario.titulo(escala: .semana, ancora: ancora, cal) == "19 – 25 de julho")
+        #expect(Calendario.titulo(escala: .dia, ancora: ancora, cal) == "20 de Julho")
+        #expect(Calendario.titulo(escala: .semana, ancora: ancora, cal) == "19 – 25 de Julho")
         #expect(Calendario.titulo(escala: .mes, ancora: ancora, cal) == "Julho 2026")
         #expect(Calendario.titulo(escala: .ano, ancora: ancora, cal) == "2026")
         let set2 = cal.date(from: DateComponents(year: 2026, month: 9, day: 2, hour: 12))!
-        #expect(Calendario.titulo(escala: .semana, ancora: set2, cal) == "30 ago – 5 set")
+        #expect(Calendario.titulo(escala: .semana, ancora: set2, cal) == "30 Ago – 5 Set")
     }
 
     @Test func letrasDaSemanaSeguemOPrimeiroDia() {
@@ -286,7 +286,7 @@ struct CalendarioAgendaTests {
         #expect(agenda.titulo == "2026")
         agenda.ir(para: .dia)
         #expect(agenda.aproximando)
-        #expect(agenda.titulo == "20 de julho")
+        #expect(agenda.titulo == "20 de Julho")
     }
 
     @Test func anoParaOutroMesGuardaODiaDoMes() {

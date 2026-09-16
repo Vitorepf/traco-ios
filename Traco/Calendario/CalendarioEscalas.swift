@@ -47,8 +47,10 @@ struct CalendarioDiaView: View {
         }
     }
 
+    // os sete dias repartem a largura toda, como as colunas do mês: juntos ao
+    // centro sobrava um vão nas pontas (dono, 16/09)
     private var faixaSemana: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 0) {
             ForEach(agenda.semana, id: \.self) { dia in
                 let activo = Calendario.mesmoDia(dia, agenda.ancora, agenda.cal)
                 Button {
@@ -65,11 +67,11 @@ struct CalendarioDiaView: View {
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .dia)
                 }
                 .buttonStyle(PressaoClara())
+                .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("dia-chip-\(Calendario.formatar(dia, "yyyy-MM-dd", agenda.cal))")
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 10)
     }
 
     private func diaInteiro(_ eventos: [EventoCalendario]) -> some View {
@@ -136,7 +138,10 @@ struct CalendarioDiaView: View {
         } else {
             alvo = Calendario.hora(8, 0, no: agenda.ancora, agenda.cal)
         }
-        let y = max(0, offset(de: alvo) - altura * 1.25)
+        // a grade abre na HORA CHEIA do alvo, com o rótulo dela logo abaixo dos
+        // dias: abrir 1h15 antes deixava um vão de linha vazia (dono, 16/09)
+        let horaCheia = Calendario.hora(agenda.cal.component(.hour, from: alvo), 0, no: agenda.ancora, agenda.cal)
+        let y = max(0, offset(de: horaCheia) - 10)
         // rolar até a hora é deslocamento que o relógio pede: sob reduzido, corta
         withAnimation(animado ? Tema.corte(Tema.Mola.escala, reduzido: reduceMotion) : nil) {
             posicao.scrollTo(y: y)

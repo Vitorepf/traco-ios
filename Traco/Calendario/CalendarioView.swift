@@ -191,7 +191,10 @@ struct CalendarioView: View {
         // não na escala do dia, porque tocar num dia riscado — em qualquer
         // escala — muda a âncora, e é esta linha que responde ao toque.
         let feriado = Feriados.de(agenda.ancora, agenda.cal)
-        return VStack(alignment: .leading, spacing: 1) {
+        // o título mora no eixo da ilha do iPhone: hora à esquerda, ícones à
+        // direita, título ao centro — encostado à esquerda sobrava um vão à
+        // direita de "2026" e de "Setembro 2026" (dono, 16/09: "cirúrgico")
+        return VStack(alignment: .center, spacing: 1) {
             HStack(alignment: .center, spacing: 10) {
                 Text(agenda.titulo)
                     .font(.system(size: tamTitulo, weight: .bold))
@@ -199,7 +202,7 @@ struct CalendarioView: View {
                     .foregroundStyle(CalendarioTema.tinta)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .contentTransition(.numericText())
                     .animation(CalendarioTema.morph(reduceMotion), value: agenda.titulo)
                     .accessibilityAddTraits(.isHeader)
@@ -210,7 +213,8 @@ struct CalendarioView: View {
                     .font(CalendarioTema.meta)
                     .foregroundStyle(CalendarioTema.tintaSuave)
                     .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .accessibilityIdentifier("calendario-feriado")
             }
         }
