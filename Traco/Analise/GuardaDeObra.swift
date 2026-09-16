@@ -80,11 +80,20 @@ nonisolated enum GuardaDeObra {
     }
 
     /// Filtro de nome puro: o texto da fonte é só o nome. Não qualifica tese.
+    static func semRotulosDeCampo(_ texto: String) -> String {
+        let nomes = Set(Catalogo.todos.flatMap { $0.campos.map(\.nome) })
+        return texto.split(separator: "\n", omittingEmptySubsequences: false).map { linha in
+            guard let dois = linha.range(of: ": "), nomes.contains(String(linha[..<dois.lowerBound])) else { return String(linha) }
+            return String(linha[dois.upperBound...])
+        }.joined(separator: "\n")
+    }
+
     static func soONome(_ fonte: FonteNotas, pedido: Pedido) -> Bool {
         guard eIdentidade(pedido.nome, na: fonte) else { return false }
         let n = Prova.normal(pedido.nome)
         let titulo = Prova.normal(fonte.titulo)
-        let texto = Prova.normal(fonte.texto)
+        // a nota com forma chega rotulada ("Fonte: Antifrágil", 16k): o rótulo não é conteúdo
+        let texto = Prova.normal(semRotulosDeCampo(fonte.texto))
         return texto == n || texto == titulo || texto.isEmpty
     }
 

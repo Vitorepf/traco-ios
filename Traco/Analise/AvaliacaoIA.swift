@@ -1,6 +1,7 @@
 #if DEBUG
 import CryptoKit
 import Foundation
+import SwiftData
 
 /// Sonda explícita, com entradas sintéticas: não consulta nem grava o corpus.
 /// Lançar com TRACO_AVALIAR_IA=<fixture.json> no Documents do app. O JSONL
@@ -92,6 +93,16 @@ enum AvaliacaoIA {
         var tentativa: String?
         var apoioUtilizado: String?
         var conversa: [Troca]?
+        /// ADR 2026-09-16k: um caderno de notas do autor; a sonda monta um
+        /// caderno em memória com elas e as obras de `itens` e passa pela
+        /// SELEÇÃO da sessão (contexto, candidatas, escolha pelo sentido).
+        var caderno: [NotaDoCaso]?
+    }
+
+    private struct NotaDoCaso: Codable {
+        var texto: String
+        var gesto: String?
+        var campos: [String: String]?
     }
 
     /// ADR 2026-09-09h — a produção passa a conversa anterior
@@ -343,12 +354,38 @@ enum AvaliacaoIA {
             // ADR 2026-09-16i: `itens` são obras CONFERIDAS no Documents (a
             // biblioteca), e passam pela mesma candidatura da Sessao
             let pergunta = try exigir(e.pergunta, "pergunta")
-            let obras = try obrasDoDocuments(itens).map { texto in
+            var obras = try obrasDoDocuments(itens).map { texto in
                 FonteNotas(id: UUID(), titulo: (texto.split(separator: "\n").first.map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "# ")) } ?? "obra") + " · obra",
                            texto: texto, editadaEm: .now, obraConferida: true)
             }.filter { Sessao.obraCandidata($0, pergunta: pergunta) }
+            var fontesDoCaso = try exigir(e.fontes, "fontes")
+            var idsDoCaderno: [UUID] = []
+            var candidatas = 0
+            var obrasNoCaderno = 0
+            if let caderno = e.caderno {
+                let recipiente = try ModelContainer.traco(emMemoria: true)
+                let ctx = recipiente.mainContext
+                for n in caderno {
+                    let nota = Nota(texto: n.texto, gesto: n.gesto.flatMap(Gesto.init(rawValue:)), campos: n.campos ?? [:])
+                    ctx.insert(nota)
+                    idsDoCaderno.append(nota.uuid)
+                }
+                for texto in try obrasDoDocuments(itens) {
+                    let obra = Nota(texto: texto)
+                    obra.origem = .obra
+                    ctx.insert(obra)
+                }
+                try ctx.save()
+                let base = Sessao().contextoDasNotas(pergunta: pergunta, no: ctx)
+                obrasNoCaderno = base.filter(\.obra).count
+                let doAutor = Sessao.candidatasDoAutor(pergunta: pergunta, no: ctx)
+                candidatas = doAutor.count
+                fontesDoCaso += await Sessao.comNotasPeloSentido(pergunta: pergunta, fontes: base, candidatas: doAutor,
+                                                                 perguntar: Sessao.escolherNotasPelaConta)
+                obras = []  // as do caderno já vieram pela seleção da sessão
+            }
             let r = try exigir(await Sabia.responderNasNotas(pergunta: pergunta,
-                fontes: exigir(e.fontes, "fontes") + obras,
+                fontes: fontesDoCaso + obras,
                 conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
                 retrato: e.retrato ?? ""))
             var saida: [String: Any] = [
@@ -363,7 +400,12 @@ enum AvaliacaoIA {
             if let base = r.base { saida["base"] = base }
             if let obra = r.obraParaPlantar { saida["obraParaPlantar"] = obra }
             if let via = r.viaObra { saida["viaObra"] = via }
-            saida["obrasCandidatas"] = obras.count
+            saida["obrasCandidatas"] = e.caderno == nil ? obras.count : obrasNoCaderno
+            if e.caderno != nil {
+                // os índices (base 0) das notas do caderno que foram ao pedido
+                saida["notasEnviadas"] = r.enviadas.compactMap { f in idsDoCaderno.firstIndex(of: f.id) }
+                saida["candidatasDoAutor"] = candidatas
+            }
             // as chaves (vídeo com minuto) das seções de obra que viajaram
             saida["secoesEnviadas"] = r.enviadas.filter(\.obra).flatMap { Obra.secoes($0.texto).map(\.chave) }
             return saida

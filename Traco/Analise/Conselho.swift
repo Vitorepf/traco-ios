@@ -204,7 +204,7 @@ nonisolated enum Conselho {
 
     /// `{"regra": n}` (0…total) ou `{"regras": [n…]}` (até 3, distintos), com
     /// `"suspeitas"` opcional (distintos, 1…total); nenhuma outra chave.
-    static func ler(_ cru: String, chave: String, total: Int) -> (escolhidas: [Int], suspeitas: [Int])? {
+    static func ler(_ cru: String, chave: String, total: Int, maximo: Int = 3) -> (escolhidas: [Int], suspeitas: [Int])? {
         guard let dados = cru.data(using: .utf8),
               let objeto = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
               Set(objeto.keys).isSubset(of: [chave, "suspeitas"]), let valor = objeto[chave] else { return nil }
@@ -213,7 +213,7 @@ nonisolated enum Conselho {
             guard let n = inteiro(valor), (0...total).contains(n) else { return nil }
             escolhidas = n == 0 ? [] : [n]
         } else {
-            guard let lista = valor as? [Any], lista.count <= 3, let ns = inteiros(lista, total: total) else { return nil }
+            guard let lista = valor as? [Any], lista.count <= maximo, let ns = inteiros(lista, total: total) else { return nil }
             escolhidas = ns
         }
         // a suspeita só veta: um número inválido nela é ignorado, não derruba a

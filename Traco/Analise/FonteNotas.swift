@@ -75,6 +75,9 @@ nonisolated enum RespostaNotas {
         var conferencia: String? = nil
         var conferida: Bool = false
         var reparadaNaConferencia: Bool = false
+        /// ADR 2026-09-16k: o texto do modelo passou do teto e foi cortado no
+        /// último fim de parágrafo ou frase. A tela decide se sinaliza.
+        var cortada: Bool = false
         /// ADR 2026-09-16i: quem escolheu as seções da obra — "modelo" ou
         /// "palavras"; nil sem obra conferida. A sonda lê; a tela não.
         var viaObra: String? = nil
@@ -149,7 +152,8 @@ nonisolated enum RespostaNotas {
                 "fonteID": "N\(indice)", "titulo": fonte.titulo,
                 "editadaEm": fonte.editadaEm.ISO8601Format(), "linhas": fonte.texto.components(separatedBy: "\n"),
             ]
-            if fonte.obra { campos["origem"] = Obra.origemNoPedido }
+            // a suposta pode ser texto da própria pessoa (16a/16b): não se diz "de um mestre" (revisão da V)
+            if fonte.obra { campos["origem"] = fonte.obraConferida ? Obra.origemNoPedido : Obra.origemSupostaNoPedido }
             return "\n\nNOTA (JSON; ID do trecho = fonteID + T + posição da linha, começando em 1):\n" + json(campos)
         }
         func caber(_ fonte: FonteNotas) -> Bool {
@@ -253,6 +257,24 @@ nonisolated enum RespostaNotas {
     /// Uma resposta integral evita que uma lista de partes repita a primeira
     /// metade da pergunta e omita a segunda. Referência válida não prova sentido.
     /// Conferência reusa este parser; reparo aceito aqui não tem terceira chamada.
+    static let tetoDoTexto = 900
+
+    /// Acima do teto: o último fim de parágrafo, ou de frase, que deixa ao
+    /// menos metade do texto; sem nenhum, a última palavra inteira. Em
+    /// silêncio no texto — frase de sistema na voz da resposta é o que o dono
+    /// detesta; quem quiser sinalizar lê `Retorno.cortada`.
+    static func dentroDoTeto(_ escrito: String) -> String {
+        guard escrito.count > tetoDoTexto else { return escrito }
+        let cabe = String(escrito.prefix(tetoDoTexto))
+        let metade = cabe.index(cabe.startIndex, offsetBy: cabe.count / 2)
+        let corte: String.Index
+        if let p = cabe.range(of: "\n\n", options: .backwards), p.lowerBound > metade { corte = p.lowerBound }
+        else if let f = cabe.range(of: #"[.!?](\s|$)"#, options: [.regularExpression, .backwards]), f.lowerBound > metade {
+            corte = cabe.index(after: f.lowerBound)
+        } else { corte = cabe.range(of: " ", options: .backwards)?.lowerBound ?? cabe.endIndex }
+        return String(cabe[..<corte]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     static func interpretar(_ cru: String, pacote: Pacote) -> Retorno? {
         guard let dados = cru.data(using: .utf8),
               let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
@@ -260,15 +282,20 @@ nonisolated enum RespostaNotas {
               let base = raiz["base"] as? String, bases.contains(base),
               let bruto = raiz["texto"] as? String,
               let ids = raiz["trechoIDs"] as? [String], Set(ids).count == ids.count else { return nil }
-        let escrito = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
         // O teto é contrato com o MODELO: mede o que ele escreveu, antes de o
         // app trocar endereço por título (que só faz o texto crescer).
-        guard escrito.count <= 900 else { return nil }
+        // ADR 2026-09-16k: passar do teto não esvazia a resposta — ela é
+        // cortada no último fim de parágrafo ou de frase e diz que foi cortada.
+        let original = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
+        let escrito = Self.dentroDoTeto(original)
         let texto = semRotulos(escrito, pacote: pacote)
         let trechos = Dictionary(uniqueKeysWithValues: pacote.trechos.map { ($0.id, $0) })
         var citadas: [FonteNotas] = []
         for id in ids {
-            guard let trecho = trechos[id], !trecho.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+            guard let trecho = trechos[id] else { return nil }  // endereço inventado: recusa
+            // ADR 16k: a linha em branco entre seções não sustenta nada, e citá-la
+            // jogava fora a resposta inteira (4 de 7 vazias no Air): só não conta
+            guard !trecho.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
             if !citadas.contains(where: { $0.id == trecho.fonte.id }) { citadas.append(trecho.fonte) }
         }
         var resposta: String
@@ -313,7 +340,7 @@ nonisolated enum RespostaNotas {
             resposta += "\n\nHistórico parcial: algumas respostas anteriores da IA ficaram fora; suas perguntas e correções foram mantidas integralmente."
         }
         return Retorno(texto: resposta, enviadas: pacote.fontes, citadas: citadas,
-                       escreveuRotuloInterno: texto != escrito)
+                       escreveuRotuloInterno: texto != escrito, cortada: escrito != original)
     }
 
     static func esquemaRemoto(_ pacote: Pacote) -> String {

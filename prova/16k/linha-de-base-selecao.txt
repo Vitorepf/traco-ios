@@ -1,0 +1,7 @@
+DIAG disponivel=false
+DIAG prec-01 esperadas [2] vieram 0/1 fontes ["obra", "obra"] vizinhas []
+DIAG prec-02 esperadas [4] vieram 0/1 fontes ["obra", "obra"] vizinhas []
+DIAG prec-03 esperadas [4] vieram 0/1 fontes ["obra", "obra"] vizinhas []
+DIAG prec-04 esperadas [1, 5] vieram 0/2 fontes ["obra", "obra"] vizinhas []
+DIAG prec-05 esperadas [1, 4, 6] vieram 0/3 fontes ["obra", "obra"] vizinhas []
+DIAG prec-06 esperadas [] vieram 0/0 fontes ["obra", "obra"] vizinhas []

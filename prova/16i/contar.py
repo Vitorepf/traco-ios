@@ -14,6 +14,7 @@ por_rep = collections.defaultdict(lambda: collections.Counter())
 falhas, duracoes = [], []
 for c in casos:
     rep, cid = c["repeticao"], c["id"]
+    if cid not in gab: continue
     video = gab[cid]
     s = c.get("saida") or {}
     duracoes.append(float(c.get("duracaoSegundos", 0)))

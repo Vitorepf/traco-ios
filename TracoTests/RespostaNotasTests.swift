@@ -363,4 +363,27 @@ struct RespostaNotasTests {
         #expect(PortaoDoMovimentoTests.codigoVisivel("ScrollView { t }.frame(maxHeight: 360)", apagandoTema: false)
                     .components(separatedBy: ".frame(maxHeight:").count - 1 == 1, "a sonda não enxerga o teto")
     }
+
+    /// ADR 2026-09-16k: das 7 respostas vazias medidas no Air, 4 citavam uma
+    /// linha em branco entre seções e 2 passavam de 900 caracteres. Nenhuma das
+    /// duas causas esvazia mais a resposta; endereço inventado continua recusando.
+    @Test func oTetoEALinhaEmBrancoNaoEsvaziamAResposta() throws {
+        let p = try pacote([fonte(texto: "Prazo 12/09.\n\nTeto R$ 800.")])
+        let comBranco = try #require(RespostaNotas.interpretar(try resposta(["N1T1", "N1T2"]), pacote: p))
+        #expect(comBranco.citadas.count == 1)
+        #expect(RespostaNotas.interpretar(try resposta(["N1T2"]), pacote: p) == nil, "só a linha em branco não sustenta")
+        #expect(RespostaNotas.interpretar(try resposta(["N1T1", "N9T9"]), pacote: p) == nil, "endereço inventado recusa")
+        let paragrafo = String(repeating: "Frase de apoio com prazo. ", count: 20)
+        let longo = paragrafo + "\n\n" + paragrafo + "\n\n" + paragrafo
+        #expect(longo.count > 900)
+        let cru = String(data: try JSONSerialization.data(withJSONObject: ["base": "notas", "texto": longo, "trechoIDs": ["N1T1"]]), encoding: .utf8)!
+        let cortada = try #require(RespostaNotas.interpretar(cru, pacote: p), "passou do teto: corta, não esvazia")
+        #expect(cortada.cortada && !comBranco.cortada)
+        let corpo = try #require(cortada.texto.components(separatedBy: "\nReferência:").first)
+        #expect(corpo.count <= RespostaNotas.tetoDoTexto)
+        // em silêncio: termina num fim de parágrafo, sem frase de sistema na voz da resposta
+        #expect(corpo == paragrafo.trimmingCharacters(in: .whitespaces), "\(corpo.suffix(60))")
+        #expect(!corpo.contains("cortada") && !corpo.contains("limite"))
+        #expect(RespostaNotas.dentroDoTeto("curto") == "curto")
+    }
 }

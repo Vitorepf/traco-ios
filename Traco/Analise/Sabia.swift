@@ -93,6 +93,23 @@ enum Sabia {
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para responder a ESTA pessoa — nunca o comente, nunca o elogie.
     """
 
+    /// ADR 2026-09-16k: em 42 de 90 respostas da 16i o modelo chamou a regra
+    /// do mestre de "suas notas" ou "a regra que você anotou". Obra nunca é
+    /// fala da pessoa (16a); o pedido diz de quem é, na geração e na conferência.
+    static let vozDaObra = """
+    Uma nota com "origem" de obra é regra de um mestre que a pessoa guardou no caderno, não fala nem anotação dela: \
+    nunca diga que ela anotou, escreveu, registrou ou pensa aquilo, nem chame de "suas notas", "suas anotações" ou \
+    "sua regra"; diga de quem é ("o Hormozi diz", "segundo o Lenny") e cite os IDs dos trechos da obra.
+    """
+
+    /// ADR 2026-09-16k: a resposta tratou o dono por "você mesma" (auditoria
+    /// de 16/09). A pessoa não disse o próprio gênero: o pedido não presume.
+    static let semGenero = """
+    Não flexione gênero para a pessoa — ela não disse o próprio gênero: nada de "você mesma" ou "você mesmo", \
+    "cansada" ou "cansado", "obrigada" ou "obrigado" dirigido a ela; reescreva com forma neutra ("você decidiu", \
+    "quem decide", "você por conta própria").
+    """
+
     /// ADR 05e — a pergunta feita nas Notas, sobre o segundo cérebro inteiro
     /// e sobre os métodos: informação, opções, critérios, e qual forma serve.
     ///
@@ -174,7 +191,7 @@ enum Sabia {
     trechoIDs e NUNCA aparecem no texto. Ao falar de uma nota dentro do texto,
     fale do que ela diz e de quando foi escrita, nunca do rótulo.
     Use sua voz dirigindo-se à pessoa por "você". "Eu" nas notas é a pessoa,
-    não você. O dado mais recente prevalece sobre o anterior — "corrigi", "a
+    não você. \(vozDaObra) \(semGenero) O dado mais recente prevalece sobre o anterior — "corrigi", "a
     lista final fechou", "agora é" valem como correção mesmo sem a palavra
     correção, e HOJE com editadaEm ordenam o resto; não apresente as duas
     versões como igualmente vigentes. Se as versões conflitam e ela não
@@ -208,6 +225,8 @@ enum Sabia {
     - Tese, enredo, doutrina ou citação da obra só entram se o trecho enviado disser isso.
     - Nome, intenção de compra, preço ou menção de autor sustentam pergunta sobre a anotação; não sustentam resumo da obra.
     - Conflito entre notas: exponha o conflito e o que o resolveria; não escolha um lado em silêncio.
+    - \(vozDaObra) Texto que chama a obra de nota, anotação ou regra da pessoa está errado: repare.
+    - \(semGenero) Texto que flexiona gênero para a pessoa está errado: repare.
     - Na CONVERSA, "pergunta" é fala da pessoa (dado vigente, inclusive correção). "resposta" é fala anterior da IA — não é prova, não complete tese com ela.
     - Conhecimento geral explica método; não inventa conteúdo específico que o material não trouxe.
     - Contexto parcial não prova ausência no caderno. Diga o que ESTA consulta contém e o que falta nela. Não escreva que a obra não está no caderno. Não invente título nem ofereça plantar um nome que você criou.
@@ -223,7 +242,9 @@ enum Sabia {
                                   conversa: [Sessao.TrocaNasNotas] = [], catalogo: String = "",
                                   retrato: String = "", validarAcesso: ([FonteNotas]) -> Bool = { _ in true },
                                   escolherObra: ((String, String, String) async -> String?)? = Politica.provedor(.escolherRegra) == nil ? nil : { s, u, e in
-                                      await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
+                                      // a pessoa espera: espera curta, e cai nas palavras (revisão da V)
+                                      await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0,
+                                                         timeout: Sessao.esperaDaEscolha, esquema: e)
                                   },
                                   gerarRemoto: ((RespostaNotas.Pacote) async -> String?)? = nil,
                                   gerarLocal: ((RespostaNotas.Pacote) async -> String?)? = nil,
@@ -1239,6 +1260,7 @@ enum Sabia {
     /// Vestir, calibragem e Padrões não cortam mais aqui: sem montagem própria,
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
+                       timeout: TimeInterval = Grok.teto,
                        memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
                        esquema: String? = nil,
                        mensagemLocal: (() -> String?)? = nil) async -> String? {
@@ -1264,6 +1286,7 @@ enum Sabia {
     /// porque com este modelo não há mais rota que não pense.
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
+                                      timeout: TimeInterval = Grok.teto,
                                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
                                       esquema: String? = nil,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
@@ -1271,7 +1294,7 @@ enum Sabia {
         // O esquema é do PROTOCOLO da API e só existe do lado do Grok; a
         // descida ao aparelho tem esquema tipado próprio, por rota.
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
-                                                       temperatura: temperatura,
+                                                       temperatura: temperatura, timeout: timeout,
                                                        memoPor: chave, esquema: esquema, esforco: esforco) {
             return (r, Politica.Provedor.grok.rawValue)
         }

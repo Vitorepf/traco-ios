@@ -1,0 +1,403 @@
+[
+ {
+  "id": "prec-01",
+  "pergunta": "O que eu defini sobre a escola do meu filho no ano que vem?",
+  "caderno": [
+   {
+    "texto": "Comprar: filtro da geladeira, pilha AA, ração do Pipoca, lâmpada do banheiro",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Pressão deu 13/9 de manhã em jejum. Médico pediu medir por uma semana e cortar o sal da janta.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Colégio do Theo em 2027",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Manter no Aurora e reavaliar em junho",
+     "opcoes": "Manter no Aurora\nMudar pro bilíngue perto do trabalho\nMatricular na estadual do bairro",
+     "criterio": "ele está feliz com os amigos; trocar agora pesa mais que o inglês",
+     "decidido": "2026-08-20",
+     "espero": "que em junho ele continue querendo ir sem reclamar",
+     "aconteceu": "",
+     "saldo": ""
+    }
+   },
+   {
+    "texto": "# Assinaturas de streaming",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Cancelar dois e ficar só com um, trocando a cada três meses",
+     "opcoes": "Manter os três\nCancelar dois e ir rodando\nCancelar todos",
+     "criterio": "gasto fixo abaixo de R$ 60",
+     "decidido": "2026-07-14",
+     "espero": "não sentir falta de nenhum"
+    }
+   },
+   {
+    "texto": "Aniversário da minha mãe em Campinas dia 04/10 — sair sexta à noite, levar o presente que já comprei.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Fazer a revisão do carro antes de descer pra Campinas.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   2
+  ],
+  "resposta_deve": "Ele decidiu (20/08) manter o Theo no Aurora em 2027 e reavaliar em junho, porque o menino está feliz com os amigos.",
+  "resposta_nao_pode": "Dizer que não há decisão registrada sobre a escola, ou dar como escolhida a troca pro bilíngue ou pra estadual."
+ },
+ {
+  "id": "prec-02",
+  "pergunta": "Em que pé ficou aquela história de mudar quem cuida da papelada dos meus impostos?",
+  "caderno": [
+   {
+    "texto": "Passaporte vence em março/27. Renovar antes de marcar qualquer coisa fora.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Horário de foco",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Manhã até 11h sem celular e sem reunião",
+     "opcoes": "Manhã livre\nTarde livre\nUm dia inteiro livre na semana",
+     "criterio": "o trabalho difícil sai melhor antes do almoço",
+     "decidido": "2026-08-04",
+     "espero": "terminar o que é grande sem virar noite"
+    }
+   },
+   {
+    "texto": "Cadeira do escritório: a de tela da loja da Paulista é a única que não doeu as costas. Esperar promoção.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Voltar no oftalmo em novembro; o grau do olho esquerdo subiu.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Contabilidade da PJ",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Sair do escritório do Marcos em outubro e passar pra uma contabilidade online",
+     "opcoes": "Continuar com o Marcos\nContabilidade online com app\nContador avulso só na declaração anual",
+     "criterio": "mensalidade abaixo de R$ 300 e alguém que responda em até dois dias quando a Receita mandar carta",
+     "decidido": "2026-08-29",
+     "espero": "fechar o primeiro trimestre de 2027 sem multa e sem correr atrás de guia",
+     "aconteceu": "",
+     "saldo": ""
+    }
+   },
+   {
+    "texto": "Renovar o seguro do apartamento até 10/10; comparar com a corretora do banco.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   4
+  ],
+  "resposta_deve": "Ele decidiu (29/08) sair do escritório do Marcos em outubro e passar pra uma contabilidade online, com teto de R$ 300 por mês.",
+  "resposta_nao_pode": "Dizer que não há registro, que ainda está decidindo ou que ficou com o Marcos."
+ },
+ {
+  "id": "prec-03",
+  "pergunta": "O que eu tinha planejado para as férias de dezembro?",
+  "caderno": [
+   {
+    "texto": "# Celular novo",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Esperar a Black Friday e pegar o modelo do ano passado",
+     "opcoes": "Comprar o lançamento agora\nModelo do ano passado na Black Friday\nFicar com o atual mais um ano",
+     "criterio": "a bateria só precisa aguentar o dia",
+     "decidido": "2026-09-01",
+     "espero": "pagar menos de R$ 4 mil"
+    }
+   },
+   {
+    "texto": "Fisioterapia do ombro: terças e quintas 7h até o fim de outubro.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Julho em Gramado: frio demais pras crianças. Só volto lá se for casa alugada com lareira.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Reunião com o banco sobre capital de giro: levar extrato dos últimos 6 meses.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Fim de ano: 20/12 a 03/01 em Paraty com a Lu e as crianças. Reservar a pousada até 15/10 (a da praia do Jabaquara), ir de carro saindo 5h pra pegar a estrada vazia, deixar o Pipoca no hotelzinho. Teto: R$ 6 mil com tudo.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Trocar o filtro do ar-condicionado antes do calor.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   4
+  ],
+  "resposta_deve": "Paraty de 20/12 a 03/01 com a Lu e as crianças, de carro, pousada a reservar até 15/10, Pipoca no hotelzinho, teto de R$ 6 mil.",
+  "resposta_nao_pode": "Misturar com a viagem de julho a Gramado, ou dizer que não há plano pra dezembro."
+ },
+ {
+  "id": "prec-04",
+  "pergunta": "O que eu resolvi sobre malhar, e isso ainda está valendo?",
+  "caderno": [
+   {
+    "texto": "Comprar: café, sabão da máquina, bateria do controle.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Academia ou correr na rua",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Cancelar a academia e correr três vezes por semana no parque",
+     "opcoes": "Manter a academia\nCancelar e correr no parque\nPersonal duas vezes por semana",
+     "criterio": "gastar menos e sair de casa cedo",
+     "decidido": "2026-06-30",
+     "espero": "fazer 5 km sem parar até setembro",
+     "aconteceu": "",
+     "saldo": ""
+    }
+   },
+   {
+    "texto": "Dentista 23/09 às 14h — levar o raio-x.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Onde passar o Natal",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Na casa da minha irmã este ano",
+     "opcoes": "Aqui em casa\nNa minha irmã\nNa casa da sogra",
+     "criterio": "revezar; ano passado foi aqui",
+     "decidido": "2026-09-05",
+     "espero": "ninguém sobrecarregado na cozinha"
+    }
+   },
+   {
+    "texto": "Congresso em Floripa 14–16/10: passagem comprada, falta hotel.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "12/08 — joelho inflamou de novo na corrida. Ortopedista mandou parar de correr por 3 meses. Voltei a pagar a academia: musculação seg/qua/sex e natação no sábado. Daqui pra frente é isso, não o do parque.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Mandar pro cliente da gráfica o cronograma revisado até sexta.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   1,
+   5
+  ],
+  "resposta_deve": "Vale a correção de 12/08: parou de correr por causa do joelho e voltou à academia (musculação seg/qua/sex, natação no sábado); a decisão de 30/06 de trocar academia por corrida no parque foi desfeita.",
+  "resposta_nao_pode": "Dar como vigente a decisão de 30/06 (cancelar a academia e correr no parque) ou ignorar a nota de 12/08."
+ },
+ {
+  "id": "prec-05",
+  "pergunta": "O que eu decidi sobre vendas e desconto?",
+  "caderno": [
+   {
+    "texto": "Exame de sangue: vitamina D em 18. Tomar sol 15 min de manhã e repetir em dezembro.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Abatimento no plano anual",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Dar 10% de abatimento só pra quem paga o ano à vista; no mensal, preço cheio",
+     "opcoes": "Nenhum abatimento\n10% no anual à vista\n20% pra quem fechar na primeira call",
+     "criterio": "o abatimento tem que trazer caixa adiantado, não servir de muleta pra fechar",
+     "decidido": "2026-08-11",
+     "espero": "metade dos clientes novos escolhendo o anual até dezembro",
+     "aconteceu": "",
+     "saldo": ""
+    }
+   },
+   {
+    "texto": "# Notebook do trabalho",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Comprar o de 16 GB recondicionado com garantia de 1 ano",
+     "opcoes": "Novo de 32 GB\nRecondicionado de 16 GB\nSegurar o atual até março",
+     "criterio": "caber em R$ 5 mil",
+     "decidido": "2026-07-19",
+     "espero": "não travar com o Figma aberto"
+    }
+   },
+   {
+    "texto": "Levar os meninos na casa da vó em BH no feriado de novembro, de ônibus leito.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Proposta que empaca",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Proposta vale 7 dias; depois disso refaço com preço cheio, sem baixar",
+     "opcoes": "Deixar a proposta aberta\nPrazo de 7 dias\nLigar no dia 5 oferecendo condição melhor",
+     "criterio": "não ensinar o cliente a esperar que o preço cai",
+     "decidido": "2026-08-25",
+     "espero": "fechar negócio em até uma semana em 60% das propostas"
+    }
+   },
+   {
+    "texto": "Pintar o quarto das crianças: verde-claro, comprar fita crepe.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Cliente pedindo pra baixar o valor na reunião",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Não mexer no valor; se apertar, tiro entregável do pacote (ex.: relatório mensal) em vez de cortar preço",
+     "opcoes": "Ceder 15%\nManter e tirar entregável\nParcelar em mais vezes",
+     "criterio": "valor cortado não volta; escopo menor volta",
+     "decidido": "2026-09-02",
+     "espero": "nenhum contrato novo abaixo de R$ 2.500/mês"
+    }
+   },
+   {
+    "texto": "Mercado: arroz, azeite, papel toalha, detergente.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   1,
+   4,
+   6
+  ],
+  "resposta_deve": "As três decisões dele: 10% só no anual à vista (mensal a preço cheio); proposta vale 7 dias e depois volta a preço cheio; cliente que pede baixar perde entregável em vez de ganhar corte no preço.",
+  "resposta_nao_pode": "Dizer que falta o registro da decisão dele, responder só com regras de mestre, ou atribuir ao mestre o que ele mesmo decidiu."
+ },
+ {
+  "id": "prec-06",
+  "pergunta": "O que eu decidi sobre o plano de saúde da família?",
+  "caderno": [
+   {
+    "texto": "# Internet de casa",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Trocar pra fibra do bairro com fidelidade de 12 meses",
+     "opcoes": "Ficar na operadora atual\nFibra do bairro\nSó 5G no celular",
+     "criterio": "estabilidade nas chamadas de vídeo",
+     "decidido": "2026-07-22",
+     "espero": "nenhuma queda em call por um mês"
+    }
+   },
+   {
+    "texto": "Consulta com a dermatologista 30/09 às 9h. Levar a lista dos cremes.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Farmácia: protetor solar, dipirona, fio dental.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "Ver voo pra Salvador no Carnaval; as milhas vencem em fevereiro.",
+    "gesto": null,
+    "campos": {}
+   },
+   {
+    "texto": "# Seguro do carro",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Renovar com a mesma seguradora e subir a franquia",
+     "opcoes": "Mesma seguradora, franquia maior\nTrocar pela do banco\nFicar sem seguro",
+     "criterio": "parcela abaixo de R$ 250 sem perder carro reserva",
+     "decidido": "2026-08-15",
+     "espero": "não precisar acionar"
+    }
+   },
+   {
+    "texto": "Pagar o IPTU em cota única até 10/02.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [],
+  "resposta_deve": "Dizer que não há registro sobre plano de saúde no material, sem inventar operadora, valor ou escolha.",
+  "resposta_nao_pode": "Inventar uma decisão, ou apresentar o seguro do carro, a internet ou a consulta da dermatologista como resposta sobre plano de saúde."
+ },
+ {
+  "id": "real-01",
+  "origem": "caso real do líder (17e, Grok, 16/09) — escrito antes de qualquer conserto",
+  "pergunta": "o que eu decidi sobre desconto?",
+  "caderno": [
+   {
+    "texto": "# Dar desconto para fechar a proposta",
+    "gesto": "decisao",
+    "campos": {
+     "escolha": "Dar 20% de desconto para o cliente que está enrolando para fechar a proposta",
+     "decidido": "Não dar desconto e oferecer um bônus de implantação",
+     "criterio": "Fechar este mês sem ensinar o cliente a sempre pedir desconto",
+     "espero": "Contrato assinado até sexta",
+     "saldo": "",
+     "opcoes": "Dar o desconto",
+     "aconteceu": ""
+    }
+   },
+   {
+    "texto": "# Baixar ou não o preço da mentoria",
+    "gesto": "decisao",
+    "campos": {
+     "opcoes": "Baixar para R$ 400 por mês",
+     "criterio": "Segurar os alunos sem cortar o faturamento",
+     "escolha": "Baixar ou não o preço da mentoria porque os alunos estão cancelando",
+     "espero": "Menos cancelamentos no fim de novembro",
+     "decidido": "Manter o preço e reforçar o acompanhamento semanal",
+     "aconteceu": ""
+    }
+   },
+   {
+    "texto": "# Contratar alguém para vender por mim",
+    "gesto": "decisao",
+    "campos": {
+     "espero": "Pelo menos três vendas fechadas por ele até dezembro",
+     "escolha": "Contratar um vendedor ou continuar fazendo as ligações de venda eu mesmo",
+     "opcoes": "Contratar um vendedor comissionado",
+     "criterio": "Não perder a qualidade das ligações e liberar meu tempo para o produto",
+     "decidido": "Contratar um vendedor e ouvir as dez primeiras ligações dele"
+    }
+   },
+   {
+    "texto": "Reservei R$ 6000 para a viagem. Hospedagem 400 euros.",
+    "gesto": null,
+    "campos": {}
+   }
+  ],
+  "esperadas": [
+   0
+  ],
+  "resposta_deve": "dizer que decidiu NÃO dar desconto e oferecer um bônus de implantação",
+  "resposta_nao_pode": "apresentar o desconto de 20% (o que estava em jogo) como decisão ou como caminho misto"
+ }
+]

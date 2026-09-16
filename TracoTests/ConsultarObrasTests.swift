@@ -312,4 +312,111 @@ struct ConsultarObrasTests {
                                                        catalogo: "", retrato: "", teto: 16_000))
         #expect(pacote.fontes.isEmpty && pacote.omitidas == 0)
     }
+
+    /// ADR 2026-09-16k: a geração e a conferência das Notas dizem que obra não
+    /// é nota da pessoa. O efeito se mede no Air (prova/16k); aqui fica o texto.
+    @Test func osPedidosDasNotasDizemDeQuemEAObra() {
+        #expect(Sabia.sistemaResponderNasNotas.contains(Sabia.vozDaObra))
+        #expect(Sabia.sistemaConferirNasNotas.contains(Sabia.vozDaObra))
+        #expect(Sabia.vozDaObra.contains("suas notas"))
+        #expect(Sabia.sistemaResponderNasNotas.contains(Sabia.semGenero) && Sabia.sistemaConferirNasNotas.contains(Sabia.semGenero))
+    }
+
+    // MARK: ADR 2026-09-16k — as notas do autor pelo sentido (V2)
+
+    /// Decisão do dono: trancada, queimada, selada e expressiva NUNCA são
+    /// candidatas — nem o título delas vai à rede. Nem obra, nem nota do bot.
+    @Test func nenhumaNotaFechadaViraCandidata() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let ctx = c.mainContext
+        let aberta = Nota(texto: "Decidi trocar de contador em outubro")
+        let trancada = Nota(texto: "Decidi sobre o contador, trancada"); trancada.trancada = true
+        let queimada = Nota(texto: "Decidi sobre o contador, queimada"); queimada.queimada = true
+        let expressiva = Nota(texto: "Escrevi sobre o contador", gesto: .expressiva)
+        let selada = Nota(texto: "Selei o que senti sobre o contador", gesto: .expressiva); selada.trancada = true
+        let obra = Nota(texto: "## 1. Regra\nRegra: contador"); obra.origem = .obra
+        let bot = Nota(texto: "Resumo do bot sobre o contador"); bot.origem = .grokbot
+        for n in [aberta, trancada, queimada, expressiva, selada, obra, bot] { ctx.insert(n) }
+        try ctx.save()
+        let candidatas = Sessao.candidatasDoAutor(pergunta: "o que eu decidi sobre o contador?", no: ctx)
+        #expect(candidatas.map(\.id) == [aberta.uuid])
+    }
+
+    /// Só título e começo vão na escolha; a escolhida entra inteira e primeiro.
+    @Test func aNotaEscolhidaPeloSentidoEntraInteiraEAntes() async throws {
+        let longa = FonteNotas(id: UUID(), titulo: "Contabilidade da PJ",
+                               texto: "Contabilidade da PJ\n" + String(repeating: "detalhe ", count: 60) + "FIM-SECRETO-DA-NOTA",
+                               editadaEm: .now)
+        let outra = FonteNotas(id: UUID(), titulo: "Lista de compras", texto: "Lista de compras: pão", editadaEm: .now)
+        let obra = try Self.fonteDaObra()
+        var pedido = ""
+        let fontes = await Sessao.comNotasPeloSentido(pergunta: "quem cuida da papelada dos meus impostos?",
+                                                      fontes: [outra, obra], candidatas: [outra, longa]) { s, u, e in
+            pedido = u
+            #expect(s == Sessao.sistemaEscolherNotas && e == Sessao.esquemaEscolherNotas)
+            return #"{"notas":[2]}"#
+        }
+        #expect(fontes.map(\.id) == [longa.id, outra.id, obra.id])
+        #expect(fontes.first?.texto.contains("FIM-SECRETO-DA-NOTA") == true, "a escolhida vai inteira")
+        #expect(!pedido.contains("FIM-SECRETO-DA-NOTA"), "na escolha só o começo viaja")
+        // sem conta, ilegível ou repetida: a seleção de antes
+        for cru in [nil, "não sei", #"{"notas":[1,2,1]}"#] as [String?] {
+            let igual = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [outra], candidatas: [outra, longa]) { _, _, _ in cru }
+            #expect(igual.map(\.id) == [outra.id])
+        }
+        // até 5 valem; 6 é resposta ilegível (com 7 candidatas, não por sair da lista)
+        let sete = (1...7).map { FonteNotas(id: UUID(), titulo: "nota \($0)", texto: "texto \($0)", editadaEm: .now) }
+        let cinco = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [], candidatas: sete) { _, _, _ in #"{"notas":[1,2,3,4,5]}"# }
+        #expect(cinco.map(\.id) == Array(sete.prefix(5)).map(\.id))
+        let seis = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [], candidatas: sete) { _, _, _ in #"{"notas":[1,2,3,4,5,6]}"# }
+        #expect(seis.isEmpty)
+        #expect(await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [outra], candidatas: [longa], perguntar: nil).map(\.id) == [outra.id])
+    }
+
+    /// A ligação: a pergunta nas Notas passa pela escolha antes da rota.
+    @Test func aPerguntaNasNotasLevaANotaEscolhida() async throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let decisao = Nota(texto: "# Contabilidade", gesto: .decisao,
+                           campos: ["escolha": "Trocar de escritório de contabilidade", "decidido": "Trocar em outubro"])
+        let distratora = Nota(texto: "Comprar pão e café")
+        c.mainContext.insert(decisao); c.mainContext.insert(distratora)
+        try c.mainContext.save()
+        let s = Sessao()
+        var enviadas: [FonteNotas] = []
+        s.escolherNotas = { _, u, _ in
+            let lista = (try? JSONSerialization.jsonObject(with: Data(u.utf8)) as? [String: Any])?["notas"] as? [[String: Any]] ?? []
+            let n = lista.firstIndex { ($0["titulo"] as? String)?.contains("Contabilidade") == true }.map { $0 + 1 } ?? 0
+            return #"{"notas":[\#(n)]}"#
+        }
+        s.responderContextoNotas = { _, fontes, _, _, _, _ in enviadas = fontes; return nil }
+        _ = await s.responderNasNotas("quem cuida da papelada dos meus impostos?", conversa: [], no: c.mainContext)
+        #expect(enviadas.first?.id == decisao.uuid)
+    }
+
+    /// V3: o campo vai com o rótulo do método — o modelo sabe o que foi decidido
+    /// e o que estava em jogo (real-01: sem rótulo, "linhas em conflito" 3 de 3).
+    @Test func aDecisaoVaiAoPedidoComOsCamposRotulados() throws {
+        // revisão da V: com o rótulo, a Leitura só com a fonte continua sendo "só o nome"
+        let leitura = Nota(texto: "", gesto: Gesto(rawValue: "leitura"), campos: ["fonte": "Antifrágil"])
+        try #require(leitura.gesto != nil, "a forma Leitura existe no catálogo")
+        let daLeitura = try #require(Sessao.fonteParaPergunta(leitura))
+        #expect(daLeitura.texto.contains(": Antifrágil"))
+        #expect(GuardaDeObra.soONome(daLeitura, pedido: .init(nome: "Antifrágil")))
+        // a obra suposta não é dita "de um mestre" no pedido
+        let suposta = FonteNotas(id: UUID(), titulo: "arquivo · parece obra", texto: "## 1. Cobre antes\ncobre o cliente antes de entregar", editadaEm: .now, obra: true)
+        let pacoteSuposta = try #require(RespostaNotas.montar(pergunta: "cobro o cliente antes de entregar?", fontes: [suposta], conversa: [], catalogo: "", retrato: "", teto: 16_000))
+        #expect(pacoteSuposta.mensagem.contains(Obra.origemSupostaNoPedido) && !pacoteSuposta.mensagem.contains(Obra.origemNoPedido))
+        let nota = Nota(texto: "# Dar desconto para fechar a proposta", gesto: .decisao,
+                        campos: ["escolha": "Dar 20% de desconto para o cliente que está enrolando",
+                                 "decidido": "Não dar desconto e oferecer um bônus de implantação", "aconteceu": ""])
+        let fonte = try #require(Sessao.fonteParaPergunta(nota))
+        let decidido = try #require(Gesto.decisao.metodoDef.campos.first { $0.id == "decidido" }).nome
+        let escolha = try #require(Gesto.decisao.metodoDef.campos.first { $0.id == "escolha" }).nome
+        #expect(fonte.texto.contains("\(decidido): Não dar desconto e oferecer um bônus de implantação"), "\(fonte.texto)")
+        #expect(fonte.texto.contains("\(escolha): Dar 20% de desconto"))
+        #expect(!fonte.texto.contains(": \n") && !fonte.texto.hasSuffix(":"), "campo vazio não vira rótulo solto")
+        // nota sem forma continua como era
+        let solta = Nota(texto: "Comprar pão")
+        #expect(Sessao.fonteParaPergunta(solta)?.texto == solta.textoDeQualquerOrigem)
+    }
 }
