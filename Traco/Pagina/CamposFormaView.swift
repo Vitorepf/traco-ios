@@ -15,9 +15,14 @@ struct CamposFormaView: View {
     /// ADR 04k: para onde esta forma leva. Nil = a folha não encadeia (Recordar).
     /// O campo que recebe o cursor ao nascer (a "volta" das Notas cobra um campo).
     var campoInicial: String? = nil
+    /// Quando a nota nasceu: a data escrita no "espero" ("até sexta") se lê a
+    /// partir dela. Nil na página nova.
+    var criadaEm: Date? = nil
     var aoEncadear: ((Metodo.Encadeamento) -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var nascida = false
+    /// O autor tocou "O que aconteceu" antes da hora de conferir.
+    @State private var abriuODepois = false
     @FocusState private var campoFocado: String?
 
     var body: some View {
@@ -30,8 +35,11 @@ struct CamposFormaView: View {
                 // abria rolada, sem título nem aviso)
                 if conferenciaDevida, campo.soDepois, campo.id == visiveis.first(where: \.soDepois)?.id {
                     contextoDaVolta
+                        .marco(.nenhum, topo: true, base: true)
                 }
                 LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id), foco: $campoFocado)
+                    .marco(marco(de: campo), topo: campo.soDepois,
+                           base: campo.soDepois ? campo.id != visiveis.last(where: \.soDepois)?.id : true)
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
                     // onAppear — dispara garantido)
@@ -39,6 +47,11 @@ struct CamposFormaView: View {
                     .offset(y: nascida || reduceMotion ? 0 : 6)
                     .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.longa).delay(min(Double(indice), 5) * Tema.Duracao.passo), reduzido: reduceMotion), value: nascida)
 
+                // antes da hora: o que aconteceu ainda não tem campo, tem lugar
+                if campo.id == ancora?.id, !mostraODepois, let primeiro = gesto.campos.first(where: \.soDepois) {
+                    aindaNaoEscrito(primeiro)
+                        .marco(.porVir, topo: true, base: false)
+                }
             }
             depoisDisto
         }
@@ -102,6 +115,68 @@ struct CamposFormaView: View {
         }
     }
 
+    // MARK: - A linha do antes e do depois (proposta «Nota viva», tela 5)
+    //
+    // O que se esperava e o que aconteceu já moram lado a lado na forma. Em vez
+    // de repetir os dois num bloco novo, um fio fino e dois pontos os ligam:
+    // o ponto cheio é o que foi escrito; o anel é o que ainda falta — âmbar
+    // quando chegou a hora de conferir, cinza antes dela.
+
+    /// O último campo antes dos de volta: a ponta de cima do fio.
+    private var ancora: CampoForma? {
+        guard let i = gesto.campos.firstIndex(where: \.soDepois), i > 0 else { return nil }
+        return gesto.campos[i - 1]
+    }
+
+    private var mostraODepois: Bool {
+        conferenciaDevida || abriuODepois || gesto.campos.contains {
+            $0.soDepois && !(campos[$0.id] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+    }
+
+    private func marco(de campo: CampoForma) -> Marco.Estado {
+        guard campo.soDepois || campo.id == ancora?.id else { return .nenhum }
+        let escrito = !(campos[campo.id] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if escrito { return .escrito }
+        // só o próximo a escrever acende: dois anéis âmbar liam como duas cobranças
+        let proximo = gesto.campos.first {
+            $0.soDepois && (campos[$0.id] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return conferenciaDevida && campo.id == proximo?.id ? .devido : .porVir
+    }
+
+    /// "Conferir em 10 de setembro": a data que o próprio autor escreveu no
+    /// "espero", lida a partir do dia em que a nota nasceu.
+    private var conferirEm: Date? {
+        guard gesto == .decisao else { return nil }
+        return Gatilho.data(em: campos["espero"] ?? "", agora: criadaEm ?? .now)
+    }
+
+    private func aindaNaoEscrito(_ campo: CampoForma) -> some View {
+        Button {
+            Toque.selecao()
+            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                abriuODepois = true
+            }
+            Task { @MainActor in campoFocado = campo.id }
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(campo.nome)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                Text(conferirEm.map { "Conferir em " + $0.formatted(.dateTime.day().month(.wide)) } ?? "Ainda não escrito")
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            }
+            .padding(.vertical, 12)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.discreto)
+        .accessibilityHint("Abre o campo para escrever agora")
+        .accessibilityIdentifier("ainda-nao-escrito")
+    }
+
     /// O campo da volta só entra quando é devido, ou quando já foi respondido.
     @ViewBuilder private var contextoDaVolta: some View {
         let esperava = (campos["espero"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -119,11 +194,7 @@ struct CamposFormaView: View {
     }
 
     private var visiveis: [CampoForma] {
-        gesto.campos.filter { campo in
-            guard campo.soDepois else { return true }
-            let resposta = campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return conferenciaDevida || !resposta.isEmpty
-        }
+        gesto.campos.filter { !$0.soDepois || mostraODepois }
     }
 
     private func valor(_ id: String) -> Binding<String> {
@@ -196,6 +267,55 @@ private struct LinhaCampo: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 12)
+    }
+}
+
+/// O ponto no fio que liga o que se esperava ao que aconteceu.
+private struct Marco: ViewModifier {
+    enum Estado { case nenhum, escrito, devido, porVir }
+    let estado: Estado
+    /// O fio sobe até a linha de cima / desce até a de baixo.
+    let topo: Bool
+    let base: Bool
+
+    /// Centro do ponto na altura do rótulo (12 de respiro + meia linha de `Tema.meta`).
+    private let centro: CGFloat = 21
+
+    func body(content: Content) -> some View {
+        if estado == .nenhum && !(topo && base) {
+            content
+        } else {
+            HStack(alignment: .top, spacing: 12) {
+                ZStack(alignment: .top) {
+                    // o fio passa por baixo do ponto e atravessa o vão entre as linhas
+                    VStack(spacing: 0) {
+                        Rectangle().fill(topo ? Tema.tintaFraca.opacity(0.3) : .clear).frame(width: 1, height: centro)
+                        Rectangle().fill(base ? Tema.tintaFraca.opacity(0.3) : .clear).frame(width: 1)
+                            .frame(maxHeight: .infinity)
+                            .padding(.bottom, -4)
+                    }
+                    ponto.padding(.top, centro - 4.5)
+                }
+                .frame(width: 9)
+                .accessibilityHidden(true)
+                content
+            }
+        }
+    }
+
+    @ViewBuilder private var ponto: some View {
+        switch estado {
+        case .escrito: Circle().fill(Tema.tinta).frame(width: 9, height: 9)
+        case .devido: Circle().strokeBorder(Tema.ambar, lineWidth: 1.5).background(Circle().fill(Tema.fundo)).frame(width: 9, height: 9)
+        case .porVir: Circle().strokeBorder(Tema.tintaFraca.opacity(0.6), lineWidth: 1).background(Circle().fill(Tema.fundo)).frame(width: 9, height: 9)
+        case .nenhum: EmptyView()
+        }
+    }
+}
+
+private extension View {
+    func marco(_ estado: Marco.Estado, topo: Bool, base: Bool) -> some View {
+        modifier(Marco(estado: estado, topo: topo, base: base))
     }
 }
 

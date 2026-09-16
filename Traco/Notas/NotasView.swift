@@ -1214,7 +1214,11 @@ struct NotasView: View {
         if t.hasSuffix("."), !t.hasSuffix("..") { t.removeLast() }
         if !busca.isEmpty {
             let sub = subtitulo(nota)
-            if sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) { return (t, restoDaNota(nota, depoisDe: t)) }
+            if sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) {
+                // forma: as respostas separadas, não emendadas numa frase só
+                // («Manter em 90 Margem sem perder vendas», visto na busca)
+                return (t, previaDaForma(nota, titulo: t) ?? restoDaNota(nota, depoisDe: t))
+            }
             // o trecho que começa pelo título repetia o título (auditoria 16/09 noite)
             let dobrar = { (x: String) in x.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
             if dobrar(sub).hasPrefix(dobrar(t)) {
@@ -1223,20 +1227,25 @@ struct NotasView: View {
             }
             return (t, sub)
         }
-        // forma com campos: a prévia são as respostas, na ordem do método, sem a
-        // que só repete o título ("Baixar o preço…" · "Baixar o preço porque…")
+        return (t, previaDaForma(nota, titulo: t) ?? restoDaNota(nota, depoisDe: t))
+    }
+
+    /// Forma com campos: a prévia são as respostas, na ordem do método, sem a
+    /// que só repete o título ("Baixar o preço…" · "Baixar o preço porque…").
+    private func previaDaForma(_ nota: Nota, titulo t: String) -> String? {
         let ordem = nota.gesto?.metodoDef.campos.map(\.id) ?? []
         let dobrar = { (x: String) in x.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
         let respostas = nota.campos
             .sorted { (ordem.firstIndex(of: $0.key) ?? ordem.count, $0.key) < (ordem.firstIndex(of: $1.key) ?? ordem.count, $1.key) }
-            .map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }
+            // as opções vêm uma por linha: na prévia, uma vírgula entre elas
+            .map { $0.value.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }.joined(separator: ", ") }
             .filter { !$0.isEmpty && !dobrar($0).hasPrefix(dobrar(t)) && !dobrar(t).hasPrefix(dobrar($0)) }
         // a decisão tomada diz mais que as opções emendadas
         if let decidido = nota.campos["decidido"]?.trimmingCharacters(in: .whitespacesAndNewlines), !decidido.isEmpty {
-            return (t, "Decidi: " + decidido)
+            return "Decidi: " + decidido
         }
-        if !respostas.isEmpty { return (t, respostas.joined(separator: " · ")) }
-        return (t, restoDaNota(nota, depoisDe: t))
+        if !respostas.isEmpty { return respostas.joined(separator: " · ") }
+        return nil
     }
 
     private func restoDaNota(_ nota: Nota, depoisDe titulo: String) -> String? {
