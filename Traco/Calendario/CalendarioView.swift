@@ -317,6 +317,7 @@ struct CalendarioView: View {
             .accessibilityLabel(agenda.modo == .lista ? "Ver em grade" : "Ver em lista")
             .accessibilityHint("Toque longo: novo compromisso ou colar")
             .accessibilityIdentifier("modo-alternar")
+            let indice = EscalaCalendario.allCases.firstIndex(of: agenda.escala) ?? 0
             HStack(spacing: 0) {
                 ForEach(EscalaCalendario.allCases, id: \.self) { escala in
                     let ligado = agenda.escala == escala
@@ -326,20 +327,9 @@ struct CalendarioView: View {
                             agenda.ir(para: escala)
                         }
                     } label: {
-                        // o trilho respira dentro da cápsula de 44: 32 de trilho,
-                        // 28 de disco (antes enchia os 44 e encostava nas bordas)
                         Text(escala.letra)
                             .font(.body.weight(.semibold))
-                            .foregroundStyle(ligado ? .white : CalendarioTema.tinta)
-                            .frame(width: 30, height: 30)
-                            .background {
-                                if ligado {
-                                    Circle()
-                                        .fill(CalendarioTema.chipActivo)
-                                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
-                                        .matchedGeometryEffect(id: "escala-selecionada", in: morph)
-                                }
-                            }
+                            .foregroundStyle(CalendarioTema.tinta)
                             .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
@@ -349,9 +339,28 @@ struct CalendarioView: View {
                     .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
                 }
             }
+            // a gota carvão escorre de uma letra à outra; a letra fica branca só
+            // onde a gota está — uma camada branca recortada por ela, como o Dock
+            .background {
+                Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count, cor: CalendarioTema.chipActivo)
+                    .offset(x: 1)
+                    .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
+            }
+            .overlay {
+                HStack(spacing: 0) {
+                    ForEach(EscalaCalendario.allCases, id: \.self) { escala in
+                        Text(escala.letra)
+                            .font(.body.weight(.semibold))
+                            .frame(width: 32, height: 32)
+                    }
+                }
+                .foregroundStyle(.white)
+                .mask { Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count).offset(x: 1) }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
             .padding(.horizontal, 2)
             .background(Capsule().fill(CalendarioTema.trilho))
-            .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
             if !agenda.hojeAVista(agora) {
                 Button {
@@ -371,7 +380,8 @@ struct CalendarioView: View {
                 }
                 .buttonStyle(PressaoClara())
                 .accessibilityIdentifier("calendario-hoje")
-                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                // o Hoje brota do trilho, como uma gota que se solta
+                .transition(Tema.transicao(.scale(scale: 0.4, anchor: .leading).combined(with: .opacity), reduzido: reduceMotion))
             }
         }
         .fixedSize()

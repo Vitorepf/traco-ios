@@ -129,3 +129,93 @@ struct BotaoMais<Conteudo: View>: View {
         .accessibilityIdentifier(identificador)
     }
 }
+
+/// A seleção que escorre como gota (dono, 16/09: "uma espécie de slime que vai
+/// passando… vem uma partezinha depois, e o resto é puxado"). As duas bordas
+/// seguem molas diferentes: a da frente sai primeiro e passa um fio do alvo, a
+/// de trás vem puxada e alcança; esticada, a gota afina, como líquido que
+/// conserva o volume. Vale para o trilho D S M A e para o Dock.
+///
+/// A mola é calculada aqui, quadro a quadro: com `withAnimation` o SwiftUI
+/// anima a LARGURA e a POSIÇÃO derivadas com uma curva só (a última), e a gota
+/// viajava redonda — medido no vídeo de 16/09. Movimento reduzido: salta.
+struct Gota: View {
+    var indice: Int
+    /// distância entre o começo de uma casa e o da seguinte
+    var passo: CGFloat
+    /// lado da gota em repouso (largura e altura)
+    var lado: CGFloat
+    /// quantas casas há: a frente passa um fio do alvo, mas nunca da última
+    /// casa — além dela a gota saía cortada reta pela borda (vídeo 16/09)
+    var casas: Int
+    /// nil: cápsula; com raio: o quadrado de cantos contínuos do Dock
+    var raio: CGFloat? = nil
+    var cor: Color = .black
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// de onde cada borda partiu e quando; nil = em repouso no índice
+    @State private var partida: (frente: CGFloat, tras: CGFloat, em: Date)?
+    @State private var ate: CGFloat = 0
+
+    private static let frente = (resposta: 0.26, amortecimento: 0.66)
+    private static let tras = (resposta: 0.5, amortecimento: 0.84)
+    private static let duracao: TimeInterval = 0.9
+
+    var body: some View {
+        TimelineView(.animation(paused: partida == nil)) { contexto in
+            let (x1, x2) = bordas(em: contexto.date)
+            let largura = abs(x1 - x2) + lado
+            // afina até 74 % quando estica: a ponte entre as casas lê como líquido
+            let altura = max(lado * 0.74, lado - (largura - lado) * 0.16)
+            forma
+                .frame(width: largura, height: altura)
+                .offset(x: min(x1, x2))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                // quem move a gota é a mola daqui: a animação de quem trocou a
+                // escala (o morph do calendário) não pode arrastá-la redonda
+                .transaction { $0.animation = nil }
+        }
+        .onChange(of: indice) { antigo, novo in
+            let destino = CGFloat(novo) * passo
+            guard !reduceMotion else { partida = nil; ate = destino; return }
+            // retoma de onde CADA borda está agora, mesmo no meio de outra viagem;
+            // em repouso, parte do índice ANTIGO (aqui `indice` já é o novo)
+            let (x1, x2) = partida == nil ? (CGFloat(antigo) * passo, CGFloat(antigo) * passo) : bordas(em: .now)
+            partida = (x1, x2, .now)
+            ate = destino
+            let marca = partida?.em
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(Self.duracao))
+                if partida?.em == marca { partida = nil }
+            }
+        }
+    }
+
+    private func bordas(em data: Date) -> (CGFloat, CGFloat) {
+        // em repouso a gota mora no índice: nasce no lugar, sem voar da borda
+        guard let partida else { let x = CGFloat(indice) * passo; return (x, x) }
+        let t = data.timeIntervalSince(partida.em)
+        let f = Self.mola(t, Self.frente.resposta, Self.frente.amortecimento)
+        let r = Self.mola(t, Self.tras.resposta, Self.tras.amortecimento)
+        let limite = CGFloat(max(0, casas - 1)) * passo
+        func preso(_ x: CGFloat) -> CGFloat { min(max(x, 0), limite) }
+        return (preso(partida.frente + (ate - partida.frente) * f), preso(partida.tras + (ate - partida.tras) * r))
+    }
+
+    /// Progresso 0 → 1 de uma mola sub-amortecida partindo do repouso.
+    static func mola(_ t: TimeInterval, _ resposta: Double, _ amortecimento: Double) -> CGFloat {
+        guard t > 0 else { return 0 }
+        let w0 = 2 * Double.pi / resposta
+        let z = amortecimento
+        let wd = w0 * (1 - z * z).squareRoot()
+        let e = exp(-z * w0 * t)
+        return CGFloat(1 - e * (cos(wd * t) + (z * w0 / wd) * sin(wd * t)))
+    }
+
+    @ViewBuilder private var forma: some View {
+        if let raio {
+            RoundedRectangle(cornerRadius: raio, style: .continuous).fill(cor)
+        } else {
+            Capsule().fill(cor)
+        }
+    }
+}

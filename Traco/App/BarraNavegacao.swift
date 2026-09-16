@@ -92,13 +92,11 @@ struct BarraNavegacao: View {
                     // centrado no glifo — a mesma forma do botão de escrever. O
                     // losango foi provado e preterido: apertava o glifo e era uma
                     // terceira forma. Lado e passo são fixos: não há o que medir.
-                    RoundedRectangle(cornerRadius: Tema.raioDaAba, style: .continuous)
-                        .frame(width: Tema.ladoDaAba, height: Tema.ladoDaAba)
-                        .offset(x: (Tema.ladoDaAba + Tema.folgaDasAbas) * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
-                        // `escala`, não `toque`: a de 0,65 passava da borda da
-                        // pílula e saía cortada reta na viagem de três casas
-                        .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    // dono, 16/09: a seleção escorre como gota — a frente sai,
+                    // o resto é puxado, e o quadrado afina na ponte
+                    Gota(indice: Aba.naBarra.firstIndex(of: aba) ?? 0,
+                         passo: Tema.ladoDaAba + Tema.folgaDasAbas,
+                         lado: Tema.ladoDaAba, casas: Aba.naBarra.count, raio: Tema.raioDaAba)
                 }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
