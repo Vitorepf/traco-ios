@@ -939,7 +939,7 @@ struct NotasView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         // a porta dos Trabalhos existe mesmo com o arquivo vazio
                         Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
-                              ? .init("escrever na página") {
+                              ? .init("Escrever na página") {
                                   sessao.novaPagina()
                                   sessao.mostrarNotas = false
                               }
@@ -948,7 +948,7 @@ struct NotasView: View {
                               : !busca.isEmpty && filtro == nil && filtroDominio == nil
                                 && Politica.provedor(.responderNasNotas) != nil
                               ? .init("Perguntar às suas notas", id: "perguntar-da-busca") { perguntarDaBusca() }
-                              : .init("ver todas as notas", id: "limpar-busca") {
+                              : .init("Ver todas as notas", id: "limpar-busca") {
                                   busca = ""
                                   filtro = nil
                                   filtroDominio = nil
@@ -1035,9 +1035,9 @@ struct NotasView: View {
     }
 
     private var vazioTitulo: String {
-        if filtro == .trancadas { return "nenhuma trancada." }
-        if !busca.isEmpty { return "nenhuma nota com “\(busca)”." }
-        return "nada aqui ainda."
+        if filtro == .trancadas { return "Nenhuma trancada" }
+        if !busca.isEmpty { return "Nenhuma nota com “\(busca)”" }
+        return "Nada aqui ainda"
     }
 
     /// A busca não dizia quantas achou: o autor não sabia se tinha terminado
@@ -1252,10 +1252,16 @@ struct NotasView: View {
     /// O rodapé que assina a nota: quando, e as marcas que valem (origem,
     /// recordada). O domínio fica à direita, no chip.
     private func rodape(_ nota: Nota) -> String {
-        // hoje o grupo já diz "Hoje": o rodapé diz a hora
-        var partes = [Calendar.current.isDateInToday(nota.criadaEm)
-                      ? nota.criadaEm.formatted(date: .omitted, time: .shortened)
-                      : VozDoAutor.relativo(nota.criadaEm).capitalizadoNoInicio]
+        // hoje o grupo já diz "Hoje": o rodapé diz a hora. Nos outros dias, a
+        // data — "Há 15 dias" obrigava a contar (dono, 16/09: "faz mais sentido
+        // colocar a data"); o ano só quando não é este
+        let quando = nota.criadaEm
+        let cal = Calendar.current
+        var partes = [cal.isDateInToday(quando)
+                      ? quando.formatted(date: .omitted, time: .shortened)
+                      : cal.isDate(quando, equalTo: .now, toGranularity: .year)
+                        ? quando.formatted(.dateTime.day().month(.wide))
+                        : quando.formatted(.dateTime.day().month(.wide).year())]
         if let origem = nota.origem.etiqueta { partes.append(origem) }
         if nota.queimada, nota.minutosEscritos >= 1 { partes.append("\(nota.minutosEscritos) min") }
         let recordadas = Revisoes.contagem(nota.uuid)

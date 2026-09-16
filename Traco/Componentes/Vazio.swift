@@ -41,17 +41,17 @@ struct Vazio: View {
 }
 
 #Preview("com saída") {
-    Vazio(frase: "nada aqui ainda.", acao: .init("escrever na página") {})
+    Vazio(frase: "Nada aqui ainda", acao: .init("Escrever na página") {})
         .background(Tema.fundo)
 }
 
 #Preview("só a frase") {
-    Vazio(frase: "nenhuma trancada.")
+    Vazio(frase: "Nenhuma trancada")
         .background(Tema.fundo)
 }
 
 #Preview("AX5") {
-    Vazio(frase: "nenhuma nota com “casa”.", acao: .init("ver todas as notas") {})
+    Vazio(frase: "Nenhuma nota com “casa”", acao: .init("Ver todas as notas") {})
         .background(Tema.fundo)
         .environment(\.dynamicTypeSize, .accessibility5)
 }
