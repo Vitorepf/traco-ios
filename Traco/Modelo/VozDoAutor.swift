@@ -21,12 +21,14 @@ enum VozDoAutor: Sendable {
             .map(\.value)
     }
 
+    /// `semCitacao`: quem lê a VOZ (domínio, Padrões) não recebe o `>` — a
+    /// citação é palavra de outro; a busca e a tela continuam com ela.
     nonisolated static func juntar(texto: String, campos: [String: String],
-                                   sentido: String = "") -> String {
+                                   sentido: String = "", semCitacao: Bool = false) -> String {
         let respostas = respostasNaOrdemDoMetodo(campos)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        let prosa = Caderno.prosa(de: texto)
+        let prosa = Caderno.prosa(de: texto, semCitacao: semCitacao)
         let linha = sentido.trimmingCharacters(in: .whitespacesAndNewlines)
         return ([prosa] + respostas + (linha.isEmpty ? [] : [linha]))
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }

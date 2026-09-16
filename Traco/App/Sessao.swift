@@ -289,7 +289,7 @@ final class Sessao {
         case .gesto(let g, let pergunta):
             Toque.leve()
             if !dominioTravado {
-                dominio = Dominio.inferir(voz: VozDoAutor.juntar(texto: texto, campos: campos))
+                dominio = Dominio.inferir(voz: VozDoAutor.juntar(texto: texto, campos: campos, semCitacao: true))
             }
             if automatica, !Sinais.sugerirEmVezDeVestir(g) {
                 // §17.3: gatilho explícito = confiança alta → a forma já vem vestida,
@@ -1418,7 +1418,7 @@ final class Sessao {
         if dominioTravado {
             nota.dominio = dominio
         } else {
-            let voz = VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentidoPendente ?? "")
+            let voz = VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentidoPendente ?? "", semCitacao: true)
             dominio = Dominio.inferir(voz: voz)
             nota.dominio = dominio
         }

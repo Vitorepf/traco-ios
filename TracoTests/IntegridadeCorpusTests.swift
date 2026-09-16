@@ -169,8 +169,11 @@ struct IntegridadeCorpusTests {
     @Test func origemDoCabecalhoAtravessaOImport() throws {
         for (linha, esperada) in [("origem: grokbot", OrigemNota.grokbot),
                                   ("origem: pesquisa", .pesquisa),
+                                  ("origem: obra", .obra),
                                   ("", .autor),
-                                  ("origem: assistente", .autor)] {
+                                  // ADR 2026-09-16a: quem declarou origem declarou que
+                                  // não foi o autor — a que esta versão não conhece é obra
+                                  ("origem: assistente", .obra)] {
             let md = "---\ncriada: 1970-01-01T00:00:00Z\ngesto: WOOP\n"
                 + (linha.isEmpty ? "" : linha + "\n") + "---\n\ntrês temas voltam\n"
             let item = try #require(Corpus.importar(md).first)

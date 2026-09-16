@@ -338,7 +338,7 @@ enum Corpus {
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
             if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false, 0) }
-            return ([(limpo, nil, .now, .autor)], true, 1)
+            return ([(limpo, nil, .now, pareceObra(limpo) ? .obra : .autor)], true, 1)
         }
         let tinta = comTinta(conteudo)
         var saida: [ItemImportado] = []
@@ -358,7 +358,9 @@ enum Corpus {
                 .compactMap { linha -> OrigemNota? in
                     let l = linha.trimmingCharacters(in: .whitespaces)
                     guard l.hasPrefix("origem: ") else { return nil }
-                    return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces))
+                    // origem que esta versão não conhece não é o autor: quem
+                    // declarou origem declarou que não foi ele (ADR 2026-09-16a)
+                    return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces)) ?? .obra
                 }
                 .first ?? .autor
             if cabecalho.split(whereSeparator: \.isNewline).contains(where: {
@@ -392,6 +394,18 @@ enum Corpus {
             lidos += comTinta(bloco)
         }
         return (saida, lidos == tinta, tinta == 0 ? 1 : Double(lidos) / Double(tinta))
+    }
+
+    /// ADR 2026-09-16a: um `.md` sem cabeçalho do Traço é voz do autor só
+    /// quando parece anotação. Seção numerada (`## 12.`), link sozinho numa
+    /// linha (o formato do dossiê) ou mais de 20.000 caracteres é dossiê, livro
+    /// ou transcrição: entra como obra. O link no meio da frase é do autor.
+    /// ponytail: heurística de três sinais; o que escapa dela é texto curto sem
+    /// seção nem link solto, e quem quiser outra coisa declara `origem:`.
+    nonisolated static func pareceObra(_ texto: String) -> Bool {
+        texto.count > 20_000
+            || texto.range(of: #"(?m)^#{1,3}[ \t]+\d+\."#, options: .regularExpression) != nil
+            || texto.range(of: #"(?m)^[ \t]*https?://\S+[ \t]*$"#, options: .regularExpression) != nil
     }
 
     /// Bytes com tinta: tudo que não é espaço, tabulação nem quebra de linha. É

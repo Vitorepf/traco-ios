@@ -203,10 +203,26 @@ nonisolated struct Metodo: Codable, Sendable, Equatable, Identifiable {
     /// O que o roteador lê: a definição, ou o reconhecimento na falta dela.
     var paraRoteador: String { definicao.isEmpty ? (reconhecimento.isEmpty ? nome : reconhecimento) : definicao }
 
+    /// ADR 2026-09-16a: o que entra no catálogo vai ao pedido da Análise
+    /// (`id = definição`, uma linha por método) e ao roteador por regex. Um
+    /// arquivo de `metodos/` escrito por fora não quebra linha nesse pedido,
+    /// não traz regex que não compila e não inventa id de campo com espaço.
     var valido: Bool {
-        !id.trimmingCharacters(in: .whitespaces).isEmpty
+        func umaLinha(_ s: String, _ teto: Int) -> Bool {
+            s.count <= teto && !s.contains(where: \.isNewline)
+        }
+        // `\z`, não `$`: no ICU o `$` casa antes da quebra final e "cornell\n"
+        // passava, quebrando a linha do pedido
+        let palavra = #"^[A-Za-z][A-Za-z0-9_]{0,40}\z"#
+        return id.range(of: palavra, options: .regularExpression) != nil
             && !nome.trimmingCharacters(in: .whitespaces).isEmpty
+            && umaLinha(nome, 120) && umaLinha(definicao, 300) && umaLinha(reconhecimento, 300)
             && Set(campos.map(\.id)).count == campos.count
+            && campos.allSatisfy {
+                $0.id.range(of: palavra, options: .regularExpression) != nil
+                    && !$0.rotulo.trimmingCharacters(in: .whitespaces).isEmpty && umaLinha($0.rotulo, 120)
+            }
+            && roteamento.allSatisfy { $0.count <= 300 && (try? NSRegularExpression(pattern: $0)) != nil }
     }
 }
 
@@ -307,7 +323,7 @@ nonisolated enum Catalogo {
                 do {
                     var m = try JSONDecoder().decode(Metodo.self, from: dados)
                     m.doAutor = true
-                    guard m.valido else { motivos.append("\(nome): falta id, nome ou os campos repetem"); continue }
+                    guard m.valido else { motivos.append("\(nome): id, nome, campos, regex ou texto de uma linha inválidos"); continue }
                     guard !ids.contains(m.id) else { motivos.append("\(nome): o id “\(m.id)” já existe"); continue }
                     guard m.id != Gesto.expressiva.rawValue else { motivos.append("\(nome): a expressiva não é configurável"); continue }
                     ids.insert(m.id)

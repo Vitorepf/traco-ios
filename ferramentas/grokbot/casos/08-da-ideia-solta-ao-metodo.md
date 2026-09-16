@@ -30,10 +30,11 @@ suavize a resposta dela. Não invente um método que não esteja no contrato.
 traco_escrever(
   titulo: "<a primeira linha, nas palavras dela>",
   texto: "<o corpo, nas palavras dela>",
-  forma: "WOOP"        // ou Decisão, Pré-mortem, Se–então…
+  forma: "WOOP",       // ou Decisão, Pré-mortem, Se–então…
+  origem: "autor"
 )
 ```
 
-`origem` fica no padrão (`autor`), e é o único caso desta lista em que fica:
-aqui quem escreveu foi ela. Se você acrescentou uma frase sua, ou a nota é
+`origem: "autor"` é declarado (sem ele a escrita é recusada, ADR 2026-09-16a),
+e é o único caso desta lista em que é `autor`: aqui quem escreveu foi ela. Se você acrescentou uma frase sua, ou a nota é
 `grokbot` com motivo, ou a frase sai.

@@ -112,7 +112,11 @@ nonisolated enum Entrada {
             let pasta = raiz.appendingPathComponent("metodos", isDirectory: true)
             guard pasta != destino, let nomes = try? fm.contentsOfDirectory(atPath: pasta.path) else { continue }
             for nome in nomes where nome.hasSuffix(".json") {
-                guard let dados = try? Data(contentsOf: pasta.appendingPathComponent(nome)) else { continue }
+                // ADR 2026-09-16a: só copia o que o catálogo aceitaria — o
+                // arquivo alheio não chega à pasta de onde o pedido da Análise lê
+                guard let dados = try? Data(contentsOf: pasta.appendingPathComponent(nome)),
+                      let metodo = try? JSONDecoder().decode(Metodo.self, from: dados), metodo.valido
+                else { continue }
                 let alvo = destino.appendingPathComponent(nome)
                 if let atual = try? Data(contentsOf: alvo), atual == dados { continue }
                 try? fm.createDirectory(at: destino, withIntermediateDirectories: true)

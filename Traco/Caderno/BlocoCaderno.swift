@@ -612,12 +612,14 @@ enum Caderno: Sendable {
         return partes.joined(separator: "\n\n")
     }
 
-    nonisolated static func prosa(de markdown: String) -> String {
+    nonisolated static func prosa(de markdown: String, semCitacao: Bool = false) -> String {
         fatias(markdown).compactMap { fatia -> String? in
             switch fatia.bloco {
             case .paragrafo(let t), .titulo(_, let t):
                 return t
-            case .itens(let xs, _), .citacao(let xs):
+            case .citacao(let xs):
+                return semCitacao ? nil : xs.joined(separator: "\n")
+            case .itens(let xs, _):
                 return xs.joined(separator: "\n")
             case .tarefas(let xs):
                 return xs.map(\.texto).joined(separator: "\n")

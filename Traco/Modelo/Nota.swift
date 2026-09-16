@@ -3,9 +3,10 @@ import SwiftData
 
 /// Quem escreveu o texto (ADR 2026-09-08u). O padrão é o autor; qualquer outra
 /// origem é o bot falando, e o app diz isso na tela, mantém a nota fora do
-/// Retrato e nunca a conta como voz do autor.
+/// Retrato e nunca a conta como voz do autor. `obra` (ADR 2026-09-16a) é texto
+/// de um mestre — dossiê, livro, transcrição: consulta, nunca voz.
 nonisolated enum OrigemNota: String, Sendable, CaseIterable {
-    case autor, grokbot, pesquisa
+    case autor, grokbot, pesquisa, obra
 
     /// A palavra que aparece na etiqueta. Diz o essencial: não é voz do autor.
     var etiqueta: String? {
@@ -13,6 +14,7 @@ nonisolated enum OrigemNota: String, Sendable, CaseIterable {
         case .autor: nil
         case .grokbot: "feito pelo bot"
         case .pesquisa: "pesquisa do bot"
+        case .obra: "obra"
         }
     }
 }
@@ -90,7 +92,9 @@ final class Nota {
 
     /// Nota que não é do autor: etiqueta na tela, fora do Retrato, fora da voz.
     var origem: OrigemNota {
-        get { OrigemNota(rawValue: origemRaw) ?? .autor }
+        // vazio é o autor (toda nota anterior à 08u); um valor que esta versão
+        // não conhece NÃO é: cai em obra, fora da voz (ADR 2026-09-16a)
+        get { origemRaw.isEmpty ? .autor : OrigemNota(rawValue: origemRaw) ?? .obra }
         set { origemRaw = newValue == .autor ? "" : newValue.rawValue }
     }
 
@@ -147,7 +151,10 @@ final class Nota {
     /// isso o classificador de domínio e as perguntas dos Padrões não recebem
     /// uma palavra que a pessoa não escreveu. Quem quer o texto seja de quem
     /// for pede `textoDeQualquerOrigem` — e o nome diz o que está pedindo.
-    var vozDoAutor: String { origem == .autor ? textoDeQualquerOrigem : "" }
+    /// A citação `>` é de outro (ADR 2026-09-16a): fica na busca, sai da voz.
+    var vozDoAutor: String {
+        origem == .autor ? VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentido, semCitacao: true) : ""
+    }
 
     /// Página sem voz não é nota: o arquivo e o Recordar não a tratam como traço.
     var temVoz: Bool {
