@@ -100,23 +100,7 @@ struct PaginaView: View {
             }
         .sheet(item: $trabalhoAberto) { trabalho in TrabalhoView(trabalho: trabalho) }
         .tint(Tema.ambar)
-        .sheet(isPresented: $sessao.mostrarRecordar) {
-            RecordarView(
-                texto: sessao.recordarTexto,
-                campos: sessao.recordarCampos,
-                gesto: sessao.recordarGesto,
-                aoRevelar: { sessao.cumprirRevisaoPendente(no: context) },
-                aoCobrarAntes: { sessao.cobrarAntesPendente() },
-                aoProxima: sessao.temProximaFila ? { sessao.proximaDaFila(no: context) } : nil,
-                aoAdiar: { sessao.adiarPendente() },
-                aoPular: sessao.temProximaFila ? { sessao.pularDaFila(no: context) } : nil,
-                degrau: sessao.recordarUUID.map { Revisoes.nivel($0) } ?? 0,
-                retrato: sessao.retratoAtual()
-            )
-            .id(sessao.recordarUUID)
-            .presentationBackground(Tema.superficie)
-            .presentationDragIndicator(.visible)
-        }
+        .sheet(isPresented: $sessao.mostrarRecordar) { folhaDoRecordar }
         .onAppear {
             #if DEBUG
             Self.sessaoViva = sessao
@@ -529,6 +513,35 @@ struct PaginaView: View {
         .frame(maxWidth: 680)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onPreferenceChange(CampoDaFormaEmFoco.self) { emFoco in campoDaFormaEmFoco = emFoco }
+    }
+
+    /// A folha do Recordar fora do `body`: dentro dele a expressão passava do
+    /// que o verificador de tipos resolve a tempo.
+    private var folhaDoRecordar: some View {
+        RecordarView(
+            texto: sessao.recordarTexto,
+            campos: sessao.recordarCampos,
+            gesto: sessao.recordarGesto,
+            aoRevelar: { sessao.cumprirRevisaoPendente(no: context) },
+            aoCobrarAntes: { sessao.cobrarAntesPendente() },
+            aoProxima: sessao.temProximaFila ? { sessao.proximaDaFila(no: context) } : nil,
+            aoAdiar: { sessao.adiarPendente() },
+            aoPular: sessao.temProximaFila ? { sessao.pularDaFila(no: context) } : nil,
+            degrau: sessao.recordarUUID.map { Revisoes.nivel($0) } ?? 0,
+            retrato: sessao.retratoAtual(),
+            sobre: sobreORecordar
+        )
+        .id(sessao.recordarUUID)
+        .presentationBackground(Tema.superficie)
+        .presentationDragIndicator(.visible)
+    }
+
+    /// De qual nota é a prova do Recordar: data e domínio.
+    private var sobreORecordar: String? {
+        guard let uuid = sessao.recordarUUID, let nota = Sessao.buscar(uuid: uuid, no: context) else { return nil }
+        let data: String = "Nota de " + nota.criadaEm.formatted(.dateTime.day().month(.wide))
+        guard let dominio = nota.dominio?.nome else { return data }
+        return data + " · " + dominio
     }
 
     /// Só o que pode ser ligado: o selo vale aqui como vale na rede (ADR 03b),

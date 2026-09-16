@@ -79,7 +79,7 @@ struct PadroesView: View {
                 }
             }
             if p.vazio {
-                Text("nada neste período.")
+                Text("Nada neste período")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaFraca)
             }
@@ -218,7 +218,7 @@ struct PadroesView: View {
     private var perguntasDaSemana: some View {
         recolhidas.secao("Perguntas", id: "perguntas", contagem: carregou && !perguntas.isEmpty ? perguntas.count : nil) {
             if !carregou {
-                LinhaDeLista("hourglass", "lendo as suas notas…", fio: false)
+                LinhaDeLista("hourglass", "Lendo as suas notas…", fio: false)
             } else if perguntas.isEmpty {
                 LinhaDeLista("text.bubble", "ainda não há o que ler", "escreva primeiro — as perguntas nascem das suas notas abertas",
                              fio: false)
@@ -232,7 +232,8 @@ struct PadroesView: View {
                     } label: {
                         // o título É a pergunta: quebra, não corta. O glifo é
                         // o de escrever — responder é abrir uma página
-                        LinhaDeLista(tocavel: "square.and.pencil", pergunta, nil,
+                        // não o lápis de "nova nota": a pergunta abre na página para responder
+                        LinhaDeLista(tocavel: "text.bubble", pergunta.replacingOccurrences(of: "\"", with: "”").replacingOccurrences(of: "(^|[\\s(])”", with: "$1“", options: .regularExpression), nil,
                                      linhasDoTitulo: nil, fio: indice < perguntas.count - 1)
                     }
                     .buttonStyle(.linha)
@@ -266,7 +267,7 @@ struct PadroesView: View {
                     // "5 sem forma · 1 woop" era contagem de método; "5 soltas ·
                     // 1 WOOP" é o que a pessoa lê (auditoria 15/09, 8)
                     LinhaDeLista("doc.on.doc", "\(total) \(total == 1 ? "nota" : "notas") em sete dias",
-                                 r.porForma.map { "\($0.quantas) \($0.forma?.nome ?? ($0.quantas == 1 ? "solta" : "soltas"))" }.joined(separator: " · "))
+                                 r.porForma.map { Trajetoria.contagem($0.quantas, $0.forma?.nome) }.joined(separator: " · "))
                 }
                 bloco("star", "destaque", r.destaques)
                 bloco("arrow.triangle.branch", "decisão a conferir", r.decisoesAConferir)

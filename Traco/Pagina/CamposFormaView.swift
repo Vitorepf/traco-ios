@@ -25,6 +25,12 @@ struct CamposFormaView: View {
             // SPEC §20: a casa não tem chrome. Palavra é escrever o sentido
             // (minhas / frase / onde). Look Up é o do iOS no texto seleccionado.
             ForEach(Array(visiveis.enumerated()), id: \.element.id) { indice, campo in
+                // a volta chega direto no campo que cobra (15/09); o contexto vem
+                // junto, colado nele: o que você esperava (auditoria 16/09 noite —
+                // abria rolada, sem título nem aviso)
+                if conferenciaDevida, campo.soDepois, campo.id == visiveis.first(where: \.soDepois)?.id {
+                    contextoDaVolta
+                }
                 LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id), foco: $campoFocado)
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
@@ -97,6 +103,21 @@ struct CamposFormaView: View {
     }
 
     /// O campo da volta só entra quando é devido, ou quando já foi respondido.
+    @ViewBuilder private var contextoDaVolta: some View {
+        let esperava = (campos["espero"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        VStack(alignment: .leading, spacing: 4) {
+            Label("Hora de conferir", systemImage: "clock.arrow.circlepath")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Tema.ambarTinta)
+            // o "espero" está logo acima, na mesma forma: repeti-lo era eco
+            let _ = esperava
+        }
+        .padding(.top, 18)
+        .padding(.bottom, 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("contexto-da-volta")
+    }
+
     private var visiveis: [CampoForma] {
         gesto.campos.filter { campo in
             guard campo.soDepois else { return true }
@@ -164,7 +185,11 @@ private struct LinhaCampo: View {
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
                 .overlay(alignment: .bottom) {
-                    Rectangle().fill(preenchido ? Tema.ambar.opacity(0.5) : Tema.linha).frame(height: 0.5)
+                    // âmbar só onde o cursor está (auditoria 16/09 noite: campos
+                    // respondidos em âmbar liam como "em foco")
+                    Rectangle().fill(foco.wrappedValue == id ? Tema.ambar : Tema.linha)
+                        .frame(height: foco.wrappedValue == id ? 1 : 0.5)
+                    let _ = preenchido
                 }
                 .accessibilityLabel(rotulo)
                 .accessibilityIdentifier("campo-\(id)")

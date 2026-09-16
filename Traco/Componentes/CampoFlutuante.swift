@@ -24,9 +24,17 @@ struct CampoFlutuante<Mais: View>: View {
     var foco: FocusState<Bool>.Binding? = nil
     /// Enquanto a outra ponta trabalha (a sábia pensa), o botão vira parar.
     var aoParar: (() -> Void)? = nil
+    /// Ao escrever, o que mora antes do campo (o trilho do calendário) sai e a
+    /// linha inteira é do texto (auditoria 16/09 noite: "Marcar" encolhia a 60 pt).
+    var recolherMaisAoEscrever = false
     @ViewBuilder var mais: () -> Mais
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var focoProprio: Bool
+    private var escrevendo: Bool { foco?.wrappedValue ?? focoProprio }
+    /// Sem nada antes do texto, ele respira 14 da borda; com o trilho, 4.
+    private var recuoDoTexto: CGFloat {
+        Mais.self == EmptyView.self || (recolherMaisAoEscrever && escrevendo) ? 14 : 4
+    }
     @State private var larguraDoTexto: CGFloat = .infinity
 
     private var dicaQueCabe: String {
@@ -38,7 +46,10 @@ struct CampoFlutuante<Mais: View>: View {
     var body: some View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
         HStack(spacing: 6) {
-            mais()
+            if !(recolherMaisAoEscrever && escrevendo) {
+                mais()
+                    .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.9, anchor: .leading)), reduzido: reduceMotion))
+            }
             HStack(spacing: 4) {
             // cresce até quatro linhas (auditoria 16/09 noite: numa linha só a
             // pergunta rolava para o lado e o começo sumia); Enter envia
@@ -57,9 +68,11 @@ struct CampoFlutuante<Mais: View>: View {
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.send)
                 .onSubmit(aoEnviar)
-                .frame(minHeight: 32)
-                .padding(.leading, Mais.self == EmptyView.self ? 14 : 4)
-                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { larguraDoTexto = $0 - (Mais.self == EmptyView.self ? 14 : 4) - 2 }
+                // multilinha não se estica sozinho: sem isto a largura medida
+                // era a do texto e a dica encurtava para "Marcar"
+                .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
+                .padding(.leading, recuoDoTexto)
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { larguraDoTexto = $0 - recuoDoTexto - 2 }
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)

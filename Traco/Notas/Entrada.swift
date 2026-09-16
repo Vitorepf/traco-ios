@@ -134,6 +134,6 @@ nonisolated enum Entrada {
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
         f.dateFormat = "d 'de' MMMM, HH:mm"
-        return "última entrada: \(f.string(from: d))."
+        return "última entrada: \(f.string(from: d))"
     }
 }

@@ -405,7 +405,7 @@ struct CalendarioView: View {
         return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "Novo compromisso", dicaCurta: "Marcar", ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
-                       aoEnviar: { agenda.adicionarDaProsa() }) {
+                       aoEnviar: { agenda.adicionarDaProsa() }, recolherMaisAoEscrever: true) {
             interruptor(agora: agora)
         }
     }

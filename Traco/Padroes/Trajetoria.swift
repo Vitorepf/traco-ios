@@ -55,6 +55,18 @@ nonisolated struct Trajetoria: Equatable, Sendable {
         )
     }
 
+    /// "4 decisões", "1 solta", "2 WOOP": a forma contada como se lê, não o nome do método.
+    static func contagem(_ n: Int, _ forma: String?) -> String {
+        guard var nome = forma else { return "\(n) \(n == 1 ? "solta" : "soltas")" }
+        guard nome.contains(where: \.isLowercase) else { return "\(n) \(nome)" }
+        nome = nome.lowercased()
+        if n > 1 {
+            if nome.hasSuffix("ão") { nome = String(nome.dropLast(2)) + "ões" }
+            else if let u = nome.last, "aeiouáéíóúâêô".contains(u) { nome += "s" }
+        }
+        return "\(n) \(nome)"
+    }
+
     private static func periodo(_ rotulo: String, notas: [NotaLida], sinais: [Sinal],
                                 de: Date, a: Date) -> Periodo {
         var p = Periodo(rotulo: rotulo)
@@ -62,9 +74,9 @@ nonisolated struct Trajetoria: Equatable, Sendable {
         let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.vozDoAutor && $0.criadaEm >= de && $0.criadaEm <= a }
         p.notas = abertas.count
         var conta: [String: Int] = [:]
-        for n in abertas { conta[n.gesto?.nome ?? "soltas", default: 0] += 1 }
+        for n in abertas { conta[n.gesto?.nome ?? "", default: 0] += 1 }
         p.porForma = conta.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
-            .prefix(6).map { "\($0.value) \($0.key.lowercased())" }
+            .prefix(6).map { contagem($0.value, $0.key.isEmpty ? nil : $0.key) }
 
         p.obstaculos = abertas.filter { $0.gesto == .woop }
             .sorted { $0.criadaEm > $1.criadaEm }

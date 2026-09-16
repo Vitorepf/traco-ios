@@ -84,6 +84,9 @@ struct RecordarView: View {
     var degrau: Int = 0
     /// ADR 04i: o retrato vai junto da pergunta da prova.
     var retrato: String = ""
+    /// De qual nota é a pergunta: data e domínio (auditoria 16/09 noite — a
+    /// prova chegava sem pista nenhuma de qual nota recordar).
+    var sobre: String? = nil
     @State private var avaliou = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -108,7 +111,9 @@ struct RecordarView: View {
          aoAdiar: (() -> Void)? = nil,
          aoPular: (() -> Void)? = nil,
          degrau: Int = 0,
-         retrato: String = "") {
+         retrato: String = "",
+         sobre: String? = nil) {
+        self.sobre = sobre
         self.texto = texto
         self.campos = campos
         self.gesto = gesto
@@ -366,11 +371,18 @@ struct RecordarView: View {
         // conteúdo todo alinhado à esquerda — três eixos numa tela só
         // (`law-of-continuity`). Quem quer largura inteira ainda pede.
         VStack(alignment: .leading, spacing: 0) {
-            CabecalhoDeFolha(saida: .voltar, aoSair: { dismiss() }) {
+            CabecalhoDeFolha(saida: .fechar, aoSair: { dismiss() }) {
                 // caixa alta só agrupa (ADR 10k); o nome da folha vai em frase
-                Text("Recordar").font(Tema.chrome).foregroundStyle(Tema.tintaSuave)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Recordar").font(.body.weight(.semibold)).foregroundStyle(Tema.tinta)
+                    if let sobre {
+                        Text(sobre).font(.footnote).foregroundStyle(Tema.tintaFraca).lineLimit(1)
+                    }
+                }
             }
             .padding(.horizontal, Tema.margem)
+            // a alça da folha não encosta no título
+            .padding(.top, 10)
             // cabeçalho é chrome: como a barra do sistema, não cresce em AX
             // (a AX5 partia "RECORDAR" em duas linhas e cortava "voltar")
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
@@ -491,7 +503,7 @@ struct RecordarView: View {
                            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { fase = .revelar }
                        },
                        saidas: [
-                        aoAdiar.map { Saida(id: "adiar", rotulo: "hoje não", dica: "Volta amanhã. A escada não muda.", acao: $0) },
+                        aoAdiar.map { Saida(id: "adiar", rotulo: "Hoje não", dica: "Volta amanhã. A escada não muda.", acao: $0) },
                         aoPular.map { Saida(id: "pular", rotulo: "pular", dica: "Vai à próxima sem revelar esta", acao: $0) },
                        ].compactMap { $0 })
                 }
@@ -529,7 +541,7 @@ struct RecordarView: View {
                         naoVoltou
                     }
                 }
-                rodape(aoProxima == nil ? "Voltar à página" : "próxima",
+                rodape(aoProxima == nil ? "Voltar à página" : "Próxima",
                        dica: aoProxima == nil ? "" : "Abre a seguinte. Sem contagem.",
                        ax: aoProxima == nil ? nil : "Próxima",
                        acao: { if let aoProxima { aoProxima() } else { dismiss() } },

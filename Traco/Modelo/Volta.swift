@@ -38,8 +38,9 @@ nonisolated enum Volta {
     nonisolated static func emPalavras(quantas: Int) -> String {
         switch quantas {
         case ..<1: ""
-        case 1: "1 volta a conferir"
-        default: "\(quantas) voltas a conferir"
+        // o mesmo nome das Notas ("Hora de conferir"), sem o jargão "volta"
+        case 1: "1 para conferir"
+        default: "\(quantas) para conferir"
         }
     }
 

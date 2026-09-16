@@ -137,6 +137,7 @@ struct NotasView: View {
     /// ADR 10i: o gesto de perguntar. A folha abre com a linha "?" em branco
     /// e o teclado de pé; a busca que estava a ser escrita fica onde estava.
     private func abrirPergunta() {
+        conversaNotas.recolhida = false
         conversaNotas.perguntando = true
         Toque.selecao()
     }
@@ -180,7 +181,62 @@ struct NotasView: View {
 
     private func fecharConversa() {
         var t = Transaction(); t.disablesAnimations = true
-        withTransaction(t) { conversaNotas.fechar() }
+        withTransaction(t) { conversaNotas.recolher() }
+    }
+
+    /// A conversa recolhida mora no topo da lista, a um toque (auditoria 16/09
+    /// noite). Encerrar de vez é o ✕ — ou "Nova conversa" lá dentro.
+    @ViewBuilder private var continuarConversa: some View {
+        if conversaNotas.recolhida, conversaNotas.temCartao {
+            HStack(spacing: 12) {
+                Button {
+                    Toque.selecao()
+                    withAnimation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                        conversaNotas.recolhida = false
+                    }
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "bubble.left.and.text.bubble.right")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(Tema.tinta)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(pensando ? "A sábia está pensando…" : "Continuar a conversa")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Tema.tinta)
+                            if let ultima = conversa.last?.pergunta ?? conversaNotas.perguntaParaRepetir {
+                                Text(ultima)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Tema.tintaSuave)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.vertical, 8)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PressaoDeCartao())
+                .accessibilityIdentifier("continuar-conversa")
+                Button {
+                    Toque.selecao()
+                    conversaNotas.fechar()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(width: 30, height: 30)
+                        .background(Tema.superficieBaixa, in: Circle())
+                        .alvo()
+                }
+                .buttonStyle(.discreto)
+                .accessibilityLabel("Encerrar a conversa")
+                .accessibilityIdentifier("encerrar-conversa")
+            }
+            .cartao()
+            .padding(.top, 14)
+            .padding(.bottom, 4)
+        }
     }
 
     /// A nota que foi junto abre como da lista: queimada e trancada com as
@@ -381,8 +437,8 @@ struct NotasView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.discreto)
-                        .accessibilityLabel("Como contexto")
-                        .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
+                        .accessibilityLabel("Exportar as notas visíveis")
+                        .accessibilityHint("Gera um arquivo com estas notas para outra IA, sem servidor")
                         // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
                         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     }
@@ -422,7 +478,8 @@ struct NotasView: View {
             Button {
                 Toque.selecao()
                 conversaNotas.fechar()
-                conversaNotas.perguntando = true
+                conversaNotas.recolhida = false
+        conversaNotas.perguntando = true
                 perguntaFocada = true
             } label: {
                 // não o lápis: ele é "nova nota" no Dock, na mesma tela
@@ -442,6 +499,8 @@ struct NotasView: View {
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)
         .padding(.bottom, 8)
+        // a resposta rola por baixo: sem fundo, o texto aparecia sob o título
+        .background(Tema.fundo)
     }
 
     /// D1 (DIRETRIZ §9): a régua de 29 cápsulas e a cápsula da ordem viram
@@ -662,7 +721,7 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let primeira = conversa.isEmpty
         return CampoFlutuante(texto: Bindable(conversaNotas).entrada,
-                              dica: pensando ? "Escreva a próxima" : primeira ? "Fale com o Traço" : "Continue a conversa",
+                              dica: primeira && !pensando ? "Pergunte às suas notas" : "Continue a conversa",
                               ditado: ditado, identificador: "pergunta-notas",
                               identificadorDoBotao: pensando ? "parar-de-esperar" : "perguntar-notas",
                               rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar a pergunta",
@@ -710,6 +769,7 @@ struct NotasView: View {
         guard Politica.provedor(.responderNasNotas) != nil else { return }
         conversaNotas.entrada = texto
         conversaNotas.busca = ""
+        conversaNotas.recolhida = false
         conversaNotas.perguntando = true
         Toque.selecao()
         perguntar()
@@ -726,7 +786,8 @@ struct NotasView: View {
         Text(titulo.capitalizadoNoInicio)
             .font(.title3.weight(.semibold))
             .foregroundStyle(Tema.tinta)
-            .padding(.leading, 4)
+            // na borda dos cartões, como o Journal (auditoria: 4 pt para dentro)
+            .padding(.leading, 0)
             .padding(.top, 26)
             .padding(.bottom, 10)
             .accessibilityAddTraits(.isHeader)
@@ -909,6 +970,7 @@ struct NotasView: View {
                                 .padding(.top, 12)
                         }
                         // a porta dos Trabalhos não entra no resultado de uma busca
+                        continuarConversa
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { mes in
                             secao(mes.titulo)
@@ -1030,7 +1092,7 @@ struct NotasView: View {
                             DestaqueBusca.texto(partes.titulo, termo: busca, base: Tema.tinta)
                                 .font(.body.weight(.semibold))
                                 .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
-                            if let previa = partes.previa {
+                            if let previa = partes.previa.map({ $0.prefix(1).uppercased() + $0.dropFirst() }) {
                                 DestaqueBusca.texto(previa, termo: busca, base: Tema.tintaSuave)
                                     .font(.subheadline)
                                     .lineSpacing(1)
@@ -1134,6 +1196,8 @@ struct NotasView: View {
             // "Celular na cama: se eu pegar…" — os dois-pontos nomeiam a nota e saem do título
             t = String(base[..<(base[r.lowerBound] == ":" ? r.lowerBound : r.upperBound)]).trimmingCharacters(in: .whitespaces)
         }
+        // título não termina em ponto (auditoria 16/09 noite); reticências e "?" ficam
+        if t.hasSuffix("."), !t.hasSuffix("..") { t.removeLast() }
         if !busca.isEmpty {
             let sub = subtitulo(nota)
             if sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) { return (t, restoDaNota(nota, depoisDe: t)) }
@@ -1166,7 +1230,8 @@ struct NotasView: View {
             .replacingOccurrences(of: "\n", with: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard let r = prosa.range(of: titulo) else { return nil }
-        let resto = prosa[r.upperBound...].trimmingCharacters(in: CharacterSet(charactersIn: ":").union(.whitespacesAndNewlines))
+        // o título perde o ponto final: a prévia não pode começar por ele
+        let resto = prosa[r.upperBound...].drop { ".:;,".contains($0) || $0.isWhitespace }.trimmingCharacters(in: .whitespacesAndNewlines)
         return resto.isEmpty ? nil : resto
     }
 

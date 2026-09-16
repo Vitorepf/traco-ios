@@ -80,22 +80,24 @@ struct PerfilView: View {
                 // cartão em volta de cada uma nomeava o conteúdo com caixa
                 // alta dentro de uma caixa; agora o cabeçalho sussurra e
                 // agrupa, e as linhas se separam por fio recuado.
-                VStack(alignment: .leading, spacing: Tema.entreSecoes) {
-                    conta
-                    quemResponde
-                    permissoes
-                    calendario
-                    ajustes
-                    sabiaEVoce
+                // seções recolhidas se juntam; só a aberta ganha o respiro de seção
+                // (auditoria 16/09 noite: cabeçalhos soltos com vãos de ~80 pt)
+                VStack(alignment: .leading, spacing: 4) {
+                    conta.respiro(recolhidas.aberta("conta"))
+                    quemResponde.respiro(recolhidas.aberta("quem-responde"))
+                    permissoes.respiro(recolhidas.aberta("permissoes"))
+                    calendario.respiro(recolhidas.aberta("calendario"))
+                    ajustes.respiro(recolhidas.aberta("ajustes"))
+                    sabiaEVoce.respiro(recolhidas.aberta("sabia"))
                     // a latência vem logo depois do retrato: é a mesma família
                     // — o que o autor registrou, em contagem e sem conclusão
-                    latencia
-                    metodos
+                    latencia.respiro(recolhidas.aberta("latencia"))
+                    metodos.respiro(recolhidas.aberta("metodos"))
                     // as férias vêm DEPOIS dos ajustes de todo dia: primeiro o
                     // que vale sempre, depois a exceção (serial-position, e o
                     // fluxo do Perfil provou que o contrário empurra a análise
                     // automática para fora da primeira tela)
-                    ferias
+                    ferias.respiro(recolhidas.aberta("ferias"))
                     dados
                     Spacer(minLength: 8)
                 }
@@ -242,7 +244,7 @@ struct PerfilView: View {
                 if !s.meses.isEmpty { meses(s.meses) }
                 registrosDaLatencia(s)
             }
-            prosa("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai das hipóteses do Trabalho e das decisões com data de conferir — nada a preencher aqui. Hipótese sem resposta é informação; abandonar é resultado.")
+            prosa("Quanto tempo passa entre apostar numa coisa e saber se estava certa. Vem das hipóteses do Trabalho e das decisões com data de conferir; não há nada a preencher aqui.")
                 .padding(.top, 8)
         }
     }
@@ -333,7 +335,7 @@ struct PerfilView: View {
             guard let d = r.dias else { return "tempo desconhecido" }
             return "levou " + Latencia.emDias(d)
         case .afirmado, .devido:
-            let ha = "em aberto há " + Latencia.emDias(r.diasEmAberto() ?? 0)
+            let ha = "há " + Latencia.emDias(r.diasEmAberto() ?? 0)
             guard let quando = r.devidoEm else { return ha }
             return ha + " · conferir em " + quando.formatted(date: .abbreviated, time: .omitted)
         case .abandonado:
@@ -360,7 +362,7 @@ struct PerfilView: View {
                     prosa("não entrou — " + p, cor: Tema.aviso)
                 }
             }
-            prosa("Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos, ou em metodos/ na pasta espelhada: um JSON com id, nome, campos e o movimento que a sábia cobra. O app lê ao abrir.")
+            prosa("Cada método é um arquivo em Arquivos › Traço › metodos. Um arquivo novo nessa pasta aparece aqui na próxima vez que o app abrir.")
                 .padding(.top, 8)
         }
     }
@@ -373,9 +375,8 @@ struct PerfilView: View {
                     .tracking(Tema.trackingTitulo)
                     .foregroundStyle(Tema.tinta)
                 Spacer()
-                Button("Pronto") { mostrarMetodos = false }
-                    .font(Tema.barra)
-                    .foregroundStyle(Tema.tinta)
+                Button { mostrarMetodos = false } label: { Pilula("Pronto", forma: .acao) }
+                    .buttonStyle(.discreto)
             }
             .padding(.horizontal, Tema.margem)
             .padding(.top, 20)
@@ -502,8 +503,9 @@ struct PerfilView: View {
     private var quemResponde: some View {
         recolhidas.secao("Quem responde", id: "quem-responde") {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
-                Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
-                VStack(alignment: .leading, spacing: 4) {
+                // "Hoje: pela sua conta" repetia a Conta logo acima (auditoria 16/09 noite)
+                Text("A IA usa a sua assinatura do Grok, sem custo por uso; sem a conta, usa o modelo do próprio iPhone. Notas trancadas e expressivas nunca saem do aparelho.")
+                VStack(alignment: .leading, spacing: Tema.entreItens) {
                     Text(Self.oQueAIAFaz)
                     Text(Self.oQueAContaAcrescenta)
                     Text(Self.notasAindaSemTela)
@@ -585,39 +587,17 @@ struct PerfilView: View {
     /// A lista muda de tamanho com a medida; vazia é o estado que se quer, e
     /// a tela diz isso em vez de sumir com a linha.
     private var indisponiveisPorQualidade: some View {
-        let todas = Self.reprovadas
-        let semConserto = todas.filter { $0.conserto == nil }
-        let emCorrecao = todas.filter { $0.conserto != nil }
-        return VStack(alignment: .leading, spacing: Tema.entreItens) {
-            if todas.isEmpty {
-                Text(Self.nadaCortado)
-            } else {
-                if !semConserto.isEmpty {
-                    grupoReprovado(semConserto, Self.aberturaSemConserto)
-                }
-                if !emCorrecao.isEmpty {
-                    grupoReprovado(emCorrecao, Self.aberturaEmCorrecao)
-                }
-            }
-        }
-        .font(Tema.meta)
-        .foregroundStyle(Tema.tintaFraca)
-        .frame(maxWidth: medidaMiuda, alignment: .leading)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("indisponiveis-por-qualidade")
-    }
-
-    /// Uma linha por operação: o quê, em tinta um degrau mais escura para a
-    /// margem virar coluna varrível; o porquê recua.
-    private func grupoReprovado(_ lista: [Reprovada], _ abertura: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(abertura)
-                .fixedSize(horizontal: false, vertical: true)
-            ForEach(lista, id: \.op.rawValue) { r in
-                Text(Self.linhaDa(r))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
+        // auditoria 16/09 noite: a lista de motivos ("inventa uma situação que
+        // você não escreveu…") era a nossa lista de defeitos na tela dele. Os
+        // nomes bastam; o porquê mora na tabela `Politica` e no ADR.
+        let nomes = Self.reprovadas.map { Politica.nome($0.op) }
+        return Text(nomes.isEmpty ? Self.nadaCortado
+                    : Self.aberturaSemConserto + " " + nomes.joined(separator: ", ") + ".")
+            .font(Tema.meta)
+            .foregroundStyle(Tema.tintaFraca)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: medidaMiuda, alignment: .leading)
+            .accessibilityIdentifier("indisponiveis-por-qualidade")
     }
 
     /// A linha inteira: o nome da operação em tinta suave, o resto na tinta do
@@ -711,7 +691,7 @@ struct PerfilView: View {
         // a contagem de compromissos mora no cabeçalho, como o "45" do Hermes
         recolhidas.secao("Calendário", id: "calendario", contagem: agenda.eventos.count) {
             chave("calendar.day.timeline.left", "Semana começa na segunda",
-                  "O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.",
+                  "só no calendário do Traço, que fica neste iPhone",
                   id: "ajustes-segunda",
                   ligado: Binding(
                     get: { agenda.segundaPrimeiro },
@@ -899,12 +879,12 @@ struct PerfilView: View {
 
     private var dados: some View {
         recolhidas.secao("Dados", id: "dados") {
-            linhaAcao("square.and.arrow.up", "Exportar todas as notas", "um .md com as abertas; trancadas nunca saem") {
+            linhaAcao("square.and.arrow.up", "Exportar todas as notas", "um arquivo de texto; as trancadas ficam de fora") {
                 corpusURL = Corpus.exportar(notas: notas)
             }
             .accessibilityIdentifier("exportar-corpus")
             .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
-            linhaAcao("square.and.arrow.down", "Importar notas", "de arquivos .md; o import nunca cria trancada") {
+            linhaAcao("square.and.arrow.down", "Importar notas", "de arquivos de texto; nenhuma chega trancada") {
                 importarMd = true
             }
             .accessibilityIdentifier("importar-md")
@@ -990,5 +970,12 @@ struct PerfilView: View {
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 6)
+    }
+}
+
+private extension View {
+    /// Aberta, a seção leva o respiro inteiro abaixo; recolhida, só o cabeçalho.
+    func respiro(_ aberta: Bool) -> some View {
+        padding(.bottom, aberta ? Tema.entreSecoes - 4 : 0)
     }
 }

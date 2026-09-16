@@ -42,7 +42,16 @@ final class ConversaNotas {
     /// folha com a linha "?" em branco; sai-se por Fechar. Com conversa aberta,
     /// a folha já está aberta e a linha "?" no pé dela é a continuação.
     var perguntando = false
-    var modoPergunta: Bool { perguntando || temCartao }
+    /// Voltar às notas RECOLHE a conversa, não a apaga (auditoria 16/09 noite:
+    /// sair perdia a resposta sem caminho de volta); a lista oferece continuar.
+    var recolhida = false
+    var modoPergunta: Bool { !recolhida && (perguntando || temCartao) }
+
+    /// Volta à lista guardando a conversa (e a espera, se ainda pensa).
+    func recolher() {
+        perguntando = false
+        recolhida = temCartao
+    }
     /// As respostas já avaliadas ("anotado."). Vive AQUI, não na view: a
     /// `NotasView` é recriada a cada troca de aba (ADR 09c), e guardada nela a
     /// avaliação voltava a ser oferecida — visto no aparelho da conta em
@@ -206,6 +215,7 @@ final class ConversaNotas {
 
     /// ADR 05e: Fechar descarta a conversa, mas não a busca em edição.
     func fechar() {
+        recolhida = false
         invalidarTentativa()
         estado = .ociosa
         semModelo = false

@@ -652,8 +652,15 @@ private func temp(_ nome: String) -> URL {
         #expect(Volta.cobranca(CampoForma(id: "roubou", rotulo: "O que roubou o dia (à noite)", soDepois: true)) == "O que roubou o dia?")
         // ADR 05b: a linha da página em branco
         #expect(Volta.emPalavras(quantas: 0) == "")
-        #expect(Volta.emPalavras(quantas: 1) == "1 volta a conferir")
-        #expect(Volta.emPalavras(quantas: 3) == "3 voltas a conferir")
+        #expect(Volta.emPalavras(quantas: 1) == "1 para conferir")
+        #expect(Volta.emPalavras(quantas: 3) == "3 para conferir")
+        // Padrões conta a forma como se lê (auditoria 16/09 noite: "4 decisão")
+        #expect(Trajetoria.contagem(4, "Decisão") == "4 decisões")
+        #expect(Trajetoria.contagem(1, "Decisão") == "1 decisão")
+        #expect(Trajetoria.contagem(2, "Leitura") == "2 leituras")
+        #expect(Trajetoria.contagem(2, "WOOP") == "2 WOOP")
+        #expect(Trajetoria.contagem(1, nil) == "1 solta")
+        #expect(Trajetoria.contagem(5, nil) == "5 soltas")
     }
 }
 

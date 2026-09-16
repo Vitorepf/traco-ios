@@ -19,11 +19,6 @@ struct CalendarioFichaView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                CabecalhoDeFolha(aoSair: { dismiss() }, concluir: {
-                    agenda.guardar(evento)
-                    dismiss()
-                }, prefixo: "ficha")
-
                 // título à esquerda, como todo título do app (era centrado —
                 // a única folha centrada da casa)
                 TextField("Título", text: $evento.titulo, axis: .vertical)
@@ -219,6 +214,16 @@ struct CalendarioFichaView: View {
             .padding(.top, 8)
         }
         .scrollDismissesKeyboard(.interactively)
+        // ✕ e Pronto ficam fora da rolagem: rolando a ficha, sumiam (auditoria 16/09 noite)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            CabecalhoDeFolha(aoSair: { dismiss() }, concluir: {
+                agenda.guardar(evento)
+                dismiss()
+            }, prefixo: "ficha")
+            .padding(.horizontal, CalendarioTema.margem)
+            .padding(.top, 8)
+            .background(CalendarioTema.fundo)
+        }
         .background(CalendarioTema.fundo.ignoresSafeArea())
         .foregroundStyle(CalendarioTema.tinta)
         .environment(\.locale, Locale(identifier: "pt_BR"))
@@ -255,6 +260,12 @@ struct CalendarioFichaView: View {
                          : "não repete")
                         .foregroundStyle(CalendarioTema.tintaSuave)
                         .accessibilityIdentifier("ficha-repete-dias")
+                    // o mesmo sinal das outras linhas que abrem escolha (auditoria 16/09 noite)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.leading, -4)
+                        .foregroundStyle(CalendarioTema.tintaSuave)
+                        .accessibilityHidden(true)
                 }
                 .contentShape(Rectangle())
             }
@@ -367,7 +378,6 @@ struct CalendarioFichaView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(titulo)
                 .rotulo(Tema.tintaSuave)
-                .padding(.leading, 4)
             conteudo()
         }
     }

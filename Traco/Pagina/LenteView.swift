@@ -49,7 +49,8 @@ struct LenteView: View {
                 // cápsula cinza pesava mais que o título (von-restorff invertido)
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Lente")
+                        // o mesmo nome do menu "+" (auditoria 16/09 noite: "Lente" era jargão)
+                        Text("Como está escrito")
                             .font(Tema.tituloTela)
                             .tracking(Tema.trackingTitulo)
                             .foregroundStyle(Tema.tinta)
@@ -63,9 +64,8 @@ struct LenteView: View {
                             .accessibilityIdentifier(l.vazia ? "lente-vazia" : "lente-resumo")
                     }
                     Spacer(minLength: 8)
-                    Button("Pronto") { dismiss() }
-                        .font(Tema.barra)
-                        .foregroundStyle(Tema.tinta)
+                    // um "Pronto" só no app: a cápsula carvão do cabeçalho de folha
+                    Button { dismiss() } label: { Pilula("Pronto", forma: .acao) }
                         .alvo()
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("lente-pronto")
@@ -124,7 +124,7 @@ struct LenteView: View {
                             } label: {
                                 // o rótulo era cápsula em caixa alta; agora é o
                                 // subtítulo, e o glifo diz o tipo pela forma
-                                linha(a.trecho, nil, tipo: a.rotulo, rotulo: a.rotulo.nome)
+                                linha(a.trecho, nil, tipo: a.rotulo, rotulo: a.rotulo.nome, fio: a.id != apontados.last?.id)
                             }
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityHint("Tira a marca")
@@ -139,31 +139,31 @@ struct LenteView: View {
                         // "costuma ser"). A contagem é verdade; a função, não.
                         secao("Palavras de apoio", id: "muletas", contagem: l.muletas.count,
                               nota: "contadas por palavra inteira") {
-                            ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta) }
+                            ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta, fio: $0.id != l.muletas.last?.id) }
                         }
                     }
                     if !l.frasesFeitas.isEmpty {
-                        secao("Frases de outro", id: "frases", contagem: l.frasesFeitas.count,
+                        secao("Frases prontas", id: "frases", contagem: l.frasesFeitas.count,
                               nota: "quando aparecem, o pensamento parou um instante") {
-                            ForEach(l.frasesFeitas, id: \.self) { achado($0, nil, sugerido: .fraseFeita) }
+                            ForEach(l.frasesFeitas, id: \.self) { achado($0, nil, sugerido: .fraseFeita, fio: $0 != l.frasesFeitas.last) }
                         }
                     }
                     if !l.passivas.isEmpty {
                         secao("Passivas", id: "passivas", contagem: l.passivas.count,
                               nota: "quem faz ficou escondido") {
-                            ForEach(l.passivas, id: \.self) { achado($0, nil, sugerido: .passiva) }
+                            ForEach(l.passivas, id: \.self) { achado($0, nil, sugerido: .passiva, fio: $0 != l.passivas.last) }
                         }
                     }
                     if !l.adverbios.isEmpty {
                         secao("Advérbios", id: "adverbios", contagem: l.adverbios.count,
                               nota: "o verbo devia bastar") {
-                            ForEach(l.adverbios) { achado($0.termo, $0.vezes, sugerido: .vago) }
+                            ForEach(l.adverbios) { achado($0.termo, $0.vezes, sugerido: .vago, fio: $0.id != l.adverbios.last?.id) }
                         }
                     }
                     if !l.adjetivos.isEmpty {
                         secao("Adjetivos repetidos", id: "adjetivos", contagem: l.adjetivos.count,
                               nota: "um é escolha; três é hábito") {
-                            ForEach(l.adjetivos) { achado($0.termo, $0.vezes, sugerido: .vago) }
+                            ForEach(l.adjetivos) { achado($0.termo, $0.vezes, sugerido: .vago, fio: $0.id != l.adjetivos.last?.id) }
                         }
                     }
                 }
@@ -384,29 +384,31 @@ struct LenteView: View {
     /// Um achado da lente. Com nota no disco, o toque abre os rótulos para
     /// apontar: é o autor quem decide o que aquilo é.
     @ViewBuilder
-    private func achado(_ termo: String, _ vezes: Int?, sugerido: RotuloApontar) -> some View {
+    /// `fio`: a última linha da seção não leva fio, como nas outras listas (auditoria 16/09 noite)
+    private func achado(_ termo: String, _ vezes: Int?, sugerido: RotuloApontar, fio: Bool) -> some View {
         if notaUUID != nil {
             Menu {
                 ForEach(RotuloApontar.allCases, id: \.self) { r in
                     Button(r.nome) { marcar(termo, r) }
                 }
             } label: {
-                linha(termo, vezes, tipo: sugerido, rotulo: nil)
+                linha(termo, vezes, tipo: sugerido, rotulo: nil, fio: fio)
             }
             .accessibilityHint("Apontar este trecho com um rótulo")
         } else {
-            linha(termo, vezes, tipo: sugerido, rotulo: nil)
+            linha(termo, vezes, tipo: sugerido, rotulo: nil, fio: fio)
         }
     }
 
     /// A linha da Lente é a linha do app (Hermes §4): o glifo diz o TIPO do
     /// achado pela forma — o mesmo glifo no achado e no apontado —, o termo é
     /// o título, o rótulo apontado é o subtítulo, e a contagem é o acessório.
-    private func linha(_ termo: String, _ vezes: Int?, tipo: RotuloApontar, rotulo: String?) -> some View {
+    private func linha(_ termo: String, _ vezes: Int?, tipo: RotuloApontar, rotulo: String?, fio: Bool = true) -> some View {
         LinhaDeLista(
             titulo: termo,
             subtitulo: rotulo,
             linhasDoTitulo: 2,
+            fio: fio,
             glifo: { Image(systemName: Self.glifo(tipo)) },
             acessorio: {
                 if let vezes {
@@ -420,7 +422,7 @@ struct LenteView: View {
     static func glifo(_ tipo: RotuloApontar) -> String {
         switch tipo {
         case .fraseFeita: "text.quote"
-        case .vago: "cloud"
+        case .vago: "questionmark.circle"
         case .passiva: "eye.slash"
         case .muleta: "ellipsis.bubble"
         }

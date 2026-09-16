@@ -169,6 +169,19 @@ struct CalendarioDiaView: View {
                 .frame(height: altura, alignment: .top)
                 .id(hora)
             }
+            // a grade fecha à meia-noite: parava no fio das 23h e sobrava um vão
+            // sem nome embaixo (auditoria 16/09 noite)
+            HStack(alignment: .top, spacing: 10) {
+                Text("00:00")
+                    .font(CalendarioTema.hora)
+                    .foregroundStyle(CalendarioTema.tintaFraca)
+                    .frame(width: gutter - 14, alignment: .trailing)
+                    .offset(y: -7)
+                Rectangle()
+                    .fill(CalendarioTema.linha)
+                    .frame(height: 1)
+            }
+            .frame(height: 24, alignment: .top)
         }
         .padding(.top, 8)
     }

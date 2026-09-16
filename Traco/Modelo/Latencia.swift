@@ -232,10 +232,11 @@ nonisolated enum Latencia {
 
     static func rotulo(_ estado: Estado) -> String {
         switch estado {
-        case .afirmado: "afirmado"
-        case .devido: "devido"
-        case .descoberto: "descoberto"
-        case .abandonado: "abandonado"
+        // as palavras das Notas, não as do modelo (auditoria 16/09 noite: "devido")
+        case .afirmado: "esperando"
+        case .devido: "hora de conferir"
+        case .descoberto: "conferida"
+        case .abandonado: "fechada"
         }
     }
 }
