@@ -138,7 +138,7 @@ enum Politica {
             .init(regra: .soBordo, porque: "rótulo fechado com esquema tipado sobre 2.000 caracteres; o léxico cobre sem modelo")
         case .escolherRegra:
             // sem conta, a escolha não some: cai no BM25 local (Conselho.escolher)
-            .init(regra: .soGrok, porque: "o BM25 punha a regra certa em 1º lugar em 14 de 40 casos escritos antes do código (8/20 perguntas, 3/10 da reserva, 1/5 e 2/5 decisões); o grok-4.3 escolhendo entre as 30 melhores acertou 38 de 40 nas 3 repetições, e os dois que errou tinham a certa fora das 30 (posições 47 e 62) — num deles disse que nenhuma servia, 3 de 3. Mediana 4 s — prova/16g/")
+            .init(regra: .soGrok, porque: "o BM25 punha a regra certa em 1º lugar em 14 de 40 casos escritos antes do código (8/20 perguntas, 3/10 da reserva, 1/5 e 2/5 decisões); o grok-4.3 escolhendo entre as 30 melhores acertou 38 de 40 nas 3 repetições, e os dois que errou tinham a certa fora das 30 (posições 47 e 62) — num deles disse que nenhuma servia, 3 de 3. Mediana 4 s — prova/16g/. Nas Notas (ADR 16i) a mesma escolha devolve até 3 seções: a certa entre as enviadas em 28 de 30 em cada uma das 3 repetições (perguntas 18/20, reserva 10/10) e citada com mestre, vídeo e minuto em todas essas; nas 4 perguntas alheias × 3, nenhuma obra enviada — prova/16i/")
         }
     }
 

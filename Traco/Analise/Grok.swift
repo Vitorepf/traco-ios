@@ -364,6 +364,11 @@ nonisolated enum Grok {
 
     private nonisolated(unsafe) static var ultimaFalha: FalhaHonesta?
 
+    /// ADR 2026-09-16i/j: uma chamada que tem queda própria (a escolha da regra
+    /// cai nas palavras) corre com isto ligado e não mexe no aviso de falha —
+    /// nem limpa o de outra rota, nem põe o seu no lugar.
+    @TaskLocal static var semAviso = false
+
     static func retirarFalha() -> FalhaHonesta? {
         tranca.lock(); defer { tranca.unlock() }
         defer { ultimaFalha = nil }
@@ -377,11 +382,13 @@ nonisolated enum Grok {
     }
 
     static func registrarFalha(_ f: FalhaHonesta) {
+        guard !semAviso else { return }
         tranca.lock(); defer { tranca.unlock() }
         ultimaFalha = f
     }
 
     static func limparFalha() {
+        guard !semAviso else { return }
         tranca.lock(); defer { tranca.unlock() }
         ultimaFalha = nil
     }

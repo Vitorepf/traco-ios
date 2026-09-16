@@ -120,6 +120,18 @@ enum AvaliacaoIA {
     /// compilação à alavanca.
     static let bracoDoContexto = ProcessInfo.processInfo.environment["TRACO_AVALIAR_CONTEXTO"] ?? "novo"
 
+    /// As obras da biblioteca postas no Documents ao lado da fixture (16g/16i),
+    /// pelo import do app; nome com caminho é recusado.
+    private static func obrasDoDocuments(_ itens: [String]) throws -> [String] {
+        let documentos = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask,
+                                                     appropriateFor: nil, create: false)
+        return try itens.map { nome -> String in
+            guard nome == URL(fileURLWithPath: nome).lastPathComponent else { throw Falha.arquivoInvalido }
+            let bruto = try String(contentsOf: documentos.appendingPathComponent(nome), encoding: .utf8)
+            return try exigir(Corpus.importar(bruto).first?.texto, "obra \(nome)")
+        }
+    }
+
     /// A montagem do braço escolhido, ou `nil` quando a fixture não traz
     /// `pagina` — aí o caso é dos antigos e usa o `contexto` já pronto.
     private static func montagem(_ e: Entrada) -> (contexto: String, viajaram: [String])? {
@@ -328,8 +340,15 @@ enum AvaliacaoIA {
             // chamada "Contexto fornecido" — um título do próprio app, que a
             // medida de 08/09 leu como atribuição genérica do provedor. A
             // sonda só exercita a rota que a produção usa (Sessao.responderNasNotas).
-            let r = try exigir(await Sabia.responderNasNotas(pergunta: exigir(e.pergunta, "pergunta"),
-                fontes: exigir(e.fontes, "fontes"),
+            // ADR 2026-09-16i: `itens` são obras CONFERIDAS no Documents (a
+            // biblioteca), e passam pela mesma candidatura da Sessao
+            let pergunta = try exigir(e.pergunta, "pergunta")
+            let obras = try obrasDoDocuments(itens).map { texto in
+                FonteNotas(id: UUID(), titulo: (texto.split(separator: "\n").first.map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "# ")) } ?? "obra") + " · obra",
+                           texto: texto, editadaEm: .now, obraConferida: true)
+            }.filter { Sessao.obraCandidata($0, pergunta: pergunta) }
+            let r = try exigir(await Sabia.responderNasNotas(pergunta: pergunta,
+                fontes: exigir(e.fontes, "fontes") + obras,
                 conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
                 retrato: e.retrato ?? ""))
             var saida: [String: Any] = [
@@ -343,6 +362,10 @@ enum AvaliacaoIA {
             if let conferencia = r.conferencia { saida["conferencia"] = conferencia }
             if let base = r.base { saida["base"] = base }
             if let obra = r.obraParaPlantar { saida["obraParaPlantar"] = obra }
+            if let via = r.viaObra { saida["viaObra"] = via }
+            saida["obrasCandidatas"] = obras.count
+            // as chaves (vídeo com minuto) das seções de obra que viajaram
+            saida["secoesEnviadas"] = r.enviadas.filter(\.obra).flatMap { Obra.secoes($0.texto).map(\.chave) }
             return saida
         case "responder":
             // ADR 2026-09-10b: o que sai daqui é a saída TRATADA. O retorno
@@ -398,19 +421,18 @@ enum AvaliacaoIA {
             // são os arquivos da biblioteca postos no Documents ao lado da
             // fixture. Sai a regra escolhida e por qual via — `palavras` numa
             // linha é o modelo que não respondeu, não acerto dele.
-            let documentos = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask,
-                                                         appropriateFor: nil, create: false)
-            let obras = try itens.map { nome -> String in
-                guard nome == URL(fileURLWithPath: nome).lastPathComponent else { throw Falha.arquivoInvalido }
-                let bruto = try String(contentsOf: documentos.appendingPathComponent(nome), encoding: .utf8)
-                return try exigir(Corpus.importar(bruto).first?.texto, "obra \(nome)")
-            }
+            let obras = try obrasDoDocuments(itens)
             let achado = await Conselho.escolherPeloSentido(consulta: texto, obras: obras, pesos: [:]) { s, u, esquema in
                 await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: esquema)
             }
-            guard let achado else { return ["via": "modelo", "regra": NSNull()] }
+            guard let achado else {
+                return ["via": "modelo", "regra": NSNull(),
+                        "candidatas": Obra.ranquear(pergunta: texto, textos: obras).prefix(Conselho.candidatas).map(\.secao.chave)]
+            }
             let ranking = Obra.ranquear(pergunta: texto, textos: obras)
             return ["via": achado.via.rawValue, "regra": achado.regra.secao.chave,
+                    // as que o modelo viu: a prova de que uma seção hostil estava entre elas (16j)
+                    "candidatas": ranking.prefix(Conselho.candidatas).map(\.secao.chave),
                     "titulo": achado.regra.secao.titulo,
                     "posicaoNoBM25": (ranking.firstIndex { $0.secao.chave == achado.regra.secao.chave } ?? -2) + 1]
         case "dominio":

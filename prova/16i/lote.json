@@ -1,0 +1,365 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "p-01",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "os clientes estão cancelando depois de uns dois meses e meu sócio acha que a mensalidade tá cara. tô pensando em baixar o preço pra segurar eles, faz sentido?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-02",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "cliente disse que tá sem dinheiro agora, como respondo?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-03",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "vou contratar meu primeiro vendedor e tenho medo de pegar alguém que não aceita correção. como testo isso na entrevista antes de fechar?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-04",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "pedi pro gerente novo me mandar um relatório toda sexta e semanas depois ele nunca tinha mandado. a culpa é dele ou minha?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-05",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "como calculo quanto me custa cada cliente novo?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-06",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "tenho mais gente querendo contratar do que consigo atender, tô trabalhando o dia inteiro e o faturamento não sobe. devo investir mais em anúncio?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-07",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "tenho uns dez objetivos pro ano que vem, qual escolher?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-08",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "como saber se um cliente vai cancelar antes dele cancelar?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-09",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "só pedi orçamento pra uma agência de marketing, fecho logo com ela?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-10",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "o processo de vendas funciona bem, mas meu sócio quer trocar tudo por um método novo que ele acha melhor. quanto de melhora precisa prometer pra valer a mudança?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-11",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "vale a pena fazer teste A/B de toda mudança no app?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-12",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "não sei se contrato vendedor ou se deixo as pessoas assinarem sozinhas pelo site. os primeiros clientes chegaram de jeitos bem diferentes, como decido?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-13",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "dois anos sem tração, tô pensando em desistir da empresa. como decido?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-14",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "meu time nunca me critica, como faço eles falarem o que eu faço de errado?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-15",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "quero colocar dinheiro em crescimento agora, mas o app só tem três meses de usuários. já dá pra saber se o produto encaixou no mercado?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-16",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "tô criando uma contagem de dias seguidos de escrita no app. se a pessoa falha um dia, perdoo ou zero a contagem?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-17",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "meu app tem IA e pensei em cobrar baratinho por mês pra ganhar mercado rápido, é um erro?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-18",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "vou negociar contrato com um cliente grande, posso fazer por email?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-19",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "as entrevistas de conversa não me mostram se o programador é bom mesmo. qual jeito melhor de avaliar antes de contratar?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "p-20",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "como fico melhor em decidir quando não tenho dados?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-01",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Um cliente me perguntou na ligação quantos alunos eu já atendi e eu travei, porque qualquer número parecia pouco ou demais. Como eu devia ter respondido?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-02",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Quem da equipe deve atender os contatos mais quentes?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-03",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Posso mudar o texto do anúncio que já vende bem?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-04",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Cobrar parcelado em vez de mensalidade segura mais o cliente?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-05",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Gasto uns 500 reais em anúncio pra fechar cada aluno e só recupero isso lá pelo terceiro mês, o caixa não aguenta crescer. Dá pra receber mais logo na entrada?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-06",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Tive uma reunião boa com uma empresa interessada, no final o diretor disse que ia me escrever depois pra combinar os próximos passos e sumiu. O que eu fiz de errado?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-07",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Na reunião de planejamento meu sócio chuta um prazo primeiro e aí todo mundo concorda com ele, ninguém fala o que realmente acha. Como faço essa conversa de outro jeito?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-08",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Devo trazer um figurão do Google pra liderar produto?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-09",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Ninguém do plano gratuito assina o pago, o que faço?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "pr-10",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Estou fazendo um app que junta diaristas e famílias, mas ainda não tenho quase ninguém de nenhum dos dois lados e não sei qual atacar primeiro.",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  }
+ ]
+}

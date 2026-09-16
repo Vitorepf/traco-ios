@@ -75,6 +75,9 @@ nonisolated enum RespostaNotas {
         var conferencia: String? = nil
         var conferida: Bool = false
         var reparadaNaConferencia: Bool = false
+        /// ADR 2026-09-16i: quem escolheu as seções da obra — "modelo" ou
+        /// "palavras"; nil sem obra conferida. A sonda lê; a tela não.
+        var viaObra: String? = nil
     }
 
     struct Pacote: Sendable {
@@ -83,6 +86,10 @@ nonisolated enum RespostaNotas {
         var omitidas: Int
         var respostasOmitidas: Int = 0
         var mensagensDaPessoa: Int = 0
+        /// ADR 2026-09-16i: obras que chegaram e não eram assunto (o modelo não
+        /// escolheu seção, ou as palavras não admitiram). Não são "omitidas":
+        /// a recusa «não coube nesta consulta» não pode nascer delas.
+        var obrasForaDoAssunto: Set<UUID> = []
 
         var trechos: [(id: String, fonte: FonteNotas, texto: String)] {
             fontes.enumerated().flatMap { i, fonte in
@@ -110,7 +117,7 @@ nonisolated enum RespostaNotas {
     /// continua em Z, que ordena igual.
     static func montar(pergunta: String, fontes: [FonteNotas], conversa: [Sessao.TrocaNasNotas],
                        catalogo: String, retrato: String, teto: Int, agora: Date = .now,
-                       pesos: [String: Double] = [:]) -> Pacote? {
+                       pesos: [String: Double] = [:], escolhidas: [UUID: [String]]? = nil) -> Pacote? {
         guard !pergunta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               Set(fontes.map(\.id)).count == fontes.count else { return nil }
         var historico = conversa.map { ["pergunta": $0.pergunta] }
@@ -167,22 +174,31 @@ nonisolated enum RespostaNotas {
             // INTEIRO): viajam, literais, as seções que a pergunta pede — até
             // três, uma a uma enquanto cabem. Sem seção que a pergunta
             // realmente toque, não é assunto: não entra nem conta como omitida.
-            let achados = Obra.ranquear(pergunta: pergunta, texto: original.texto, pesos: pesos)
             guard !Obra.secoesEmCache(original.texto).isEmpty else {
                 if !caber(original) { pacote.omitidas += 1 }  // obra suposta sem `## `: vai inteira, se couber
                 continue
             }
-            guard achados.contains(where: Obra.admite) else { continue }
-            var escolhidas: [String] = []
-            for achado in achados.prefix(3) {
+            let secoes: [String]
+            if let escolhidas, original.obraConferida {
+                // ADR 2026-09-16i: o modelo escolheu pelo sentido; sem escolha
+                // para esta obra, ela não é assunto
+                secoes = escolhidas[original.id] ?? []
+                guard !secoes.isEmpty else { pacote.obrasForaDoAssunto.insert(original.id); continue }
+            } else {
+                let achados = Obra.ranquear(pergunta: pergunta, texto: original.texto, pesos: pesos)
+                guard achados.contains(where: Obra.admite) else { pacote.obrasForaDoAssunto.insert(original.id); continue }
+                secoes = achados.prefix(3).map(\.secao.texto)
+            }
+            var cabem: [String] = []
+            for secao in secoes.prefix(3) {
                 var tentativa = original
-                tentativa.texto = (escolhidas + [achado.secao.texto]).joined(separator: "\n\n")
+                tentativa.texto = (cabem + [secao]).joined(separator: "\n\n")
                 let b = bloco(tentativa, indice: pacote.fontes.count + 1)
-                if pacote.mensagem.count + b.count + reserva <= teto { escolhidas.append(achado.secao.texto) }
+                if pacote.mensagem.count + b.count + reserva <= teto { cabem.append(secao) }
             }
             var recortada = original
-            recortada.texto = escolhidas.joined(separator: "\n\n")
-            if escolhidas.isEmpty || !caber(recortada) { pacote.omitidas += 1 }
+            recortada.texto = cabem.joined(separator: "\n\n")
+            if cabem.isEmpty || !caber(recortada) { pacote.omitidas += 1 }
         }
         if pacote.omitidas > 0 { pacote.mensagem += aviso }
         if pacote.respostasOmitidas > 0 { pacote.mensagem += avisoHistorico }

@@ -1,0 +1,53 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "alheia-1",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "quando a mãe chega?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "alheia-2",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "minha conta do banco",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "alheia-3",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "quero aprender violão",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  },
+  {
+   "id": "alheia-4",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "qual a cor do céu azulado?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ]
+   }
+  }
+ ]
+}

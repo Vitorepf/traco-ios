@@ -787,14 +787,20 @@ final class Sessao {
                 .compactMap(Self.fonteParaPergunta)
             fontes += porPalavra
         }
-        // a obra entra se a pergunta toca DE FATO uma seção (dois radicais dela,
-        // sem contar a ponte de sinônimos); a suposta sem seções, pela palavra
-        let obras = notas.filter { $0.origem.eObra }.compactMap(Self.fonteParaPergunta).filter { fonte in
-            Obra.secoesEmCache(fonte.texto).isEmpty
-                ? NotasFiltro.casa(fonte.texto, busca: pergunta)
-                : Obra.ranquear(pergunta: pergunta, texto: fonte.texto).contains(where: Obra.admite)
-        }
+        let obras = notas.filter { $0.origem.eObra }.compactMap(Self.fonteParaPergunta)
+            .filter { Self.obraCandidata($0, pergunta: pergunta) }
         return Self.semRepetida(fontes + obras)
+    }
+
+    /// ADR 2026-09-16i: a obra CONFERIDA chega à rota se a pergunta toca
+    /// qualquer seção dela — quem escolhe o que viaja é o modelo, pelo sentido,
+    /// ou a admissão das palavras no pacote quando não há conta. A suposta
+    /// entra só se a pergunta toca DE FATO uma seção (dois radicais dela, 16c);
+    /// sem seções, pela palavra.
+    static func obraCandidata(_ fonte: FonteNotas, pergunta: String) -> Bool {
+        guard !Obra.secoesEmCache(fonte.texto).isEmpty else { return NotasFiltro.casa(fonte.texto, busca: pergunta) }
+        let ranking = Obra.ranquear(pergunta: pergunta, texto: fonte.texto)
+        return fonte.obraConferida ? !ranking.isEmpty : ranking.contains(where: Obra.admite)
     }
 
     /// DIRETRIZ §14: o dono viu a MESMA nota três vezes em "Foram junto:". A

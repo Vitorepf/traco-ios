@@ -222,6 +222,9 @@ enum Sabia {
     static func responderNasNotas(pergunta: String, fontes: [FonteNotas],
                                   conversa: [Sessao.TrocaNasNotas] = [], catalogo: String = "",
                                   retrato: String = "", validarAcesso: ([FonteNotas]) -> Bool = { _ in true },
+                                  escolherObra: ((String, String, String) async -> String?)? = Politica.provedor(.escolherRegra) == nil ? nil : { s, u, e in
+                                      await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
+                                  },
                                   gerarRemoto: ((RespostaNotas.Pacote) async -> String?)? = nil,
                                   gerarLocal: ((RespostaNotas.Pacote) async -> String?)? = nil,
                                   conferirRemoto: ((RespostaNotas.Pacote, String) async -> String?)? = nil,
@@ -234,9 +237,34 @@ enum Sabia {
             return recusa
         }
         // ADR 16e: o resultado no mundo pesa na escolha das seções da obra
-        guard let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
+        let pesos = Conselho.pesos(Sinais.todos())
+        // ADR 2026-09-16i: com a conta, o Grok escolhe pelo sentido as seções da
+        // obra conferida entre as 30 melhores das palavras; sem resposta, as palavras
+        let conferidas = fontes.filter { $0.obraConferida && !Obra.secoesEmCache($0.texto).isEmpty }
+        var escolhidas: [UUID: [String]]?
+        // a escolha tem queda própria (as palavras): a falha dela não é o aviso da resposta
+        if let escolherObra, !conferidas.isEmpty,
+           let secoes = await Grok.$semAviso.withValue(true, operation: {
+               await Conselho.escolherSecoesPeloSentido(pergunta: pergunta, obras: conferidas.map(\.texto),
+                                                        pesos: pesos, perguntar: escolherObra)
+           }) {
+            // cada seção vai UMA vez, à primeira obra que a tem: uma biblioteca
+            // regenerada ao lado da velha repete seções iguais (revisão da E2)
+            var restantes: [Obra.Secao] = []
+            for secao in secoes where !restantes.contains(secao) { restantes.append(secao) }
+            var porObra: [UUID: [String]] = [:]
+            for fonte in conferidas where porObra[fonte.id] == nil {
+                let dela = Obra.secoesEmCache(fonte.texto)
+                let minhas = restantes.filter { dela.contains($0) }
+                restantes.removeAll { minhas.contains($0) }
+                porObra[fonte.id] = minhas.map(\.texto)
+            }
+            escolhidas = porObra
+        }
+        guard !Task.isCancelled,
+              let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
                                                 catalogo: catalogo, retrato: retrato, teto: 16_000,
-                                                pesos: Conselho.pesos(Sinais.todos()))
+                                                pesos: pesos, escolhidas: escolhidas)
         else { return nil }
         if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes) {
             return recusa
@@ -244,8 +272,11 @@ enum Sabia {
         // ADR 2026-09-16c: a obra pedida estava na seleção e NADA coube — o
         // modelo responderia «não tenho registro» sobre o que está no caderno.
         // Com alguma fonte no pacote, a 12b vale: a pergunta segue.
+        // a obra que chegou e não era assunto não "deixou de caber" (revisão da E2)
         if pacote.fontes.isEmpty,
-           let recusa = GuardaDeObra.recusarSeOmitidaDoPacote(pergunta: pergunta, originais: fontes, efetivas: pacote.fontes) {
+           let recusa = GuardaDeObra.recusarSeOmitidaDoPacote(pergunta: pergunta,
+                                                               originais: fontes.filter { !pacote.obrasForaDoAssunto.contains($0.id) },
+                                                               efetivas: pacote.fontes) {
             return recusa
         }
         // Omissão do orçamento não encerra a pergunta: o pacote efetivo segue
@@ -253,12 +284,15 @@ enum Sabia {
         // pelo pedido; outra nota que coube pode ajudar a parte apoiada.
         // soGrok: uma geração + uma conferência no pacote efetivo. Sem par
         // local depois do remoto; ausência de callback não publica candidata.
-        return await gerarEConferir(pacote: pacote, validarAcesso: validarAcesso,
-                                    gerar: gerarRemoto ?? gerarLocal,
-                                    conferir: conferirRemoto ?? conferirLocal)
+        var r = await gerarEConferir(pacote: pacote, validarAcesso: validarAcesso,
+                                     gerar: gerarRemoto ?? gerarLocal,
+                                     conferir: conferirRemoto ?? conferirLocal)
+        if !conferidas.isEmpty { r?.viaObra = escolhidas == nil ? "palavras" : "modelo" }
+        return r
     }
 
-    /// Grok.teto vale em cada chamada; o caminho inteiro pode esperar duas.
+    /// Grok.teto vale em cada chamada; com a escolha da obra (16i) antes, o
+    /// caminho inteiro pode esperar três.
     private static func gerarEConferir(pacote: RespostaNotas.Pacote,
                                        validarAcesso: ([FonteNotas]) -> Bool,
                                        gerar: ((RespostaNotas.Pacote) async -> String?)?,

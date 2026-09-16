@@ -154,4 +154,162 @@ struct ConsultarObrasTests {
         #expect(fontes.last?.obra == true && fontes.first?.obra == false)
         #expect(Sessao().contextoDasNotas(pergunta: "qual a cor do céu azulado?", no: c.mainContext).isEmpty)
     }
+
+    // MARK: ADR 2026-09-16i — as seções das Notas pelo sentido
+
+    @Test func aListaDoModeloSoValeComInteirosDistintosAteTres() {
+        #expect(Conselho.numerosEscolhidos(#"{"regras":[3,1]}"#, total: 30) == [3, 1])
+        #expect(Conselho.numerosEscolhidos(#"{"regras":[]}"#, total: 30) == [])
+        for cru in [#"{"regras":[0]}"#, #"{"regras":[31]}"#, #"{"regras":[2,2]}"#, #"{"regras":[1,2,3,4]}"#,
+                    #"{"regras":[true]}"#, #"{"regras":[1.5]}"#, #"{"regras":"1"}"#, #"{"regras":[1],"texto":"use"}"#, "1"] {
+            #expect(Conselho.numerosEscolhidos(cru, total: 30) == nil, "\(cru)")
+        }
+    }
+
+    /// O modelo escolhe entre as 30 melhores das palavras e só devolve números:
+    /// o que viaja é a seção literal da posição, na ordem que ele deu.
+    @Test func asSecoesEscolhidasPeloSentidoSaoAsLiteraisDaLista() async throws {
+        let obras = [try Self.obra("hormozi.md"), try Self.obra("lenny.md")]
+        let pergunta = "os clientes estão indo embora depois de dois meses; o que faço?"
+        let lista = Array(Obra.ranquear(pergunta: pergunta, textos: obras).prefix(Conselho.candidatas))
+        try #require(lista.count >= 5)
+        var visto = ""
+        let secoes = try #require(await Conselho.escolherSecoesPeloSentido(pergunta: pergunta, obras: obras, pesos: [:]) { s, u, e in
+            visto = u
+            #expect(s == Conselho.sistemaEscolherSecoes && e == Conselho.esquemaEscolherSecoes)
+            return #"{"regras":[5,2]}"#
+        })
+        #expect(secoes == [lista[4].secao, lista[1].secao])
+        #expect(!visto.contains("youtube.com"), "vídeo e minuto não ajudam a julgar o sentido")
+        // nenhuma serve: vazio; ilegível ou sem resposta: nil, e a rota cai nas palavras
+        #expect(await Conselho.escolherSecoesPeloSentido(pergunta: pergunta, obras: obras, pesos: [:]) { _, _, _ in #"{"regras":[]}"# } == [])
+        #expect(await Conselho.escolherSecoesPeloSentido(pergunta: pergunta, obras: obras, pesos: [:]) { _, _, _ in nil } == nil)
+        // o modelo não vê peso: a regra que o mundo rebaixou duas vezes sai; só ela, volta às palavras
+        let rebaixada = lista[1].secao
+        let pesos = [rebaixada.chave: 0.36]
+        let n = try #require(Obra.ranquear(pergunta: pergunta, textos: obras, pesos: pesos).prefix(Conselho.candidatas)
+            .firstIndex { $0.secao == rebaixada }) + 1
+        #expect(await Conselho.escolherSecoesPeloSentido(pergunta: pergunta, obras: obras, pesos: pesos) { _, _, _ in #"{"regras":[\#(n)]}"# } == nil)
+    }
+
+    @Test func oPacoteLevaAsSecoesEscolhidasEAObraSemEscolhaNaoEntra() throws {
+        let obra = try Self.fonteDaObra()
+        let secoes = Obra.secoes(obra.texto)
+        let escolhidas = [secoes[20].texto, secoes[0].texto]
+        let pergunta = "os clientes estão indo embora depois de dois meses; o que faço?"
+        let pacote = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [obra], conversa: [], catalogo: "",
+                                                       retrato: "", teto: 16_000, escolhidas: [obra.id: escolhidas]))
+        #expect(pacote.fontes.first?.texto == escolhidas.joined(separator: "\n\n"))
+        let nenhuma = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [obra], conversa: [], catalogo: "",
+                                                        retrato: "", teto: 16_000, escolhidas: [obra.id: []]))
+        #expect(nenhuma.fontes.isEmpty && nenhuma.omitidas == 0)
+        // sem escolha do modelo, a de antes: as palavras
+        let palavras = try #require(RespostaNotas.montar(pergunta: "estou pensando em baixar o preço porque os clientes estão cancelando",
+                                                         fontes: [obra], conversa: [], catalogo: "", retrato: "", teto: 16_000))
+        #expect(palavras.fontes.first?.texto.contains("Quase nunca baixar preço") == true)
+    }
+
+    /// O diário do app (pesos por resultado) fica fora destes testes: a rota lê `Sinais.todos()`.
+    private func semDiario<T>(_ executar: () async throws -> T) async rethrows -> T {
+        let antes = Sinais.url
+        Sinais.url = FileManager.default.temporaryDirectory.appendingPathComponent("sinais-\(UUID()).json")
+        defer { Sinais.url = antes }
+        return try await executar()
+    }
+
+    /// A ligação: a rota das Notas pede a escolha ANTES de montar, e o que o
+    /// modelo escolheu — não as três das palavras — é o que vai à geração.
+    @Test func aRotaDasNotasMandaAEscolhaDoModeloAGeracao() async throws {
+        try await semDiario {
+            let obra = try Self.fonteDaObra()
+            let pergunta = "estou pensando em baixar o preço porque os clientes estão cancelando"
+            let lista = Array(Obra.ranquear(pergunta: pergunta, texto: obra.texto).prefix(Conselho.candidatas))
+            let alvo = try #require(lista.dropFirst(min(9, lista.count - 1)).first).secao
+            let n = try #require(lista.firstIndex { $0.secao == alvo }) + 1
+            var enviado: RespostaNotas.Pacote?
+            _ = await Sabia.responderNasNotas(pergunta: pergunta, fontes: [obra],
+                                              escolherObra: { _, _, _ in #"{"regras":[\#(n)]}"# },
+                                              gerarRemoto: { p in enviado = p; return nil })
+            #expect(enviado?.fontes.first?.texto == alvo.texto)
+            // sem conta (escolherObra nil) as palavras decidem: as três do ranking
+            var semConta: RespostaNotas.Pacote?
+            _ = await Sabia.responderNasNotas(pergunta: pergunta, fontes: [obra], escolherObra: nil,
+                                              gerarRemoto: { p in semConta = p; return nil })
+            #expect(semConta?.fontes.first?.texto == lista.prefix(3).map(\.secao.texto).joined(separator: "\n\n"))
+        }
+    }
+
+    /// Revisão da E2: a obra que o modelo julgou fora do assunto não "deixou de
+    /// caber" — "o que o Alex Hormozi diz sobre casamento?" recebia a recusa
+    /// «Alex Hormozi não coube nesta consulta» e ficava sem resposta.
+    @Test func obraForaDoAssuntoNaoViraRecusaDeQueNaoCoube() async throws {
+        try await semDiario {
+            let obra = try Self.fonteDaObra()
+            let pergunta = "o que o Alex Hormozi diz sobre casamento?"
+            for escolher in [{ (_: String, _: String, _: String) async -> String? in #"{"regras":[]}"# }, nil] {
+                var gerou = false
+                let r = await Sabia.responderNasNotas(pergunta: pergunta, fontes: [obra], escolherObra: escolher,
+                                                      gerarRemoto: { _ in gerou = true; return nil })
+                #expect(r?.texto.contains(GuardaDeObra.fraseForaDestaConsulta) != true)
+                #expect(gerou, "a pergunta segue à geração, como antes da E2")
+            }
+        }
+    }
+
+    /// Revisão da E2: a biblioteca regenerada ao lado da velha repete seções
+    /// iguais; a escolhida viaja uma vez, não uma por obra.
+    @Test func aSecaoEscolhidaViajaUmaVezMesmoRepetidaEmDuasObras() async throws {
+        try await semDiario {
+            let velha = try Self.fonteDaObra()
+            let nova = FonteNotas(id: UUID(), titulo: "Alex Hormozi — regras conferidas · obra",
+                                  texto: velha.texto + "\n\n## 99. Regra nova\nRegra: uma regra que só a nova tem",
+                                  editadaEm: .now, obraConferida: true)
+            let pergunta = "estou pensando em baixar o preço porque os clientes estão cancelando"
+            let alvo = try #require(Obra.ranquear(pergunta: pergunta, textos: [velha.texto, nova.texto]).first).secao
+            var enviado: RespostaNotas.Pacote?
+            _ = await Sabia.responderNasNotas(pergunta: pergunta, fontes: [velha, nova],
+                                              escolherObra: { _, _, _ in #"{"regras":[1,2]}"# },
+                                              gerarRemoto: { p in enviado = p; return nil })
+            let textos = (enviado?.fontes ?? []).map(\.texto).joined(separator: "\n\n")
+            #expect(textos.components(separatedBy: alvo.titulo).count - 1 == 1, "\(textos.prefix(200))")
+        }
+    }
+
+    /// A escolha tem queda própria: a falha dela não troca o aviso que a tela
+    /// mostra (nem apaga o de outra rota).
+    @Test func aFalhaDaEscolhaNaoViraOAvisoDaResposta() async throws {
+        try await semDiario {
+            let obra = try Self.fonteDaObra()
+            Grok.limparFalha()
+            defer { Grok.limparFalha() }
+            _ = await Sabia.responderNasNotas(pergunta: "baixo o preço porque os clientes cancelam?", fontes: [obra],
+                                              escolherObra: { _, _, _ in Grok.registrarFalha(.timeout); return nil },
+                                              gerarRemoto: { _ in nil })
+            #expect(Grok.falhaPendente() == nil)
+            Grok.registrarFalha(.recusa)
+            await Grok.$semAviso.withValue(true) { Grok.limparFalha() }
+            #expect(Grok.falhaPendente() == .recusa, "o aviso de outra rota fica")
+        }
+    }
+
+    /// Com a escolha pelo sentido, a obra conferida chega à rota se a pergunta
+    /// toca QUALQUER seção dela; quem corta é o modelo, ou a admissão das
+    /// palavras no pacote quando não há conta. A suposta segue pela admissão.
+    @Test func aObraConferidaEntraNaRotaSeAPerguntaTocaAlgumaSecao() throws {
+        // uma seção toca a pergunta por UM radical: as palavras não a admitem (16c)
+        let texto = (1...8).map { "## \($0). Regra \($0)\nRegra: " + ($0 == 3 ? "suba o preço antes de cortar" : "assunto número \($0) sem relação") }
+            .joined(separator: "\n\n")
+        let pergunta = "e o preço?"
+        let ranking = Obra.ranquear(pergunta: pergunta, texto: texto)
+        try #require(!ranking.isEmpty && !ranking.contains(where: Obra.admite))
+        let conferida = FonteNotas(id: UUID(), titulo: "mestre · obra", texto: texto, editadaEm: .now, obraConferida: true)
+        let suposta = FonteNotas(id: UUID(), titulo: "arquivo · parece obra", texto: texto, editadaEm: .now, obra: true)
+        #expect(Sessao.obraCandidata(conferida, pergunta: pergunta), "o modelo decide se serve")
+        #expect(!Sessao.obraCandidata(suposta, pergunta: pergunta), "a suposta segue pela admissão")
+        #expect(!Sessao.obraCandidata(conferida, pergunta: "qual a cor do céu azulado?"))
+        // sem conta, o pacote ainda corta pelas palavras: a obra não entra
+        let pacote = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [conferida], conversa: [],
+                                                       catalogo: "", retrato: "", teto: 16_000))
+        #expect(pacote.fontes.isEmpty && pacote.omitidas == 0)
+    }
 }
