@@ -663,11 +663,15 @@ struct NotasView: View {
     /// D1: o rótulo de seção da folha é uma palavra em tinta fraca — "hoje",
     /// "setembro", "pelo sentido" —, não um selo em caixa alta com tracking.
     private func secao(_ titulo: String) -> some View {
-        Text(titulo)
-            .font(Tema.meta)
-            .foregroundStyle(Tema.tintaFraca)
-            .padding(.top, 24)
-            .padding(.bottom, 2)
+        // dono, 16/09 (cartões): o rótulo mora no eixo do TEXTO dos cartões,
+        // não na borda deles, e respira mais acima do que abaixo — pertence
+        // ao grupo que abre. Mês com maiúscula, como no calendário.
+        Text(titulo.capitalizadoNoInicio)
+            .font(Tema.meta.weight(.semibold))
+            .foregroundStyle(Tema.tintaSuave)
+            .padding(.leading, 16)
+            .padding(.top, 22)
+            .padding(.bottom, 8)
             .accessibilityAddTraits(.isHeader)
     }
 
@@ -697,11 +701,9 @@ struct NotasView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .padding(.bottom, 6)
-            ForEach(Array(peloSentido.enumerated()), id: \.element.uuid) { i, nota in
+            ForEach(peloSentido, id: \.uuid) { nota in
                 botaoNota(nota)
-                if i < peloSentido.count - 1 {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
-                }
+                    .padding(.bottom, Tema.entreCartoes)
             }
         }
     }
@@ -725,7 +727,7 @@ struct NotasView: View {
             // a mesma nota volta a aparecer no mês: o id tem de ser outro, ou o
             // LazyVStack descarta uma das duas linhas (visto na captura 31)
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(devidas.enumerated()), id: \.offset) { i, par in
+                ForEach(Array(devidas.enumerated()), id: \.offset) { _, par in
                     Button {
                         sessao.abrir(par.nota, campo: par.campo.id)
                     } label: {
@@ -741,19 +743,19 @@ struct NotasView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 8)
                         .alvo()
+                        .cartao()
                     }
-                    .buttonStyle(.discreto)
+                    .buttonStyle(PressaoDeCartao())
                     .accessibilityLabel("A volta: \(Volta.cobranca(par.campo)) \(titulo(par.nota))")
                     .accessibilityHint("Abre a nota com o campo da volta")
                     .accessibilityIdentifier("volta-notas")
-                    if i < devidas.count - 1 {
-                        Rectangle().fill(Tema.linha).frame(height: 0.5)
-                    }
+                    .padding(.bottom, Tema.entreCartoes)
                 }
             }
-            .padding(.top, 4)
+            // o primeiro cartão nasce abaixo do esmaecimento do topo (24)
+            .padding(.top, 14)
             .accessibilityIdentifier("secao-volta")
         }
     }
@@ -817,12 +819,9 @@ struct NotasView: View {
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { mes in
                             secao(mes.titulo)
-                            ForEach(Array(mes.notas.enumerated()), id: \.element.uuid) { i, nota in
+                            ForEach(mes.notas, id: \.uuid) { nota in
                                 botaoNota(nota)
-                                // sem separador depois do último: a lista fecha
-                                if i < mes.notas.count - 1 {
-                                    Rectangle().fill(Tema.linha).frame(height: 0.5)
-                                }
+                                    .padding(.bottom, Tema.entreCartoes)
                             }
                         }
                         secaoPeloSentido
@@ -965,7 +964,7 @@ struct NotasView: View {
                 // a linha de um título só mede 25; o alvo pega 10 do vão de cada lado
                 .alvo(folgaV: 10)
             }
-            .buttonStyle(.linha)
+            .buttonStyle(PressaoDeCartao())
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
             .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
@@ -980,12 +979,11 @@ struct NotasView: View {
                     .accessibilityIdentifier("chip-dominio")
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, escolhidas.contains(nota.uuid) ? 10 : 0)
+        .padding(.vertical, 8)
         .alvo()
-        .background(
-            escolhidas.contains(nota.uuid) ? Tema.chip : .clear,
-            in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        // dono, 16/09: cada nota é um objeto sobre o papel — a separação é o
+        // vão entre cartões, não um fio entre linhas
+        .cartao(selecionado: escolhidas.contains(nota.uuid))
         .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
         .contextMenu {
             if !nota.trancada {

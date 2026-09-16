@@ -34,6 +34,7 @@ enum Tema {
     static let fundo = Color(hex: 0xF4F4F2)            // papel
     static let superficie = Color(hex: 0xFFFFFF)       // cartão
     static let superficieAlta = Color(hex: 0xFFFFFF)   // o que flutua (com sombra)
+    static let superficieApertada = Color(hex: 0xF9F9F8) // estado: o cartão sob o dedo
     static let superficieBaixa = Color(hex: 0xEBEBEA)  // névoa: campo, trilho
     static let chip = Color(hex: 0xE8E8E6)
     static let chipAtivo = Color(hex: 0x2C2C2E)        // carvão
@@ -126,6 +127,8 @@ enum Tema {
     }
     /// Ritmo vertical: tudo múltiplo de 4. Dentro de seção 12, entre seções 32.
     static let entreItens: CGFloat = 12
+    /// o vão que separa uma nota da outra: o papel à vista entre dois cartões
+    static let entreCartoes: CGFloat = 10
     static let entreSecoes: CGFloat = 32
     static let alvo: CGFloat = 44
     /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
@@ -329,7 +332,52 @@ struct PressaoDeLinha: ButtonStyle {
     }
 }
 
+/// Pressão num CARTÃO de nota (dono, 16/09: "sombras, profundidade e a
+/// separação clara do que é uma nota"). O rótulo não encolhe nem se acende:
+/// avisa o cartão, que assenta no papel — a sombra encurta e o branco
+/// esfria um tom, como uma folha que se aperta contra a mesa.
+struct PressaoDeCartao: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(Rectangle())
+            .preference(key: CartaoApertado.self, value: configuration.isPressed)
+    }
+}
+
+struct CartaoApertado: PreferenceKey {
+    static let defaultValue = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) { value = value || nextValue() }
+}
+
+private struct CartaoDeNota: ViewModifier {
+    var selecionado: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        // o raio do campo do pé: o cartão e o campo têm as mesmas pontas
+        let forma = RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous)
+        content
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .backgroundPreferenceValue(CartaoApertado.self) { apertado in
+                forma
+                    .fill(apertado ? Tema.superficieApertada : Tema.superficie)
+                    // duas sombras: a de contato desenha a borda de baixo, a
+                    // ambiente dá a altura — apertado, a folha desce ao papel
+                    .shadow(color: Tema.sombraContato.opacity(apertado ? 0.6 : 1), radius: 0.5, y: 0.5)
+                    .shadow(color: Tema.sombraFlutuante.opacity(apertado ? 0.3 : 0.75), radius: apertado ? 3 : 12, y: apertado ? 1 : 5)
+                    .animation(Tema.movimento(.opacidade, apertado ? .easeOut(duration: Tema.Duracao.toque) : .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: apertado)
+            }
+            // o fio de tinta a 8 %: branco sobre papel precisa da borda para ser objeto
+            .overlay { forma.strokeBorder(selecionado ? Tema.chipAtivo : Tema.linha, lineWidth: selecionado ? 1.5 : 0.5) }
+            .contentShape(.contextMenuPreview, forma)
+    }
+}
+
 extension View {
+    /// Uma nota da lista é um cartão: branco, cantos contínuos, fio e sombra.
+    func cartao(selecionado: Bool = false) -> some View { modifier(CartaoDeNota(selecionado: selecionado)) }
+
     func sombra(_ s: Tema.Sombra) -> some View {
         shadow(color: s.cor, radius: s.raio, y: s.y)
     }
