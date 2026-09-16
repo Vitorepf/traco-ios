@@ -285,7 +285,15 @@ struct NotasView: View {
                                 FontesDaResposta(
                                     resumo: RespostaNotas.resumoDasFontes(conversaNotas.fontes),
                                     fontes: conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo, obra: $0.obra) },
-                                    abrir: abrirFonte)
+                                    abrir: abrirFonte,
+                                    aoAbrir: {
+                                        // depois que a lista cresce: no mesmo quadro o fim ainda é o velho
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + Tema.Duracao.curta) {
+                                            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                                                rolagem.scrollTo("acoes-da-ultima", anchor: .bottom)
+                                            }
+                                        }
+                                    })
                             }
                             if ultima, conversaNotas.obraParaPlantar != nil {
                                 Button("Plantar esta obra", action: plantarObraDaGuarda)
@@ -306,6 +314,7 @@ struct NotasView: View {
                                     Toque.leve()
                                 } : nil,
                                 avaliada: conversaNotas.avaliadas.contains(troca.resposta))
+                                .id(ultima ? "acoes-da-ultima" : "acoes-\(i)")
                         }
                         .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("autor-sabia")
@@ -875,6 +884,7 @@ struct NotasView: View {
                         .cartao()
                     }
                     .buttonStyle(PressaoDeCartao())
+                    .contextMenu { menuDaNota(par.nota) }
                     .accessibilityLabel("A volta: \(Volta.cobranca(par.campo)) \(titulo(par.nota))")
                     .accessibilityHint("Abre a nota com o campo da volta")
                     .accessibilityIdentifier("volta-notas")
@@ -1134,44 +1144,48 @@ struct NotasView: View {
         // vão entre cartões, não um fio entre linhas
         .cartao(selecionado: escolhidas.contains(nota.uuid))
         .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
-        .contextMenu {
-            if !nota.trancada {
-                Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
+        .contextMenu { menuDaNota(nota) }
+    }
+
+    /// O mesmo menu no cartão da nota e no de «Hora de conferir», que é a mesma nota
+    /// (auditoria 16/09 noite: o toque longo ali abria em vez de mostrar o menu).
+    @ViewBuilder private func menuDaNota(_ nota: Nota) -> some View {
+        if !nota.trancada {
+            Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
+        }
+        let fatia = FatiaCorpus.de(nota)
+        if !fatia.nuncaSai {
+            Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
+                contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
             }
-            let fatia = FatiaCorpus.de(nota)
-            if !fatia.nuncaSai {
-                Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
-                    contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
+        }
+        if !nota.fechada, nota.gesto != .expressiva {
+            Button("Versões", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
+            Button("Notas ligadas", systemImage: "link") { redeDe = nota }
+        }
+        // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
+        if !nota.fechada, nota.gesto != .expressiva {
+            Menu("Domínio", systemImage: "tag") {
+                ForEach(Dominio.allCases) { d in
+                    Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
+                }
+                Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
+                if nota.dominioTravado {
+                    Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
                 }
             }
-            if !nota.fechada, nota.gesto != .expressiva {
-                Button("Versões", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
-                Button("Notas ligadas", systemImage: "link") { redeDe = nota }
-            }
-            // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
-            if !nota.fechada, nota.gesto != .expressiva {
-                Menu("Domínio", systemImage: "tag") {
-                    ForEach(Dominio.allCases) { d in
-                        Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
-                    }
-                    Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
-                    if nota.dominioTravado {
-                        Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
-                    }
-                }
-            }
-            // R3: as quatro linhas juntas, depois do quarto fecho
-            if nota.gesto == .expressiva, nota.serieUUID != nil {
-                Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
-            }
-            Button("Selecionar", systemImage: "checkmark.circle") {
-                Toque.selecao()
-                escolhidas.insert(nota.uuid)
-            }
-            // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
-            Button("Apagar", systemImage: "trash", role: .destructive) {
-                sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
-            }
+        }
+        // R3: as quatro linhas juntas, depois do quarto fecho
+        if nota.gesto == .expressiva, nota.serieUUID != nil {
+            Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
+        }
+        Button("Selecionar", systemImage: "checkmark.circle") {
+            Toque.selecao()
+            escolhidas.insert(nota.uuid)
+        }
+        // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
+        Button("Apagar", systemImage: "trash", role: .destructive) {
+            sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
         }
     }
 

@@ -145,6 +145,8 @@ struct FontesDaResposta: View {
     let resumo: String
     let fontes: [Fonte]
     let abrir: (UUID) -> Void
+    /// Abrir a lista empurra as ações para baixo do campo: quem chama rola até elas.
+    var aoAbrir: () -> Void = {}
     @State private var aberto = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -153,6 +155,7 @@ struct FontesDaResposta: View {
             Button {
                 Toque.selecao()
                 withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { aberto.toggle() }
+                if aberto { aoAbrir() }
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "doc.text")
