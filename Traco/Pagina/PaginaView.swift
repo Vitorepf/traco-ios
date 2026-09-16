@@ -451,7 +451,10 @@ struct PaginaView: View {
 
             Button("Concluir") { sessao.concluir(no: context) }
                 .keyboardShortcut(.return, modifiers: .command)
-                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambarTinta : Tema.tintaSuave)
+                // cinza lia como desabilitado (auditoria 16/09 noite): com texto,
+                // tinta; âmbar quando a forma está completa
+                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambarTinta : Tema.tinta)
+                .fontWeight(.semibold)
                 .opacity(sessao.temVoz ? 1 : 0)
                 .allowsHitTesting(sessao.temVoz)
                 .alvo()

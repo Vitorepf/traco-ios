@@ -8,6 +8,7 @@ struct CalendarioFichaView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var tituloEmFoco: Bool
     @State private var seletorAberto: String?
+    @State private var confirmarApagar = false
     // ADR 04w: o que a mente já pensou sobre isto, antes do ato
     @Query private var notas: [Nota]
     @State private var doCaderno: [Nota] = []
@@ -194,9 +195,9 @@ struct CalendarioFichaView: View {
                 }
 
                 if jaExiste {
+                    // apagar pede confirmação (auditoria 16/09 noite: sumia na hora, sem volta)
                     Button {
-                        agenda.apagar(evento.id)
-                        dismiss()
+                        confirmarApagar = true
                     } label: {
                         Text("Apagar compromisso")
                             .font(CalendarioTema.chrome)
@@ -205,6 +206,13 @@ struct CalendarioFichaView: View {
                     }
                     .buttonStyle(.discreto)
                     .accessibilityIdentifier("ficha-apagar")
+                    .confirmationDialog("Apagar este compromisso?", isPresented: $confirmarApagar, titleVisibility: .visible) {
+                        Button("Apagar", role: .destructive) {
+                            agenda.apagar(evento.id)
+                            dismiss()
+                        }
+                        Button("Manter", role: .cancel) {}
+                    }
                 }
             }
             .padding(CalendarioTema.margem)

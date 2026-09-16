@@ -212,7 +212,7 @@ extension ContaGrok {
               let http = resposta as? HTTPURLResponse
         else { return "sem rede. o app segue funcionando aqui no aparelho." }
         switch http.statusCode {
-        case 200: return "conectada — o Grok é o motor, pago pela sua assinatura."
+        case 200: return "conectada — a IA usa a sua assinatura do Grok"
         case 401: return "sessão expirada — entre de novo."
         case 403: return "a sua assinatura não libera este acesso. o app segue funcionando aqui no aparelho."
         case 429: return "limite semanal do Grok atingido. o app segue funcionando aqui no aparelho."

@@ -40,7 +40,15 @@ struct CampoFlutuante<Mais: View>: View {
         HStack(spacing: 6) {
             mais()
             HStack(spacing: 4) {
-            TextField("", text: $texto, prompt: Text(dicaQueCabe).foregroundStyle(Tema.tintaFraca))
+            // cresce até quatro linhas (auditoria 16/09 noite: numa linha só a
+            // pergunta rolava para o lado e o começo sumia); Enter envia
+            TextField("", text: $texto, prompt: Text(dicaQueCabe).foregroundStyle(Tema.tintaFraca), axis: .vertical)
+                .lineLimit(1...4)
+                .onChange(of: texto) { _, novo in
+                    guard novo.contains("\n") else { return }
+                    texto = novo.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
+                    if !texto.isEmpty { aoEnviar() }
+                }
                 // dono, 16/09: "tão fino que está feio" — o texto sobe ao corpo
                 // (17) na MESMA altura de 40; peso vem do tipo, não do tamanho
                 .font(.body)

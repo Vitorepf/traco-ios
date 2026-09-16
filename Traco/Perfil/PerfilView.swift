@@ -23,6 +23,7 @@ struct PerfilView: View {
     @ScaledMetric(relativeTo: .subheadline) private var medidaMiuda: CGFloat = 280
 
     @State private var ligada = ContaGrok.ligada
+    @State private var confirmarSaida = false
     @State private var estado: String?
     @State private var codigo: ContaGrok.Codigo?
     @State private var entrando = false
@@ -461,13 +462,24 @@ struct PerfilView: View {
             // a AÇÃO, separada de quem a conta é — reconhecida pelo chevron,
             // não pelo âmbar (ADR 10k)
             if ligada {
-                linhaAcao("rectangle.portrait.and.arrow.right", "Sair da conta", "voltar ao motor local") {
-                    ContaGrok.sair()
-                    ligada = false
-                    codigo = nil
-                    Task { estado = await ContaGrok.estado() }
+                // sair é destrutivo e pede confirmação (auditoria 16/09 noite:
+                // parecia uma linha comum, sem cor nem aviso)
+                linhaAcao("rectangle.portrait.and.arrow.right", "Sair da conta",
+                          "a IA passa a usar só o aparelho", destrutiva: true) {
+                    confirmarSaida = true
                 }
                 .accessibilityIdentifier("sair-conta")
+                .confirmationDialog("Sair da conta Grok?", isPresented: $confirmarSaida, titleVisibility: .visible) {
+                    Button("Sair", role: .destructive) {
+                        ContaGrok.sair()
+                        ligada = false
+                        codigo = nil
+                        Task { estado = await ContaGrok.estado() }
+                    }
+                    Button("Ficar", role: .cancel) {}
+                } message: {
+                    Text("As respostas pelas suas notas e a escolha dos conselhos deixam de funcionar até você entrar de novo.")
+                }
             } else {
                 linhaAcao("person.badge.key", entrando ? "esperando aprovação…" : "Entrar com a conta Grok",
                           "sem chave de API, sem cobrança por uso") {
@@ -664,8 +676,8 @@ struct PerfilView: View {
             }
             LinhaDeLista("bell", "Avisos",
                          avisosLigados
-                            ? "ligados — o Traço cobra na hora"
-                            : "desligados — nada te cobra",
+                            ? "ligados — o Traço lembra na hora"
+                            : "desligados — nenhum lembrete chega",
                          fio: sistema.negado || !avisosLigados)
                 .accessibilityIdentifier("estado-avisos")
             if sistema.negado || !avisosLigados {

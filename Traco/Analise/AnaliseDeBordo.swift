@@ -85,7 +85,7 @@ nonisolated enum AnaliseDeBordo {
         if naNuvemPrivada { return "nuvem privada da Apple — sem conta, o texto não sai para terceiros" }
         return switch SystemLanguageModel.default.availability {
         case .available:
-            "pronto — sem conta e sem sinal"
+            "pronto — funciona sem conta e sem internet"
         case .unavailable(.deviceNotEligible):
             "este aparelho não tem o modelo do sistema."
         case .unavailable(.appleIntelligenceNotEnabled):

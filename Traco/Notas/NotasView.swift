@@ -40,6 +40,7 @@ struct NotasView: View {
     /// a pergunta enviada poder subir ao topo mesmo com resposta curta.
     @State private var alturaDaConversa: CGFloat = 0
     @State private var obraEmLeitura: ObraEmLeitura?
+    @State private var voltasAbertas = false
 
     struct ObraEmLeitura: Identifiable {
         let id = UUID()
@@ -781,8 +782,11 @@ struct NotasView: View {
             // conferir" na página em branco (ADR 05b): mesmo idioma, mesma tinta.
             // a mesma nota volta a aparecer no mês: o id tem de ser outro, ou o
             // LazyVStack descarta uma das duas linhas (visto na captura 31)
+            // duas à vista; o resto numa linha que abre (auditoria 16/09 noite:
+            // quatro cartões tomavam a tela e repetiam as notas de Hoje)
+            let mostradas = voltasAbertas ? devidas : Array(devidas.prefix(2))
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(devidas.enumerated()), id: \.offset) { _, par in
+                ForEach(Array(mostradas.enumerated()), id: \.offset) { _, par in
                     Button {
                         sessao.abrir(par.nota, campo: par.campo.id)
                     } label: {
@@ -813,6 +817,28 @@ struct NotasView: View {
                     .accessibilityHint("Abre a nota com o campo da volta")
                     .accessibilityIdentifier("volta-notas")
                     .padding(.bottom, Tema.entreCartoes)
+                }
+                if devidas.count > 2 {
+                    Button {
+                        Toque.selecao()
+                        withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                            voltasAbertas.toggle()
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(voltasAbertas ? "Mostrar menos" : "Mais \(devidas.count - 2) para conferir")
+                            Image(systemName: "chevron.down")
+                                .font(.caption.weight(.bold))
+                                .rotationEffect(.degrees(voltasAbertas ? 180 : 0))
+                                .accessibilityHidden(true)
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Tema.ambarTinta)
+                        .padding(.leading, 4)
+                        .alvo()
+                    }
+                    .buttonStyle(.discreto)
+                    .accessibilityIdentifier("mais-voltas")
                 }
             }
             // o primeiro cartão nasce abaixo do esmaecimento do topo (24)
@@ -1109,7 +1135,14 @@ struct NotasView: View {
         }
         if !busca.isEmpty {
             let sub = subtitulo(nota)
-            return (t, sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) ? restoDaNota(nota, depoisDe: t) : sub)
+            if sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) { return (t, restoDaNota(nota, depoisDe: t)) }
+            // o trecho que começa pelo título repetia o título (auditoria 16/09 noite)
+            let dobrar = { (x: String) in x.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
+            if dobrar(sub).hasPrefix(dobrar(t)) {
+                let resto = sub.dropFirst(t.count).trimmingCharacters(in: CharacterSet(charactersIn: ".:…").union(.whitespaces))
+                return (t, resto.isEmpty ? nil : resto)
+            }
+            return (t, sub)
         }
         // forma com campos: a prévia são as respostas, na ordem do método, sem a
         // que só repete o título ("Baixar o preço…" · "Baixar o preço porque…")

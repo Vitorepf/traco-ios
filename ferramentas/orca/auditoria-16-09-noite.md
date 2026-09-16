@@ -12,11 +12,11 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 - [x] Busca com pergunta digitada mostra "nenhuma nota com…" em vez de oferecer perguntar (20).
 
 ## MÉDIA
-- [ ] Concluir cinza na página (parece desabilitado) e âmbar na Decisão; concluir sem retorno visível (04, 05, 08, 09, 32).
+- [x] Concluir cinza na página (parece desabilitado) e âmbar na Decisão; concluir sem retorno visível (04, 05, 08, 09, 32) — cor corrigida; retorno: o toast "guardada em Notas" existe, conferir se some sob o teclado.
 - [ ] Menu "+" sem ícones, "Lente" é jargão (06).
-- [ ] 4 cartões "Hora de conferir" tomam a tela e repetem notas de Hoje (10, 14).
-- [ ] Prévia da busca repete o título e não mostra o trecho do termo (18).
-- [ ] Campo de uma linha rola para o lado e esconde o começo da pergunta (20).
+- [x] 4 cartões "Hora de conferir" tomam a tela e repetem notas de Hoje (10, 14).
+- [x] Prévia da busca repete o título e não mostra o trecho do termo (18).
+- [x] Campo de uma linha rola para o lado e esconde o começo da pergunta (20).
 - [ ] Busca vazia pobre; grupo do topo muda de forma (19).
 - [ ] Toque longo: menu sem ícones, rótulos vagos ("Como contexto", "Ligações", "Escolher") (15).
 - [ ] Ligações: jargão e texto desalinhado 4 pt (16).
@@ -26,9 +26,9 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 - [→] Conversa: resposta em bloco único (72–73).
 - [ ] Decisão abre rolada no último campo, sem título nem aviso (32, 68); barra do pé sobre o formulário (32, 34).
 - [ ] Calendário: D/S/M/A x D S T Q Q S S (36); "Marcar" encolhe a ~60 pt com Hoje e corta o texto ao digitar (42, 49); lista sem data e com "A" marcado (40, 45).
-- [ ] Compromisso: ✕/Pronto rolam e somem; cabeçalhos 4 pt dentro; "Repete: não repete" sem sinal (43, 47); apagar sem confirmar (48).
+- [ ] Compromisso: ✕/Pronto rolam e somem; cabeçalhos 4 pt dentro; "Repete: não repete" sem sinal (43, 47); apagar sem confirmar (48) — [x] confirmação.
 - [ ] Padrões/Perfil: "soltas"/"sem forma"/"Decisão" com números diferentes (51, 64); cartão da pergunta com margem 11 e "‹ Notas" que leva a Padrões (53, 54).
-- [ ] Perfil: "Quem responde" mostra a lista interna de defeitos (58, 59); jargão de motor (57, 61, 64); "Sair da conta" como linha comum (57); hipóteses 2 x 4 (63); subtítulos cortados (64, 66).
+- [ ] Perfil: "Quem responde" mostra a lista interna de defeitos (58, 59); [x] jargão de motor na Conta e Avisos (57, 64); [x] "Sair da conta" destrutivo com confirmação (57); aberto: "Um JSON com id…" (61); hipóteses 2 x 4 (63); subtítulos cortados (64, 66).
 
 ## BAIXA
 - [ ] Sombra do Dock escondido; "voltas a conferir" x "Hora de conferir" (01).
