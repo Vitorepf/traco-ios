@@ -142,7 +142,8 @@ struct CartaoAnaliseView: View {
         if case .conselho(let c) = cartao {
             // dono, 16/09: o conselho é uma CAPA própria (CartaoDoConselhoView),
             // sem trilho, sem rolagem de cartão e sem «Fechar» no pé
-            CartaoDoConselhoView(voz: c.regra, fechar: fechar, teto: tetoDoEncaixe ?? .infinity)
+            CartaoDoConselhoView(voz: c.regra, fechar: fechar, teto: tetoDoEncaixe ?? .infinity,
+                                 sobre: Sessao.buscar(uuid: c.nota, no: context)?.tituloNaLista)
                 // visto é o que foi desenhado, não o que foi oferecido
                 .onAppear { sessao.conselhoApareceu(c) }
                 .accessibilityIdentifier("cartao-analise")

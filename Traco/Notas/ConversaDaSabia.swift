@@ -38,6 +38,7 @@ struct BalaoDaPergunta: View {
 /// negrito e os links do modelo viram tipografia; o resto fica literal.
 struct RespostaDaSabia: View {
     let texto: String
+    var mostrarReferencia = true
 
     /// A linha "Referência:" que `RespostaNotas` acrescenta ao fim sai do corpo
     /// e vira nota de rodapé: ela diz de onde veio, não é o que a sábia diz.
@@ -78,7 +79,7 @@ struct RespostaDaSabia: View {
                     .tint(Tema.ambarTinta)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            if let referencia = partes.referencia, !referencia.isEmpty {
+            if mostrarReferencia, let referencia = partes.referencia, !referencia.isEmpty {
                 Text("De " + referencia)
                     .font(.subheadline)
                     .lineSpacing(2)

@@ -203,7 +203,10 @@ struct NotasView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         BalaoDaPergunta(texto: troca.pergunta)
                         VStack(alignment: .leading, spacing: 14) {
-                            RespostaDaSabia(texto: troca.resposta)
+                            // o rodapé "De …" só quando diz algo que a ficha não diz: a obra, com minuto
+                            RespostaDaSabia(texto: troca.resposta,
+                                            mostrarReferencia: !ultima || conversaNotas.fontes.isEmpty
+                                                || conversaNotas.fontes.contains(where: \.obra))
                             if ultima, !conversaNotas.fontes.isEmpty {
                                 FontesDaResposta(
                                     resumo: RespostaNotas.resumoDasFontes(conversaNotas.fontes),
@@ -761,14 +764,20 @@ struct NotasView: View {
                     Button {
                         sessao.abrir(par.nota, campo: par.campo.id)
                     } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(Volta.cobranca(par.campo))
-                                .font(Tema.corpo)
+                        // o mesmo cartão das notas (dono, 16/09): o aviso âmbar diz
+                        // que chegou a hora, o título diz de qual decisão, e a
+                        // pergunta da forma diz o que falta escrever
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("Hora de conferir", systemImage: "clock.arrow.circlepath")
+                                .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Tema.ambarTinta)
+                            Text(partesDoCartao(par.nota).titulo)
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Tema.tinta)
                                 .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
-                            Text(titulo(par.nota))
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaFraca)
+                            Text(Volta.cobranca(par.campo))
+                                .font(.subheadline)
+                                .foregroundStyle(Tema.tintaSuave)
                                 .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 1)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1083,6 +1092,10 @@ struct NotasView: View {
             .sorted { (ordem.firstIndex(of: $0.key) ?? ordem.count, $0.key) < (ordem.firstIndex(of: $1.key) ?? ordem.count, $1.key) }
             .map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty && !dobrar($0).hasPrefix(dobrar(t)) && !dobrar(t).hasPrefix(dobrar($0)) }
+        // a decisão tomada diz mais que as opções emendadas
+        if let decidido = nota.campos["decidido"]?.trimmingCharacters(in: .whitespacesAndNewlines), !decidido.isEmpty {
+            return (t, "Decidi: " + decidido)
+        }
         if !respostas.isEmpty { return (t, respostas.joined(separator: " · ")) }
         return (t, restoDaNota(nota, depoisDe: t))
     }

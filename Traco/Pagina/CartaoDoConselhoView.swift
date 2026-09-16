@@ -14,6 +14,8 @@ struct CartaoDoConselhoView: View {
     let fechar: () -> Void
     /// O que sobra de altura acima do pé: além disso, a regra rola dentro da capa.
     var teto: CGFloat = .infinity
+    /// O título da decisão que chamou o conselho — por que ele apareceu.
+    var sobre: String? = nil
 
     private let forma = RoundedRectangle(cornerRadius: 22, style: .continuous)
 
@@ -78,6 +80,14 @@ struct CartaoDoConselhoView: View {
 
             fonte
                 .padding(.top, 4)
+
+            if let sobre {
+                Text(verbatim: "Sobre a sua decisão: " + sobre)
+                    .font(.footnote)
+                    .foregroundStyle(Color.white.opacity(0.45))
+                    .lineLimit(2)
+                    .padding(.top, 2)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
