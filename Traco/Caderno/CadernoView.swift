@@ -208,14 +208,10 @@ struct CadernoView: View {
             // e lista nascem do texto pelo `Caderno.estruturar` ao concluir; o
             // catálogo continua no arquivo. O código fica até a próxima volta
             // decidir o que sobra dele.
+            // sem o fio de cima: a régua ficou vazia e o fio sobrava sozinho,
+            // uma linha solta sobre o pé (auditoria 16/09 noite, 01)
             regua
-                .padding(.horizontal, Tema.margem)
-                .padding(.vertical, 4)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Tema.fundo)
-                .overlay(alignment: .top) {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
-                }
                 .transition(.identity)
         }
         // a barra de ações da página mora AQUI: um container, uma lei.

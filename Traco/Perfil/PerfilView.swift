@@ -233,7 +233,9 @@ struct PerfilView: View {
     private var latencia: some View {
         let s = serieDaLatencia
         return recolhidas.secao("Hipóteses em aberto", id: "latencia",
-                     contagem: s.vazia ? nil : Latencia.paraTela(s).count) {
+                     // o cabeçalho conta o que o título diz: as em aberto, não as linhas
+                     // mostradas ("2" sobre "4 em aberto", auditoria 16/09 noite)
+                     contagem: s.abertos.isEmpty ? nil : s.abertos.count) {
             if s.vazia {
                 // Hermes §11: o vazio é uma linha normal, não uma cerimônia
                 LinhaDeLista("hourglass", "Ainda não há série",
