@@ -36,6 +36,13 @@ enum RitualRecordar: Equatable, Sendable {
         }
     }
 
+    /// E7: na nota livre, a nota inteira vai ao modelo rotulada (alvo e pista são
+    /// ela mesma); nos outros modos o alvo é um campo só e segue como está.
+    nonisolated func rotuladaParaAIA(texto: String, campos: [String: String], gesto: Gesto?) -> String? {
+        guard case .livre = self else { return nil }
+        return VozDoAutor.rotulada(texto: texto, campos: campos, gesto: gesto)
+    }
+
     /// O que o autor tenta lembrar. Destilar cobra a frase — ou o corte
     /// mais curto que ele chegou a fazer. O rascunho de origem nunca é o alvo:
     /// era o que se cortava, não o que se lembra.
@@ -247,8 +254,9 @@ struct RecordarView: View {
         // pagaria uma segunda pergunta para jogar fora (dinheiro no lixo)
         guard Self.aceitaPergunta(jaTem: perguntaDaSabia != nil, memoria: memoria),
               Politica.provedor(.recordar) != nil else { return }
-        let vinda = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
-                                                  gesto: gesto, degrau: degrau, retrato: retrato)
+        // E7: ao modelo, a nota livre vai rotulada; guardas, tela e conferência seguem sem rótulo
+        let vinda = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista, gesto: gesto, degrau: degrau, retrato: retrato,
+                                                  rotulada: modo.rotuladaParaAIA(texto: texto, campos: campos, gesto: gesto))
         // e DEPOIS de voltar: a resposta pode chegar com o autor já escrevendo.
         // Chegou antes da primeira letra, entra; chegou depois, o autor termina
         // com a pergunta que leu.

@@ -153,6 +153,16 @@ final class Nota {
         VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentido)
     }
 
+    /// E7: o texto que VAI AO MODELO, com os rótulos do método (`VozDoAutor.rotulada`).
+    var paraAIA: String {
+        VozDoAutor.rotulada(texto: texto, campos: campos, gesto: gesto, sentido: sentido)
+    }
+
+    /// E7: a voz do autor como vai ao modelo — rotulada, sem citação, vazia se não é dele.
+    var vozDoAutorParaAIA: String {
+        origem == .autor ? VozDoAutor.rotulada(texto: texto, campos: campos, gesto: gesto, sentido: sentido, semCitacao: true) : ""
+    }
+
     /// Só a voz do autor — VAZIO quando a nota não é dele (ADR 2026-09-09b).
     /// Quem declara voz, retrato, trajetória ou mapa do autor lê DAQUI, e por
     /// isso o classificador de domínio e as perguntas dos Padrões não recebem

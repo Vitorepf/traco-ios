@@ -385,6 +385,34 @@ struct ConselhoSombraTests {
         #expect(conselho(s)?.nota == nota.uuid)
     }
 
+    /// E7 (ADR 2026-09-16l): a Decisão concluída manda ao Grok a situação com
+    /// os rótulos do método, e sem o decidido.
+    @Test func aDecisaoConcluidaMandaASituacaoRotulada() async throws {
+        let (c, fim) = try preparar()
+        defer { fim() }
+        let ctx = c.mainContext
+        let d = precoDaMentoria
+        let nota = Nota(texto: d.escolha, gesto: .decisao,
+                        campos: ["escolha": d.escolha, "opcoes": d.opcoes, "criterio": d.criterio,
+                                 "decidido": d.decidido, "espero": d.espero])
+        ctx.insert(nota)
+        try ctx.save()
+        var pedido: String?
+        Sessao.registrarConselho(nota, no: ctx, perguntar: { _, u, _ in pedido = u; return #"{"regra":1}"# })
+        // espera a exposição gravar: a tarefa em segundo plano não pode escrever
+        // no diário de sinais depois que o `fim()` devolve o caminho de verdade
+        for _ in 0..<100 where Sinais.todos().filter({ $0.tipo == .exposto && $0.nota == nota.uuid }).isEmpty {
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        #expect(Sinais.todos().filter { $0.tipo == .exposto && $0.nota == nota.uuid }.count == 1)
+        let bruto = try #require(pedido)
+        let json = try #require(JSONSerialization.jsonObject(with: Data(bruto.utf8)) as? [String: Any])
+        let situacao = try #require(json["situacao"] as? String)
+        let nome = { (id: String) in Gesto.decisao.metodoDef.campos.first { $0.id == id }!.nome }
+        #expect(situacao.contains("\(nome("escolha")): \(d.escolha)") && situacao.contains("\(nome("criterio")): "))
+        #expect(!situacao.contains(d.decidido))
+    }
+
     // MARK: ADR 2026-09-16j — as dívidas da 16g
 
     /// O dono aprovou o envio automático da DECISÃO; o Pré-mortem concluído

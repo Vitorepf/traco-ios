@@ -25,13 +25,16 @@ nonisolated struct FonteNotas: Codable, Equatable, Sendable {
     /// Só ela cita «Mestre, “Vídeo”, minuto»: numa obra suposta essas linhas
     /// são texto de quem escreveu o arquivo e poderiam forjar a autoria.
     var obraConferida: Bool = false
+    /// E7: nota escrita pelo autor (não do bot, não obra). Só ela a tela nomeia
+    /// quando fica fora do pacote.
+    var doAutor: Bool = true
 
     /// Grafemas. Cabe em duas linhas de `meta` em `large`; acima disso a
     /// citação deixa de nomear e passa a repetir.
     static let tetoDoTitulo = 80
 
     init(id: UUID, titulo: String, texto: String, editadaEm: Date, assinatura: String? = nil,
-         obra: Bool = false, obraConferida: Bool = false) {
+         obra: Bool = false, obraConferida: Bool = false, doAutor: Bool = true) {
         self.id = id
         self.titulo = VozDoAutor.truncar(titulo.split(whereSeparator: \.isNewline).joined(separator: " "), Self.tetoDoTitulo)
         self.texto = texto
@@ -39,6 +42,7 @@ nonisolated struct FonteNotas: Codable, Equatable, Sendable {
         self.assinatura = assinatura
         self.obra = obra || obraConferida
         self.obraConferida = obraConferida
+        self.doAutor = doAutor && !self.obra
     }
 }
 
@@ -78,6 +82,9 @@ nonisolated enum RespostaNotas {
         /// ADR 2026-09-16k: o texto do modelo passou do teto e foi cortado no
         /// último fim de parágrafo ou frase. A tela decide se sinaliza.
         var cortada: Bool = false
+        /// E7: o tamanho do pacote que foi ao modelo e o que ficou fora. A sonda lê.
+        var tamanhoDoPacote: Int = 0
+        var fora: [String] = []
         /// ADR 2026-09-16i: quem escolheu as seções da obra — "modelo" ou
         /// "palavras"; nil sem obra conferida. A sonda lê; a tela não.
         var viaObra: String? = nil
@@ -93,6 +100,12 @@ nonisolated enum RespostaNotas {
         /// escolheu seção, ou as palavras não admitiram). Não são "omitidas":
         /// a recusa «não coube nesta consulta» não pode nascer delas.
         var obrasForaDoAssunto: Set<UUID> = []
+        /// E7 (ADR 2026-09-16l): o que ficou fora ou cortado, e por quê —
+        /// "nota «título»: não coube", "retrato: não coube"… A sonda grava.
+        var fora: [String] = []
+        /// As notas DO AUTOR que ficaram fora do pacote, pelo título: só elas a
+        /// tela nomeia; nota do bot, obra, catálogo e retrato, nunca.
+        var notasDoAutorForaInteiras: [String] = []
 
         var trechos: [(id: String, fonte: FonteNotas, texto: String)] {
             fontes.enumerated().flatMap { i, fonte in
@@ -163,15 +176,22 @@ nonisolated enum RespostaNotas {
             pacote.fontes.append(fonte)
             return true
         }
+        // E7: sem teto por nota — o recorte por linha deixava só o título de uma nota
+        // de parágrafo longo, e o corte por caractere manda como citável linha que
+        // não foi escrita assim (revisão da E7). Nota que não cabe fica fora, nomeada.
         for fonte in fontes where !fonte.obra {
-            if !caber(fonte) { pacote.omitidas += 1 }
+            if !caber(fonte) {
+                pacote.omitidas += 1
+                pacote.fora.append("nota «\(fonte.titulo)»: não coube")
+                if fonte.doAutor { pacote.notasDoAutorForaInteiras.append(fonte.titulo) }
+            }
         }
         // ADR 2026-09-16c (revisão): o que é DELA — formas e retrato — vem antes
         // da obra; a obra não empurra quem escreve para fora do pedido
-        for (rotulo, texto) in [("FORMAS DO TRAÇO", catalogo), ("SOBRE QUEM ESCREVE", retrato)] where !texto.isEmpty {
+        for (rotulo, texto, nome) in [("FORMAS DO TRAÇO", catalogo, "formas do Traço"), ("SOBRE QUEM ESCREVE", retrato, "retrato")] where !texto.isEmpty {
             let bloco = "\n\n\(rotulo) (JSON; contexto auxiliar):\n" + json(["texto": texto])
             if pacote.mensagem.count + bloco.count + reserva <= teto { pacote.mensagem += bloco }
-            else { pacote.omitidas += 1 }
+            else { pacote.omitidas += 1; pacote.fora.append("\(nome): não coube") }
         }
         for original in fontes where original.obra {
             // A obra inteira não cabe (o dossiê tem 1,5 MB e era pulado
@@ -181,7 +201,7 @@ nonisolated enum RespostaNotas {
             guard Obra.temCabecalhoDeSecao(original.texto) else {
                 // obra suposta sem `## `: vai inteira, se couber — a que fala com a máquina, não (16j)
                 if Obra.falaComAMaquina(original.texto) { pacote.obrasForaDoAssunto.insert(original.id) }
-                else if !caber(original) { pacote.omitidas += 1 }
+                else if !caber(original) { pacote.omitidas += 1; pacote.fora.append("obra «\(original.titulo)»: não coube") }
                 continue
             }
             let secoes: [String]
@@ -189,10 +209,14 @@ nonisolated enum RespostaNotas {
                 // ADR 2026-09-16i: o modelo escolheu pelo sentido; sem escolha
                 // para esta obra, ela não é assunto
                 secoes = escolhidas[original.id] ?? []
-                guard !secoes.isEmpty else { pacote.obrasForaDoAssunto.insert(original.id); continue }
+                guard !secoes.isEmpty else {
+                    pacote.obrasForaDoAssunto.insert(original.id); pacote.fora.append("obra «\(original.titulo)»: fora do assunto"); continue
+                }
             } else {
                 let achados = Obra.ranquear(pergunta: pergunta, texto: original.texto, pesos: pesos)
-                guard achados.contains(where: Obra.admite) else { pacote.obrasForaDoAssunto.insert(original.id); continue }
+                guard achados.contains(where: Obra.admite) else {
+                    pacote.obrasForaDoAssunto.insert(original.id); pacote.fora.append("obra «\(original.titulo)»: fora do assunto"); continue
+                }
                 secoes = achados.prefix(3).map(\.secao.texto)
             }
             var cabem: [String] = []
@@ -204,7 +228,7 @@ nonisolated enum RespostaNotas {
             }
             var recortada = original
             recortada.texto = cabem.joined(separator: "\n\n")
-            if cabem.isEmpty || !caber(recortada) { pacote.omitidas += 1 }
+            if cabem.isEmpty || !caber(recortada) { pacote.omitidas += 1; pacote.fora.append("obra «\(original.titulo)»: não coube") }
         }
         if pacote.omitidas > 0 { pacote.mensagem += aviso }
         if pacote.respostasOmitidas > 0 { pacote.mensagem += avisoHistorico }
@@ -252,6 +276,18 @@ nonisolated enum RespostaNotas {
         }
         guard let ra = raiz(a), let rb = raiz(b) else { return false }
         return json(ra) == json(rb)
+    }
+
+    /// E7, texto decidido pelo líder (16/09): só nota do AUTOR é nomeada, pelo
+    /// título até 40 caracteres; o que caiu e não é nota dele não se diz na tela.
+    static func avisoDasNotasFora(_ titulos: [String]) -> String? {
+        guard let primeiro = titulos.first else { return nil }
+        let nome = "«\(VozDoAutor.truncar(primeiro, 40))»"
+        switch titulos.count {
+        case 1: return "\(nome) não coube inteira nesta resposta."
+        case 2: return "\(nome) e mais 1 nota não couberam inteiras nesta resposta."
+        default: return "\(nome) e mais \(titulos.count - 1) notas não couberam inteiras nesta resposta."
+        }
     }
 
     /// Uma resposta integral evita que uma lista de partes repita a primeira
@@ -333,8 +369,8 @@ nonisolated enum RespostaNotas {
             guard ids.isEmpty, !texto.isEmpty else { return nil }
             resposta = texto
         }
-        if pacote.omitidas > 0 {
-            resposta += "\n\nContexto parcial: algumas notas ou informações auxiliares não couberam nesta consulta."
+        if let aviso = Self.avisoDasNotasFora(pacote.notasDoAutorForaInteiras) {
+            resposta += "\n\n" + aviso
         }
         if pacote.respostasOmitidas > 0 {
             resposta += "\n\nHistórico parcial: algumas respostas anteriores da IA ficaram fora; suas perguntas e correções foram mantidas integralmente."

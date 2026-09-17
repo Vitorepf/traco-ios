@@ -29,16 +29,18 @@ enum PadroesRemoto {
 
     static func esquecerMemo() { memo = nil }
 
-    static func perguntas(vozes: [String]) async -> [String]? {
+    /// E7: `vozes` vão ao modelo (rotuladas); as citações se conferem em
+    /// `conferirContra` (a voz crua) — rótulo não é palavra do autor.
+    static func perguntas(vozes: [String], conferirContra: [String]? = nil) async -> [String]? {
         guard !vozes.isEmpty, Politica.provedor(.padroes) != nil else { return nil }
         let assinatura = vozes.joined(separator: "\u{1}")
         if let m = memo, m.chave == assinatura { return m.perguntas }
-        let saida = await pedir(vozes: vozes)
+        let saida = await pedir(vozes: vozes, conferirContra: conferirContra ?? vozes)
         memo = (assinatura, saida)
         return saida
     }
 
-    private static func pedir(vozes: [String]) async -> [String]? {
+    private static func pedir(vozes: [String], conferirContra: [String]) async -> [String]? {
         let notas = vozes.enumerated()
             .map { "NOTA \($0.offset + 1):\n\(String($0.element.prefix(800)))" }
             .joined(separator: "\n\n")
@@ -48,7 +50,7 @@ enum PadroesRemoto {
         guard let msg = await Sabia.chamar(.padroes, sistema: sistema, usuario: String(notas.prefix(9000)),
                                            temperatura: 0.4)
         else { return nil }
-        return parsePerguntas(msg, vozes: vozes)
+        return parsePerguntas(msg, vozes: conferirContra)
     }
 
     nonisolated static func parsePerguntas(_ cru: String, vozes: [String] = []) -> [String]? {

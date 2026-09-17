@@ -362,6 +362,8 @@ enum AvaliacaoIA {
             var idsDoCaderno: [UUID] = []
             var candidatas = 0
             var obrasNoCaderno = 0
+            var retratoCompleto = e.retrato ?? ""
+            var retratoCortados: [String] = []
             if let caderno = e.caderno {
                 let recipiente = try ModelContainer.traco(emMemoria: true)
                 let ctx = recipiente.mainContext
@@ -376,6 +378,9 @@ enum AvaliacaoIA {
                     ctx.insert(obra)
                 }
                 try ctx.save()
+                if e.retrato == nil {
+                    (retratoCompleto, retratoCortados) = Retrato.lerComRecibo(notas: (try ctx.fetch(FetchDescriptor<Nota>())).map(\.paraRetrato), sinais: [])
+                }
                 let base = Sessao().contextoDasNotas(pergunta: pergunta, no: ctx)
                 obrasNoCaderno = base.filter(\.obra).count
                 let doAutor = Sessao.candidatasDoAutor(pergunta: pergunta, no: ctx)
@@ -384,11 +389,22 @@ enum AvaliacaoIA {
                                                                  perguntar: Sessao.escolherNotasPelaConta)
                 obras = []  // as do caderno já vieram pela seleção da sessão
             }
+            // E7: o catálogo e o retrato como a sessão manda (pela pergunta); o tamanho
+            // do pacote antes (catálogo e retrato inteiros) e depois, sobre as MESMAS fontes
+            let catalogo = Sessao.catalogoParaPergunta(pergunta)
+            let retrato = Retrato.pertinente(retratoCompleto, pergunta: pergunta)
+            let antes = RespostaNotas.montar(pergunta: pergunta, fontes: fontesDoCaso + obras, conversa: [],
+                                             catalogo: Sessao.catalogoCompleto, retrato: retratoCompleto, teto: 16_000)
+            let depois = RespostaNotas.montar(pergunta: pergunta, fontes: fontesDoCaso + obras, conversa: [],
+                                              catalogo: catalogo, retrato: retrato, teto: 16_000)
             let r = try exigir(await Sabia.responderNasNotas(pergunta: pergunta,
                 fontes: fontesDoCaso + obras,
                 conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
-                retrato: e.retrato ?? ""))
+                catalogo: catalogo, retrato: retrato))
             var saida: [String: Any] = [
+                "pacoteChars": r.tamanhoDoPacote, "foraDoPacote": r.fora,
+                "pacoteCharsInteiros": antes?.mensagem.count ?? -1, "pacoteCharsPelaPergunta": depois?.mensagem.count ?? -1,
+                "catalogoFoi": !catalogo.isEmpty, "retratoChars": retrato.count, "retratoCompletoChars": retratoCompleto.count, "retratoCortados": retratoCortados,
                 "texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),
                 // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
                 "escreveuRotuloInterno": r.escreveuRotuloInterno,
@@ -464,7 +480,9 @@ enum AvaliacaoIA {
             // fixture. Sai a regra escolhida e por qual via — `palavras` numa
             // linha é o modelo que não respondeu, não acerto dele.
             let obras = try obrasDoDocuments(itens)
-            let achado = await Conselho.escolherPeloSentido(consulta: texto, obras: obras, pesos: [:]) { s, u, esquema in
+            // E7: com `campos` na fixture, a situação vai rotulada como na Sessao
+            let situacao = e.campos.flatMap { Conselho.situacao(gesto: gesto, campos: $0) }
+            let achado = await Conselho.escolherPeloSentido(consulta: texto, situacao: situacao, obras: obras, pesos: [:]) { s, u, esquema in
                 await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: esquema)
             }
             guard let achado else {

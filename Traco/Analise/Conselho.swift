@@ -31,6 +31,15 @@ nonisolated enum Conselho {
         return texto.isEmpty ? nil : texto
     }
 
+    /// E7: a MESMA consulta como vai ao modelo — os campos com o rótulo do
+    /// método. A `consulta` sem rótulo continua sendo a das palavras (BM25).
+    static func situacao(gesto: Gesto?, campos: [String: String]) -> String? {
+        guard consulta(gesto: gesto, campos: campos) != nil, let gesto else { return nil }
+        let ids: Set<String> = gesto == .premortem ? ["plano", "falhou", "sinal"] : ["escolha", "opcoes", "criterio"]
+        let texto = VozDoAutor.rotulada(texto: "", campos: campos.filter { ids.contains($0.key) }, gesto: gesto)
+        return texto.isEmpty ? nil : texto
+    }
+
     /// A regra e a outra voz: a melhor seção de OUTRO mestre, quando há. Só
     /// registra quando a pergunta toca a regra de fato (`Obra.admite`) — um
     /// radical comum não vira conselho nem ganha peso depois.
@@ -108,12 +117,12 @@ nonisolated enum Conselho {
     /// que se registra continua a seção literal. Sem conta, sem resposta ou com
     /// resposta ilegível, a escolha é a das palavras (`escolher`), a de antes.
     /// "Nenhuma serve" do modelo cala a exposição.
-    @MainActor static func escolherPeloSentido(consulta: String, obras: [String], pesos: [String: Double],
+    @MainActor static func escolherPeloSentido(consulta: String, situacao: String? = nil, obras: [String], pesos: [String: Double],
                                     perguntar: (_ sistema: String, _ usuario: String, _ esquema: String) async -> String?)
         async -> (regra: Obra.Achado, outra: Obra.Achado?, via: Via)? {
         let inicial = Array(Obra.ranquear(pergunta: consulta, textos: obras, pesos: pesos).prefix(candidatas))
         guard !inicial.isEmpty else { return escolher(consulta: consulta, obras: obras, pesos: pesos).map { ($0.regra, $0.outra, Via.palavras) } }
-        guard let r = await escolherSemSuspeitas(consulta: consulta, lista: inicial, chave: "regra",
+        guard let r = await escolherSemSuspeitas(consulta: situacao ?? consulta, lista: inicial, chave: "regra",
                                                  sistema: sistemaEscolherRegra, esquema: esquemaEscolherRegra,
                                                  perguntar: perguntar) else {
             return escolher(consulta: consulta, obras: obras, pesos: pesos).map { ($0.regra, $0.outra, Via.palavras) }

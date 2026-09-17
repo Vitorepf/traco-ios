@@ -309,6 +309,8 @@ enum Sabia {
                                      gerar: gerarRemoto ?? gerarLocal,
                                      conferir: conferirRemoto ?? conferirLocal)
         if !conferidas.isEmpty { r?.viaObra = escolhidas == nil ? "palavras" : "modelo" }
+        r?.tamanhoDoPacote = pacote.mensagem.count
+        r?.fora = pacote.fora
         return r
     }
 
@@ -693,7 +695,8 @@ enum Sabia {
         return mapa
     }
 
-    nonisolated static let rotuloRetrato = "SOBRE QUEM ESCREVE (evidência do caderno dela, nas palavras dela):"
+    // E7: forma neutra, como o `semGenero` pede (antes: "caderno dela, nas palavras dela")
+    nonisolated static let rotuloRetrato = "SOBRE QUEM ESCREVE (evidência do caderno de quem escreve, nas palavras de quem escreve):"
     nonisolated static let rotuloContextoDaNota = "Contexto (a nota, só para você entender; não a reescreva):"
 
     /// ADR 04i: o bloco SOBRE QUEM ESCREVE, quando há retrato.
@@ -1147,13 +1150,16 @@ enum Sabia {
 
     /// A pergunta da prova. Devolve nil (e o ritual fica com a frase fixa) se
     /// não houver conta, se a resposta não for pergunta, ou se ela VAZAR.
+    /// E7: `rotulada` é a nota como vai ao modelo (nota livre com os campos do
+    /// método); as guardas, o memo e a conferência do vazamento leem o `alvo` cru.
     static func perguntaDeRecordar(alvo: String, pista: String, gesto: Gesto?,
-                                   degrau: Int = 0, retrato: String = "") async -> String? {
+                                   degrau: Int = 0, retrato: String = "", rotulada: String? = nil) async -> String? {
         guard gesto != .expressiva else { return nil }
         let alvoLimpo = alvo.trimmingCharacters(in: .whitespacesAndNewlines)
         guard alvoLimpo.count >= 24 else { return nil } // alvo minúsculo: a frase fixa basta
-        var usuario = "DEGRAU: \(max(0, degrau))" + blocoDoRetrato(retrato) + "\n\nNOTA:\n\(alvoLimpo.prefix(4000))"
-        let p = pista.trimmingCharacters(in: .whitespacesAndNewlines)
+        let nota = rotulada ?? alvoLimpo
+        var usuario = "DEGRAU: \(max(0, degrau))" + blocoDoRetrato(retrato) + "\n\nNOTA:\n\(nota.prefix(4000))"
+        let p = (rotulada ?? pista).trimmingCharacters(in: .whitespacesAndNewlines)
         if !p.isEmpty { usuario += "\n\nPISTA JÁ VISÍVEL (não repita):\n\(p.prefix(600))" }
         // memo por (alvo, degrau): dentro do mesmo degrau a pergunta não deve
         // mudar, e sem isto abrir o Recordar dez vezes eram dez chamadas pagas
@@ -1161,7 +1167,7 @@ enum Sabia {
         guard let cru = await chamar(.recordar, sistema: sistemaRecordar, usuario: usuario, temperatura: 0.5,
                                      memoPor: "prova\u{1}\(max(0, degrau))\u{1}\(alvoLimpo.hashValue)",
                                      mensagemLocal: {
-            montarRecordar(alvo: alvoLimpo, pista: p, degrau: degrau, retrato: retrato)
+            montarRecordar(alvo: nota, pista: p, degrau: degrau, retrato: retrato)
         })
         else { return nil }
         return parsePerguntaDeRecordar(cru, alvo: alvoLimpo)

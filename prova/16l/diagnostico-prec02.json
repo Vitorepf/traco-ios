@@ -1,0 +1,122 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "prec-02",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Em que pé ficou aquela história de mudar quem cuida da papelada dos meus impostos?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ],
+    "caderno": [
+     {
+      "texto": "Passaporte vence em março/27. Renovar antes de marcar qualquer coisa fora.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "# Horário de foco",
+      "gesto": "decisao",
+      "campos": {
+       "escolha": "Manhã até 11h sem celular e sem reunião",
+       "opcoes": "Manhã livre\nTarde livre\nUm dia inteiro livre na semana",
+       "criterio": "o trabalho difícil sai melhor antes do almoço",
+       "decidido": "2026-08-04",
+       "espero": "terminar o que é grande sem virar noite"
+      }
+     },
+     {
+      "texto": "Cadeira do escritório: a de tela da loja da Paulista é a única que não doeu as costas. Esperar promoção.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "Voltar no oftalmo em novembro; o grau do olho esquerdo subiu.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "# Contabilidade da PJ",
+      "gesto": "decisao",
+      "campos": {
+       "escolha": "Sair do escritório do Marcos em outubro e passar pra uma contabilidade online",
+       "opcoes": "Continuar com o Marcos\nContabilidade online com app\nContador avulso só na declaração anual",
+       "criterio": "mensalidade abaixo de R$ 300 e alguém que responda em até dois dias quando a Receita mandar carta",
+       "decidido": "2026-08-29",
+       "espero": "fechar o primeiro trimestre de 2027 sem multa e sem correr atrás de guia",
+       "aconteceu": "",
+       "saldo": ""
+      }
+     },
+     {
+      "texto": "Renovar o seguro do apartamento até 10/10; comparar com a corretora do banco.",
+      "gesto": null,
+      "campos": {}
+     }
+    ]
+   }
+  },
+  {
+   "id": "prec-02-sem-retrato",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Em que pé ficou aquela história de mudar quem cuida da papelada dos meus impostos?",
+    "fontes": [],
+    "itens": [
+     "hormozi.md",
+     "lenny.md"
+    ],
+    "caderno": [
+     {
+      "texto": "Passaporte vence em março/27. Renovar antes de marcar qualquer coisa fora.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "# Horário de foco",
+      "gesto": "decisao",
+      "campos": {
+       "escolha": "Manhã até 11h sem celular e sem reunião",
+       "opcoes": "Manhã livre\nTarde livre\nUm dia inteiro livre na semana",
+       "criterio": "o trabalho difícil sai melhor antes do almoço",
+       "decidido": "2026-08-04",
+       "espero": "terminar o que é grande sem virar noite"
+      }
+     },
+     {
+      "texto": "Cadeira do escritório: a de tela da loja da Paulista é a única que não doeu as costas. Esperar promoção.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "Voltar no oftalmo em novembro; o grau do olho esquerdo subiu.",
+      "gesto": null,
+      "campos": {}
+     },
+     {
+      "texto": "# Contabilidade da PJ",
+      "gesto": "decisao",
+      "campos": {
+       "escolha": "Sair do escritório do Marcos em outubro e passar pra uma contabilidade online",
+       "opcoes": "Continuar com o Marcos\nContabilidade online com app\nContador avulso só na declaração anual",
+       "criterio": "mensalidade abaixo de R$ 300 e alguém que responda em até dois dias quando a Receita mandar carta",
+       "decidido": "2026-08-29",
+       "espero": "fechar o primeiro trimestre de 2027 sem multa e sem correr atrás de guia",
+       "aconteceu": "",
+       "saldo": ""
+      }
+     },
+     {
+      "texto": "Renovar o seguro do apartamento até 10/10; comparar com a corretora do banco.",
+      "gesto": null,
+      "campos": {}
+     }
+    ],
+    "retrato": ""
+   }
+  }
+ ]
+}

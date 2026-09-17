@@ -81,7 +81,7 @@ nonisolated enum GuardaDeObra {
 
     /// Filtro de nome puro: o texto da fonte é só o nome. Não qualifica tese.
     static func semRotulosDeCampo(_ texto: String) -> String {
-        let nomes = Set(Catalogo.todos.flatMap { $0.campos.map(\.nome) })
+        let nomes = Set(Catalogo.todos.flatMap { $0.campos.map(\.nome) } + [VozDoAutor.rotuloDoSentido])
         return texto.split(separator: "\n", omittingEmptySubsequences: false).map { linha in
             guard let dois = linha.range(of: ": "), nomes.contains(String(linha[..<dois.lowerBound])) else { return String(linha) }
             return String(linha[dois.upperBound...])

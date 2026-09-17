@@ -503,7 +503,8 @@ final class Sessao {
         var saida: [(uuid: UUID, titulo: String, prosa: String)] = []
         for l in ligacoes.prefix(teto) {
             guard let n = todas.first(where: { $0.uuid == l.para }) else { continue }
-            let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+            // E7: a nota citada vai com os campos rotulados — a prosa sozinha perdia o "Decidi"
+            let prosa = n.paraAIA.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
             // ADR 2026-09-10g: a nota que o autor CITOU vai INTEIRA. O corte
             // era aqui, aos 1.200, e ele acontecia ANTES de o orçamento ser
@@ -561,7 +562,7 @@ final class Sessao {
             let excluir = Set(saida.compactMap { t in podem.first { $0.tituloNaLista == t.titulo }?.uuid })
             for v in Indice.vizinhas(de: pergunta, teto: 6, exceto: excluir.union([notaUUID].compactMap { $0 })) {
                 guard let n = podem.first(where: { $0.uuid == v.uuid }), !jaTem.contains(n.tituloNaLista) else { continue }
-                let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+                let prosa = n.paraAIA.trimmingCharacters(in: .whitespacesAndNewlines)
                 saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(600))))
                 jaTem.insert(n.tituloNaLista)
             }
@@ -595,7 +596,7 @@ final class Sessao {
         else { return saida }
         for eco in ecos where eco.i < candidatas.count {
             let n = candidatas[eco.i]
-            let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+            let prosa = n.paraAIA.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
             saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(1200))))
         }
@@ -639,7 +640,8 @@ final class Sessao {
         // ADR 2026-09-10b: a PÁGINA se lê agora, junto da pergunta. Lê-la
         // depois do await é ler a nota que o autor abriu enquanto esperava —
         // com o teto do modelo em minutos, isso deixou de ser hipótese.
-        let pagina = Caderno.prosa(de: texto)
+        // E7: a página leva também os campos da forma, rotulados
+        let pagina = VozDoAutor.rotulada(texto: texto, campos: campos, gesto: gesto)
         // Uma tentativa pertence à pergunta que a iniciou (mesmo padrão de
         // `ConversaNotas.tentativa`): cancelar ajuda o serviço, a identidade
         // impede o efeito tardio mesmo se ele ignorar o cancelamento. O guarda
@@ -731,27 +733,12 @@ final class Sessao {
     /// pode perguntar sobre ela —, mas a origem viaja no TÍTULO: a citação na
     /// tela e a fonte no prompt dizem "feito pelo bot" em vez de devolverem o
     /// texto do bot como se fosse a voz de quem escreveu.
-    /// ADR 2026-09-16k (V3): a nota com forma vai à rota das Notas com cada
-    /// campo rotulado pelo método — "Decidi: …". Sem o rótulo, "Dar 20% de
-    /// desconto" (o que estava em jogo) e "Não dar desconto" (o decidido)
-    /// chegavam como duas linhas em conflito (real-01, 3 de 3 no Air).
-    static func textoRotulado(_ nota: Nota) -> String {
-        guard let gesto = nota.gesto, !nota.campos.isEmpty else { return nota.textoDeQualquerOrigem }
-        let def = gesto.metodoDef.campos
-        func limpo(_ s: String) -> String { s.trimmingCharacters(in: .whitespacesAndNewlines) }
-        var linhas = [Caderno.prosa(de: nota.texto)]
-        for campo in def { if let valor = nota.campos[campo.id].map(limpo), !valor.isEmpty { linhas.append("\(campo.nome): \(valor)") } }
-        let conhecidos = Set(def.map(\.id))
-        for (chave, valor) in nota.campos.sorted(by: { $0.key < $1.key }) where !conhecidos.contains(chave) { linhas.append(limpo(valor)) }
-        linhas.append(limpo(nota.sentido))
-        return linhas.filter { !$0.isEmpty }.joined(separator: "\n")
-    }
-
     static func fonteParaPergunta(_ nota: Nota) -> FonteNotas? {
         guard !nota.fechada, nota.gesto != .expressiva, nota.temVoz else { return nil }
         // a obra viaja crua: `prosa` tiraria os `## ` que separam as regras
         let obra = nota.origem.eObra
-        let prosa = (obra ? nota.texto : Self.textoRotulado(nota)).trimmingCharacters(in: .whitespacesAndNewlines)
+        // E7/16k: a nota com forma vai rotulada ("Decidi: …"), pelo serializador de todas as rotas
+        let prosa = (obra ? nota.texto : nota.paraAIA).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !prosa.isEmpty else { return nil }
         let titulo = nota.tituloNaLista + (nota.origem.etiqueta.map { " · \($0)" } ?? "")
         // A voz junta campos; sua ordem não é identidade. Assinatura usa a
@@ -761,7 +748,7 @@ final class Sessao {
         let assinatura = SHA256.hash(data: dados).map { String(format: "%02x", $0) }.joined()
         return FonteNotas(id: nota.uuid, titulo: titulo, texto: prosa,
                           editadaEm: nota.editadaEm, assinatura: assinatura, obra: obra,
-                          obraConferida: nota.origem == .obra)
+                          obraConferida: nota.origem == .obra, doAutor: nota.origem == .autor)
     }
 
     static func dependenciasValidas(_ fontes: [FonteNotas], no context: ModelContext) -> Bool {
@@ -806,6 +793,33 @@ final class Sessao {
         let obras = notas.filter { $0.origem.eObra }.compactMap(Self.fonteParaPergunta)
             .filter { Self.obraCandidata($0, pergunta: pergunta) }
         return Self.semRepetida(fontes + obras)
+    }
+
+    // MARK: ADR 2026-09-16l (E7) — o que a pergunta pede
+
+    /// As formas com a definição, sem a Expressiva (~2.200 caracteres).
+    static var catalogoCompleto: String {
+        Catalogo.todos.filter { $0.id != Gesto.expressiva.rawValue }
+            .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n")
+    }
+
+    /// O catálogo só vai quando a pergunta é sobre forma, método ou técnica, ou
+    /// nomeia uma forma que não é palavra comum ("WOOP", "Feynman", "pré-mortem").
+    /// ponytail: léxico; "decisão", "leitura", "dia" são palavras de toda pergunta.
+    static func catalogoParaPergunta(_ pergunta: String) -> String {
+        func dobrada(_ s: String) -> String {
+            s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "pt_BR"))
+                .replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "-")
+        }
+        let t = dobrada(pergunta)
+        let comuns: Set<String> = ["decisao", "leitura", "palavra", "destaque", "dia", "analogia", "inversao", "argumento",
+                                   "atualizacao", "subtracao", "divergencia", "especificacao", "expressiva", "destilar"]
+        let pede = t.range(of: #"\b(formas?\b(?!\s+de\b)|metodos?\b|tecnicas?\b)"#, options: .regularExpression) != nil
+            || Catalogo.todos.contains { m in
+                let n = dobrada(m.nome)
+                return n.count >= 4 && !comuns.contains(n) && t.contains(n)
+            }
+        return pede ? catalogoCompleto : ""
     }
 
     // MARK: ADR 2026-09-16k — as notas do autor pelo sentido (decisão do dono, 16/09)
@@ -913,11 +927,11 @@ final class Sessao {
         let fontesDoRetrato = notas.compactMap(Self.fonteParaPergunta)
         let trabalhos = (try? context.fetch(FetchDescriptor<Trabalho>())) ?? []
         let observados = AcessoTrabalho.juizosObservados(de: trabalhos, no: context)
+        // E7: o retrato e o catálogo só vão quando a pergunta os pede
         let retrato = Retrato.ligado
-            ? Retrato.ler(notas: notas.map(\.paraRetrato), sinais: Sinais.todos(),
-                          observados: observados) : ""
-        let catalogo = Catalogo.todos.filter { $0.id != Gesto.expressiva.rawValue }
-            .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n")
+            ? Retrato.pertinente(Retrato.ler(notas: notas.map(\.paraRetrato), sinais: Sinais.todos(),
+                                             observados: observados), pergunta: pergunta) : ""
+        let catalogo = Self.catalogoParaPergunta(pergunta)
         let retorno = await responderContextoNotas(pergunta, fontes, validas, catalogo, retrato) { enviadas in
             Self.dependenciasValidas(validas.flatMap(\.dependencias) + enviadas
                 + (retrato.isEmpty ? [] : fontesDoRetrato), no: context)
@@ -2075,10 +2089,12 @@ final class Sessao {
             if let achado = Conselho.escolher(consulta: consulta, obras: obras, pesos: pesos) { expor(achado) }
             return
         }
+        // E7: a situação rotulada lida junto com a consulta, antes da espera
+        let situacao = Conselho.situacao(gesto: nota.gesto, campos: nota.campos)
         Task { @MainActor in
             // em segundo plano, com queda própria: não mexe no aviso de falha de outra rota
             let achado = await Grok.$semAviso.withValue(true) {
-                await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos, perguntar: perguntar)
+                await Conselho.escolherPeloSentido(consulta: consulta, situacao: situacao, obras: obras, pesos: pesos, perguntar: perguntar)
             }
             // a rede pode levar minutos: expõe só se a nota ainda é a mesma
             // decisão, aberta, sem a volta escrita (revisão E4: nunca depois do

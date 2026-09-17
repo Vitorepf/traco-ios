@@ -5,8 +5,8 @@ import Foundation
 /// montado por algoritmo, só com as palavras do autor e com contagens.
 ///
 /// Não conclui, não diagnostica, não pontua. É a evidência que o papel
-/// guarda, posta na frente da IA para ela perguntar melhor. E o Perfil mostra
-/// exatamente o que viaja: quem manda texto à rede tem de ver o quê.
+/// guarda, posta na frente da IA para ela perguntar melhor. O Perfil mostra o
+/// retrato inteiro; a rota das Notas leva dele só os blocos do assunto (E7).
 nonisolated enum Retrato {
     static let teto = 1500
     static let chaveLigado = "retratoLigado"
@@ -43,10 +43,23 @@ nonisolated enum Retrato {
     nonisolated static func ler(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
                                 cal: Calendar = .current,
                                 observados: [JuizoObservado] = []) -> String {
+        lerComRecibo(notas: notas, sinais: sinais, agora: agora, cal: cal, observados: observados).texto
+    }
+
+    /// E7 (ADR 2026-09-16l): cada linha diz o que é — contagem, citação com a
+    /// data em que foi escrita, ou leitura por palavras — em forma neutra; o
+    /// teto tira BLOCOS inteiros, na ordem, e `cortados` diz quais caíram
+    /// (antes: `prefix(1500) + "…"` no meio de uma citação, sem recibo).
+    nonisolated static func lerComRecibo(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
+                                         cal: Calendar = .current,
+                                         observados: [JuizoObservado] = []) -> (texto: String, cortados: [String]) {
         // o selo corta antes: expressiva, selada e queimada não entram, nem como contagem
         let abertas = notas.filter { !$0.fechada && !$0.expressiva && $0.vozDoAutor }
         let trintaAtras = cal.date(byAdding: .day, value: -30, to: agora) ?? agora
-        var blocos: [String] = []
+        var blocos: [(nome: String, texto: String)] = []
+        func citacoes(_ itens: [(valor: String, quando: Date)]) -> String {
+            itens.map { "“\($0.valor)” (\(dia($0.quando, cal)))" }.joined(separator: "; ")
+        }
 
         var porForma: [String: Int] = [:]
         for n in abertas where n.criadaEm >= trintaAtras {
@@ -55,32 +68,32 @@ nonisolated enum Retrato {
         if !porForma.isEmpty {
             let linha = porForma.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
                 .prefix(8).map { "\($0.value) \($0.key)" }.joined(separator: " · ")
-            blocos.append("Formas nos últimos 30 dias: \(linha).")
+            blocos.append(("formas", "Formas nos últimos 30 dias (contagem): \(linha)."))
         }
 
         let obstaculos = ultimos(abertas, gesto: .woop, campo: "obstaculo", quantos: 5)
         if !obstaculos.isEmpty {
-            blocos.append("Obstáculos internos que já nomeou: " + obstaculos.map { "“\($0)”" }.joined(separator: "; ") + ".")
+            blocos.append(("obstáculos", "Obstáculos internos já nomeados (citações, com a data da nota): " + citacoes(obstaculos) + "."))
         }
 
         let proximas = ultimos(abertas, gesto: .woop, campo: "plano", quantos: 5)
         if !proximas.isEmpty {
-            blocos.append("Próximas que já escreveu: " + proximas.map { "“\($0)”" }.joined(separator: "; ") + ".")
+            blocos.append(("próximas", "Próximas que já escreveu (citações): " + citacoes(proximas) + "."))
         }
 
         let destiladas = ultimos(abertas, gesto: .destilar, campo: "frase", quantos: 5)
         if !destiladas.isEmpty {
-            blocos.append("Juízos que já cortou numa frase: " + destiladas.map { "“\($0)”" }.joined(separator: "; ") + ".")
+            blocos.append(("destiladas", "Juízos que já cortou numa frase (citações): " + citacoes(destiladas) + "."))
         }
 
         let noMundo = observados.prefix(5).compactMap { j -> String? in
-            let relato = j.relato.trimmingCharacters(in: .whitespacesAndNewlines)
+            let relato = j.relato.split(whereSeparator: \.isNewline).joined(separator: " ").trimmingCharacters(in: .whitespaces)
             let rotulo = j.rotulo.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !relato.isEmpty, !rotulo.isEmpty else { return nil }
             return "“\(relato)” (\(rotulo))"
         }
         if !noMundo.isEmpty {
-            blocos.append("Resultados que você informou: " + noMundo.joined(separator: "; ") + ".")
+            blocos.append(("resultados", "Resultados informados no Trabalho (citações): " + noMundo.joined(separator: "; ") + "."))
         }
 
         let naoVoltou = sinais.filter { $0.tipo == .naoVoltou }.suffix(5)
@@ -88,18 +101,21 @@ nonisolated enum Retrato {
             let faltou = naoVoltou.reduce(0) { $0 + ($1.faltaram ?? 0) }
             let de = naoVoltou.reduce(0) { $0 + ($1.deQuantos ?? 0) }
             if de > 0 {
-                blocos.append("Nas últimas \(naoVoltou.count) provas do Recordar, \(faltou) de \(de) pontos não voltaram.")
+                blocos.append(("recordar", "Nas últimas \(naoVoltou.count) provas do Recordar (contagem), \(faltou) de \(de) pontos não voltaram."))
             }
         }
 
         let calibragem = calibrar(abertas)
         if calibragem.total >= 2 {
-            blocos.append("Decisões conferidas: \(calibragem.total). O que aconteceu ficou aquém do esperado em \(calibragem.aquem), igual em \(calibragem.igual), além em \(calibragem.alem).")
+            let porPalavras = lidasPorPalavras(abertas)
+            let leitura = porPalavras == 0 ? ""
+                : "; em \(porPalavras) o saldo não foi escrito e a conta veio de uma leitura por palavras do que aconteceu"
+            blocos.append(("calibragem", "Decisões conferidas (contagem): \(calibragem.total). O que aconteceu ficou aquém do esperado em \(calibragem.aquem), igual em \(calibragem.igual), além em \(calibragem.alem)\(leitura)."))
         }
 
         let palavras = ultimos(abertas, gesto: .palavra, campo: "minhas", quantos: 5, prefixo: 60)
         if !palavras.isEmpty {
-            blocos.append("Palavras que conquistou, nas palavras dele: " + palavras.map { "“\($0)”" }.joined(separator: "; ") + ".")
+            blocos.append(("palavras", "Palavras conquistadas, nas palavras de quem escreve (citações): " + citacoes(palavras) + "."))
         }
 
         // Perguntas da IA podem repetir conteúdo privado de qualquer nota
@@ -108,20 +124,59 @@ nonisolated enum Retrato {
         // O histórico local permanece; citações só poderão voltar ao retrato
         // quando a geração registrar todas as fontes e seu acesso for revalidado.
 
-        guard !blocos.isEmpty else { return "" }
-        var texto = blocos.joined(separator: "\n")
-        if texto.count > teto { texto = String(texto.prefix(teto)).trimmingCharacters(in: .whitespaces) + "…" }
-        return texto
+        var texto = ""
+        var cortados: [String] = []
+        for bloco in blocos {
+            let novo = texto.isEmpty ? bloco.texto : texto + "\n" + bloco.texto
+            if novo.count <= teto { texto = novo } else { cortados.append(bloco.nome) }
+        }
+        return (texto, cortados)
+    }
+
+    nonisolated static func dia(_ data: Date, _ cal: Calendar) -> String {
+        let c = cal.dateComponents([.day, .month], from: data)
+        return String(format: "%02d/%02d", c.day ?? 0, c.month ?? 0)
+    }
+
+    /// E7: só os blocos cujas CITAÇÕES dividem assunto com a pergunta — rótulo,
+    /// contagem e texto do molde ("escrito", "aconteceu", nome de forma) não são
+    /// assunto. Nenhum divide: vão os blocos que cabem, na ordem, até `tetoSemAssunto`.
+    nonisolated static func pertinente(_ texto: String, pergunta: String) -> String {
+        let daPergunta = Set(Obra.palavras(pergunta).map(\.radical))
+        let blocos = texto.components(separatedBy: "\n").filter { !$0.isEmpty }
+        let comAssunto = blocos.filter { bloco in
+            let citado = bloco.matches(of: /“([^”]*)”/).map { String($0.output.1) }.joined(separator: " ")
+            return !Set(Obra.palavras(citado).map(\.radical)).isDisjoint(with: daPergunta)
+        }
+        if !comAssunto.isEmpty { return comAssunto.joined(separator: "\n") }
+        var menor = ""
+        for bloco in blocos {
+            let novo = menor.isEmpty ? bloco : menor + "\n" + bloco
+            if novo.count <= tetoSemAssunto { menor = novo }
+        }
+        return menor
+    }
+
+    static let tetoSemAssunto = 500
+
+    /// Quantas decisões conferidas não têm saldo escrito: essas são contadas por palavras.
+    nonisolated static func lidasPorPalavras(_ notas: [NotaLida]) -> Int {
+        notas.filter { n in
+            n.gesto == .decisao
+                && !(n.campos["espero"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                && !(n.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                && (n.campos["saldo"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }.count
     }
 
     /// Os últimos `quantos` valores literais de um campo, mais recentes primeiro.
     private static func ultimos(_ notas: [NotaLida], gesto: Gesto, campo: String, quantos: Int,
-                                prefixo: Int = 120) -> [String] {
+                                prefixo: Int = 120) -> [(valor: String, quando: Date)] {
         notas.filter { $0.gesto == gesto }
             .sorted { $0.criadaEm > $1.criadaEm }
-            .compactMap { n -> String? in
+            .compactMap { n -> (valor: String, quando: Date)? in
                 let v = (n.campos[campo] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                return v.isEmpty ? nil : String(v.prefix(prefixo))
+                return v.isEmpty ? nil : (String(v.split(whereSeparator: \.isNewline).joined(separator: " ").prefix(prefixo)), n.criadaEm)
             }
             .prefix(quantos).map { $0 }
     }

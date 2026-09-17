@@ -121,6 +121,9 @@ struct PadroesView: View {
         Array(notas.filter { !$0.fechada && $0.gesto != .expressiva && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
     }
 
+    /// E7: as vozes como vão ao modelo — com os campos rotulados.
+    static func vozesParaAIA(_ notas: [Nota]) -> [String] { notas.map(\.vozDoAutorParaAIA) }
+
     /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.
     /// Nunca a mesma pergunta duas visitas seguidas.
     private func carregarPerguntas() async {
@@ -129,7 +132,8 @@ struct PadroesView: View {
             vozes: vozes,
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }
         )
-        let remotas = await PadroesRemoto.perguntas(vozes: vozes)
+        // E7: ao modelo, a voz com os campos rotulados; as locais seguem lendo sem rótulo
+        let remotas = await PadroesRemoto.perguntas(vozes: Self.vozesParaAIA(abertas), conferirContra: vozes)
         let escolhidas = PadroesRemoto.ineditas(remotas ?? locais)
         PadroesRemoto.registrarVistas(escolhidas)
         perguntas = escolhidas

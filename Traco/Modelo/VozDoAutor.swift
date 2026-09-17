@@ -36,6 +36,29 @@ enum VozDoAutor: Sendable {
             .joined(separator: "\n")
     }
 
+    /// ADR 2026-09-16k/E7 — a nota como a IA a lê, em TODAS as rotas: a prosa e
+    /// cada campo com o rótulo do método ("Decidi: …"), os campos fora do
+    /// método com a própria chave e a linha de sentido com o seu nome. Sem o
+    /// rótulo, "o que estava em jogo" e "o decidido" chegavam como linhas em
+    /// conflito (real-01). A BUSCA por palavras não lê isto: lê `juntar`.
+    nonisolated static func rotulada(texto: String, campos: [String: String], gesto: Gesto?,
+                                     sentido: String = "", semCitacao: Bool = false) -> String {
+        func limpo(_ s: String) -> String { s.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let def = gesto?.metodoDef.campos ?? []
+        var linhas = [Caderno.prosa(de: texto, semCitacao: semCitacao)]
+        for campo in def {
+            if let valor = campos[campo.id].map(limpo), !valor.isEmpty { linhas.append("\(campo.nome): \(valor)") }
+        }
+        let conhecidos = Set(def.map(\.id))
+        for (chave, valor) in campos.sorted(by: { $0.key < $1.key }) where !conhecidos.contains(chave) && !limpo(valor).isEmpty {
+            linhas.append("\(chave): \(limpo(valor))")
+        }
+        if !limpo(sentido).isEmpty { linhas.append("\(rotuloDoSentido): \(limpo(sentido))") }
+        return linhas.map(limpo).filter { !$0.isEmpty }.joined(separator: "\n")
+    }
+
+    nonisolated static let rotuloDoSentido = "O que ficou claro"
+
     /// Destilada mostra a frase; Palavra, a definição; Destaque, a única
     /// (a mesma linha da tela bloqueada). Sem isso, a lista fica muda.
     nonisolated static func titulo(_ texto: String, gesto: Gesto? = nil,
