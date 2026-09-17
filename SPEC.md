@@ -10606,3 +10606,13 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Prova (volta 1).** Air, `grok-4.5` (decisão do líder), `prova/e8-instigar-contrapor/`, régua pré-registrada: a MESMA matriz de cada linha (8 + 8), os 6 + 6 de q-qualidade e 3 + 3 sintéticos, × 3, dois leitores cegos. instigar: cegos 1 de 2, matriz 6 de 8, novos 2 de 3, q-qualidade 5 de 6 (08/09: 1 de 6), gênero 3, 44 de 51. contrapor: cegos 0 de 2, matriz 2 de 8, novos 2 de 3, q-qualidade 0 de 6, gênero 11, 28 de 51. Não passam. Testes: `ContraparteTests` (chave extra ignorada; a frase alheia sai e a do autor fica; item não-texto sai da lista de perguntas).
 
 **Causa nova, nossa.** Os pedidos tratam quem escreve no feminino ("o que ELA escreveu", "que ela fixou") e não levam o `semGenero`; o `outroCampo` pede "um caso de outro campo (… época)" e o modelo afirma fato histórico. Volta 2 autorizada pelo líder: gênero pela raiz em todos os pedidos do app, analogia só marcada, "passo básico" no andaime.
+
+## ADR 2026-09-17e — Nota enorme, volta 4: a conferência deixa de falar da mecânica; a pergunta ampla cumpre em 5 de 6
+
+**Causa.** Na volta 3 (ADR 17c) as regras da pergunta ampla estavam só no pedido da geração; o texto que a pessoa lê é o da conferência, que ainda mandava "Diga o que ESTA consulta contém" — e o rótulo das partes dizia "as outras partes não vieram".
+
+**Decisão.** O pedido da conferência leva as regras da ampla (poucas frases, conclusões e mudanças primeiro, rotina de fora, só as notas que tocam a pergunta) e da mecânica (nada de partes, linhas, trechos, "nesta consulta", "nesta seleção"); sai o "Diga o que ESTA consulta contém"; nota com leitura guardada responde pelo todo. O rótulo das partes diz "trechos da nota, os que tocam a pergunta; a nota inteira está resumida em leituraDaSabia quando ela vem".
+
+**Prova.** Air, mesmo lote, corrida 74C4AEF2: concisão e utilidade nas 3 repetições em **5 de 6** casos (volta 3: 3 de 6); voz e gênero **0**; 16i 29/29/29; precedência e `real-01` sem regressão. Testes: `NotaEnormeTests` (a conferência carrega as regras e não tem mais o "diga o que esta consulta contém"; o rótulo das partes não fala do que não veio).
+
+**Não passou.** Régua 2(a)(b): 2 violações, a mesma data errada — nasce na leitura guardada, feita no `grok-4.3`, que juntou duas entradas do diário; 1 resposta vazia — resposta ampla tirada da leitura sem trecho citado, e `interpretar` cala a base "notas" sem ID. Conserto nomeado: leitura no `modeloMedido` das Notas com cada valor datado pela sua entrada; base "notas" sem ID vale quando a nota do pacote traz leitura, com essa nota como fonte.

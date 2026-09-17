@@ -1,0 +1,16 @@
+# Volta 4 (corrida 74C4AEF2): leitura cega pelos mesmos dois leitores.
+
+## Leitor 1 — casos da nota enorme (a não inventa, b não contradiz, c concisão, d utilidade)
+e9-a-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE
+e9-a-ampla rep 1 — NÃO SIM SIM NÃO — NÃO (negociação do milheiro em 22/04 — foi 15/07; omite a Débora)
+e9-a-ampla rep 2 — SIM SIM SIM NÃO — NÃO (resposta vazia)
+e9-a-ampla rep 3 — NÃO SIM SIM SIM — NÃO (as três mudanças, concisa, mas 22/04 de novo)
+e9-b-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE
+e9-b-ampla rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (as três conclusões; rep 3 com frase obscura «ficam abertas a prática deliberada…»)
+e9-c-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE
+e9-c-ampla rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (três decisões e o exaustor em aberto; tamanho no limite)
+Totais: (a)+(b) 2 violações (a mesma data errada); (c)+(d) nas 3 repetições 5 de 6 (só e9-a-ampla falha); gênero 0.
+
+## Leitor 2 — voz, gênero e casos da V (141)
+VOZ 0. GÊNERO 0. prec-01..06 SIM ×3; real-01 SIM ×3. INVENÇÃO/CONTRADIÇÃO 0.
+Ressalvas: prec-01 rep 2 «vale mais» por «pesa mais» e «Colégio Aurora»; prec-06 rep 1 texto genérico que sugere nota sobre o assunto; prec-05 rep 3 mistura regra do Hormozi fora do tema; pr-05 rep 1 junta Sean Ellis à regra do Hormozi; p-19 rep 3 «fracam»; pr-07 rep 1 «inclusive a você».

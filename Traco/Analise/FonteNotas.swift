@@ -204,9 +204,10 @@ nonisolated enum RespostaNotas {
                 while !escolhidas.isEmpty, !cabe {
                     // sem linha em branco entre as partes: a posição que o modelo conta é a que ele cita
                     fonte.texto = escolhidas.sorted().map { todas[$0] }.joined(separator: "\n")
-                    partesDaNota[fonte.id] = "\(escolhidas.count) de \(todas.count) partes da nota, "
-                        + (pelaPergunta ? "as que tocam a pergunta" : "o começo e o fim")
-                        + "; as outras partes não vieram (a nota tem \(original.texto.count) caracteres)"
+                    // E9 volta 4: o rótulo não fala do que não veio — o modelo repetia isso à pessoa
+                    partesDaNota[fonte.id] = "trechos da nota, "
+                        + (pelaPergunta ? "os que tocam a pergunta" : "do começo e do fim")
+                        + "; a nota inteira está resumida em leituraDaSabia quando ela vem"
                     cabe = caber(fonte)
                     if !cabe { escolhidas.removeLast() }
                 }

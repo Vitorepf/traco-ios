@@ -49,6 +49,7 @@ struct NotaEnormeTests {
         #expect(enviada.texto.contains("R$ 440") && enviada.texto.contains("R$ 410"), "as partes com o fato e a correção")
         #expect(enviada.texto.count <= RespostaNotas.partesPorNota * (RespostaNotas.tamanhoDaParte + RespostaNotas.cabecaCurta + 2))
         #expect(p.fora.contains { $0.hasPrefix("nota «Diário de trabalho 2026»: por partes") })
+        #expect(!p.mensagem.contains("não vieram"), "o rótulo das partes não fala do que não veio")
         #expect(p.notasDoAutorForaInteiras.isEmpty && p.mensagem.contains("\"partes\"") && p.mensagem.contains("CONTEXTO PARCIAL"))
         var comLeitura = diario
         comLeitura.sintese = "Quem escreve registra a rotina; o milheiro da Pontal foi corrigido para R$ 410."
@@ -156,6 +157,12 @@ struct NotaEnormeTests {
         #expect(Sabia.sistemaConferirNasNotas.contains("síntese fiel e curta não se tira por não ser cópia"))
         #expect(Sabia.sistemaResponderNasNotas.contains("ausência nas partes não é ausência na nota")
                 && Sabia.sistemaResponderNasNotas.contains("Nunca fale à pessoa da mecânica do pedido"))
+        // volta 4: a CONFERÊNCIA (o texto que a pessoa lê) carrega as mesmas regras, e o
+        // "diga o que ESTA consulta contém" saiu
+        #expect(Sabia.sistemaConferirNasNotas.contains("sem falar da mecânica do pedido")
+                && Sabia.sistemaConferirNasNotas.contains("ausência nas partes não é ausência na nota")
+                && Sabia.sistemaConferirNasNotas.contains("conclusões e mudanças primeiro")
+                && !Sabia.sistemaConferirNasNotas.contains("Diga o que ESTA consulta contém"))
         #expect(SinteseDeNota.sistema.contains("Comece pelo que MUDOU") && Sabia.semGenero.contains("«vale mais firmeza»"))
     }
 }
