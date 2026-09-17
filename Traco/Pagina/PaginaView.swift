@@ -293,6 +293,7 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
+                versoesDaNotaViva
                 // ADR 08u: a etiqueta de origem. Vem ANTES do texto porque é o
                 // que muda como se lê o que vem depois — a página é o lugar em
                 // que se confunde texto do bot com a própria voz. Mesma cápsula
@@ -416,6 +417,22 @@ struct PaginaView: View {
                     // "lendo…" e o cartão ocupam a MESMA linha do encaixe: um fade
                     // entre eles é o cross-fade entre irmãos legíveis que a 05y proíbe
                     .transition(.identity)
+            }
+        }
+    }
+
+    /// Nota viva (proposta de 16/09, tela 3): as datas das versões logo abaixo
+    /// do topo. Tocar numa data guarda esta e abre aquela.
+    @ViewBuilder private var versoesDaNotaViva: some View {
+        if let uuid = sessao.notaUUID, Juntas.grupo(de: uuid) != nil,
+           let atual = Sessao.buscar(uuid: uuid, no: context) {
+            let membros = Juntas.membros(de: uuid).compactMap { Sessao.buscar(uuid: $0, no: context) }
+            if membros.count > 1 {
+                VersoesDaNotaViva(atual: atual, membros: membros) { outra in
+                    guard sessao.salvar(no: context) else { return }
+                    sessao.abrir(outra)
+                }
+                .padding(.bottom, 16)
             }
         }
     }

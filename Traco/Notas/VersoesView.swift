@@ -15,7 +15,7 @@ struct VersoesView: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Versões")
+                    Text("Alterações")
                         .font(.title2.weight(.bold))
                         .tracking(-0.4)
                     Text(versoes.isEmpty ? "Nenhuma ainda." : (versoes.count == 1 ? "1 versão" : "\(versoes.count) versões"))

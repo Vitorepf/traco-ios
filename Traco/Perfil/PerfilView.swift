@@ -169,7 +169,7 @@ struct PerfilView: View {
     private var sabiaEVoce: some View {
         recolhidas.secao("A sábia e você", id: "sabia") {
             chave("person.text.rectangle", "A sábia conhece você",
-                  "Um retrato feito só com as suas palavras e contagens viaja junto de cada pergunta: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nunca conclui, nunca pontua.",
+                  "Um retrato feito só com as suas palavras e contagens: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Em cada pergunta vai só a parte que toca o assunto. Nunca conclui, nunca pontua.",
                   id: "ajuste-retrato",
                   ligado: Binding(
                     get: { retratoLigado },
@@ -180,10 +180,10 @@ struct PerfilView: View {
                     }))
             if retratoLigado {
                 // o retrato é CONTEÚDO (é o que viaja), não subtítulo: inteiro
-                prosa(retratoTexto.isEmpty ? "ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto,
+                prosa(retratoTexto.isEmpty ? "Ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto,
                       cor: retratoTexto.isEmpty ? Tema.tintaFraca : Tema.tintaSuave)
                     .accessibilityIdentifier("retrato")
-                    .accessibilityLabel("O retrato, exatamente como viaja")
+                    .accessibilityLabel("O retrato que pode viajar")
             }
             // ADR 06h: o que está embaixo é contagem (12 sinais desde…),
             // e a VISAO manda distinguir observação de conclusão.

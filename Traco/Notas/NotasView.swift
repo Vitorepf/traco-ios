@@ -28,6 +28,12 @@ struct NotasView: View {
     @State private var filtroDominio: Dominio?
     @State private var versoesDe: Nota?
     @State private var redeDe: Nota?
+    /// Nota viva: a folha «Juntar com», o recomeço da lista depois de juntar
+    /// ou separar, e o «Desfazer» da última junção.
+    @State private var juntarDe: Nota?
+    @State private var juntas = Juntas.mapa()
+    @State private var desfazerJuntar: DesfazerJuntar?
+    @State private var tarefaDesfazer: Task<Void, Never>?
     @State private var serieDe: UUID?
     @State private var contextoURL: URL?
     @State private var ordem: OrdemNotas = .criadaEm
@@ -132,6 +138,109 @@ struct NotasView: View {
             }
         }
         .sheet(isPresented: $mostrarTrabalhos) { TrabalhosView() }
+        .sheet(item: $juntarDe) { nota in
+            JuntarView(nota: nota, todas: notas) { outra in juntar(nota, com: outra) }
+        }
+        .overlay(alignment: .bottom) { barraDesfazerJuntar }
+    }
+
+    // MARK: - Nota viva
+
+    private struct DesfazerJuntar: Equatable {
+        let antes: [UUID: UUID]
+        let frase: String
+    }
+
+    private func juntar(_ nota: Nota, com outra: Nota) {
+        let antes = Juntas.mapa()
+        guard Juntas.juntar(nota.uuid, com: outra.uuid) else {
+            sessao.mostrarToast("não consegui juntar — as duas notas continuam como estavam.")
+            return
+        }
+        Toque.leve()
+        withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+            juntas = Juntas.mapa()
+        }
+        oferecerDesfazer(antes, "Juntada a «\(nota.tituloNaLista.prefix(40))»")
+    }
+
+    private func separar(_ nota: Nota) {
+        let antes = Juntas.mapa()
+        guard Juntas.separar(nota.uuid) else { return }
+        Toque.leve()
+        withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+            juntas = Juntas.mapa()
+        }
+        oferecerDesfazer(antes, "Separada das versões")
+    }
+
+    private func oferecerDesfazer(_ antes: [UUID: UUID], _ frase: String) {
+        withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+            desfazerJuntar = DesfazerJuntar(antes: antes, frase: frase)
+        }
+        tarefaDesfazer?.cancel()
+        tarefaDesfazer = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(6))
+            guard !Task.isCancelled else { return }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                desfazerJuntar = nil
+            }
+        }
+    }
+
+    @ViewBuilder private var barraDesfazerJuntar: some View {
+        if let d = desfazerJuntar {
+            HStack(spacing: 12) {
+                Text(d.frase)
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tinta)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                Button("Desfazer") {
+                    tarefaDesfazer?.cancel()
+                    Juntas.restaurar(d.antes)
+                    Toque.leve()
+                    withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                        juntas = Juntas.mapa()
+                        desfazerJuntar = nil
+                    }
+                }
+                .font(Tema.corpo.weight(.semibold))
+                .foregroundStyle(Tema.ambarTinta)
+                .buttonStyle(.discreto)
+                .alvo()
+                .accessibilityIdentifier("desfazer-juntar")
+            }
+            .padding(.leading, 16)
+            .padding(.trailing, 8)
+            .cartao(.papel, recuo: [])
+            .padding(.horizontal, Tema.margem)
+            .padding(.bottom, 64)
+            .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
+        }
+    }
+
+    /// Cada grupo aparece uma vez, pela versão mais nova que está à vista.
+    private func recolherJuntas(_ lista: [Nota]) -> [Nota] {
+        var vistos: Set<UUID> = []
+        let maisNova: [UUID: UUID] = lista.reduce(into: [:]) { acc, n in
+            guard let g = juntas[n.uuid] else { return }
+            if let atual = acc[g], let a = lista.first(where: { $0.uuid == atual }), a.criadaEm >= n.criadaEm { return }
+            acc[g] = n.uuid
+        }
+        return lista.filter { n in
+            guard let g = juntas[n.uuid] else { return true }
+            guard maisNova[g] == n.uuid, !vistos.contains(g) else { return false }
+            vistos.insert(g)
+            return true
+        }
+    }
+
+    /// Quantas versões a nota viva tem (as que ainda existem). 1 = sozinha.
+    private func versoes(_ nota: Nota) -> Int {
+        guard let g = juntas[nota.uuid] else { return 1 }
+        let ids = Set(juntas.filter { $0.value == g }.map(\.key))
+        return notas.reduce(0) { $0 + (ids.contains($1.uuid) ? 1 : 0) }
     }
 
     /// ADR 10i: o gesto de perguntar. A folha abre com a linha "?" em branco
@@ -964,7 +1073,7 @@ struct NotasView: View {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         // com zero pelas letras o vazio já diz tudo: contar "0" em cima é eco
                         if !busca.isEmpty || filtro != nil || filtroDominio != nil, !visiveis.isEmpty {
-                            Text(contagem(visiveis.count))
+                            Text(contagem(recolherJuntas(visiveis).count))
                                 .font(Tema.meta)
                                 .foregroundStyle(Tema.tintaFraca)
                                 .padding(.top, 12)
@@ -982,7 +1091,7 @@ struct NotasView: View {
                         // a porta dos Trabalhos não entra no resultado de uma busca
                         continuarConversa
                         secaoDaVolta
-                        ForEach(meses(visiveis), id: \.titulo) { mes in
+                        ForEach(meses(recolherJuntas(visiveis)), id: \.titulo) { mes in
                             secao(mes.titulo)
                             ForEach(mes.notas, id: \.uuid) { nota in
                                 botaoNota(nota)
@@ -1143,6 +1252,27 @@ struct NotasView: View {
         // dono, 16/09: cada nota é um objeto sobre o papel — a separação é o
         // vão entre cartões, não um fio entre linhas
         .cartao(selecionado: escolhidas.contains(nota.uuid))
+        // nota viva: as versões de trás aparecem como folhas sob o cartão
+        .background(alignment: .bottom) {
+            if versoes(nota) > 1 {
+                ZStack(alignment: .bottom) {
+                    RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous)
+                        .fill(Tema.superficie)
+                        .overlay { RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5) }
+                        .padding(.horizontal, 24)
+                        .offset(y: 12)
+                        .opacity(versoes(nota) > 2 ? 0.6 : 0)
+                    RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous)
+                        .fill(Tema.superficie)
+                        .overlay { RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5) }
+                        .padding(.horizontal, 12)
+                        .offset(y: 6)
+                }
+                .shadow(color: Tema.sombraFlutuante.opacity(0.5), radius: 4, y: 2)
+                .accessibilityHidden(true)
+            }
+        }
+        .padding(.bottom, versoes(nota) > 1 ? (versoes(nota) > 2 ? 12 : 6) : 0)
         .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
         .contextMenu { menuDaNota(nota) }
     }
@@ -1160,7 +1290,8 @@ struct NotasView: View {
             }
         }
         if !nota.fechada, nota.gesto != .expressiva {
-            Button("Versões", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
+            // «Versões» agora são as datas da nota viva; o histórico de edição é «Alterações»
+            Button("Alterações", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
             Button("Notas ligadas", systemImage: "link") { redeDe = nota }
         }
         // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
@@ -1178,6 +1309,12 @@ struct NotasView: View {
         // R3: as quatro linhas juntas, depois do quarto fecho
         if nota.gesto == .expressiva, nota.serieUUID != nil {
             Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
+        }
+        if Juntas.podeJuntar(fechada: nota.fechada, gesto: nota.gesto, obra: nota.origem.eObra) {
+            Button("Juntar com…", systemImage: "square.on.square") { juntarDe = nota }
+        }
+        if versoes(nota) > 1 {
+            Button("Separar das versões", systemImage: "square.split.2x1") { separar(nota) }
         }
         Button("Selecionar", systemImage: "checkmark.circle") {
             Toque.selecao()
@@ -1249,9 +1386,17 @@ struct NotasView: View {
     }
 
     private func restoDaNota(_ nota: Nota, depoisDe titulo: String) -> String? {
-        let prosa = Caderno.prosa(de: nota.textoDeQualquerOrigem)
-            .replacingOccurrences(of: "\n", with: " ")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // linha que termina sem pontuação é item de lista: vírgula entre elas
+        // («Arroz, café, detergente»), não uma frase emendada
+        let linhas = Caderno.prosa(de: nota.textoDeQualquerOrigem)
+            .split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        let prosa = linhas.enumerated().reduce(into: "") { acc, par in
+            guard par.offset > 0 else { acc = par.element; return }
+            let anterior = linhas[par.offset - 1]
+            acc += (".:;!?…".contains(anterior.last ?? ".") || par.offset == 1 ? " " : ", ") + par.element
+        }
         guard let r = prosa.range(of: titulo) else { return nil }
         // o título perde o ponto final: a prévia não pode começar por ele
         let resto = prosa[r.upperBound...].drop { ".:;,".contains($0) || $0.isWhitespace }.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1271,6 +1416,8 @@ struct NotasView: View {
                       : cal.isDate(quando, equalTo: .now, toGranularity: .year)
                         ? quando.formatted(.dateTime.day().month(.wide))
                         : quando.formatted(.dateTime.day().month(.wide).year())]
+        // nota viva: «3 versões · 20 de setembro»
+        if versoes(nota) > 1 { partes.insert("\(versoes(nota)) versões", at: 0) }
         if let origem = nota.origem.etiqueta { partes.append(origem) }
         if nota.queimada, nota.minutosEscritos >= 1 { partes.append("\(nota.minutosEscritos) min") }
         let recordadas = Revisoes.contagem(nota.uuid)
