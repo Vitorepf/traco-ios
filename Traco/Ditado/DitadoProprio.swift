@@ -240,27 +240,46 @@ final class DitadoProprio {
             // A recusa é a decisão certa: o áudio do autor não sai do aparelho.
             return .naoVeio("o português para ditado offline não está instalado. Ajustes › Geral › Teclado › Ditado.")
         }
-        let permissao = await withCheckedContinuation { pronto in
-            SFSpeechRecognizer.requestAuthorization { pronto.resume(returning: $0) }
-        }
-        guard permissao == .authorized else {
+        // fora do MainActor de propósito: ver `PermissaoDeFala`
+        guard await PermissaoDeFala.pedir() == .authorized else {
             return .naoVeio("o reconhecimento de fala está desligado nos Ajustes.")
         }
         let pedido = SFSpeechURLRecognitionRequest(url: url)
         pedido.requiresOnDeviceRecognition = true
         pedido.shouldReportPartialResults = false
-        return await withCheckedContinuation { pronto in
-            nonisolated(unsafe) var respondeu = false
-            reconhecedor.recognitionTask(with: pedido) { resultado, erro in
-                guard !respondeu else { return }
+        return await withCheckedContinuation { (pronto: CheckedContinuation<Letra, Never>) in
+            let caixa = RespostaUnica(pronto)
+            // `@Sendable`: o bloco não pode ser isolado no MainActor, ou o Speech
+            // derruba o processo ao chamá-lo (ver `PermissaoDeFala`)
+            reconhecedor.recognitionTask(with: pedido) { @Sendable resultado, erro in
                 if let resultado, resultado.isFinal {
-                    respondeu = true
-                    pronto.resume(returning: .veio(resultado.bestTranscription.formattedString))
+                    caixa.responder(.veio(resultado.bestTranscription.formattedString))
                 } else if erro != nil {
-                    respondeu = true
-                    pronto.resume(returning: .naoVeio("a transcrição falhou no aparelho."))
+                    caixa.responder(.naoVeio("a transcrição falhou no aparelho."))
                 }
             }
         }
+    }
+}
+
+/// Uma resposta só por continuação.
+///
+/// O `SFSpeechRecognizer` pode entregar resultado E erro, e retomar uma
+/// continuação duas vezes é `SWIFT TASK CONTINUATION MISUSE`: morte do
+/// processo. O `nonisolated(unsafe) var respondeu` que guardava isto não era
+/// trava nenhuma — dois blocos em filas diferentes passavam juntos pelo
+/// `guard`. Aqui quem guarda é uma trava de verdade.
+private final class RespostaUnica: @unchecked Sendable {
+    private let trava = NSLock()
+    private var pronto: CheckedContinuation<DitadoProprio.Letra, Never>?
+
+    init(_ pronto: CheckedContinuation<DitadoProprio.Letra, Never>) { self.pronto = pronto }
+
+    func responder(_ letra: DitadoProprio.Letra) {
+        trava.lock()
+        let aberta = pronto
+        pronto = nil
+        trava.unlock()
+        aberta?.resume(returning: letra)
     }
 }

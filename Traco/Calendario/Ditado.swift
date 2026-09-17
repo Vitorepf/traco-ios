@@ -24,6 +24,8 @@ final class Ditado {
 
     private let motor = AVAudioEngine()
     private var pedido: SFSpeechAudioBufferRecognitionRequest?
+    private var canal: LinhaDeAudio?
+    private var pedindo = false
     private var tarefa: SFSpeechRecognitionTask?
     private var recadoTask: Task<Void, Never>?
     private let reconhecedor = SFSpeechRecognizer(locale: Locale(identifier: "pt_BR"))
@@ -47,6 +49,10 @@ final class Ditado {
             motorDeTeste(self)
             return
         }
+        // `gravando` só fica verdadeiro depois da permissão, que é `await`:
+        // sem este guarda, dois toques enquanto o diálogo está aberto abrem dois
+        // reconhecedores e o primeiro fica órfão, a mandar texto e a mandar parar
+        guard !pedindo else { return }
         guard let reconhecedor, reconhecedor.isAvailable else {
             mostrar("o ditado não está disponível agora.")
             return
@@ -56,27 +62,39 @@ final class Ditado {
             mostrar("o português para ditado offline não está instalado. Ajustes › Geral › Teclado › Ditado.")
             return
         }
+        pedindo = true
         Task { @MainActor in
-            guard await autorizado() else {
-                mostrar("o ditado precisa de permissão de microfone e de fala.")
-                return
+            let resposta = await autorizado()
+            pedindo = false
+            switch resposta {
+            case .pode:
+                escutar(reconhecedor)
+            // dizer O QUE falta e ONDE se liga: recusada uma vez, a permissão
+            // nunca mais é pedida pelo iOS, e "precisa de permissão" deixava o
+            // autor num beco — o microfone simplesmente não abria mais
+            case .semFala:
+                mostrar("o reconhecimento de fala está desligado. Ajustes › Traço › Reconhecimento de Fala.")
+            case .semMicrofone:
+                mostrar("o microfone está desligado para o Traço. Ajustes › Traço › Microfone.")
             }
-            escutar(reconhecedor)
         }
     }
 
-    private func autorizado() async -> Bool {
-        let fala = await withCheckedContinuation { pronto in
-            SFSpeechRecognizer.requestAuthorization { pronto.resume(returning: $0) }
-        }
-        guard fala == .authorized else { return false }
-        return await AVAudioApplication.requestRecordPermission()
+    private enum Licenca { case pode, semFala, semMicrofone }
+
+    private func autorizado() async -> Licenca {
+        guard await PermissaoDeFala.pedir() == .authorized else { return .semFala }
+        return await AVAudioApplication.requestRecordPermission() ? .pode : .semMicrofone
     }
 
     private func escutar(_ reconhecedor: SFSpeechRecognizer) {
         let novo = SFSpeechAudioBufferRecognitionRequest()
         novo.shouldReportPartialResults = true
         novo.requiresOnDeviceRecognition = true
+        // sem isto o reconhecedor devolve uma tirada só, sem vírgula nem ponto
+        // — e o calendário, que separa os compromissos pela pontuação, lia vinte
+        // compromissos ditados como UM título gigante (relato do dono, 17/09)
+        novo.addsPunctuation = true
         pedido = novo
 
         do {
@@ -96,29 +114,36 @@ final class Ditado {
             encerrarAudio()
             return
         }
+        let linha = LinhaDeAudio(novo)
+        canal = linha
         entrada.removeTap(onBus: 0)
-        entrada.installTap(onBus: 0, bufferSize: 1024, format: formato) { [weak novo] buffer, _ in
-            novo?.append(buffer)
+        // `@Sendable` de propósito: tira a isolação do bloco (ver `PermissaoDeFala`).
+        // Este corre na thread de tempo real do CoreAudio.
+        entrada.installTap(onBus: 0, bufferSize: 1024, format: formato) { @Sendable buffer, _ in
+            linha.receber(buffer)
         }
         motor.prepare()
         do {
             try motor.start()
         } catch {
             mostrar("não consegui abrir o microfone.")
+            canal = nil
             encerrarAudio()
             return
         }
 
         gravando = true
         Toque.selecao()
-        tarefa = reconhecedor.recognitionTask(with: novo) { [weak self] resultado, erro in
+        // o Speech chama isto numa fila própria: o bloco não pode ser isolado
+        // (ver `PermissaoDeFala`) e só valores Sendable atravessam para a main
+        tarefa = reconhecedor.recognitionTask(with: novo) { @Sendable [weak self] resultado, erro in
+            let texto = resultado?.bestTranscription.formattedString
+            let terminou = resultado?.isFinal ?? false
+            let falhou = erro != nil
             Task { @MainActor in
                 guard let self else { return }
-                if let resultado {
-                    self.aoTexto?(resultado.bestTranscription.formattedString)
-                    if resultado.isFinal { self.parar() }
-                }
-                if erro != nil { self.parar() }
+                if let texto { self.aoTexto?(texto) }
+                if terminou || falhou { self.parar() }
             }
         }
     }
@@ -135,10 +160,11 @@ final class Ditado {
         guard gravando || motor.isRunning else { return }
         gravando = false
         if motorDeTeste != nil { return }
-        pedido?.endAudio()
+        canal?.fechar()
         tarefa?.cancel()
         tarefa = nil
         pedido = nil
+        canal = nil
         encerrarAudio()
         Toque.leve()
     }
@@ -157,5 +183,59 @@ final class Ditado {
             try? await Task.sleep(for: .seconds(4))
             if !Task.isCancelled { self?.recado = nil }
         }
+    }
+}
+
+/// A permissão de fala, pedida FORA do MainActor.
+///
+/// `SFSpeechRecognizer.requestAuthorization` chama o bloco "numa fila
+/// arbitrária" (documentação da Apple). Neste projeto toda closure escrita
+/// dentro de um tipo sem anotação nasce isolada no MainActor
+/// (`SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor`, em `project.yml`), e entregar
+/// uma closure dessas a um framework que a chama noutra fila é uma armadilha:
+/// o Swift 6 põe a verificação de executor na ponte (SE-0423) e o processo
+/// MORRE — "Incorrect actor executor assumption". Era o app a fechar no
+/// primeiro toque no microfone, antes mesmo de o diálogo de permissão aparecer.
+///
+/// `nonisolated` aqui é o conserto: a closure nasce sem ator, e o Speech pode
+/// chamá-la de onde quiser.
+enum PermissaoDeFala {
+    nonisolated static func pedir() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { pronto in
+            SFSpeechRecognizer.requestAuthorization { pronto.resume(returning: $0) }
+        }
+    }
+}
+
+/// A ponte entre a thread do áudio e o pedido do Speech. Existe por duas
+/// razões, as duas de quebra:
+///
+/// 1. o bloco do tap corre na thread de tempo real do CoreAudio, e isolado no
+///    MainActor derruba o processo (ver `PermissaoDeFala`). `@Sendable` tira a
+///    isolação — mas aí o bloco não pode capturar o pedido, que não é
+///    Sendable. Esta caixa é o que ele captura;
+/// 2. `append` depois de `endAudio` é exceção do Speech, e havia janela para
+///    isso: `parar()` fechava o áudio e só depois tirava o tap, com buffers em
+///    voo pelo meio. A trava fecha a janela.
+private final class LinhaDeAudio: @unchecked Sendable {
+    private let pedido: SFSpeechAudioBufferRecognitionRequest
+    private let trava = NSLock()
+    private var aberta = true
+
+    init(_ pedido: SFSpeechAudioBufferRecognitionRequest) { self.pedido = pedido }
+
+    func receber(_ buffer: AVAudioPCMBuffer) {
+        trava.lock()
+        defer { trava.unlock() }
+        guard aberta else { return }
+        pedido.append(buffer)
+    }
+
+    func fechar() {
+        trava.lock()
+        defer { trava.unlock() }
+        guard aberta else { return }
+        aberta = false
+        pedido.endAudio()
     }
 }
