@@ -88,6 +88,9 @@ Para geração, leia a resposta completa contra as restrições do pedido: saíd
 não vazia, JSON válido e testes de transporte não aprovam utilidade semântica.
 Use revisão independente para contratos substanciais e confronte seus achados.
 
+Capturas e vídeos de prova ficam fora do git desde 17/09 (`.gitignore`): a prova
+que viaja entre worktrees é texto — o LEIA da prova, o jsonl, a medida no commit.
+
 Atualize contrato e matriz de evolução quando mudar comportamento. Declare
 limites de execução, provedor e evidência. Um incremento aprovado não conclui
 toda a visão; passes históricos não certificam o candidato atual.

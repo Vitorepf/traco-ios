@@ -19,3 +19,15 @@ __pycache__/
 *.pyc
 # capturas que os fluxos maestro gravam na raiz (takeScreenshot) não são fonte
 /*.png
+# mídia de prova nova não entra no git (dono, 17/09: o .git chegou a 1,1 GB, quase
+# tudo PNG/MP4). O que já está versionado fica; a prova que viaja é texto (LEIA, jsonl)
+ferramentas/orca/**/*.png
+ferramentas/orca/**/*.jpg
+ferramentas/orca/**/*.jpeg
+ferramentas/orca/**/*.mp4
+ferramentas/orca/**/*.mov
+prova/**/*.png
+prova/**/*.jpg
+prova/**/*.jpeg
+prova/**/*.mp4
+prova/**/*.mov
