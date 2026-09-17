@@ -75,12 +75,17 @@ EOF
     falhas=$(grep -c '✘ Test .* failed' "$log" || true)
     pulados=$(grep -c '➜ Test ' "$log" || true)
     grep -E '✘ Test .* (failed|recorded an issue)' "$log" | head -20 >&2 || true
+    # host que cai não falha nenhum teste e o portão dizia verde (17/09): o xctest
+    # reinicia e o que vinha depois nem corre. Queda é vermelha.
+    queda=$(grep -cE 'Restarting after unexpected exit|crashed in|Test crashed|early unexpected exit|Lost connection to the test' "$log" || true)
+    [ "$queda" = 0 ] || grep -E 'Restarting after unexpected exit|crashed in|Test crashed|early unexpected exit|Lost connection to the test' "$log" | sort -u | head -5 >&2
     # sem "TEST SUCCEEDED" quando o vigia encerrou: vale a linha final do Swift Testing sem ✘
     if { grep -q '\*\* TEST SUCCEEDED \*\*' "$log" || grep -qE '✔ Test run with' "$log"; } \
-       && [ "$falhas" = 0 ] && [ "$ok" -gt 0 ]; then
+       && [ "$falhas" = 0 ] && [ "$queda" = 0 ] && [ "$ok" -gt 0 ]; then
       echo "portão: verde — $ok passaram, $pulados pulados com motivo, 0 falhas"
       exit 0
     fi
+    [ "$queda" = 0 ] || echo "portão: o host de teste CAIU ($queda reinícios) — a suíte não terminou" >&2
     echo "portão: VERMELHO — $ok passaram, $falhas falharam, $pulados pulados (log em $log)"
     exit 1
     ;;

@@ -352,7 +352,8 @@ struct TemaTests {
         let raiz = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
         let prosa = try String(contentsOf: raiz.appending(path: "Traco/Caderno/ProsaView.swift"), encoding: .utf8)
-        #expect(prosa.contains("feito ? Tema.feito : Tema.tintaFraca"))
+        #expect(prosa.contains(".fill(Tema.feito)") && prosa.contains("TracoDoVisto()"),
+                "o visto é o traço desenhado sobre o verde do Tema")
         #expect(prosa.contains("Toque.leve()") && prosa.contains("Tema.movimento(.opacidade"))
         for caminho in ["Traco/Caderno/ProsaView.swift", "Traco/Caderno/CadernoView.swift", "Traco/Caderno/EditorBlocoView.swift"] {
             let texto = try String(contentsOf: raiz.appending(path: caminho), encoding: .utf8)

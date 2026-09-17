@@ -536,7 +536,8 @@ enum Caderno: Sendable {
                 let partida = cabecaEItens(bloco, abreANota: indice == 0 && !temTitulo, abaixoDe: anterior)
                 let topo = partida.cabeca.map { [(temTitulo ? "## " : "# ") + $0] } ?? []
                 if partida.cabeca != nil { temTitulo = true }
-                mudancas.append((intervalo, (topo + partida.itens.map { "- " + $0 }).joined(separator: "\n")))
+                let marca = marcaDoItem(cabeca: partida.cabeca ?? anterior)
+                mudancas.append((intervalo, (topo + partida.itens.map { marca + $0 }).joined(separator: "\n")))
                 continue
             }
             if bloco.count == 1, curtaSemPonto(bloco[0]) {
@@ -544,7 +545,8 @@ enum Caderno: Sendable {
                 // por linha — nunca título nem seção (dono, 17/09: a linha das
                 // compras virou SEÇÃO)
                 if let itens = itensDaEnumeracao(bloco[0], abaixoDe: anterior) {
-                    mudancas.append((intervalo, itens.map { "- " + $0 }.joined(separator: "\n")))
+                    let marca = marcaDoItem(cabeca: anterior)
+                    mudancas.append((intervalo, itens.map { marca + $0 }.joined(separator: "\n")))
                     continue
                 }
                 // linha curta sozinha = título (a primeira) ou seção (as demais)
@@ -604,6 +606,16 @@ enum Caderno: Sendable {
         linha.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
             .trimmingCharacters(in: .whitespaces)
             .contains(regex: #"^(#+\s*)?(comprar|compras|mercado|supermercado|feira|lista)(\s+(de|do|da|dos|das|no|na|nos|nas|em|pra|para|pro)\b.*)?\s*:?$"#)
+    }
+
+    /// A marca com que um item nasce. Debaixo de «Comprar», «Compras»,
+    /// «Mercado», «Lista de…» (`cabecaDeLista`), o item é para RISCAR: nasce
+    /// tarefa, com a bolinha que vira visto verde ao toque — dono, 17/09: «uma
+    /// bolinha que, ao colocar no carrinho, eu aperto e ela vira um check
+    /// verde, e o item é riscado». Fora dessas cabeças, item de lista.
+    /// Um lugar só: a regra local (`estruturar`) e a forma da IA (`Sabia.aplicar`).
+    nonisolated static func marcaDoItem(cabeca: String?) -> String {
+        cabecaDeLista(cabeca ?? "") ? "- [ ] " : "- "
     }
 
     /// Cabeça e itens de um bloco de linhas sem marca — a mesma leitura na

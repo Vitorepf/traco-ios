@@ -290,14 +290,14 @@ struct FormatacaoSemMarcaEmDobroTests {
     @Test func aListaNaoMarcaPorCimaEACabecaViraSecao() {
         let texto = "Compras\n- leite\n- - pao"
         let vestido = Sabia.aplicar([Sabia.Rotulo(i: 0, forma: .lista)], a: texto)
-        #expect(vestido == "## Compras\n- leite\n- pao")
+        #expect(vestido == "## Compras\n- [ ] leite\n- [ ] pao")
     }
 
     @Test func vestirDuasVezesEOMesmoQueUma() {
         let texto = "Mercado\n\narroz\nfeijão\ncafé\n\nligar para a Ana\nmandar o orçamento"
         let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), Sabia.Rotulo(i: 1, forma: .lista), Sabia.Rotulo(i: 2, forma: .tarefas)]
         let uma = Sabia.aplicar(mapa, a: texto)
-        #expect(uma == "# Mercado\n\n- arroz\n- feijão\n- café\n\n- [ ] ligar para a Ana\n- [ ] mandar o orçamento")
+        #expect(uma == "# Mercado\n\n- [ ] arroz\n- [ ] feijão\n- [ ] café\n\n- [ ] ligar para a Ana\n- [ ] mandar o orçamento")
         #expect(Sabia.aplicar(mapa, a: uma) == uma)
         for palavra in ["Mercado", "arroz", "feijão", "café", "ligar para a Ana", "mandar o orçamento"] {
             #expect(uma.contains(palavra))
@@ -341,7 +341,7 @@ struct FormatacaoComCaixasTests {
 @MainActor
 struct ListaDeComprasTests {
     static let doDono = "Comprar\n\nLeite , farinha , ovo , macarrão"
-    static let reserva = "# Comprar\n\n- Leite\n- farinha\n- ovo\n- macarrão"
+    static let reserva = "# Comprar\n\n- [ ] Leite\n- [ ] farinha\n- [ ] ovo\n- [ ] macarrão"
 
     /// As palavras na ordem, sem marca e sem separador: vestir não muda nenhuma.
     static func palavras(_ s: String) -> [String] {
@@ -353,6 +353,27 @@ struct ListaDeComprasTests {
         c.mainContext.insert(n)
         try c.mainContext.save()
         return n
+    }
+
+    /// Dono, 17/09, na tela: tocar a bolinha do ÚLTIMO item não fazia nada —
+    /// «Leite» e «ovo» riscavam, «macarrao» não.
+    @Test func oUltimoItemDaListaTambemAlterna() throws {
+        let texto = "# Comprar\n- [ ] Leite\n- [ ] farinha\n- [ ] ovo\n- [ ] macarrao"
+        let fatias = Caderno.fatias(texto)
+        let f = try #require(fatias.first { if case .tarefas = $0.bloco { true } else { false } })
+        guard case .tarefas(let xs) = f.bloco else { return }
+        #expect(xs.count == 4, "as quatro linhas são um bloco de tarefas")
+        for i in xs.indices {
+            var next = xs
+            next[i].feito = true
+            let escrito = Caderno.aplicar(fatias, id: f.id, bloco: .tarefas(next))
+            let lidas = Caderno.fatias(escrito).flatMap { fatia -> [TarefaCaderno] in
+                if case .tarefas(let ys) = fatia.bloco { ys } else { [] }
+            }
+            #expect(lidas.count == 4, Comment(rawValue: escrito.debugDescription))
+            #expect(lidas.indices.contains(i) && lidas[i].feito,
+                    Comment(rawValue: "item \(i) não ficou feito: " + escrito.debugDescription))
+        }
     }
 
     @Test func aLinhaDeItensEUmaEnumeracao() {
@@ -375,17 +396,22 @@ struct ListaDeComprasTests {
         #expect(Self.palavras(uma) == Self.palavras(Self.doDono))
         #expect(Caderno.estruturar("leite, pão, café") == "- leite\n- pão\n- café", "a primeira linha também não vira título")
         // o caderno lê quatro itens
-        #expect(Caderno.fatias(uma).map(\.bloco).contains(.itens(["Leite", "farinha", "ovo", "macarrão"], ordenada: false)))
+        #expect(Caderno.fatias(uma).map(\.bloco).contains(
+            .tarefas(["Leite", "farinha", "ovo", "macarrão"].map { TarefaCaderno(feito: false, texto: $0) })))
     }
 
     @Test func aFormaDaIAPoeUmItemPorLinha() {
-        for (forma, marca) in [(Sabia.FormaDeBloco.tarefas, "- [ ] "), (.lista, "- ")] {
+        // debaixo de «Comprar» o item é para riscar: tarefa nas duas formas
+        for forma in [Sabia.FormaDeBloco.tarefas, .lista] {
             let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), .init(i: 1, forma: forma)]
             let uma = Sabia.aplicar(mapa, a: Self.doDono)
-            #expect(uma == "# Comprar\n\n" + ["Leite", "farinha", "ovo", "macarrão"].map { marca + $0 }.joined(separator: "\n"))
+            #expect(uma == "# Comprar\n\n" + ["Leite", "farinha", "ovo", "macarrão"].map { "- [ ] " + $0 }.joined(separator: "\n"))
             #expect(Sabia.aplicar(mapa, a: uma) == uma, "aplicar duas vezes é o mesmo que uma")
             #expect(Self.palavras(uma) == Self.palavras(Self.doDono))
         }
+        // fora de uma cabeça de compras, lista é lista
+        #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: "Ideias\n\nlousa , caneta , papel")
+                == "# Ideias\n\n- lousa\n- caneta\n- papel")
         #expect(Sabia.aplicar([.init(i: 0, forma: .numerada)], a: "leite; pão; café") == "1. leite\n2. pão\n3. café")
         // a frase com uma vírgula continua uma linha só
         #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: "pão, leite e café") == "- pão, leite e café")
@@ -405,7 +431,7 @@ struct ListaDeComprasTests {
         #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: longa) == "- " + longa)
         // abaixo de «Compras» o item pode ter mais palavras
         #expect(Caderno.estruturar("Compras\n\npasta de dente, sabão em pó, arroz")
-                == "# Compras\n\n- pasta de dente\n- sabão em pó\n- arroz")
+                == "# Compras\n\n- [ ] pasta de dente\n- [ ] sabão em pó\n- [ ] arroz")
     }
 
     /// Revisão (17/09): o editor põe um Enter só — «Comprar / Leite , farinha…»
@@ -413,23 +439,23 @@ struct ListaDeComprasTests {
     @Test func umEnterSoTambemDaCabecaEItens() {
         let texto = "Comprar\nLeite , farinha , ovo , macarrão"
         let itens = ["Leite", "farinha", "ovo", "macarrão"]
-        #expect(Caderno.estruturar(texto) == "# Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
+        #expect(Caderno.estruturar(texto) == "# Comprar\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n"))
         let tarefas = Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: texto)
         #expect(tarefas == "# Comprar\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n"))
         #expect(Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: tarefas) == tarefas)
         // mais abaixo na nota a cabeça é seção
         #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: "Semana\n\n" + texto)
-                == "# Semana\n\n## Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
-        #expect(Caderno.estruturar("Semana\n\n" + texto) == "# Semana\n\n## Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
+                == "# Semana\n\n## Comprar\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n"))
+        #expect(Caderno.estruturar("Semana\n\n" + texto) == "# Semana\n\n## Comprar\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n"))
     }
 
     /// Revisão (17/09): a regra de 14/09 — três ou mais linhas curtas abrindo a
     /// nota são título e lista — sumia com a IA, que só escolhe uma forma por bloco.
     @Test func aNotaQueAbreComLinhasCurtasGuardaTituloEItensComAIA() {
         let texto = "Comprar\nLeite\nFarinha\nOvo"
-        #expect(Caderno.estruturar(texto) == "# Comprar\n- Leite\n- Farinha\n- Ovo")
+        #expect(Caderno.estruturar(texto) == "# Comprar\n- [ ] Leite\n- [ ] Farinha\n- [ ] Ovo")
         #expect(Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: texto) == "# Comprar\n- [ ] Leite\n- [ ] Farinha\n- [ ] Ovo")
-        #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: texto) == "# Comprar\n- Leite\n- Farinha\n- Ovo")
+        #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: texto) == "# Comprar\n- [ ] Leite\n- [ ] Farinha\n- [ ] Ovo")
         // com título em outro bloco, são só itens
         #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: "Sábado\n\n" + texto)
                 == "# Sábado\n\n- Comprar\n- Leite\n- Farinha\n- Ovo")
@@ -551,15 +577,24 @@ struct DestaqueNaoEListaDeComprasTests {
         }
     }
 
-    @Test func oModeloNaoVesteDestaqueNaListaDeCompras() {
+    /// Dono, 17/09, no 17e: o modelo classificou «Comprar / Leite , farinha ,
+    /// ovo» como WOOP e a nota de compras abriu «Resultado» e «Obstáculo
+    /// interno» vazios. Lista de compras não é matéria de método nenhum.
+    @Test func aListaDeComprasNaoVesteMetodoNenhum() {
         let destaque = AnaliseLocal.Veredito.gesto(.destaque, pergunta: "p")
         let doDono = AnaliseLocal.listaSemDia("Comprar\nLeite , farinha , ovo , macarrão")
         #expect(doDono)
         #expect(Sessao.escolher(remoto: destaque, local: .silencio, listaSemDia: doDono) == .silencio)
         #expect(!AnaliseLocal.listaSemDia("Hoje\nLeite , farinha , ovo"))
         #expect(Sessao.escolher(remoto: destaque, local: .silencio, listaSemDia: false) == destaque)
-        // o veto é só do Destaque: outro método do modelo segue
+        // nem o Destaque, nem o WOOP, nem pela regra local
         let woop = AnaliseLocal.Veredito.gesto(.woop, pergunta: "p")
-        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: true) == woop)
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: true) == .silencio)
+        #expect(Sessao.escolher(remoto: nil, local: woop, listaSemDia: true) == .silencio)
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: false) == woop)
+        // o aviso do algoritmo e a expressiva continuam passando
+        let aviso = AnaliseLocal.Veredito.aviso("falta o obstáculo")
+        #expect(Sessao.escolher(remoto: woop, local: aviso, listaSemDia: true) == aviso)
+        #expect(Sessao.escolher(remoto: .expressiva, local: .silencio, listaSemDia: true) == .expressiva)
     }
 }

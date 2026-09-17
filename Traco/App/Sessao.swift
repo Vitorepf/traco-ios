@@ -259,12 +259,18 @@ final class Sessao {
         // modelo. O modelo recebe `instrucoesDoCatalogo` e foi ensinado a
         // classificar exatamente estas frases; aqui ele não tem voz.
         if pessoal { return local }
-        // dono, 17/09: a lista de compras não é o Destaque do dia (`AnaliseLocal.listaSemDia`)
-        if listaSemDia, case .gesto(.destaque, _)? = remoto { return local }
-        switch remoto {
-        case .none, .some(.silencio): return local
-        case .some(let v): return v
+        let escolhido: AnaliseLocal.Veredito = switch remoto {
+        case .none, .some(.silencio): local
+        case .some(let v): v
         }
+        // Dono, 17/09: a lista de compras não é matéria de MÉTODO nenhum. Era só
+        // o Destaque do dia que ela recusava; no 17e o modelo classificou
+        // «Comprar / Leite , farinha , ovo» como WOOP e a nota de compras ganhou
+        // «Resultado» e «Obstáculo interno» vazios. Lista é título, itens e o
+        // visto — e isto vale para o modelo E para a regra local
+        // (`AnaliseLocal.listaSemDia`).
+        if listaSemDia, case .gesto = escolhido { return .silencio }
+        return escolhido
     }
 
     private func aplicar(_ veredito: AnaliseLocal.Veredito, automatica: Bool) {
@@ -2103,13 +2109,20 @@ final class Sessao {
     /// P0 6: no arranque, anexos sem marcador em NOTA NENHUMA (trancadas incluídas —
     /// o texto delas segue referenciando os arquivos) saem do disco.
     func varrerAnexosOrfaos(no context: ModelContext) {
-        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        guard let textos = textosQueReferenciam(no: context) else { return }
+        AnexoDisco.varrerOrfaos(textos: textos)
+    }
+
+    /// Tudo que hoje referencia um anexo. `nil` (fetch recusado) NÃO é lista vazia:
+    /// varrer com lista vazia apagaria todos os anexos do disco.
+    func textosQueReferenciam(no context: ModelContext, comApagada: Bool = true) -> [String]? {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return nil }
         var textos = notas.flatMap { [$0.texto] + $0.campos.values }
         textos.append(texto) // a página aberta também referencia
-        if let a = apagadaRecuperavel { textos += [a.texto] + a.campos.values } // na janela de desfazer
+        if comApagada, let a = apagadaRecuperavel { textos += [a.texto] + a.campos.values } // na janela de desfazer
         // uma versão guardada também referencia: restaurar não pode achar o arquivo apagado
         textos += Versoes.textosGuardados()
-        AnexoDisco.varrerOrfaos(textos: textos)
+        return textos
     }
 
     /// Sobe a cada página nova: o `onChange` da view não vê uuid→nil quando
@@ -2656,19 +2669,35 @@ final class Sessao {
             return
         }
         mostrarToast("nota apagada.", duracao: .seconds(6))
+        // a lista para a varredura sai DAQUI, com a nota já fora do contexto: seis
+        // segundos depois o contexto pode não existir mais (na suíte o contêiner do
+        // teste já foi embora e o host caía dentro do fetch). Sem a apagada na conta:
+        // o que só ela referenciava é órfão quando a janela fecha.
+        let textosDepois = textosQueReferenciam(no: context, comApagada: false)
         desfazerTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(6))
-            if !Task.isCancelled { self?.consolidarApagada(no: context) }
+            if !Task.isCancelled { self?.consolidarApagada(comTextos: textosDepois) }
         }
     }
 
     /// Fecha a janela de desfazer: o que ficou guardado para a volta sai do disco.
     func consolidarApagada(no context: ModelContext) {
         guard let a = apagadaRecuperavel else { return }
+        apagadaRecuperavel = nil // fora da conta: o que só ela referenciava é órfão
+        fecharJanelaDoDesfazer(a, comTextos: textosQueReferenciam(no: context))
+    }
+
+    /// Mesma consolidação com a lista já colhida — não toca no contexto.
+    func consolidarApagada(comTextos textos: [String]?) {
+        guard let a = apagadaRecuperavel else { return }
         apagadaRecuperavel = nil
+        fecharJanelaDoDesfazer(a, comTextos: textos)
+    }
+
+    private func fecharJanelaDoDesfazer(_ a: NotaRecuperavel, comTextos textos: [String]?) {
         Versoes.apagar(a.uuid)
         Apontar.apagar(a.uuid)
-        varrerAnexosOrfaos(no: context)
+        if let textos { AnexoDisco.varrerOrfaos(textos: textos) }
     }
 
     func desfazerApagar(no context: ModelContext) {

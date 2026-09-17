@@ -1,31 +1,141 @@
 import SwiftUI
 
+/// O visto da tarefa: o traço do check, desenhado de ponta a ponta. Duas
+/// pernas numa caixa 1x1 — quem desenha dá o tamanho.
+nonisolated struct TracoDoVisto: Shape {
+    func path(in r: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: r.minX + r.width * 0.06, y: r.minY + r.height * 0.55))
+        p.addLine(to: CGPoint(x: r.minX + r.width * 0.38, y: r.minY + r.height * 0.84))
+        p.addLine(to: CGPoint(x: r.minX + r.width * 0.94, y: r.minY + r.height * 0.18))
+        return p
+    }
+}
+
 /// O círculo da tarefa, o mesmo nas três telas que o desenham (o portal, a
-/// página una e o bloco em edição). Dono, 17/09: feita é visto VERDE
-/// (`Tema.feito`); tocar alterna com um toque leve e o visto troca num fade
-/// curto, que continua sob Reduzir Movimento (é opacidade). Sem `alternar`, o
-/// círculo não faz nada nem vibra.
+/// página una e o bloco em edição). Dono, 17/09: «uma bolinha que, ao colocar
+/// no carrinho, se transforma numa animação excepcional em verde check».
+///
+/// A bolinha vazia é um aro fino; ao toque o verde (`Tema.feito`) nasce do
+/// centro com mola, o check é DESENHADO (não aparece feito) e uma onda sai do
+/// aro e se apaga. Desmarcar é o mesmo caminho de volta, sem onda. Sob Reduzir
+/// Movimento nada disso é interpolado: o estado troca no corte (ADR 05y — só
+/// opacidade anima), e o check aparece inteiro. Sem `alternar`, o círculo não
+/// faz nada nem vibra.
 struct VistoDaTarefa: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let feito: Bool
     let alternar: (() -> Void)?
+    @State private var pressionado = false
+
+    private var molaDoVerde: Animation? {
+        Tema.movimento(.escala, Tema.Mola.toque, reduzido: reduceMotion)
+    }
 
     var body: some View {
         Button {
             guard let alternar else { return }
-            Toque.leve()
-            withAnimation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) {
-                alternar()
-            }
+            // o dedo confirma antes da tinta: feito é um toque com corpo
+            feito ? Toque.selecao() : Toque.leve()
+            alternar()
         } label: {
-            Image(systemName: feito ? "checkmark.circle.fill" : "circle")
-                .contentTransition(.symbolEffect(.replace))
-                .font(.body)
-                .foregroundStyle(feito ? Tema.feito : Tema.tintaFraca)
-                .frame(width: Tema.alvo, height: Tema.alvo)
+            glifo
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
+        // o press não espera a mão soltar
+        .onLongPressGesture(minimumDuration: 0, pressing: { p in
+            guard alternar != nil else { return }
+            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.toque), reduzido: reduceMotion)) {
+                pressionado = p
+            }
+        }, perform: {})
         .accessibilityLabel(feito ? "Feita" : "Por fazer")
+        .accessibilityAddTraits(feito ? [.isButton, .isSelected] : .isButton)
+    }
+
+    private var glifo: some View {
+        ZStack {
+            Circle()
+                .strokeBorder(Tema.tintaFraca.opacity(0.55), lineWidth: 1.4)
+                .opacity(feito ? 0 : 1)
+                .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion),
+                           value: feito)
+            Circle()
+                .fill(Tema.feito)
+                .scaleEffect(feito ? 1 : 0.1)
+                .opacity(feito ? 1 : 0)
+                .animation(molaDoVerde, value: feito)
+            TracoDoVisto()
+                .trim(from: 0, to: feito ? 1 : 0)
+                .stroke(Color.white, style: StrokeStyle(lineWidth: 2.1, lineCap: .round, lineJoin: .round))
+                .padding(5.5)
+                // o traço corre depois do verde nascer; sob reduzido, corte
+                .animation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media).delay(Tema.Duracao.passo), reduzido: reduceMotion),
+                           value: feito)
+            if feito, !reduceMotion { onda }
+        }
+        .frame(width: 22, height: 22)
+        .scaleEffect(pressionado ? 0.84 : 1)
+        .frame(width: Tema.alvo, height: Tema.alvo)
+    }
+
+    /// A onda que sai do aro quando o item entra no carrinho: nasce no tamanho
+    /// da bolinha e se apaga crescendo. Vive só enquanto o quadro dura.
+    private var onda: some View {
+        Onda()
+    }
+
+    private struct Onda: View {
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
+        @State private var aberta = false
+        var body: some View {
+            Circle()
+                .stroke(Tema.feito, lineWidth: 1.5)
+                .scaleEffect(aberta ? 2 : 1)
+                .opacity(aberta ? 0 : 0.5)
+                .onAppear {
+                    withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.longa), reduzido: reduceMotion)) {
+                        aberta = true
+                    }
+                }
+        }
+    }
+}
+
+/// O item que fica feito: o risco atravessa a palavra da esquerda para a
+/// direita e a tinta esmorece atrás dele — o mesmo texto duas vezes, a cópia
+/// riscada revelada por uma máscara que cresce. Sob Reduzir Movimento a
+/// máscara não é interpolada: o risco aparece inteiro.
+struct TextoRiscavel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let texto: AttributedString
+    let feito: Bool
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            // as duas cópias são complementares: o que uma mostra, a outra
+            // esconde. Sem isso o risco de baixo vazava pelos vãos das letras.
+            Text(texto)
+                .foregroundStyle(Tema.tintaFraca)
+                .strikethrough(true, color: Tema.tintaFraca)
+                .mask { corte(.leading, cheio: feito) }
+            Text(texto)
+                .foregroundStyle(Tema.tinta)
+                .mask { corte(.trailing, cheio: !feito) }
+        }
+        .animation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media).delay(Tema.Duracao.passo), reduzido: reduceMotion),
+                   value: feito)
+    }
+
+    /// A parte visível de uma cópia: a máscara cresce de um lado enquanto a da
+    /// outra cópia some do outro — a fronteira é o risco correndo na palavra.
+    private func corte(_ lado: Alignment, cheio: Bool) -> some View {
+        GeometryReader { g in
+            Rectangle()
+                .frame(width: cheio ? g.size.width : 0)
+                .frame(width: g.size.width, height: g.size.height, alignment: lado)
+        }
     }
 }
 
@@ -77,10 +187,8 @@ struct ProsaView: View {
                 ForEach(Array(xs.enumerated()), id: \.offset) { i, item in
                     HStack(alignment: .center, spacing: 8) {
                         VistoDaTarefa(feito: item.feito, alternar: aoAlternarTarefa.map { f in { f(i) } })
-                        Text(atributos(item.texto))
+                        TextoRiscavel(texto: atributos(item.texto), feito: item.feito)
                             .font(Tema.corpo)
-                            .foregroundStyle(item.feito ? Tema.tintaFraca : Tema.tinta)
-                            .strikethrough(item.feito, color: Tema.tintaFraca)
                     }
                 }
             }

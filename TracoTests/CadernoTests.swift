@@ -654,7 +654,10 @@ struct DigitacaoDeListaTests {
     @Test func vestirDaTituloEListaAoTextoCru() {
         let f = Caderno.fatias(Caderno.estruturar("compras da semana\n\nleite\npão\novos"))
         #expect(f.contains { if case .titulo(1, let t) = $0.bloco { return t == "compras da semana" } else { return false } })
-        #expect(f.contains { if case .itens(let xs, false) = $0.bloco { return xs == ["leite", "pão", "ovos"] } else { return false } })
+        // debaixo de «compras…» o item é para riscar: tarefa, não item de lista (dono, 17/09)
+        #expect(f.contains { if case .tarefas(let xs) = $0.bloco {
+            return xs.map(\.texto) == ["leite", "pão", "ovos"] && xs.allSatisfy { !$0.feito }
+        } else { return false } })
     }
 
     /// A primeira linha solta é título; a próxima linha solta é DESTAQUE (seção).

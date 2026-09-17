@@ -1799,10 +1799,10 @@ enum Sabia {
             // mais linhas curtas abrindo a nota (14/09) — é a cabeça: a mesma
             // leitura da regra local (`Caderno.cabecaEItens`). A IA só escolhe
             // uma forma por bloco; sem isto, «Comprar» virava tarefa.
+            let linhaDeCima: String = i > 0 ? partes[i - 1].split(whereSeparator: \.isNewline).last.map(String.init) ?? "" : ""
             if formaDeItens, !temCabeca {
-                let anterior = i > 0 ? partes[i - 1].split(whereSeparator: \.isNewline).last.map(String.init) ?? "" : ""
                 let abre = i == 0 && !formas.values.contains(.titulo)
-                let partida = Caderno.cabecaEItens(linhas, abreANota: abre, abaixoDe: anterior)
+                let partida = Caderno.cabecaEItens(linhas, abreANota: abre, abaixoDe: linhaDeCima)
                 cabeca = partida.cabeca.map { [(abre ? "# " : "## ") + $0] } ?? []
                 linhas = partida.itens
             }
@@ -1813,7 +1813,11 @@ enum Sabia {
             // revisão, 17/09: título ou seção num bloco de várias linhas juntava
             // as linhas do autor numa só («# Plano de sábado comprar pão…»)
             case .titulo, .secao: saida.append(bloco)
-            case .lista: saida.append(comCabeca(linhas.map { "- " + $0 }))
+            // debaixo de «Comprar» o item é para riscar, mesmo quando o modelo
+            // disse «lista»: a mesma marca da regra local (dono, 17/09)
+            case .lista:
+                let marca = Caderno.marcaDoItem(cabeca: cabeca.first ?? linhaDeCima)
+                saida.append(comCabeca(linhas.map { marca + $0 }))
             case .numerada: saida.append(comCabeca(linhas.enumerated().map { "\($0.offset + 1). " + $0.element }))
             case .tarefas: saida.append(comCabeca(linhas.map { "- [ ] " + $0 }))
             case .citacao: saida.append(linhas.map { "> " + $0 }.joined(separator: "\n"))
