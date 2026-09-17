@@ -156,7 +156,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** a cápsula fica acima da barra, não sobre a lista, com sombra, fade de 200 ms e 8 a 10 s de duração (que se renovam ao tocar na tela).
 - **Como verificar:** filmar. O toast não cobre nenhum cartão e some com fade.
 
-### [~] 15. «Juntar com…» não mostra as parecidas primeiro — a61099b4: parecidas separadas + prévia; falta busca e «Cancelar»
+### [x] 15. «Juntar com…» não mostra as parecidas primeiro — a61099b4 + 63c5e497: parecidas primeiro, prévia e busca
 - **Onde:** capturas `23-juntar-com.png` e `29-juntar-apos-separar.png`.
 - **Evidência:**
   - Para «Compras», o primeiro item é «Ideia: testar o café…».
@@ -196,7 +196,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um menu com rótulo claro («Exportar notas para outra IA…») e uma linha explicando o conteúdo. Arquivo com nome legível, por exemplo «Traço — notas 16-09-2026.txt».
 - **Como verificar:** o menu tem texto antes da folha do sistema.
 
-### [~] 19. A Decisão abre com o teclado no último campo e a escala vira texto livre — b31171b2: escala num toque; abrir sem teclado fica em aberto
+### [x] 19. A Decisão abre com o teclado no último campo e a escala vira texto livre — b31171b2 + 63c5e497: escala num toque, abre no topo sem teclado
 - **Onde:** capturas `38-decisao.png` e `42-decisao-aquem.png`.
 - **Evidência:**
   - Ao abrir uma Decisão para conferir, o foco já está em «O que aconteceu». O teclado cobre metade da tela, e o título e as opções ficam fora de vista.
@@ -344,7 +344,7 @@ O modo lista mantém «A» aceso e o título «2026» (`61`). Depois de relança
 ### [=] 38. Métodos — «Expressiva» não tem campos para abrir
 «Expressiva» não tem chevron, ao contrário das outras linhas (`77`). O conteúdo aberto usa rótulos em caixa-alta colados com 4 pt no parágrafo anterior e começa em x=20, enquanto o título da linha está em x=60 (`78`). O caminho «metodos» aparece sem acento (`76`). **Correção:** chevron em todas as linhas, 12 pt antes de cada rótulo e recuo alinhado ao título.
 
-### [ ] 39. Detalhes do Perfil
+### [=] 39. Detalhes do Perfil — a medida de 45 caracteres dos parágrafos é deliberada (leitura)
 O número no cabeçalho de seção muda de sentido: Calendário 3 são compromissos, Perguntas 3 são perguntas, Métodos 28 são arquivos (`74`, `68` e `76`). As divisórias têm recuos diferentes (`74`). Os parágrafos param em x≈300 pt, enquanto as linhas vão até 370 (`71`). **Correção:** tirar ou rotular os contadores, usar recuo único e texto em largura total.
 
 ### [x] 40. Transição de compor — ce14a763
