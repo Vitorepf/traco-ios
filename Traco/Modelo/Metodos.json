@@ -13,7 +13,7 @@
     },
     "filtro": "WOOP",
     "reconhecimento": "isto é um desejo com obstáculo pela frente.",
-    "movimento": "WOOP (Oettingen): desejo, resultado, OBSTÁCULO, plano. O obstáculo é INTERNO — o que o próprio autor faz ou sente que o atrapalha —, e é o passo que todo mundo pula escrevendo obstáculo externo. Cobre o obstáculo interno, e o \"se … então …\" que responde a ele.",
+    "movimento": "WOOP (Oettingen): desejo, resultado, OBSTÁCULO, plano. O obstáculo é INTERNO — o que a própria pessoa faz ou sente e que atrapalha —, e é o passo que todo mundo pula escrevendo obstáculo externo. Cobre o obstáculo interno, e o \"se … então …\" que responde a ele.",
     "pergunta": "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?",
     "roteamento": [
       "(?m)^quero|^preciso começar|^preciso parar|meu objetivo|quero parar"
@@ -160,7 +160,7 @@
     },
     "filtro": "Permanente",
     "reconhecimento": "isto é uma ideia que vale guardar inteira.",
-    "movimento": "Nota permanente (Zettelkasten). Uma ideia só, nas palavras do autor, e ligada a alguma coisa. Cobre qual é a UMA ideia se houver mais de uma, e a que ela se opõe.",
+    "movimento": "Nota permanente (Zettelkasten). Uma ideia só, nas palavras de quem escreve, e ligada a alguma coisa. Cobre qual é a UMA ideia se houver mais de uma, e a que ela se opõe.",
     "pergunta": "Nas suas palavras: qual é a UMA ideia?",
     "roteamento": [
       "percebi|entendi que|ideia|insight"
@@ -179,7 +179,7 @@
         "rotulo": "Fonte"
       }
     ],
-    "definicao": "ideia ou insight curto, nas palavras do autor"
+    "definicao": "ideia ou insight curto, nas palavras de quem escreve"
   },
   {
     "id": "destaque",
