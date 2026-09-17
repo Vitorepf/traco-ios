@@ -2,6 +2,18 @@
 
 Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui não abre. Ordem = valor para a visão (dois ciclos) ÷ esforço, com a regra da frente de front-end: auditoria → fundação → telas. Notas de tela no scorecard só existem depois da V9.
 
+## Aberto depois da auditoria de produção (17/09, ADR 17m)
+
+A volta de produção fechou os altos (anexos, «Desfazer», cópia .md, Face ID, saída da IA, conta Grok, portão pre-commit — `ferramentas/portao.sh`). Fica, por ordem:
+
+| dívida | por que não entrou | onde |
+|---|---|---|
+| candidatas de `ecos` cortadas em 9.000 caracteres no meio de uma linha, e o recibo das Notas conta as 40 | a linha é da E6b, não commitada em 17/09 10h: montar por linha inteira e contar só as que foram depois que ela pousar | `Sabia.ecos`, `Sessao` (recibo) |
+| a resposta das Notas é conferida pelo id do trecho, não pelo texto entre aspas | é contrato da Sábia («fiel, não literal»): pede decisão do dono antes de recusar resposta | `RespostaNotas.interpretar` |
+| a `Sessao` repete à mão as projeções depois do commit (salvar, apagar, queimar, importar, ditado) | refatoração sem defeito aberto hoje | `Sessao.swift` |
+| 20 fluxos maestro trocaram `abrir-campos` por `soltar-forma` sem rodar | `varrer.sh` exige um simulador ligado, e havia três | `maestro/` |
+| `.git` com 1,1 GB, quase tudo PNG/MP4 de prova | reescrever a história muda todos os hashes: decisão do dono | `ferramentas/orca/`, `prova/` |
+
 ## Em curso (12/09 — a semanal do Claude no fim, e só o Codex a trabalhar)
 
 **Cotas às 11h51:** Claude semanal **99%** (reset domingo 20:00), janela de sessão 0%, `fableWeekly` **null** (o campo não veio na resposta — não é zero, é ausente). **Codex semanal 0%.** Enquanto isto durar: **nenhum worker Claude**. O que corre é o que é Codex — revisor (G5.6 Terra) e Astra.
