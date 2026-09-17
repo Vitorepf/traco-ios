@@ -232,16 +232,22 @@ import Testing
         #expect(!d.gravando)
     }
 
-    @Test func oParcialChegaNoCampo() {
+    /// O parcial vai para a TELA, não para o texto do autor. Era o contrário —
+    /// e o dono, em 17/09, chamou de «uma das piores experiências»: cada
+    /// revisão do reconhecedor reescrevia a nota, sem parada à vista.
+    @Test func oParcialFicaNaTelaEOTextoRecebeSoOEstavel() {
         let d = Ditado()
         var ouvido: [String] = []
         d.aoTexto = { ouvido.append($0) }
         d.motorDeTeste = { $0.receberParcial("dentista") }
         d.alternar()
-        #expect(ouvido == ["dentista"])
-        // e os parciais seguintes substituem, como o reconhecedor faz
+        #expect(ouvido.isEmpty, "o parcial não entra no texto")
+        #expect(d.parcial == "dentista", "mas aparece na linha do campo")
         d.receberParcial("dentista sexta às 14h")
-        #expect(ouvido.last == "dentista sexta às 14h")
+        #expect(ouvido.isEmpty)
+        #expect(d.parcial == "dentista sexta às 14h")
+        d.parar()
+        #expect(ouvido == ["dentista sexta às 14h"], "parar guarda uma vez, o que foi dito")
     }
 
     /// Parado, nada mais entra: sair da tela não pode deixar o campo mexendo.
@@ -266,6 +272,7 @@ import Testing
         d.aoTexto = { falado = $0 }
         d.motorDeTeste = { $0.receberParcial("academia toda segunda às 7h") }
         d.alternar()
+        d.parar() // o texto do autor recebe ao PARAR (17/09), não a cada parcial
         let e = try #require(CalendarioFrase.ler(falado, ancora: agora, agora: agora, cal))
         #expect(e.titulo == "Academia")
         #expect(e.repeteEm == [2])

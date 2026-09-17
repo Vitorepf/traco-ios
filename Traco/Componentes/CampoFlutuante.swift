@@ -5,6 +5,38 @@ import SwiftUI
 /// esquerda, o que a tela oferece a mais (um "+", ou nada); à direita, um
 /// botão que muda com o estado — enviar quando há texto, microfone quando
 /// não há, parar enquanto grava. Uma correção aqui vale nas três telas.
+/// O que o botão faz AGORA, numa função pura: o dono tocou para gravar e o
+/// botão virou «enviar» assim que a transcrição pôs texto no campo — ficou
+/// sem como parar (17/09). Gravando VENCE ter texto.
+enum AcaoDoCampo: Equatable {
+    case pararDeEsperar, pararDeDitar, enviar, ditar
+
+    /// Gravando VENCE ter texto: era aqui que o «parar» desaparecia assim que a
+    /// transcrição punha a primeira palavra no campo (dono, 17/09).
+    static func de(esperando: Bool, gravando: Bool, temTexto: Bool) -> AcaoDoCampo {
+        if esperando { return .pararDeEsperar }
+        if gravando { return .pararDeDitar }
+        return temTexto ? .enviar : .ditar
+    }
+
+    var glifo: String {
+        switch self {
+        case .pararDeEsperar, .pararDeDitar: "stop.fill"
+        case .enviar: "arrow.up"
+        case .ditar: "mic"
+        }
+    }
+
+    func rotulo(enviar: String, ditar: String) -> String {
+        switch self {
+        case .pararDeEsperar: "Parar de esperar"
+        case .pararDeDitar: "Parar de ditar"
+        case .enviar: enviar
+        case .ditar: ditar
+        }
+    }
+}
+
 struct CampoFlutuante<Mais: View>: View {
     @Binding var texto: String
     var dica: String
@@ -57,7 +89,10 @@ struct CampoFlutuante<Mais: View>: View {
             HStack(spacing: 4) {
             // cresce até quatro linhas (auditoria 16/09 noite: numa linha só a
             // pergunta rolava para o lado e o começo sumia); Enter envia
-            TextField("", text: $texto, prompt: Text(dicaQueCabe).foregroundStyle(Tema.tintaFraca), axis: .vertical)
+            TextField("", text: $texto,
+                      prompt: Text(ditado.gravando ? (ditado.parcial.isEmpty ? "ouvindo…" : ditado.parcial) : dicaQueCabe)
+                          .foregroundStyle(Tema.tintaFraca),
+                      axis: .vertical)
                 .lineLimit(1...4)
                 .onChange(of: texto) { _, novo in
                     guard novo.contains("\n") else { return }
@@ -86,7 +121,24 @@ struct CampoFlutuante<Mais: View>: View {
                     if agora { Teclado.quadroDoCampoDoPe = quadro }
                 }
                 .onDisappear { if escrevendo { Teclado.campoDoPeAtivo = false } }
-            if let aoLimpar, temTexto, aoParar == nil {
+            if ditado.gravando {
+                // dono, 17/09: «só tem a opção de enviar». Enquanto grava, o «x»
+                // é DESISTIR: o que foi dito não entra no texto dele.
+                Button {
+                    Toque.selecao()
+                    ditado.desistir()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.body)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.discreto)
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                .accessibilityLabel("Desistir do ditado")
+                .accessibilityIdentifier(identificador + "-desistir")
+            } else if let aoLimpar, temTexto, aoParar == nil {
                 Button {
                     Toque.selecao()
                     aoLimpar()
@@ -103,14 +155,13 @@ struct CampoFlutuante<Mais: View>: View {
                 .accessibilityIdentifier(identificador + "-limpar")
             }
             Button {
-                if let aoParar {
-                    aoParar()
-                } else if temTexto {
+                switch AcaoDoCampo.de(esperando: aoParar != nil, gravando: ditado.gravando, temTexto: temTexto) {
+                case .pararDeEsperar: aoParar?()
+                case .pararDeDitar: ditado.parar()
+                case .enviar:
                     ditado.parar()
                     aoEnviar()
-                } else if ditado.gravando {
-                    ditado.parar()
-                } else {
+                case .ditar:
                     aoComecarDitado()
                     ditado.alternar()
                 }
@@ -121,7 +172,7 @@ struct CampoFlutuante<Mais: View>: View {
                 // ocioso, o microfone é só o glifo, em tinta, sem disco: menos
                 // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
                 // enviar é o único objeto escuro — um disco carvão pequeno
-                Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
+                Image(systemName: AcaoDoCampo.de(esperando: aoParar != nil, gravando: ditado.gravando, temTexto: temTexto).glifo)
                     // dono, 16/09: o microfone ocioso "fino" — sobe a 19 semibold, o peso
                     // dos glifos do trilho
                     .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .system(size: 19, weight: .semibold))
@@ -146,7 +197,8 @@ struct CampoFlutuante<Mais: View>: View {
             .buttonStyle(.discreto)
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: temTexto)
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
-            .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
+            .accessibilityLabel(AcaoDoCampo.de(esperando: aoParar != nil, gravando: ditado.gravando, temTexto: temTexto)
+                                    .rotulo(enviar: rotuloEnviar, ditar: rotuloDitar))
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
             }
             .padding(.trailing, 1)

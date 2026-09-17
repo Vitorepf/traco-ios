@@ -640,12 +640,16 @@ struct PaginaView: View {
                 .presentationDetents([.medium, .large])
         }
         .onAppear {
-            // o ditado escreve NA PÁGINA, depois do que já estava: a
-            // transcrição chega inteira a cada vez, então a base é fixa
+            // O ditado escreve NA PÁGINA, no fim do que está lá AGORA — não por
+            // cima de uma base congelada. Dono, 17/09: «começa a fazer um monte
+            // de alterações e não para». Duas causas: o `Ditado` chamava isto a
+            // cada parcial (agora só com fala estável) e isto reescrevia a nota
+            // inteira a partir da base, apagando o que ele digitasse no meio.
             ditado.aoTexto = { [weak sessao] falado in
                 guard let sessao else { return }
-                let sep = baseDoDitado.isEmpty || baseDoDitado.hasSuffix("\n") ? "" : " "
-                sessao.texto = baseDoDitado + sep + falado
+                let atual = sessao.texto
+                let sep = atual.isEmpty || atual.hasSuffix("\n") || atual.hasSuffix(" ") ? "" : " "
+                sessao.texto = atual + sep + falado
             }
         }
         .onDisappear { ditado.parar() }

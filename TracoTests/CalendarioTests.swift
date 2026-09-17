@@ -525,3 +525,56 @@ struct CalendarioAgendaTests {
         #expect(CalendarioFrase.lerDatado("# Plano da semana", agora: agora, cal) == nil)
     }
 }
+
+/// Dono, 17/09: «quando eu colo para gravar, ele do nada começa a fazer um
+/// monte de alterações e não para, e só tem a opção de enviar». Uma das piores
+/// experiências que ele teve com o app.
+@MainActor
+struct DitadoQueNaoAtropelaTests {
+    @Test func oBotaoEhPararEnquantoGrava() {
+        // gravando VENCE ter texto: era aí que o «parar» desaparecia
+        #expect(AcaoDoCampo.de(esperando: false, gravando: true, temTexto: true) == .pararDeDitar)
+        #expect(AcaoDoCampo.de(esperando: false, gravando: true, temTexto: false) == .pararDeDitar)
+        #expect(AcaoDoCampo.de(esperando: false, gravando: false, temTexto: true) == .enviar)
+        #expect(AcaoDoCampo.de(esperando: false, gravando: false, temTexto: false) == .ditar)
+        // esperar pela sábia vence tudo, como antes
+        #expect(AcaoDoCampo.de(esperando: true, gravando: true, temTexto: true) == .pararDeEsperar)
+        #expect(AcaoDoCampo.de(esperando: false, gravando: true, temTexto: true).glifo == "stop.fill")
+        #expect(AcaoDoCampo.de(esperando: false, gravando: false, temTexto: false).glifo == "mic")
+    }
+
+    @Test func oParcialNaoTocaNoTextoDoAutor() {
+        let d = Ditado()
+        var recebido: [String] = []
+        d.aoTexto = { recebido.append($0) }
+        d.motorDeTeste = { _ in }
+        d.alternar()
+        #expect(d.gravando)
+        d.receberParcial("comprar")
+        d.receberParcial("comprar pão")
+        d.receberParcial("comprar pão e leite")
+        #expect(recebido.isEmpty, "parcial é da TELA, não do texto: era isto que reescrevia a nota a cada sílaba")
+        #expect(d.parcial == "comprar pão e leite")
+        d.parar()
+        #expect(recebido == ["comprar pão e leite"], "parar guarda o que foi dito, uma vez só")
+        #expect(d.parcial.isEmpty)
+    }
+
+    @Test func desistirNaoDeixaNadaNoTexto() {
+        let d = Ditado()
+        var recebido: [String] = []
+        d.aoTexto = { recebido.append($0) }
+        d.motorDeTeste = { _ in }
+        d.alternar()
+        d.receberParcial("isso foi engano")
+        d.desistir()
+        #expect(recebido.isEmpty, "desistir é o par honesto do parar")
+        #expect(!d.gravando)
+        #expect(d.parcial.isEmpty)
+        // e o ouvinte volta: o próximo ditado entrega normalmente
+        d.alternar()
+        d.receberParcial("agora vale")
+        d.parar()
+        #expect(recebido == ["agora vale"])
+    }
+}

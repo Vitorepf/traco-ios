@@ -30,8 +30,17 @@ final class Ditado {
     private var recadoTask: Task<Void, Never>?
     private let reconhecedor = SFSpeechRecognizer(locale: Locale(identifier: "pt_BR"))
 
-    /// O que o autor falar entra aqui, cru, a cada parcial.
+    /// O que o autor falar entra aqui — só quando já está ESTÁVEL: ao fim de
+    /// cada fala reconhecida e ao parar. Dono, 17/09: «quando eu colo para
+    /// gravar, ele do nada começa a fazer um monte de alterações e não para».
+    /// A causa era chamar isto a cada parcial: o reconhecedor revisa a frase
+    /// inteira a cada sílaba, e a NOTA era reescrita a cada revisão — por cima
+    /// do que ele mesmo tinha escrito.
     var aoTexto: ((String) -> Void)?
+
+    /// O que está sendo ouvido AGORA, para a tela mostrar sem tocar no texto do
+    /// autor. Vazio quando não há ditado.
+    private(set) var parcial = ""
 
     /// Testes injetam a máquina: `comecar` chama isto em vez de abrir o
     /// microfone, e `parar` continua sendo o mesmo caminho. Produção deixa nil.
@@ -39,6 +48,19 @@ final class Ditado {
 
     func alternar() {
         if gravando { parar() } else { comecar() }
+    }
+
+    /// Desistir: o que foi dito NÃO vai para o texto do autor. É o par honesto
+    /// do parar — sem ele, começar a gravar por engano obrigava a enviar
+    /// (dono, 17/09: «só tem a opção de enviar»).
+    func desistir() {
+        guard gravando else { return }
+        parcial = ""
+        comprometido = ""
+        let guardado = aoTexto
+        aoTexto = nil
+        parar()
+        aoTexto = guardado
     }
 
     // MARK: começar
@@ -147,7 +169,9 @@ final class Ditado {
             let falhou = erro != nil
             Task { @MainActor in
                 guard let self else { return }
-                if let texto { self.aoTexto?(texto) }
+                // parcial vai para a TELA; o texto do autor só recebe o estável
+                if let texto { self.parcial = texto }
+                if terminou, let texto { self.comprometer(texto) }
                 if terminou || falhou { self.parar() }
             }
         }
@@ -158,12 +182,26 @@ final class Ditado {
     /// Só para os testes: entrega um parcial como o reconhecedor entregaria.
     func receberParcial(_ texto: String) {
         guard gravando else { return }
-        aoTexto?(texto)
+        parcial = texto
     }
 
+    /// O texto estável vai ao autor UMA vez: a fala reconhecida até aqui.
+    private func comprometer(_ texto: String) {
+        let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !limpo.isEmpty, limpo != comprometido else { return }
+        comprometido = limpo
+        aoTexto?(limpo)
+    }
+
+    private var comprometido = ""
+
+    /// Parar GUARDA o que foi dito (é o gesto de quem terminou a frase).
     func parar() {
         guard gravando || motor.isRunning else { return }
         gravando = false
+        comprometer(parcial)
+        parcial = ""
+        comprometido = ""
         if motorDeTeste != nil { return }
         canal?.fechar()
         tarefa?.cancel()
