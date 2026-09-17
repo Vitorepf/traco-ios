@@ -35,10 +35,12 @@ enum Sabia {
     static let sistemaVestir = """
     Você dá FORMA a um texto sem tocar numa palavra. Recebe blocos numerados.
     Responda APENAS um JSON válido: [{"i": <número do bloco>, "forma": "titulo"|"secao"|"lista"|"numerada"|"tarefas"|"citacao"|"codigo"|"tabela"|"lembrete"|"pergunta"|"ideia"|"definicao"|"exemplo"|"decisao"|"regra"|"risco"|"pros"|"contras"|"passos"|"prosa"}]
-    Um item por bloco, na ordem. titulo = o título do texto inteiro (no máximo um) ·
-    secao = cabeçalho de parte · lista = linhas paralelas sem ordem · numerada = passos em ordem ·
-    tarefas = coisas a fazer · citacao = fala de outro · codigo = código ou comando · tabela = linhas com colunas
-    separadas por | ou tabulação.
+    Um item por bloco, na ordem. titulo = só o título do texto inteiro (no máximo um) ·
+    secao = só o cabeçalho de uma parte do texto · lista = linhas paralelas sem ordem · numerada = passos em ordem ·
+    tarefas = coisas a fazer ou a comprar (compras, checklist) · citacao = fala de outro · codigo = código ou comando ·
+    tabela = linhas com colunas separadas por | ou tabulação.
+    Uma linha de itens separados por vírgula ou ponto e vírgula ("leite, farinha, ovo") é lista ou tarefas, nunca secao
+    nem titulo.
     Caixas, só quando o bloco INTEIRO é isso: lembrete = algo a não esquecer · pergunta = uma dúvida em aberto ·
     ideia = uma ideia ou insight · definicao = o que uma palavra ou conceito quer dizer · exemplo = um caso que
     ilustra o que veio antes · decisao = o que foi decidido · regra = um princípio que quem escreve segue ·
@@ -727,12 +729,14 @@ enum Sabia {
                                         memoPor: "vestir\u{1}\(usuario.hashValue)")
                        }) async -> [Rotulo]? {
         guard gesto != .expressiva, !blocos.isEmpty else { return nil }
-        // Reusa a decisão de forma já feita pelo motor local. Código e forma
-        // existente não precisam viajar para um modelo que não pode alterá-los.
-        let locais = Self.blocos(Caderno.estruturar(blocos.joined(separator: "\n\n")))
-        guard locais.count == blocos.count else { return nil }
-        var mapa = locais.enumerated().map { Rotulo(i: $0.offset, forma: formaExistente($0.element) ?? .prosa) }
-        let pendentes = blocos.indices.filter { mapa[$0].forma == .prosa && formaExistente(blocos[$0]) == nil }
+        // Dono, 17/09: a IA decide primeiro. «Comprar / Leite , farinha , ovo»
+        // nunca chegava ao modelo — a regra local já tinha feito da linha dos
+        // itens uma SEÇÃO e o bloco com forma não viajava. Agora só a marca que
+        // o AUTOR escreveu fica (e código cercado nunca viaja); título, seção e
+        // lista curta são do modelo. Sem resposta (`nil`) ou com o mapa recusado
+        // (`[]`), quem chama cai na regra local (`Caderno.estruturar`).
+        var mapa = blocos.enumerated().map { Rotulo(i: $0.offset, forma: formaExistente($0.element) ?? .prosa) }
+        let pendentes = blocos.indices.filter { formaExistente(blocos[$0]) == nil }
         guard !pendentes.isEmpty else { return mapa }
         let usuario = pendentes.enumerated().map { "[\($0.offset)] \(blocos[$0.element])" }.joined(separator: "\n\n")
         // Emenda à ADR 2026-09-09s: `nil` é NÃO LI — ninguém devolveu nada.
@@ -740,11 +744,11 @@ enum Sabia {
         // vazia, dois títulos, ou menos rótulos do que blocos pendentes)? Isso
         // é o terceiro desfecho, e a lista VAZIA o carrega: um mapa de sucesso
         // nunca é vazio, porque `blocos` não é.
-        guard let cru = await gerar(usuario) else { return locais != blocos ? mapa : nil }
+        guard let cru = await gerar(usuario) else { return nil }
         let refinado = parseMapa(cru, blocos: pendentes.count)
         guard let refinado, refinado.count == pendentes.count else {
             apagou("vestir", refinado == nil ? "mapa fora do contrato" : "mapa menor que os blocos pendentes")
-            return locais != blocos ? mapa : []
+            return []
         }
         for rotulo in refinado {
             let forma: FormaDeBloco = rotulo.forma == .titulo && mapa.contains(where: { $0.forma == .titulo })
@@ -1782,7 +1786,10 @@ enum Sabia {
             let temCabeca: Bool = formaDeItens && cruas.count >= 2 && !marcadas[0] && marcadas.dropFirst().contains(true)
             let cabeca: [String] = temCabeca ? ["## " + cruas[0]] : []
             let semCabeca: [String] = temCabeca ? Array(cruas.dropFirst()) : cruas
-            let linhas: [String] = semCabeca.map { semMarcador($0) }
+            var linhas: [String] = semCabeca.map { semMarcador($0) }
+            // uma linha de itens («Leite , farinha , ovo») vira um item por linha
+            // (dono, 17/09); a mesma leitura da regra local
+            if formaDeItens, linhas.count == 1, let itens = Caderno.itensDaEnumeracao(linhas[0]) { linhas = itens }
             func comCabeca(_ corpo: [String]) -> String { (cabeca + corpo).joined(separator: "\n") }
             switch forma {
             case .titulo: saida.append("# " + cruas.map { semMarcador($0, titulo: true) }.joined(separator: " "))

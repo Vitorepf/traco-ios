@@ -332,23 +332,37 @@ struct RevisaoNoturnaTests {
 }
 
 struct SabiaTests {
-    @MainActor @Test func vestirResolveTituloListaECodigoSemChamarModelo() async throws {
+    /// Dono, 17/09: a IA decide primeiro. Título e lista curta, que a regra
+    /// local resolvia sem chamar o modelo, agora viajam; código cercado e o
+    /// que o autor já marcou continuam fora do pedido.
+    @MainActor @Test func vestirMandaAoModeloTudoQueOAutorNaoMarcou() async throws {
         let codigo = "```swift\r\nlet x = 1\r\n\r\nprint(x)\r\n```"
-        let texto = "Plano do app\r\n\r\n" + codigo + "\r\n\r\nprimeira\r\nsegunda"
-        var chamadas = 0
-        let mapa = try #require(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { _ in
-            chamadas += 1
-            return nil
+        let texto = "Plano do app\r\n\r\n" + codigo + "\r\n\r\nprimeira\r\nsegunda\r\n\r\n- já marcado"
+        var mensagem = ""
+        let mapa = try #require(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { usuario in
+            mensagem = usuario
+            return #"[{"i":0,"forma":"titulo"},{"i":1,"forma":"tarefas"}]"#
         }))
+        #expect(mensagem == "[0] Plano do app\n\n[1] primeira\r\nsegunda")
+        #expect(!mensagem.contains("let x") && !mensagem.contains("já marcado"))
+        #expect(mapa == [.init(i: 0, forma: .titulo), .init(i: 1, forma: .codigo), .init(i: 2, forma: .tarefas), .init(i: 3, forma: .lista)])
+        #expect(Sabia.aplicar(mapa, a: texto)
+                == "# Plano do app\r\n\r\n" + codigo + "\r\n\r\n- [ ] primeira\n- [ ] segunda\r\n\r\n- já marcado")
+        // ninguém respondeu: `nil`, e quem chama veste pela regra local
+        #expect(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { _ in nil }) == nil)
+        // só marca do autor: nada viaja
+        var chamadas = 0
+        let so = "# Plano\n\n- a\n- b"
+        #expect(await Sabia.vestir(blocos: Sabia.blocos(so), gesto: nil, gerar: { _ in chamadas += 1; return nil })
+                == [.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)])
         #expect(chamadas == 0)
-        #expect(mapa == [.init(i: 0, forma: .titulo), .init(i: 1, forma: .codigo), .init(i: 2, forma: .lista)])
-        #expect(Sabia.aplicar(mapa, a: texto) == "# Plano do app\r\n\r\n" + codigo + "\r\n\r\n- primeira\n- segunda")
     }
 
     @MainActor @Test func vestirMandaSoProsaPendenteERemapeiaIndices() async throws {
         let codigo = "~~~python\nsegredo = 42\n~~~"
         let prosa = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
-        let texto = "Plano do app\n\n" + codigo + "\n\n" + prosa
+        // o título que o AUTOR marcou fica; o título que o modelo propõe vira seção
+        let texto = "# Plano do app\n\n" + codigo + "\n\n" + prosa
         var mensagem = ""
         let mapa = try #require(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { usuario in
             mensagem = usuario

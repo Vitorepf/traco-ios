@@ -237,7 +237,8 @@ final class Sessao {
             // ou Apple Intelligence a proteção era NULA, no caso exato que ela
             // existe para impedir. Quem reconhece a escrita pessoal é o
             // algoritmo, e o algoritmo cala o modelo.
-            let veredito = Self.escolher(remoto: remoto, local: local, pessoal: pessoal)
+            let veredito = Self.escolher(remoto: remoto, local: local, pessoal: pessoal,
+                                         listaSemDia: AnaliseLocal.listaSemDia(Caderno.prosa(de: textoAtual)))
             self.aplicar(veredito, automatica: automatica)
         }
     }
@@ -250,13 +251,16 @@ final class Sessao {
     /// escrita pessoal, que não é sugestão nenhuma.
     nonisolated static func escolher(remoto: AnaliseLocal.Veredito?,
                                      local: AnaliseLocal.Veredito,
-                                     pessoal: Bool = false) -> AnaliseLocal.Veredito {
+                                     pessoal: Bool = false,
+                                     listaSemDia: Bool = false) -> AnaliseLocal.Veredito {
         // ADR 04r: aviso local vence gesto remoto — o aviso é do algoritmo, sempre
         if case .aviso = local { return local }
         // ADR 06h: desabafo protegido pelo algoritmo não pode ser vestido pelo
         // modelo. O modelo recebe `instrucoesDoCatalogo` e foi ensinado a
         // classificar exatamente estas frases; aqui ele não tem voz.
         if pessoal { return local }
+        // dono, 17/09: a lista de compras não é o Destaque do dia (`AnaliseLocal.listaSemDia`)
+        if listaSemDia, case .gesto(.destaque, _)? = remoto { return local }
         switch remoto {
         case .none, .some(.silencio): return local
         case .some(let v): return v
@@ -1166,9 +1170,12 @@ final class Sessao {
     /// Dono, 17/09: «seria trabalho da IA fazer de forma automática». Ao concluir,
     /// a Sábia veste a forma dos blocos que ficaram em prosa — lista, numerada,
     /// tarefas, citação, tabela, código — sem mudar uma palavra, e o aviso traz
-    /// «Desfazer». Título, seção e lista curta já nasceram antes, pelo motor
-    /// local. Falha, recusa ou nada a vestir: silêncio (é automático). Escrita
-    /// pessoal, expressiva, selada e texto que não é do autor não viajam.
+    /// «Desfazer». Dono, 17/09 («Comprar / Leite , farinha , ovo» virou título e
+    /// SEÇÃO): a IA decide primeiro, sobre o texto que o autor escreveu — título,
+    /// seção e lista curta também são dela. Sem quem responda, com falha, recusa
+    /// ou mapa fora do contrato, veste a regra local (`Caderno.estruturar`), com o
+    /// mesmo aviso e o mesmo «Desfazer». Escrita pessoal e texto que não é do
+    /// autor não viajam (só a regra local); expressiva e selada não se tocam.
     var vestidaRecuperavel: (uuid: UUID, antes: String)?
     private var vestidaTask: Task<Void, Never>?
 
@@ -1178,16 +1185,15 @@ final class Sessao {
                               await Sabia.vestir(blocos: $0, gesto: $1)
                           }) -> Task<Void, Never>? {
         guard let nota = Self.buscar(uuid: uuid, no: context), nota.gesto != .expressiva, !nota.fechada,
-              nota.origem == .autor,
-              !nota.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              !AnaliseLocal.escritaPessoal(texto: nota.texto, campos: nota.campos)
+              !nota.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else { return nil }
         let antes = nota.texto
         let g = nota.gesto
+        let viaja = nota.origem == .autor && !AnaliseLocal.escritaPessoal(texto: antes, campos: nota.campos)
         return Task { [weak self] in
-            guard let mapa = await Grok.$semAviso.withValue(true, operation: { await vestir(Sabia.blocos(antes), g) }),
-                  !mapa.isEmpty else { return }
-            let vestido = Sabia.aplicar(mapa, a: antes)
+            var mapa: [Sabia.Rotulo]?
+            if viaja { mapa = await Grok.$semAviso.withValue(true, operation: { await vestir(Sabia.blocos(antes), g) }) }
+            let vestido = if let mapa, !mapa.isEmpty { Sabia.aplicar(mapa, a: antes) } else { Caderno.estruturar(antes) }
             // o autor mexeu na nota enquanto a Sábia pensava: a escrita dele vence
             guard let self, vestido != antes,
                   let atual = Self.buscar(uuid: uuid, no: context), atual.texto == antes,
@@ -2207,7 +2213,10 @@ final class Sessao {
         acabouDeAbrir = true
     }
 
-    func concluir(no context: ModelContext) {
+    /// `vestePelaIA`: há quem responda à forma (`Politica`). Então a nota é
+    /// gravada como o autor a escreveu e a IA decide a forma depois
+    /// (`vestirAoConcluir`); sem ninguém, a regra local veste antes de gravar.
+    func concluir(no context: ModelContext, vestePelaIA: Bool = Politica.provedor(.vestir) != nil) {
         if timerLigado {
             // §8: Concluída depois de 10 min já mereceu a porta — mas quem
             // escolhe QUAL porta (selar ou queimar) é sempre o autor
@@ -2222,9 +2231,10 @@ final class Sessao {
         // A régua de formatos saiu da página (dono, 14/09): título, seção e
         // lista nascem do próprio texto ao concluir, pelo motor local que o
         // "Todas" já usava. Nenhuma palavra muda — só a forma do que é curto
-        // e paralelo. A expressiva fica intocada (selo).
+        // e paralelo. A expressiva fica intocada (selo). Com a IA ligada a
+        // forma é dela, sobre o texto do autor (dono, 17/09).
         let original = texto
-        if gesto != .expressiva {
+        if gesto != .expressiva, !vestePelaIA {
             let local = Caderno.estruturar(texto)
             if local != texto { texto = local }
         }

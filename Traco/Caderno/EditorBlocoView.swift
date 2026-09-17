@@ -138,21 +138,12 @@ struct EditorBlocoView: View {
         return VStack(alignment: .leading, spacing: 2) {
             ForEach(Array(visiveis.enumerated()), id: \.offset) { i, item in
                 HStack(alignment: .center, spacing: 8) {
-                    Button {
+                    // a linha extra (ainda sem texto) não tem o que alternar
+                    VistoDaTarefa(feito: item.feito, alternar: i < linhas.count ? {
                         var next = linhas
-                        if i < next.count {
-                            next[i].feito.toggle()
-                            aoMudar(.tarefas(next))
-                        }
-                    } label: {
-                        Image(systemName: item.feito ? "checkmark.circle.fill" : "circle")
-                            .contentTransition(.symbolEffect(.replace))
-                            .font(.body)
-                            .foregroundStyle(item.feito ? Tema.tintaSuave : Tema.tintaFraca)
-                            .frame(width: Tema.alvo, height: Tema.alvo)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(item.feito ? "Feita" : "Por fazer")
+                        next[i].feito.toggle()
+                        aoMudar(.tarefas(next))
+                    } : nil)
                     TextField("", text: Binding(
                         get: { item.texto },
                         set: { novo in

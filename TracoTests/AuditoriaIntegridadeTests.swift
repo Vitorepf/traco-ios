@@ -251,11 +251,15 @@ struct VestirAoConcluirTests {
         #expect(s.vestidaRecuperavel == nil)
     }
 
-    @Test func escritaPessoalEExpressivaNaoViajam() throws {
+    @Test func escritaPessoalEExpressivaNaoViajam() async throws {
         let c = try ModelContainer.traco(emMemoria: true)
-        let pessoal = try nota("hoje senti um peso no peito quando acordei e o medo de não dar conta voltou. chorei no chuveiro e não disse a ninguém como estou cansado de tudo isso.", c)
+        let desabafo = "hoje senti um peso no peito quando acordei e o medo de não dar conta voltou. chorei no chuveiro e não disse a ninguém como estou cansado de tudo isso."
+        let pessoal = try nota(desabafo, c)
         let s = Sessao()
-        #expect(s.vestirAoConcluir(pessoal, no: c.mainContext, vestir: { _, _ in Issue.record("viajou"); return nil }) == nil)
+        // a escrita pessoal não viaja: só a regra local, que não mexe numa frase longa
+        await s.vestirAoConcluir(pessoal, no: c.mainContext, vestir: { _, _ in Issue.record("viajou"); return nil })?.value
+        #expect(try #require(Sessao.buscar(uuid: pessoal, no: c.mainContext)).texto == desabafo)
+        #expect(s.vestidaRecuperavel == nil)
         let n = Nota(texto: "desabafo", gesto: .expressiva)
         c.mainContext.insert(n)
         try c.mainContext.save()
@@ -328,5 +332,174 @@ struct FormatacaoComCaixasTests {
         #expect(mapa?.map(\.forma) == [.decisao, .pros])
         #expect(Sabia.FormaDeBloco.allCases.filter(\.caixa).allSatisfy { PapelForma.porSlug[$0.rawValue] != nil },
                 "toda caixa que a IA veste existe no catálogo do caderno")
+    }
+}
+
+/// Dono, 17/09 (captura do iPhone): «Comprar» e, embaixo, «Leite , farinha , ovo ,
+/// macarrão». Esperava tarefas; veio título, a linha dos itens como SEÇÃO e o
+/// campo «A única coisa de hoje».
+@MainActor
+struct ListaDeComprasTests {
+    static let doDono = "Comprar\n\nLeite , farinha , ovo , macarrão"
+    static let reserva = "# Comprar\n\n- Leite\n- farinha\n- ovo\n- macarrão"
+
+    /// As palavras na ordem, sem marca e sem separador: vestir não muda nenhuma.
+    static func palavras(_ s: String) -> [String] {
+        s.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+    }
+
+    private func nota(_ texto: String, _ c: ModelContainer) throws -> Nota {
+        let n = Nota(texto: texto)
+        c.mainContext.insert(n)
+        try c.mainContext.save()
+        return n
+    }
+
+    @Test func aLinhaDeItensEUmaEnumeracao() {
+        #expect(Caderno.itensDaEnumeracao("Leite , farinha , ovo , macarrão") == ["Leite", "farinha", "ovo", "macarrão"])
+        #expect(Caderno.itensDaEnumeracao("leite;pão ; café") == ["leite", "pão", "café"])
+        #expect(Caderno.itensDaEnumeracao("1,5 kg de farinha, ovo, leite") == ["1,5 kg de farinha", "ovo", "leite"])
+        // uma vírgula só é frase; item vazio não é lista; palavra solta não é lista
+        #expect(Caderno.itensDaEnumeracao("pão, leite e café para a semana toda") == nil)
+        #expect(Caderno.itensDaEnumeracao("leite, , ovo") == nil)
+        #expect(Caderno.itensDaEnumeracao("Comprar") == nil)
+    }
+
+    @Test func aReservaLocalFazListaDeQuatroNuncaSecao() {
+        let uma = Caderno.estruturar(Self.doDono)
+        #expect(uma == Self.reserva)
+        #expect(!uma.contains("##"))
+        #expect(Caderno.estruturar(uma) == uma, "vestir duas vezes é o mesmo que uma")
+        #expect(Self.palavras(uma) == Self.palavras(Self.doDono))
+        #expect(Caderno.estruturar("leite, pão, café") == "- leite\n- pão\n- café", "a primeira linha também não vira título")
+        // o caderno lê quatro itens
+        #expect(Caderno.fatias(uma).map(\.bloco).contains(.itens(["Leite", "farinha", "ovo", "macarrão"], ordenada: false)))
+    }
+
+    @Test func aFormaDaIAPoeUmItemPorLinha() {
+        for (forma, marca) in [(Sabia.FormaDeBloco.tarefas, "- [ ] "), (.lista, "- ")] {
+            let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), .init(i: 1, forma: forma)]
+            let uma = Sabia.aplicar(mapa, a: Self.doDono)
+            #expect(uma == "# Comprar\n\n" + ["Leite", "farinha", "ovo", "macarrão"].map { marca + $0 }.joined(separator: "\n"))
+            #expect(Sabia.aplicar(mapa, a: uma) == uma, "aplicar duas vezes é o mesmo que uma")
+            #expect(Self.palavras(uma) == Self.palavras(Self.doDono))
+        }
+        #expect(Sabia.aplicar([.init(i: 0, forma: .numerada)], a: "leite; pão; café") == "1. leite\n2. pão\n3. café")
+        // a frase com uma vírgula continua uma linha só
+        #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: "pão, leite e café") == "- pão, leite e café")
+    }
+
+    /// A IA vê as duas linhas — antes o modelo nem era chamado — e decide
+    /// título e tarefas; «Desfazer» devolve o que o autor escreveu.
+    @Test func aIADecideTarefasEDesfazerDevolveOTextoDoAutor() async throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let n = try nota(Self.doDono, c)
+        let s = Sessao()
+        let emVoo = s.vestirAoConcluir(n.uuid, no: c.mainContext, vestir: { blocos, g in
+            await Sabia.vestir(blocos: blocos, gesto: g, gerar: { usuario in
+                #expect(usuario == "[0] Comprar\n\n[1] Leite , farinha , ovo , macarrão")
+                return #"[{"i":0,"forma":"titulo"},{"i":1,"forma":"tarefas"}]"#
+            })
+        })
+        await emVoo?.value
+        #expect(n.texto == "# Comprar\n\n- [ ] Leite\n- [ ] farinha\n- [ ] ovo\n- [ ] macarrão")
+        #expect(s.toast == Sessao.avisoDaNotaVestida)
+        s.desfazerVestirAoConcluir(no: c.mainContext)
+        #expect(n.texto == Self.doDono)
+    }
+
+    /// Sem resposta (`nil`) ou com o mapa recusado (`[]`), veste a regra local,
+    /// com o mesmo aviso e o mesmo «Desfazer».
+    @Test func semIAAReservaLocalVesteComDesfazer() async throws {
+        for resposta: [Sabia.Rotulo]? in [nil, []] {
+            let c = try ModelContainer.traco(emMemoria: true)
+            let n = try nota(Self.doDono, c)
+            let s = Sessao()
+            await s.vestirAoConcluir(n.uuid, no: c.mainContext, vestir: { _, _ in resposta })?.value
+            #expect(n.texto == Self.reserva)
+            #expect(s.toast == Sessao.avisoDaNotaVestida)
+            s.desfazerVestirAoConcluir(no: c.mainContext)
+            #expect(n.texto == Self.doDono)
+        }
+    }
+
+    /// Com a IA ligada, concluir grava o texto do autor — sem a forma local por
+    /// cima — e a forma chega depois. No teste ninguém responde: veste a reserva.
+    @Test func concluirComIAGravaOTextoDoAutorEAFormaVemDepois() async throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = Self.doDono
+        s.concluir(no: c.mainContext, vestePelaIA: true)
+        let n = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(n.texto == Self.doDono)
+        var espera = 0
+        while s.vestidaRecuperavel == nil, espera < 200 {
+            try await Task.sleep(for: .milliseconds(10))
+            espera += 1
+        }
+        #expect(n.texto == Self.reserva)
+        s.desfazerVestirAoConcluir(no: c.mainContext)
+        #expect(n.texto == Self.doDono)
+
+        // sem IA a regra local veste antes de gravar, como sempre
+        let semIA = Sessao()
+        semIA.texto = "Mercado\n\narroz, feijão, café"
+        semIA.concluir(no: c.mainContext, vestePelaIA: false)
+        let todas = try c.mainContext.fetch(FetchDescriptor<Nota>())
+        #expect(todas.contains { $0.texto == "# Mercado\n\n- arroz\n- feijão\n- café" })
+    }
+
+    /// Reaberta na Página, tocar no círculo marca a tarefa e o texto gravado leva
+    /// o `[x]` — o mesmo `Caderno.aplicar` que o portal chama.
+    @Test func aTarefaReabertaAlternaEGrava() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let n = try nota("# Comprar\n\n- [ ] Leite\n- [ ] farinha", c)
+        let s = Sessao()
+        s.abrir(n)
+        let fatias = Caderno.fatias(s.texto)
+        let fatia = try #require(fatias.first { if case .tarefas = $0.bloco { true } else { false } })
+        guard case .tarefas(var xs) = fatia.bloco else { return }
+        xs[1].feito.toggle()
+        s.texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(xs))
+        #expect(s.salvar(no: c.mainContext))
+        #expect(Caderno.fatias(n.texto).map(\.bloco)
+                .contains(.tarefas([.init(feito: false, texto: "Leite"), .init(feito: true, texto: "farinha")])))
+    }
+}
+
+/// Dono, 17/09: a lista de compras abriu «A única coisa de hoje». Destaque é o
+/// plano do dia, não qualquer lista.
+struct DestaqueNaoEListaDeComprasTests {
+    @MainActor @Test func listaDeComprasNaoVesteDestaque() {
+        for texto in ["Comprar\nLeite\nfarinha\novo",
+                      "Compras do mês\n- arroz\n- feijão\n- café",
+                      "Mercado\n\nLeite , farinha , ovo , macarrão\npão",
+                      "# Comprar\n\n- [ ] Leite\n- [x] farinha\n- [ ] ovo\n- [ ] macarrão",
+                      "leite, pão, café\nsabão\ndetergente"] {
+            #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:]) == .silencio,
+                    Comment(rawValue: texto))
+        }
+    }
+
+    @MainActor @Test func oPlanoDoDiaContinuaDestaque() {
+        let destaque = AnaliseLocal.Veredito.gesto(.destaque, pergunta: AnaliseLocal.pergunta(.destaque))
+        for texto in ["Hoje\nligar para o banco\nlevar o carro\nresponder a Ana",
+                      "Comprar café\nRenovar o domínio\nMandar a nota fiscal",
+                      "Compras de hoje\nleite\npão\novo"] {
+            #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:]) == destaque,
+                    Comment(rawValue: texto))
+        }
+    }
+
+    @Test func oModeloNaoVesteDestaqueNaListaDeCompras() {
+        let destaque = AnaliseLocal.Veredito.gesto(.destaque, pergunta: "p")
+        let doDono = AnaliseLocal.listaSemDia("Comprar\nLeite , farinha , ovo , macarrão")
+        #expect(doDono)
+        #expect(Sessao.escolher(remoto: destaque, local: .silencio, listaSemDia: doDono) == .silencio)
+        #expect(!AnaliseLocal.listaSemDia("Hoje\nLeite , farinha , ovo"))
+        #expect(Sessao.escolher(remoto: destaque, local: .silencio, listaSemDia: false) == destaque)
+        // o veto é só do Destaque: outro método do modelo segue
+        let woop = AnaliseLocal.Veredito.gesto(.woop, pergunta: "p")
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: true) == woop)
     }
 }

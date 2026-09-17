@@ -330,4 +330,34 @@ struct TemaTests {
         }
         #expect(achados.isEmpty, "cor ou caixa alta fora da regra:\n\(achados.joined(separator: "\n"))")
     }
+
+    /// Dono, 17/09: a tarefa feita é visto VERDE, legível no papel, e as três
+    /// telas que desenham a tarefa usam o mesmo círculo (`VistoDaTarefa`).
+    @Test func aTarefaFeitaEVistoVerdeNasTresTelas() throws {
+        func componentes(_ c: Color) -> (Double, Double, Double) {
+            var (r, g, b, a) = (CGFloat.zero, CGFloat.zero, CGFloat.zero, CGFloat.zero)
+            UIColor(c).getRed(&r, green: &g, blue: &b, alpha: &a)
+            return (Double(r), Double(g), Double(b))
+        }
+        func luz(_ c: Color) -> Double {
+            let (r, g, b) = componentes(c)
+            let lin = { (x: Double) in x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4) }
+            return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+        }
+        let (r, g, b) = componentes(Tema.feito)
+        #expect(g > r && g > b, "o visto é verde")
+        #expect((luz(Tema.fundo) + 0.05) / (luz(Tema.feito) + 0.05) >= 4.5, "legível sobre o papel")
+        #expect(componentes(Tema.feito) != componentes(Tema.sabia), "estado não empresta a identidade da Sábia")
+
+        let raiz = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+        let prosa = try String(contentsOf: raiz.appending(path: "Traco/Caderno/ProsaView.swift"), encoding: .utf8)
+        #expect(prosa.contains("feito ? Tema.feito : Tema.tintaFraca"))
+        #expect(prosa.contains("Toque.leve()") && prosa.contains("Tema.movimento(.opacidade"))
+        for caminho in ["Traco/Caderno/ProsaView.swift", "Traco/Caderno/CadernoView.swift", "Traco/Caderno/EditorBlocoView.swift"] {
+            let texto = try String(contentsOf: raiz.appending(path: caminho), encoding: .utf8)
+            #expect(texto.contains("VistoDaTarefa(feito:"), "\(caminho) desenha a tarefa por conta própria")
+            #expect(!texto.contains("feito ? Tema.tintaSuave"), "\(caminho) ainda pinta o visto de cinza")
+        }
+    }
 }

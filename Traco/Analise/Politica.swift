@@ -131,7 +131,7 @@ enum Politica {
                   medidaEm: "17/09/2026",
                   conserto: "falta a Sábia não defender nem variar o que você já descartou")
         case .vestir:
-            .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
+            .init(regra: .grokDepoisBordo, porque: "a IA decide a forma primeiro e a regra local é a reserva (dono, 17/09); só a marca que o autor escreveu e o código não viajam")
         case .classificar:
             .init(regra: .grokDepoisBordo, porque: "o aparelho acertou 3 de 3 com esquema tipado; as regex arbitram por último (ADR 04c/06h)")
         case .dominio:

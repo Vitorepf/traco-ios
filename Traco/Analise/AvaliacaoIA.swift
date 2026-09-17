@@ -539,7 +539,8 @@ enum AvaliacaoIA {
             let campos = e.campos ?? [:]
             let local = AnaliseLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos)
             let escolhido = Sessao.escolher(remoto: remoto, local: local,
-                pessoal: AnaliseLocal.escritaPessoal(texto: texto, campos: campos))
+                pessoal: AnaliseLocal.escritaPessoal(texto: texto, campos: campos),
+                listaSemDia: AnaliseLocal.listaSemDia(Caderno.prosa(de: texto)))
             return ["escolhido": veredito(escolhido), "local": veredito(local),
                     "modelo": remoto.map { veredito($0) as Any } ?? NSNull()]
         case "escolherRegra":

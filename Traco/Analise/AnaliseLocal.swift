@@ -295,10 +295,27 @@ enum AnaliseLocal: Sendable {
         // `whereSeparator`: em CRLF isto contava UMA linha e o `>= 3` nunca era
         // verdade, então o Destaque não pegava nota vinda de fora.
         let linhas = x.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        if linhas.count >= 3 && linhas.allSatisfy({ $0.count < 60 }) {
+        if linhas.count >= 3 && linhas.allSatisfy({ $0.count < 60 }) && !listaSemDia(x) {
             return .destaque
         }
         return nil
+    }
+
+    /// Dono, 17/09: «Comprar / Leite , farinha , ovo» abriu o campo «A única
+    /// coisa de hoje». Uma lista de compras ou de itens — cabeça «Comprar»,
+    /// «Compras do mês», «Mercado», «Lista de…», ou uma linha de itens
+    /// separados por vírgula — sem sinal de dia não é o Destaque, nem pelas
+    /// linhas curtas nem pelo modelo (`Sessao.escolher`). O plano do dia
+    /// («hoje», «amanhã», «dia», «única», «primeiro») continua sendo.
+    /// ponytail: palavras fixas; «arroz / feijão / café» sem cabeça ainda veste
+    /// Destaque — separar substantivo de afazer pede o modelo, não mais regex.
+    nonisolated static func listaSemDia(_ voz: String) -> Bool {
+        let dobrada = voz.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+        if dobrada.contains(regex: #"\b(hoje|amanha|dia|unica|primeir[oa])\b"#) { return false }
+        let linhas = dobrada.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        guard let cabeca = linhas.first else { return false }
+        return cabeca.contains(regex: #"^(comprar|compras|mercado|supermercado|feira|lista)(\s+(de|do|da|dos|das|pra|para)\b.*)?$"#)
+            || linhas.contains { Caderno.itensDaEnumeracao($0) != nil }
     }
 
     /// A pergunta é sempre do template — nunca do modelo (§19.4).

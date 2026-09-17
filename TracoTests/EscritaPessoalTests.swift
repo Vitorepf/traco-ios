@@ -388,7 +388,7 @@ import Testing
                     Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
             guard esperado != "destaque" else {
                 let linhas = voz.split(separator: "\n")
-                #expect(linhas.count >= 3 && linhas.allSatisfy { $0.count < 60 })
+                #expect(linhas.count >= 3 && linhas.allSatisfy { $0.count < 60 } && !AnaliseLocal.listaSemDia(voz))
                 continue
             }
             let m = Catalogo.metodo(esperado)

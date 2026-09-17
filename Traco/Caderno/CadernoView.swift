@@ -492,23 +492,15 @@ struct CadernoView: View {
                         .fill(Tema.tintaFraca)
                         .frame(width: 2, height: 28)
                         .opacity(eCitacao ? 1 : 0)
-                    Button {
+                    VistoDaTarefa(feito: feito, alternar: {
                         guard case .tarefas(let xs) = fatia.bloco else { return }
                         var next = xs.isEmpty ? [TarefaCaderno(feito: false, texto: "")] : xs
                         next[0].feito.toggle()
                         texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(next))
                         aoMudar()
-                    } label: {
-                        Image(systemName: feito ? "checkmark.circle.fill" : "circle")
-                            .contentTransition(.symbolEffect(.replace))
-                            .font(.body)
-                            .foregroundStyle(feito ? Tema.tintaSuave : Tema.tintaFraca)
-                            .frame(width: Tema.alvo, height: Tema.alvo)
-                    }
-                    .buttonStyle(.plain)
+                    })
                     .opacity(eTarefa ? 1 : 0)
                     .allowsHitTesting(eTarefa)
-                    .accessibilityLabel(feito ? "Feita" : "Por fazer")
                     .accessibilityHidden(!eTarefa)
                 }
                 .frame(width: eTarefa || eCitacao ? (eTarefa ? Tema.alvo : 20) : 0)
@@ -518,6 +510,7 @@ struct CadernoView: View {
 
     private func campoUna(_ fatia: FatiaCaderno) -> some View {
         let nivel = if case .titulo(let n, _) = fatia.bloco { n } else { 0 }
+        let feito = if case .tarefas(let xs) = fatia.bloco { xs.first?.feito == true } else { false }
         let eCitacao = if case .citacao = fatia.bloco { true } else { false }
         // lista não projeta: edita o documento cru e o Enter herda o marcador
         let projeta = switch fatia.bloco {
@@ -567,7 +560,8 @@ struct CadernoView: View {
         .font(nivel == 1 ? Tema.tituloNota : nivel >= 2 ? Tema.secaoNota : eCitacao ? Tema.corpo.italic() : Tema.corpo)
         .lineSpacing(nivel > 0 ? 4 : folga)
         .tracking(nivel == 1 ? -0.4 : nivel >= 2 ? -0.2 : -0.05)
-        .foregroundStyle(Tema.tinta)
+        .foregroundStyle(feito ? Tema.tintaFraca : Tema.tinta)
+        .strikethrough(feito, color: Tema.tintaFraca)
         .scrollContentBackground(.hidden)
         .focused(foco)
         .tint(Tema.ambar)
@@ -824,7 +818,8 @@ struct CadernoView: View {
     }
 
     private func alternarTarefa(_ fatia: FatiaCaderno, _ indice: Int) {
-        guard case .tarefas(let xs) = fatia.bloco else { return }
+        // a fatia vem do desenho: se o texto mudou antes do toque, o índice pode não existir mais
+        guard case .tarefas(let xs) = fatia.bloco, xs.indices.contains(indice) else { return }
         var next = xs
         next[indice].feito.toggle()
         texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(next))

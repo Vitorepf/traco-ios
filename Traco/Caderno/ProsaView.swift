@@ -1,5 +1,34 @@
 import SwiftUI
 
+/// O círculo da tarefa, o mesmo nas três telas que o desenham (o portal, a
+/// página una e o bloco em edição). Dono, 17/09: feita é visto VERDE
+/// (`Tema.feito`); tocar alterna com um toque leve e o visto troca num fade
+/// curto, que continua sob Reduzir Movimento (é opacidade). Sem `alternar`, o
+/// círculo não faz nada nem vibra.
+struct VistoDaTarefa: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let feito: Bool
+    let alternar: (() -> Void)?
+
+    var body: some View {
+        Button {
+            guard let alternar else { return }
+            Toque.leve()
+            withAnimation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) {
+                alternar()
+            }
+        } label: {
+            Image(systemName: feito ? "checkmark.circle.fill" : "circle")
+                .contentTransition(.symbolEffect(.replace))
+                .font(.body)
+                .foregroundStyle(feito ? Tema.feito : Tema.tintaFraca)
+                .frame(width: Tema.alvo, height: Tema.alvo)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(feito ? "Feita" : "Por fazer")
+    }
+}
+
 struct ProsaView: View {
     let bloco: BlocoCaderno
     var aoAlternarTarefa: ((Int) -> Void)?
@@ -47,16 +76,7 @@ struct ProsaView: View {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(Array(xs.enumerated()), id: \.offset) { i, item in
                     HStack(alignment: .center, spacing: 8) {
-                        Button {
-                            aoAlternarTarefa?(i)
-                        } label: {
-                            Image(systemName: item.feito ? "checkmark.circle.fill" : "circle")
-                                .font(.body)
-                                .foregroundStyle(item.feito ? Tema.tintaSuave : Tema.tintaFraca)
-                                .frame(width: Tema.alvo, height: Tema.alvo)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(item.feito ? "Feita" : "Por fazer")
+                        VistoDaTarefa(feito: item.feito, alternar: aoAlternarTarefa.map { f in { f(i) } })
                         Text(atributos(item.texto))
                             .font(Tema.corpo)
                             .foregroundStyle(item.feito ? Tema.tintaFraca : Tema.tinta)

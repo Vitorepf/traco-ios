@@ -64,6 +64,10 @@ enum Tema {
     static let sabia = Color(hex: 0x1F6B5A)
     /// 5,3:1 sobre o papel.
     static let aviso = Color(hex: 0xB5432F)
+    /// ESTADO: a tarefa feita — o visto, só o glifo; o texto riscado segue em
+    /// tinta. Dono, 17/09: «visto verde». 4,8:1 sobre o papel, 5,3:1 no cartão.
+    /// Não é a `sabia` (identidade): o verde dela é mais azul e só marca a Sábia.
+    static let feito = Color(hex: 0x267A4C)
     static let codigoFundo = Color(hex: 0xEBEBEA)
     static let codigoGutter = Color(hex: 0xE4E4E2)
     static let synChave = Color(hex: 0x7A4E10)

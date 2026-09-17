@@ -543,6 +543,13 @@ enum Caderno: Sendable {
                 continue
             }
             if bloco.count == 1, curtaSemPonto(bloco[0]) {
+                // uma linha de itens («Leite , farinha , ovo») é lista, um item
+                // por linha — nunca título nem seção (dono, 17/09: a linha das
+                // compras virou SEÇÃO)
+                if let itens = itensDaEnumeracao(bloco[0]) {
+                    mudancas.append((intervalo, itens.map { "- " + $0 }.joined(separator: "\n")))
+                    continue
+                }
                 // linha curta sozinha = título (a primeira) ou seção (as demais)
                 let t = bloco[0].trimmingCharacters(in: .whitespaces)
                 mudancas.append((intervalo, temTitulo ? "## " + t : "# " + t))
@@ -553,6 +560,24 @@ enum Caderno: Sendable {
         var saida = texto
         for (intervalo, vestido) in mudancas.reversed() { saida.replaceSubrange(intervalo, with: vestido) }
         return saida
+    }
+
+    /// Uma linha de itens («Leite , farinha , ovo»): dois ou mais separadores —
+    /// vírgula ou ponto e vírgula, com ou sem espaço em volta — e nenhum item
+    /// vazio. Devolve os itens na ordem, sem os separadores e com as palavras
+    /// como o autor as escreveu. Vírgula entre dois algarismos é decimal
+    /// («1,5 kg») e não separa. Um lugar só: a regra local (`estruturar`), a
+    /// forma da IA (`Sabia.aplicar`) e o Destaque (`AnaliseLocal.listaSemDia`).
+    nonisolated static func itensDaEnumeracao(_ linha: String) -> [String]? {
+        let cs = Array(linha)
+        var itens = [""]
+        for (k, c) in cs.enumerated() {
+            let decimal = c == "," && k > 0 && k + 1 < cs.count && cs[k - 1].isNumber && cs[k + 1].isNumber
+            if (c == "," || c == ";") && !decimal { itens.append("") } else { itens[itens.count - 1].append(c) }
+        }
+        let limpos = itens.map { $0.trimmingCharacters(in: .whitespaces) }
+        guard limpos.count >= 3, !limpos.contains(where: \.isEmpty) else { return nil }
+        return limpos
     }
 
     /// Linha curta e sem pontuação de fim de frase: candidata a título ou item.
