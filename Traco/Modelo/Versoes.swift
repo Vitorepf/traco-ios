@@ -48,6 +48,20 @@ nonisolated enum Versoes {
         try? FileManager.default.removeItem(at: url(uuid))
     }
 
+    /// Todo texto guardado em qualquer versão: a varredura de anexos precisa
+    /// dele, senão restaurar uma versão antiga devolve um marcador sem arquivo.
+    nonisolated static func textosGuardados() -> [String] {
+        let arquivos = (try? FileManager.default.contentsOfDirectory(
+            at: diretorio, includingPropertiesForKeys: nil)) ?? []
+        let dec = JSONDecoder()
+        dec.dateDecodingStrategy = .iso8601
+        return arquivos.filter { $0.pathExtension == "json" }.flatMap { url -> [String] in
+            guard let data = try? Data(contentsOf: url),
+                  let lista = try? dec.decode([VersaoNota].self, from: data) else { return [] }
+            return lista.flatMap { [$0.texto] + $0.campos.values }
+        }
+    }
+
     nonisolated private static func gravar(_ uuid: UUID, _ lista: [VersaoNota]) -> Bool {
         do {
             try FileManager.default.createDirectory(at: diretorio, withIntermediateDirectories: true)

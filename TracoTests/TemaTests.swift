@@ -124,7 +124,6 @@ struct TemaTests {
             "Traco/Caderno/EditorBlocoView.swift",
             "Traco/Caderno/PortalArquivoView.swift",
             "Traco/Caderno/PortalCodigoView.swift",
-            "Traco/Caderno/MenuFormasView.swift",
             "Traco/Componentes/Botao.swift",
         ]
         let solto = try Regex(#"tracking\(Tema\.trackingLabel\)|buttonStyle\(PressaoDiscreta\(\)\)|movimento\(\.deslocamento, Tema\.Mola|^\s*\.opacity\(configuration\.isPressed"#)

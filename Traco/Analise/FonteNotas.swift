@@ -423,7 +423,7 @@ nonisolated enum RespostaNotas {
         let original = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
         let escrito = Self.dentroDoTeto(original)
         let texto = semRotulos(escrito, pacote: pacote)
-        let trechos = Dictionary(uniqueKeysWithValues: pacote.trechos.map { ($0.id, $0) })
+        let trechos = Dictionary(pacote.trechos.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         var citadas: [FonteNotas] = []
         for id in ids {
             guard let trecho = trechos[id] else { return nil }  // endereço inventado: recusa

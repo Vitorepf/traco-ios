@@ -567,7 +567,7 @@ nonisolated enum PraticaTrabalho {
               let lista = j["avaliacoes"] as? [[String: Any]],
               lista.count <= p.criterios.count
         else { return nil }
-        let porID = Dictionary(uniqueKeysWithValues: p.criterios.map { ($0.id, $0) })
+        let porID = Dictionary(p.criterios.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         var saida: [DocumentoTrabalho.ResultadoDaTentativa] = []
         var vistos = Set<UUID>()
         for item in lista {

@@ -130,7 +130,9 @@ struct PaginaView: View {
                 let palavras = NotasFiltro.palavras(intencao)
                 // uma palavra do assunto já basta ("Traço"); as mais parecidas primeiro
                 var pontuadas: [(texto: String, pontos: Int, quando: Date)] = []
-                for n in notas where !n.fechada && n.gesto != .expressiva && n.temVoz {
+                // só a voz do autor: obra, pesquisa e texto do bot iam rotulados
+                // «NOTAS DA PESSOA» (ADR 16a — obra não é voz do autor)
+                for n in notas where !n.fechada && n.gesto != .expressiva && n.temVoz && n.origem == .autor {
                     let texto = n.textoDeQualquerOrigem
                     let pontos = NotasFiltro.pontuacao(texto, palavras: palavras)
                     if pontos >= 1 { pontuadas.append((texto, pontos, n.editadaEm)) }
@@ -403,6 +405,7 @@ struct PaginaView: View {
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    BotaoDesfazerApagar(sessao: sessao)
                 }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -607,7 +610,6 @@ struct PaginaView: View {
             abrirArquivo: $abrirArquivo,
             abrirDesenho: $abrirDesenho,
             aoTocarRegua: { sessao.tocarRegua($0) },
-            aoVestirTudo: { sessao.vestirTudo() },
             titulosParaLigar: titulosParaLigar
         ) {
             var t = Transaction()
@@ -967,6 +969,21 @@ private struct LinhaDaVolta: View {
             .transition(.opacity)
             .accessibilityHint("Abre as Notas, na seção A VOLTA")
             .accessibilityIdentifier("linha-da-volta")
+        }
+    }
+}
+
+/// O "Desfazer" do aviso de nota apagada: só existe enquanto a janela está aberta.
+struct BotaoDesfazerApagar: View {
+    let sessao: Sessao
+    @Environment(\.modelContext) private var context
+
+    var body: some View {
+        if sessao.apagadaRecuperavel != nil {
+            Button("Desfazer") { sessao.desfazerApagar(no: context) }
+                .foregroundStyle(Tema.tinta)
+                .buttonStyle(.compacto)
+                .accessibilityIdentifier("desfazer-apagar")
         }
     }
 }

@@ -541,8 +541,8 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// Contexto derivado do registro, compartilhado por entrega e prática.
     /// Mais recente primeiro: a janela não deve priorizar uma tentativa antiga.
     var contextoDeRetorno: String {
-        let atos = Dictionary(uniqueKeysWithValues: acoes.map { ($0.id, $0) })
-        let materiais = Dictionary(uniqueKeysWithValues: artefatos.map { ($0.id, $0) })
+        let atos = Dictionary(acoes.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let materiais = Dictionary(artefatos.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         return evidencias.reversed().map { e in
             let acao = atos[e.acaoID]
             var linhas = ["[\(e.tipo.rawValue), \(e.atribuidaA), \(e.data.ISO8601Format()), ação \(e.acaoID), versão \(e.artefatoID?.uuidString ?? "sem artefato")] \(e.texto)",

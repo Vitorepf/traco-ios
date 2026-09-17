@@ -459,7 +459,10 @@ struct NotasView: View {
                                     : conversaNotas.estado == .interrompida(aRepetir)
                                         ? "Você parou de esperar."
                                         : !ContaGrok.ligada ? Politica.semProvedor(.responderNasNotas)
-                                        : Grok.avisoDaFalha(),
+                                        // sem falha nomeada, o provedor não calou: a resposta
+                                        // não passou na nossa conferência (ID inventado, parser)
+                                        : Grok.falhaPendente().map(Grok.frase)
+                                            ?? "A resposta da Sábia não passou na conferência das fontes. Pergunte de novo.",
                                 rotulo: ContaGrok.ligada ? "Perguntar de novo" : "Entrar com a conta Grok",
                                 acao: ContaGrok.ligada ? repetirPergunta : { sessao.irPara(.perfil, no: context) })
                         }
@@ -668,8 +671,11 @@ struct NotasView: View {
             isPresented: $confirmarLote, titleVisibility: .visible
         ) {
             Button("Apagar", role: .destructive) {
-                for uuid in escolhidas { sessao.apagar(uuid: uuid, no: context) }
+                // em lote não há "Desfazer" de uma só: a confirmação acima é a porta
+                let quantas = escolhidas.count
+                for uuid in escolhidas { sessao.apagar(uuid: uuid, no: context, recuperavel: false) }
                 escolhidas = []
+                sessao.mostrarToast(quantas == 1 ? "nota apagada." : "\(quantas) notas apagadas.")
             }
             Button("Manter", role: .cancel) {}
         } message: {
@@ -991,7 +997,7 @@ struct NotasView: View {
                 Indice.vizinhas(de: limpo, teto: 5, minimo: 0.3, exceto: jaVistas)
             }.value
             guard !Task.isCancelled else { return }
-            let porId = Dictionary(uniqueKeysWithValues: todas.map { ($0.uuid, $0) })
+            let porId = Dictionary(todas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
             peloSentido = vizinhas.compactMap { porId[$0.uuid] }
                 .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz }
         }

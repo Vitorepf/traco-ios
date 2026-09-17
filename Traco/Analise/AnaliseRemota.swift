@@ -48,7 +48,9 @@ enum AnaliseRemota {
         }
         #endif
         // memo pelo texto: dispensar o cartão e pausar de novo não repaga token
-        guard let msg = await Grok.responder(sistema: sistema, usuario: String(texto.prefix(6000)),
+        // silêncio aqui é aceito (as regex decidem), então a falha desta chamada
+        // de fundo não pode apagar nem trocar o motivo que outra tela espera
+        guard let msg = await Grok.$semAviso.withValue(true, operation: { await Grok.responder(sistema: sistema, usuario: String(texto.prefix(6000)),
                                              // ADR 09n: o `timeout: 10` daqui foi medido para um
                                              // modelo que NÃO raciocinava. Com o modelo escolhido
                                              // (DIRETRIZ §10) ele estourava em 2 de 2 execuções e a
@@ -58,7 +60,7 @@ enum AnaliseRemota {
                                              // rotas: um teto só, e ele limita a falha, não a espera
                                              // (a análise seguinte cancela a anterior).
                                              temperatura: 0,
-                                             memoPor: "classificar\u{1}\(texto.hashValue)")
+                                             memoPor: "classificar\u{1}\(texto.hashValue)") })
         else { return nil }
         return parseVeredito(msg)
     }

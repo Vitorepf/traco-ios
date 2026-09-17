@@ -208,8 +208,12 @@ final class Sessao {
             // conta ou sem sinal, o cérebro caía direto para as regex. Agora o
             // Traço pensa no avião, no metrô e sem assinatura — de graça, e sem
             // nada sair do iPhone.
+            // ADR 06h: diante da escrita pessoal o veredito do modelo é
+            // descartado em `escolher` — então o texto nem sai do aparelho.
+            // Antes ele viajava à xAI e só depois era reconhecido como desabafo.
+            let pessoal = AnaliseLocal.escritaPessoal(texto: textoAtual, campos: camposAtuais)
             var remoto: AnaliseLocal.Veredito?
-            if gestoAtual == nil {
+            if gestoAtual == nil, !pessoal {
                 remoto = await AnaliseRemota.classificar(texto: Caderno.prosa(de: textoAtual), gestoAtual: gestoAtual)
                 if remoto == nil, #available(iOS 26.0, *) {
                     remoto = await AnaliseDeBordo.classificar(
@@ -233,9 +237,7 @@ final class Sessao {
             // ou Apple Intelligence a proteção era NULA, no caso exato que ela
             // existe para impedir. Quem reconhece a escrita pessoal é o
             // algoritmo, e o algoritmo cala o modelo.
-            let veredito = Self.escolher(
-                remoto: remoto, local: local,
-                pessoal: AnaliseLocal.escritaPessoal(texto: textoAtual, campos: camposAtuais))
+            let veredito = Self.escolher(remoto: remoto, local: local, pessoal: pessoal)
             self.aplicar(veredito, automatica: automatica)
         }
     }
@@ -464,12 +466,6 @@ final class Sessao {
         }
     }
 
-    func alternarAutoAnalise() {
-        autoAnalise.toggle()
-        autoTask?.cancel()
-        mostrarToast(autoAnalise ? "análise automática ligada." : "análise automática desligada.")
-    }
-
     /// "Vestir a nota" (FILA P1): um toque estrutura a nota INTEIRA (título,
     /// listas, seções) a partir do que o autor já escreveu. A IA não escreve —
     /// `Caderno.estruturar` só veste a forma em volta das palavras dele. Um
@@ -690,7 +686,7 @@ final class Sessao {
     func fontesDoContexto(_ vizinhas: [(uuid: UUID, titulo: String, prosa: String)],
                           no context: ModelContext) -> [FonteNotas] {
         guard !vizinhas.isEmpty, let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
-        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        let porID = Dictionary(notas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
         return vizinhas.compactMap { porID[$0.uuid].flatMap(Self.fonteParaPergunta) }
     }
 
@@ -748,7 +744,7 @@ final class Sessao {
     static func dependenciasValidas(_ fontes: [FonteNotas], no context: ModelContext) -> Bool {
         guard !fontes.isEmpty else { return true }
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return false }
-        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        let porID = Dictionary(notas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
         return fontes.allSatisfy { fonte in
             guard let nota = porID[fonte.id], let atual = fonteParaPergunta(nota),
                   let assinatura = fonte.assinatura else { return false }
@@ -765,7 +761,7 @@ final class Sessao {
     func contextoDasNotas(pergunta: String, no context: ModelContext, teto: Int = 8) -> [FonteNotas] {
         let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
-        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        let porID = Dictionary(notas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
         // ADR 2026-09-16c: a obra não disputa as vagas das notas por palavra
         // (um dossiê tem todas as palavras); entra depois, pelas suas seções
         var fontes = vizinhas.compactMap { v in porID[v.uuid].flatMap { $0.origem.eObra ? nil : Self.fonteParaPergunta($0) } }
@@ -1648,7 +1644,7 @@ final class Sessao {
         }
         aplicarDominio(na: nota)
         aplicarSerie(na: nota)
-        aplicarGatilho(na: nota)
+        let gatilho = aplicarGatilho(na: nota)
         if criadaEmDaPagina == nil { criadaEmDaPagina = nota.criadaEm }
         guard persistir(context) else {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
@@ -1661,6 +1657,12 @@ final class Sessao {
         if let fixa = linhaFixa {
             linhaFixa = nil
             if toast == fixa { toast = nil }
+        }
+        // o aviso só muda depois do commit: se o disco recusasse, o rollback
+        // desfazia `gatilhoEm` e o aviso novo ficava (até para nota que não existe)
+        Revisoes.cancelarGatilho(uuid: nota.uuid)
+        if let gatilho {
+            Revisoes.agendarGatilho(uuid: nota.uuid, titulo: gatilho.titulo, em: gatilho.quando)
         }
         if let v = versaoAnterior {
             Versoes.registrar(nota.uuid, texto: v.texto, campos: v.campos, gesto: v.gesto, fechada: v.fechada)
@@ -1731,7 +1733,8 @@ final class Sessao {
         nota.diaDaSerie = diaPendente
     }
 
-    private func aplicarGatilho(na nota: Nota) {
+    /// Grava `gatilhoEm` na nota e devolve o aviso a agendar DEPOIS do commit.
+    private func aplicarGatilho(na nota: Nota) -> (quando: Date, titulo: String)? {
         // Decisão (ADR p): "o que espero, e quando eu confiro" agenda a
         // conferência — o diário de decisão só vale se a data cobra
         let fonte: String = switch gesto {
@@ -1739,20 +1742,13 @@ final class Sessao {
         case .decisao: campos["espero"] ?? ""
         default: ""
         }
-        guard let quando = Gatilho.data(em: fonte) else {
-            nota.gatilhoEm = nil
-            Revisoes.cancelarGatilho(uuid: nota.uuid)
-            return
-        }
         let titulo = VozDoAutor.titulo(texto, gesto: gesto, campos: campos)
-        guard !titulo.isEmpty else {
+        guard let quando = Gatilho.data(em: fonte), !titulo.isEmpty else {
             nota.gatilhoEm = nil
-            Revisoes.cancelarGatilho(uuid: nota.uuid)
-            return
+            return nil
         }
         nota.gatilhoEm = quando
-        Revisoes.cancelarGatilho(uuid: nota.uuid)
-        Revisoes.agendarGatilho(uuid: nota.uuid, titulo: titulo, em: quando)
+        return (quando, titulo)
     }
 
     /// ADR 05n/05j: selar, queimar ou apagar a origem cala NO ATO o aviso da
@@ -2029,8 +2025,11 @@ final class Sessao {
     /// o texto delas segue referenciando os arquivos) saem do disco.
     func varrerAnexosOrfaos(no context: ModelContext) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
-        var textos = notas.map(\.texto)
+        var textos = notas.flatMap { [$0.texto] + $0.campos.values }
         textos.append(texto) // a página aberta também referencia
+        if let a = apagadaRecuperavel { textos += [a.texto] + a.campos.values } // na janela de desfazer
+        // uma versão guardada também referencia: restaurar não pode achar o arquivo apagado
+        textos += Versoes.textosGuardados()
         AnexoDisco.varrerOrfaos(textos: textos)
     }
 
@@ -2378,8 +2377,8 @@ final class Sessao {
         }
     }
 
-    /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto é sobrescrito antes
-    /// de sumir (não basta marcar), e o backup no Arquivos é regravado na hora,
+    /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto, os anexos, as
+    /// versões e o índice saem na hora, e o backup no Arquivos é regravado,
     /// senão a promessa seria mentira. Sobram data, minutos e a linha de sentido.
     /// Se o disco recusa, a queima não aconteceu: o texto e o fecho ficam.
     @discardableResult
@@ -2393,8 +2392,11 @@ final class Sessao {
             nota = Nota(gesto: .expressiva)
             context.insert(nota)
         }
-        // a cinza não guarda o texto: sobrescreve, depois esvazia
-        nota.texto = String(repeating: " ", count: max(nota.texto.count, 1))
+        // os anexos da queimada saem junto (sem a carência de 24 h da varredura)
+        let anexosDaQueimada = AnexoDisco.idsReferenciados(
+            em: [nota.texto, texto] + Array(nota.campos.values))
+        // a cinza não guarda o texto. Só o "" chega ao disco: o SQLite pode
+        // conservar o valor antigo no WAL ou em página livre (SPEC §8)
         nota.texto = ""
         nota.campos = [:]
         nota.gesto = .expressiva
@@ -2412,7 +2414,9 @@ final class Sessao {
         }
         pararTimer()
         // nada de janela de desfazer: queimar não tem volta, e isso é o método
-        apagadaRecuperavel = nil
+        desfazerTask?.cancel()
+        consolidarApagada(no: context)
+        AnexoDisco.apagar(ids: anexosDaQueimada)
         Versoes.apagar(nota.uuid)
         Apontar.apagar(nota.uuid)
         Indice.remover(nota.uuid, geracao: Geracao.proxima())
@@ -2522,28 +2526,30 @@ final class Sessao {
     /// ADR 2026-08-31f: apagar apaga de verdade — nota, revisão marcada e,
     /// na próxima varredura, os anexos que só ela referenciava.
     /// Dia 200: a confirmação vira piloto automático — por isso existe a janela
-    /// de desfazer (a cópia vive até a próxima ação ou 6s).
+    /// de desfazer (6 s, com "Desfazer" no aviso). Espelho, Spotlight, avisos e
+    /// índice saem na hora; versões, apontamentos e anexos esperam a janela
+    /// fechar, senão desfazer devolvia a nota sem o histórico e com anexo quebrado.
     var apagadaRecuperavel: NotaRecuperavel?
     private var desfazerTask: Task<Void, Never>?
 
-    func apagar(uuid: UUID, no context: ModelContext) {
+    func apagar(uuid: UUID, no context: ModelContext, recuperavel: Bool = true) {
         guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
-        apagadaRecuperavel = nota.retrato()
+        let retrato = nota.retrato()
         let serie = nota.serieUUID
         context.delete(nota)
         // ADR 05s: avisos e projeções só depois do commit; recusa recua o contexto
         guard persistir(context) else {
-            apagadaRecuperavel = nil
             mostrarToast("não consegui apagar — a nota continua.")
             return
         }
+        // uma apagada anterior ainda na janela vai embora de vez
+        desfazerTask?.cancel()
+        consolidarApagada(no: context)
         Revisoes.cancelar(uuid: uuid)
         Revisoes.cancelarGatilho(uuid: uuid)
         if let serie { Revisoes.cancelarSerie(serie: serie) }
         DestaqueDoDia.apagar(id: uuid)
         calarAcoesDerivadas(de: uuid, no: context)
-        Versoes.apagar(uuid)
-        Apontar.apagar(uuid)
         Indice.remover(uuid, geracao: Geracao.proxima())
         SinteseDeNota.remover(uuid)
         // regra de ferro 2: apagar tira a nota do espelho em Arquivos e do Spotlight AGORA
@@ -2552,14 +2558,27 @@ final class Sessao {
             Holofote.indexar(notas: todas)
         }
         if notaUUID == uuid { novaPagina() }
-        varrerAnexosOrfaos(no: context)
         confirmacao = nil
         Toque.fechou()
-        desfazerTask?.cancel()
+        apagadaRecuperavel = retrato
+        guard recuperavel else {
+            consolidarApagada(no: context)
+            return
+        }
+        mostrarToast("nota apagada.", duracao: .seconds(6))
         desfazerTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(6))
-            if !Task.isCancelled { self?.apagadaRecuperavel = nil }
+            if !Task.isCancelled { self?.consolidarApagada(no: context) }
         }
+    }
+
+    /// Fecha a janela de desfazer: o que ficou guardado para a volta sai do disco.
+    func consolidarApagada(no context: ModelContext) {
+        guard let a = apagadaRecuperavel else { return }
+        apagadaRecuperavel = nil
+        Versoes.apagar(a.uuid)
+        Apontar.apagar(a.uuid)
+        varrerAnexosOrfaos(no: context)
     }
 
     func desfazerApagar(no context: ModelContext) {
@@ -2589,6 +2608,7 @@ final class Sessao {
         }
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
+        if toast == "nota apagada." { toast = linhaFixa }
         // ADR 05s: a nota devolvida volta ao espelho, ao Spotlight e ao índice agora
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
         Toque.leve()

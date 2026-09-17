@@ -1725,7 +1725,7 @@ enum Sabia {
     nonisolated static func aplicar(_ mapa: [Rotulo], a texto: String) -> String {
         let intervalos = Caderno.intervalosParaVestir(texto)
         let partes = intervalos.map { String(texto[$0]) }
-        let formas = Dictionary(uniqueKeysWithValues: mapa.map { ($0.i, $0.forma) })
+        let formas = Dictionary(mapa.map { ($0.i, $0.forma) }, uniquingKeysWith: { a, _ in a })
         var saida: [String] = []
         for (i, bloco) in partes.enumerated() {
             let linhas = bloco.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }

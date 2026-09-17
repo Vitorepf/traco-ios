@@ -335,7 +335,7 @@ nonisolated enum Catalogo {
         }
         tranca.lock()
         lista = novos
-        porId = Dictionary(uniqueKeysWithValues: novos.map { ($0.id, $0) })
+        porId = Dictionary(novos.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         recusados = motivos
         carregado = true
         tranca.unlock()

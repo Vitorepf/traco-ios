@@ -268,10 +268,18 @@ nonisolated enum Grok {
         var diagnostico = Diagnostico(modeloSolicitado: modelo, esforco: esforco, desfecho: "sem resposta de transporte")
         defer { registrar(diagnostico) }
         #endif
-        let dados: Data
-        let resposta: URLResponse
+        var dados: Data
+        var resposta: URLResponse
         do {
             (dados, resposta) = try await URLSession.shared.data(for: pedido)
+            // 401: o token morreu antes do prazo gravado (revogado, relógio).
+            // Renova uma vez e repete; sem isso o token morto seguia em uso
+            // e a falha aparecia como "a rede não entregou".
+            if (resposta as? HTTPURLResponse)?.statusCode == 401, !Task.isCancelled,
+               let novo = await ContaGrok.renovar() {
+                pedido.setValue("Bearer \(novo)", forHTTPHeaderField: "Authorization")
+                (dados, resposta) = try await URLSession.shared.data(for: pedido)
+            }
         } catch {
             let falha = falhaDoErro(error)
             registrarFalha(falha)
@@ -299,7 +307,8 @@ nonisolated enum Grok {
         }
         guard (resposta as? HTTPURLResponse)?.statusCode == 200,
               let msg = textoCompleto(dados) else {
-            let falha = falhaDoCorpo(dados) ?? .transporte
+            let falha = falhaDoStatus((resposta as? HTTPURLResponse)?.statusCode)
+                ?? falhaDoCorpo(dados) ?? .transporte
             registrarFalha(falha)
             #if DEBUG
             diagnostico.desfecho = falha.rawValue
@@ -359,7 +368,7 @@ nonisolated enum Grok {
     /// Q7 — o vazio tem nome. Timeout, cancelar, limite e recusa não viram
     /// resposta pronta nem qualidade simulada. O que a pessoa escreveu fica.
     enum FalhaHonesta: String, Sendable, Equatable {
-        case cancelada, timeout, recusa, limite, transporte, semConta
+        case cancelada, timeout, recusa, limite, transporte, semConta, ocupado, provedor
     }
 
     private nonisolated(unsafe) static var ultimaFalha: FalhaHonesta?
@@ -402,6 +411,17 @@ nonisolated enum Grok {
         return .transporte
     }
 
+    /// O status diz mais que o corpo: conta recusada, pausa pedida e queda do
+    /// provedor não são "a rede não entregou" — e só a rede merece repetir.
+    static func falhaDoStatus(_ status: Int?) -> FalhaHonesta? {
+        switch status {
+        case 401, 403: .semConta
+        case 429: .ocupado
+        case let s? where (500...599).contains(s): .provedor
+        default: nil
+        }
+    }
+
     static func falhaDoCorpo(_ dados: Data) -> FalhaHonesta? {
         if textoCompleto(dados) != nil { return nil }
         guard let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
@@ -425,6 +445,8 @@ nonisolated enum Grok {
         case .limite: "A resposta veio cortada pelo limite. Não mostro um pedaço como se fosse o todo."
         case .transporte: "A rede não entregou. O que escreveu continua aqui."
         case .semConta: "Falta a conta. O que escreveu continua aqui."
+        case .ocupado: "O provedor pediu uma pausa (limite de uso). O que escreveu continua aqui."
+        case .provedor: "O provedor falhou do lado dele. O que escreveu continua aqui."
         }
     }
 

@@ -8,6 +8,7 @@ struct RaizView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sessao = Sessao()
+    @State private var veuDaExpressiva = false
     @State private var tecladoAberto = false
     @State private var agenda = CalendarioAgenda()
     // ADR 06c: o ditado próprio cobre a página — é a tarefa inteira
@@ -68,10 +69,13 @@ struct RaizView: View {
                 // Aqui ele pousa sobre o campo, com o mesmo cartão da página.
                 .overlay(alignment: .bottom) {
                     if let toast = sessao.toast, sessao.aba != .escrever {
-                        Text(toast)
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(alignment: .firstTextBaseline, spacing: 10) {
+                            Text(toast)
+                                .font(Tema.corpo)
+                                .foregroundStyle(Tema.tintaSuave)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            BotaoDesfazerApagar(sessao: sessao)
+                        }
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                             .cartao(.papel, recuo: [])
@@ -79,7 +83,7 @@ struct RaizView: View {
                             .padding(.bottom, 56)
                             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
                             .accessibilityIdentifier("toast-arquivo")
-                            .allowsHitTesting(false)
+                            .allowsHitTesting(sessao.apagadaRecuperavel != nil)
                     }
                 }
                 .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
@@ -223,6 +227,17 @@ struct RaizView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             sessao.salvar(no: context)
+            // o seletor de apps fotografa a tela e o iOS guarda a foto em disco:
+            // a expressiva aberta (ou a selada reaberta) não sai nessa foto
+            veuDaExpressiva = sessao.gesto == .expressiva
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            veuDaExpressiva = false
+        }
+        .overlay {
+            if veuDaExpressiva {
+                Tema.fundo.ignoresSafeArea().accessibilityHidden(true)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             sessao.salvar(no: context)

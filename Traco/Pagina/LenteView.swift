@@ -29,6 +29,15 @@ struct LenteView: View {
     /// que só sabia falar de conta — e com a conta ligada a rota calava
     /// (ADR 2026-09-09q).
     @State private var aviso: (op: Politica.Operacao, texto: String, estado: LinhaDeEstado.Estado)?
+
+    private var podeInstigar: Bool { !Self.cortada(.instigar) }
+    private var podeContrapor: Bool { !Self.cortada(.contrapor) }
+
+    /// Cortada = ninguém responde mesmo com a conta ligada. Sem conta a linha
+    /// fica: aí a frase manda entrar com a conta, e isso o autor pode fazer.
+    static func cortada(_ op: Politica.Operacao) -> Bool {
+        Politica.provedor(op, contaLigada: true, bordo: true) == nil
+    }
     @State private var apontados: [Apontamento] = []
     /// ADR 05x: a proveniência da forma, recolhida por padrão.
     @State private var deOndeVem = false
@@ -172,7 +181,9 @@ struct LenteView: View {
                 // As duas idas à sábia numa seção só: "INSTIGAR" sobre a linha
                 // "Instigar" (e o mesmo em Contrapor) era o cabeçalho repetindo
                 // a linha — dois nomes para uma coisa (laço de 14/09).
-                if notaUUID != nil, gesto != .expressiva {
+                // Rota cortada por qualidade não vira botão que só diz "indisponível":
+                // o Perfil lista o que está fora e por quê (auditoria 17/09)
+                if notaUUID != nil, gesto != .expressiva, podeInstigar || podeContrapor {
                     secao("À Sábia", id: "sabia", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(perguntasDaSabia, id: \.self) { q in
@@ -197,6 +208,7 @@ struct LenteView: View {
                             }
                             // ADR 10k: a ação se reconhece pelo chevron, e o
                             // título é tinta — o âmbar era a cor do cursor
+                            if podeInstigar {
                             Button {
                                 instigar()
                             } label: {
@@ -206,6 +218,7 @@ struct LenteView: View {
                             .buttonStyle(.linha)
                             .disabled(instigandoDesde != nil)
                             .accessibilityIdentifier("instigar")
+                            }
                         // ADR 04m: contrapor — a posição contrária, a opção fora da
                         // lista, o exemplo de outro campo. Informação, nunca instrução.
                             if let c = contraparte {
@@ -247,6 +260,7 @@ struct LenteView: View {
                                 }
                                 .padding(.vertical, 6)
                             }
+                            if podeContrapor {
                             Button {
                                 contrapor()
                             } label: {
@@ -257,6 +271,7 @@ struct LenteView: View {
                             .disabled(contrapondoDesde != nil)
                             .accessibilityIdentifier("contrapor")
                             .accessibilityHint("Vai à Sábia; a resposta fica aqui, nunca na nota")
+                            }
                         }
                     }
                 }

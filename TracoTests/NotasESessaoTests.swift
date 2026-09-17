@@ -105,12 +105,6 @@ struct NotasFiltroTests {
         #expect(v.contains { $0.texto.hasPrefix("```") })
         #expect(v.contains { $0.tituloNaLista == "Ideias" })
     }
-
-    @Test func aPortaDosTrabalhosNaoDependeDaBuscaNemDoFiltro() {
-        #expect(NotasFiltro.mostraTrabalhos(busca: "", filtro: nil))
-        #expect(NotasFiltro.mostraTrabalhos(busca: "celular", filtro: .woop, dominio: .casa))
-        #expect(NotasFiltro.mostraTrabalhos(busca: "   ", filtro: .trancadas))
-    }
 }
 
 @MainActor

@@ -21,7 +21,7 @@ struct DoCadernoView: View {
             Indice.vizinhas(de: texto, teto: 3, minimo: 0.3)
         }.value
         guard !Task.isCancelled else { return [] }
-        let porId = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        let porId = Dictionary(notas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
         return achadas.compactMap { porId[$0.uuid] }
             .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz }
     }

@@ -194,7 +194,7 @@ struct JuntarView: View {
         let ordem = Juntas.pontuadas(
             com: nota.tituloNaLista, texto: nota.textoDeQualquerOrigem, gesto: nota.gesto,
             candidatas: pool.map { ($0.uuid, $0.tituloNaLista, $0.textoDeQualquerOrigem, $0.gesto, $0.criadaEm) })
-        let porId = Dictionary(uniqueKeysWithValues: pool.map { ($0.uuid, $0) })
+        let porId = Dictionary(pool.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
         let limite = ordem.prefix(40)
         return (limite.filter { $0.pontos > 0 }.compactMap { porId[$0.uuid] },
                 limite.filter { $0.pontos == 0 }.compactMap { porId[$0.uuid] })

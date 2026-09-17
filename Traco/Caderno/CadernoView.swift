@@ -33,8 +33,6 @@ struct CadernoView: View {
     /// §17 × dedo em voo: o toque na régua avisa a sessão para SEGURAR o vestir
     /// automático — a forma não veste no meio do alcance e o chip não salta.
     var aoTocarRegua: ((Bool) -> Void)? = nil
-    /// ADR o: "Vestir tudo" no menu de formas.
-    var aoVestirTudo: (() -> Void)? = nil
     /// Q2: os títulos das outras notas, para completar `[[assim]]` ao digitar.
     /// Sem isto, ligar duas notas exigia decorar o título — e a lei do dono é
     /// que ele nunca deve ter de lembrar de nada.
@@ -57,8 +55,6 @@ struct CadernoView: View {
     @State private var importaFicheiro = false
     @State private var menuArquivo = false
     @State private var menuLingua = false
-    @State private var menuFormas = false
-    @State private var formaDoMenu: PapelForma?
     @State private var gravando = false
     @State private var gravador: AVAudioRecorder?
     /// Altura desta view — com o teclado de pé, a tela menos o teclado.
@@ -405,21 +401,6 @@ struct CadernoView: View {
             Button("SQL") { transformarCodigo("sql") }
             Button("Shell") { transformarCodigo("bash") }
             Button("Texto") { transformarCodigo("texto") }
-        }
-        .sheet(isPresented: $menuFormas, onDismiss: {
-            guard let papel = formaDoMenu else { return }
-            formaDoMenu = nil
-            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { transformar(papel) }
-            // escolher na folha também NÃO expulsa quem escreve. O foco que
-            // `transformar` repõe é apagado logo depois pela folha ao sair de
-            // cena, então ele é reposto de novo quando ela já saiu — senão o
-            // autor volta para a página sem teclado e sem régua.
-            Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(350))
-                foco.wrappedValue = true
-            }
-        }) {
-            MenuFormasView(aoEscolher: { papel in formaDoMenu = papel }, aoVestirTudo: aoVestirTudo)
         }
     }
 

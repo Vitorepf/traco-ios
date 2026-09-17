@@ -148,8 +148,21 @@ enum ContaGrok {
         return Date().timeIntervalSince1970 > quando - 60
     }
 
+    /// Uma renovação por vez: duas chamadas com o token vencido mandavam o
+    /// mesmo refresh token juntas, e se a xAI gira o token a segunda recebia
+    /// `invalid_grant` e a conta parecia ter caído.
+    private static var renovacaoEmVoo: Task<String?, Never>?
+
     @discardableResult
     static func renovar() async -> String? {
+        if let emVoo = renovacaoEmVoo { return await emVoo.value }
+        let tarefa = Task { await renovarAgora() }
+        renovacaoEmVoo = tarefa
+        defer { renovacaoEmVoo = nil }
+        return await tarefa.value
+    }
+
+    private static func renovarAgora() async -> String? {
         guard let renova = lido(contaRenova) else { return nil }
         let campos = [
             "client_id": clienteID,

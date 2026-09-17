@@ -1,14 +1,6 @@
 import Foundation
 
 enum NotasFiltro {
-    /// Trabalhos é destino do arquivo, não resultado da busca. A porta não
-    /// some ao filtrar (ADR 2026-09-11a).
-    static func mostraTrabalhos(busca: String, filtro: FiltroNotas?,
-                                dominio: Dominio? = nil) -> Bool {
-        _ = (busca, filtro, dominio)
-        return true
-    }
-
     static func visiveis(_ notas: [Nota], busca: String, filtro: FiltroNotas?,
                          dominio: Dominio? = nil) -> [Nota] {
         notas.filter { nota in

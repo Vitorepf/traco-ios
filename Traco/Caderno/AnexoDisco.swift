@@ -65,6 +65,16 @@ enum AnexoDisco {
         }
     }
 
+    /// Queimar não espera carência: o anexo de uma queimada sai do disco agora.
+    static func apagar(ids: Set<String>) {
+        guard !ids.isEmpty else { return }
+        let arquivos = (try? FileManager.default.contentsOfDirectory(
+            at: pasta(), includingPropertiesForKeys: nil)) ?? []
+        for url in arquivos where ids.contains(url.deletingPathExtension().lastPathComponent.lowercased()) {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     static func varrerOrfaos(textos: [String]) {
         let arquivos = (try? FileManager.default.contentsOfDirectory(
             at: pasta(), includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
