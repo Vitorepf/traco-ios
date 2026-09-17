@@ -133,7 +133,8 @@ struct PadroesView: View {
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }
         )
         // E7: ao modelo, a voz com os campos rotulados; as locais seguem lendo sem rótulo
-        let remotas = await PadroesRemoto.perguntas(vozes: Self.vozesParaAIA(abertas), conferirContra: vozes)
+        let remotas = await PadroesRemoto.perguntas(vozes: Self.vozesParaAIA(abertas), conferirContra: vozes,
+                                                    titulos: abertas.map(\.tituloNaLista))
         let escolhidas = PadroesRemoto.ineditas(remotas ?? locais)
         PadroesRemoto.registrarVistas(escolhidas)
         perguntas = escolhidas
