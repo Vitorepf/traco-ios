@@ -23,6 +23,11 @@ struct PaginaView: View {
     /// pé por ~100 ms, sem e com Reduzir Movimento (G4 final da V12, A1; ADR
     /// 08f, V12-E). Sem encaixe, a única superfície naquela faixa é o papel.
     @State private var folhaEmCena = false
+    /// A vizinhança da nota aberta (quantas a citam ou são citadas por ela):
+    /// calculada ao abrir, não a cada quadro — a rede cruza o caderno inteiro.
+    @State private var ligadas = 0
+    @State private var redeAberta: Nota?
+    @State private var versoesDaPagina: [Nota] = []
     @State private var campoDaFormaEmFoco = false
     @State private var trabalhoAberto: Trabalho?
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
@@ -100,6 +105,11 @@ struct PaginaView: View {
                 }
             }
         .sheet(item: $trabalhoAberto) { trabalho in TrabalhoView(trabalho: trabalho) }
+        .sheet(item: $redeAberta) { nota in RedeView(nota: nota, todas: notas, sessao: sessao) }
+        .task(id: sessao.notaUUID) {
+            contarLigadas()
+            carregarVersoes()
+        }
         .tint(Tema.ambar)
         .sheet(isPresented: $sessao.mostrarRecordar) { folhaDoRecordar }
         .onAppear {
@@ -293,6 +303,7 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
+                vizinhanca
                 versoesDaNotaViva
                 // ADR 08u: a etiqueta de origem. Vem ANTES do texto porque é o
                 // que muda como se lê o que vem depois — a página é o lugar em
@@ -306,8 +317,10 @@ struct PaginaView: View {
                         .accessibilityIdentifier("origem-nota")
                         .accessibilityLabel("Esta nota não é sua voz: \(marca)")
                 }
-                if sessao.paginaVazia && sessao.gesto == nil && !sessao.timerLigado {
-                    // a única companhia do cursor: o dia (some no primeiro caractere)
+                if sessao.notaUUID == nil && sessao.gesto == nil && !sessao.timerLigado {
+                    // a única companhia do cursor: o dia. Fica enquanto a página é
+                    // nova (auditoria 17/09: sumia na primeira tecla e o texto
+                    // saltava 41 pt no instante de começar a escrever)
                     Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
                         .font(Tema.meta)
                         .foregroundStyle(Tema.tintaFraca)
@@ -421,20 +434,73 @@ struct PaginaView: View {
         }
     }
 
-    /// Nota viva (proposta de 16/09, tela 3): as datas das versões logo abaixo
-    /// do topo. Tocar numa data guarda esta e abre aquela.
-    @ViewBuilder private var versoesDaNotaViva: some View {
-        if let uuid = sessao.notaUUID, Juntas.grupo(de: uuid) != nil,
-           let atual = Sessao.buscar(uuid: uuid, no: context) {
-            let membros = Juntas.membros(de: uuid).compactMap { Sessao.buscar(uuid: $0, no: context) }
-            if membros.count > 1 {
-                VersoesDaNotaViva(atual: atual, membros: membros) { outra in
-                    guard sessao.salvar(no: context) else { return }
-                    sessao.abrir(outra)
+    /// O segundo cérebro aparece onde o autor já está (dono, 16/09: "e o segundo
+    /// cérebro, eu vejo?"): as ligações moravam no toque longo das Notas, onde
+    /// só achava quem procurava. Uma linha quieta abaixo do topo; um toque abre.
+    @ViewBuilder private var vizinhanca: some View {
+        if ligadas > 0, let uuid = sessao.notaUUID {
+            Button {
+                Toque.selecao()
+                redeAberta = Sessao.buscar(uuid: uuid, no: context)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "link")
+                        .font(.footnote.weight(.semibold))
+                        .accessibilityHidden(true)
+                    Text(ligadas == 1 ? "Ligada a 1 nota" : "Ligada a \(ligadas) notas")
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(Tema.tintaFraca)
+                        .accessibilityHidden(true)
+                    Spacer(minLength: 0)
                 }
-                .padding(.bottom, 16)
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(minHeight: Tema.alvo)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.discreto)
+            .padding(.horizontal, Tema.margem)
+            .padding(.top, -6)
+            .accessibilityHint("Mostra quem esta nota cita e quem a cita")
+            .accessibilityIdentifier("vizinhanca-da-nota")
         }
+    }
+
+    private func contarLigadas() {
+        guard let uuid = sessao.notaUUID else { ligadas = 0; return }
+        let rede = Rede.ligacoes(notas.map(\.paraRede))
+        let vizinhas = Set(rede.filter { $0.de == uuid || $0.para == uuid }.map { $0.de == uuid ? $0.para : $0.de })
+        ligadas = vizinhas.count
+    }
+
+    /// Nota viva (proposta de 16/09, tela 3): as datas das versões logo abaixo
+    /// do topo. Tocar numa data guarda esta e abre aquela. Os membros vêm de
+    /// `versoesDaPagina`, calculados ao abrir — não a cada tecla.
+    @ViewBuilder private var versoesDaNotaViva: some View {
+        if versoesDaPagina.count > 1, let uuid = sessao.notaUUID,
+           let atual = versoesDaPagina.first(where: { $0.uuid == uuid }) {
+            VersoesDaNotaViva(atual: atual, membros: versoesDaPagina, abrir: { outra in
+                guard sessao.salvar(no: context) else { return }
+                sessao.abrir(outra)
+            }, separar: { versao in
+                guard Juntas.separar(versao.uuid) else { return }
+                Toque.leve()
+                sessao.mostrarToast("separada das versões — a nota continua inteira.")
+                carregarVersoes()
+            })
+            .padding(.bottom, 16)
+        }
+    }
+
+    /// Só as que existem e ainda podem andar juntas: nota que ficou selada,
+    /// expressiva ou obra depois de juntada sai da fileira (revisão de 16/09).
+    private func carregarVersoes() {
+        guard let uuid = sessao.notaUUID, Juntas.grupo(de: uuid) != nil else { versoesDaPagina = []; return }
+        let membros = Juntas.membros(de: uuid)
+            .compactMap { Sessao.buscar(uuid: $0, no: context) }
+            .filter { Juntas.podeJuntar(fechada: $0.fechada, gesto: $0.gesto, obra: $0.origem.eObra) }
+        versoesDaPagina = membros.contains(where: { $0.uuid == uuid }) ? membros : []
     }
 
     private var topbar: some View {
@@ -596,7 +662,7 @@ struct PaginaView: View {
     /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
         CampoFlutuante(texto: $perguntaDaPagina, dica: "Fale com o Traço", ditado: ditado,
-                       identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à sábia",
+                       identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à Sábia",
                        rotuloDitar: "Ditar na página", aoEnviar: perguntarDaPagina,
                        aoComecarDitado: { baseDoDitado = sessao.texto }) {
             BotaoMais(rotulo: "Mais", identificador: "mais-acoes-da-nota") {
@@ -609,7 +675,7 @@ struct PaginaView: View {
                     .accessibilityIdentifier("desenhar")
                 Button("Anexar", systemImage: "paperclip") { abrirArquivo = true }
                     .accessibilityIdentifier("abrir-arquivo")
-                Button("Ler como está escrito", systemImage: "text.magnifyingglass") {
+                Button("Como está escrito", systemImage: "text.magnifyingglass") {
                     guard sessao.salvar(no: context) else { return }
                     lenteAberta = true
                 }
@@ -706,19 +772,21 @@ struct PaginaView: View {
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .fixedSize(horizontal: false, vertical: true)
-            Button("soltar a pergunta") {
+            Button("Descartar pergunta") {
                 sessao.perguntaPadroes = nil
             }
-            .font(Tema.corpo)
+            .font(Tema.meta.weight(.semibold))
             .foregroundStyle(Tema.tintaSuave)
             .alvo()
             .buttonStyle(.discreto)
-            .accessibilityLabel("Soltar a pergunta")
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartao(.papel, recuo: [])
-        .padding(.horizontal, 10)
+        // na margem da página e com ar em cima (auditoria 17/09: 10 pt de margem
+        // contra os 20 do texto, e 3 pt abaixo de «4 para conferir»)
+        .padding(.horizontal, Tema.margem)
+        .padding(.top, 12)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")
     }
@@ -727,10 +795,10 @@ struct PaginaView: View {
         switch cartao {
         case .forma(let g, _): "Forma \(g.nome) sugerida. Abrir a forma disponível."
         case .aviso(let frase): frase
-        case .sabiaPensando: "A sábia está pensando. Parar de esperar disponível."
-        case .resposta: "A sábia respondeu. A resposta está no cartão."
+        case .sabiaPensando: "A Sábia está pensando. Parar de esperar disponível."
+        case .resposta: "A Sábia respondeu. A resposta está no cartão."
         case .vestido: "Vestido. Desfazer disponível."
-        case .semConta: "A sábia " + Sabia.porOndeEmPalavras + "."
+        case .semConta: "A Sábia " + Sabia.porOndeEmPalavras + "."
         case .conselho: "Conselho dos mestres no cartão."
         default: nil
         }

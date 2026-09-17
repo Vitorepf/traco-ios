@@ -52,7 +52,7 @@ struct MarcaDePergunta: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(PressaoDiscreta())
-        .accessibilityLabel("Perguntar às suas notas")
+        .accessibilityLabel("Perguntar à Sábia")
         .accessibilityHint("Abre a folha da pergunta; a resposta vem das suas notas")
         .accessibilityIdentifier("perguntar-modo")
     }

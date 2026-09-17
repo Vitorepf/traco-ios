@@ -82,7 +82,7 @@ struct RedeView: View {
                             Text("Esta nota ainda não se liga a nenhuma.")
                                 .font(Tema.corpo)
                                 .foregroundStyle(Tema.tintaSuave)
-                            Text("Para ligar, escreva no texto o título de outra nota entre colchetes duplos: [[Título]].")
+                            Text("Para ligar, escreva no texto o título de outra nota entre colchetes duplos.")
                                 .font(Tema.meta)
                                 .foregroundStyle(Tema.tintaFraca)
                         }
@@ -167,11 +167,17 @@ struct RedeView: View {
             }
             .accessibilityIdentifier("rede-ecos")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
-        } else if Politica.provedor(.ecos) == nil {
+        } else if Politica.provedor(.ecos) == nil, temLigacoes {
+            // auditoria 17/09: na folha vazia, a razão da engenharia era ruído;
+            // o aviso só aparece onde as sugestões apareceriam, ao lado de ligações
             // ADR 07b: a seção que não veio diz por quê, em vez de calar
             LinhaDeEstado(Politica.semProvedor(.ecos), .semConta)
                 .accessibilityIdentifier("rede-sem-provedor")
         }
+    }
+
+    private var temLigacoes: Bool {
+        !Rede.daqui(nota.uuid, ligacoes).isEmpty || !Rede.paraCa(nota.uuid, ligacoes).isEmpty
     }
 
     private func secao(_ titulo: String, _ uuids: [UUID]) -> some View {

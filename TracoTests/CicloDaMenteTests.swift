@@ -26,7 +26,7 @@ private func temp(_ nome: String) -> URL {
         #expect(lidos.count == 2)
         #expect(lidos.last?.tipo == .pergunta)
         #expect(lidos.last?.serviu == false)
-        #expect(Sinais.emPalavras().hasPrefix("2 sinais"))
+        #expect(Sinais.emPalavras().hasPrefix("2 registros"))
         Sinais.esquecerTudo()
         #expect(Sinais.todos().isEmpty)
     }
@@ -86,7 +86,7 @@ private func temp(_ nome: String) -> URL {
         #expect(Degraus.instigar(.spec, sinais: [Sinal(tipo: .pergunta, forma: "spec", serviu: false), Sinal(tipo: .pergunta, forma: "spec", serviu: false)]) == 0)
         #expect(Degraus.instigar(.spec, sinais: naoServiu) == 0)
         #expect(Degraus.emPalavras(sinais: []) == "")
-        #expect(Degraus.emPalavras(sinais: naoServiu) == "WOOP no degrau 1 (desceu: duas perguntas não serviram).")
+        #expect(Degraus.emPalavras(sinais: naoServiu) == "WOOP: pergunta como as ideias se ligam (desceu: duas perguntas não serviram).")
     }
 }
 

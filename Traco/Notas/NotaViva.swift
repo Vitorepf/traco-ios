@@ -31,6 +31,47 @@ nonisolated enum Juntas {
         return mapa().filter { $0.value == g }.map(\.key)
     }
 
+    /// O que a lista e a página precisam saber de cada nota — sem SwiftData,
+    /// para as regras terem teste.
+    nonisolated struct Ficha: Sendable, Equatable {
+        var uuid: UUID
+        var criadaEm: Date
+        var podeJuntar: Bool
+    }
+
+    /// Quantas versões cada nota tem, contando só as que EXISTEM e PODEM andar
+    /// juntas. Uma nota que ficou selada, expressiva ou obra depois de juntada
+    /// sai da conta (revisão de 16/09: o «Desde…» mostrava texto trancado) e
+    /// volta a aparecer sozinha. Nota fora de grupo não entra no dicionário.
+    nonisolated static func contagens(_ mapa: [UUID: UUID], _ fichas: [Ficha]) -> [UUID: Int] {
+        var porGrupo: [UUID: Int] = [:]
+        for f in fichas where f.podeJuntar {
+            if let g = mapa[f.uuid] { porGrupo[g, default: 0] += 1 }
+        }
+        var saida: [UUID: Int] = [:]
+        for f in fichas where f.podeJuntar {
+            if let g = mapa[f.uuid], let n = porGrupo[g], n > 1 { saida[f.uuid] = n }
+        }
+        return saida
+    }
+
+    /// A lista com cada grupo uma vez só, pela versão mais nova que está à
+    /// vista; a ordem de chegada é mantida. Nota selada nunca esconde outra.
+    nonisolated static func recolher(_ lista: [Ficha], mapa: [UUID: UUID], contagens: [UUID: Int]) -> [UUID] {
+        var maisNova: [UUID: Ficha] = [:]
+        for f in lista where contagens[f.uuid] != nil {
+            guard let g = mapa[f.uuid] else { continue }
+            if let atual = maisNova[g], atual.criadaEm >= f.criadaEm { continue }
+            maisNova[g] = f
+        }
+        var vistos: Set<UUID> = []
+        return lista.compactMap { f in
+            guard contagens[f.uuid] != nil, let g = mapa[f.uuid] else { return f.uuid }
+            guard maisNova[g]?.uuid == f.uuid, vistos.insert(g).inserted else { return nil }
+            return f.uuid
+        }
+    }
+
     /// Selada, expressiva e obra nunca entram: o selo e a origem valem inteiros.
     nonisolated static func podeJuntar(fechada: Bool, gesto: Gesto?, obra: Bool) -> Bool {
         !fechada && gesto != .expressiva && !obra
@@ -85,11 +126,8 @@ nonisolated enum Juntas {
         func itens(_ t: String) -> [String] {
             t.split(whereSeparator: \.isNewline)
                 .map { $0.trimmingCharacters(in: .whitespaces) }
-                .map { l in
-                    var s = Substring(l)
-                    while let c = s.first, "-*•·–—[]x ".contains(c) { s = s.dropFirst() }
-                    return String(s).trimmingCharacters(in: .whitespaces)
-                }
+                // só UM marcador inteiro sai: «xícara» não perde o x
+                .map { $0.replacing(/^(?:[-*•·–—]|\[[ xX]?\])\s*/, with: "").trimmingCharacters(in: .whitespaces) }
                 .filter { !$0.isEmpty }
         }
         let chave = { (s: String) in s.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
@@ -105,6 +143,12 @@ nonisolated enum Juntas {
     /// modelo — é a lista que o autor percorre, não uma decisão.
     nonisolated static func parecidas(com titulo: String, texto: String, gesto: Gesto?,
                                       candidatas: [(uuid: UUID, titulo: String, texto: String, gesto: Gesto?, data: Date)]) -> [UUID] {
+        pontuadas(com: titulo, texto: texto, gesto: gesto, candidatas: candidatas).map(\.uuid)
+    }
+
+    /// As mesmas candidatas com os pontos: 0 = nada em comum.
+    nonisolated static func pontuadas(com titulo: String, texto: String, gesto: Gesto?,
+                                      candidatas: [(uuid: UUID, titulo: String, texto: String, gesto: Gesto?, data: Date)]) -> [(uuid: UUID, pontos: Int)] {
         func palavras(_ s: String) -> Set<String> {
             Set(s.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
                 .split { !$0.isLetter && !$0.isNumber }
@@ -121,7 +165,7 @@ nonisolated enum Juntas {
             pontuadas.append((k.uuid, doTitulo + doTexto + daForma, k.data))
         }
         pontuadas.sort { $0.pontos != $1.pontos ? $0.pontos > $1.pontos : $0.data > $1.data }
-        return pontuadas.map(\.uuid)
+        return pontuadas.map { ($0.uuid, $0.pontos) }
     }
 }
 
@@ -132,17 +176,21 @@ struct JuntarView: View {
     let juntou: (Nota) -> Void
     @Environment(\.dismiss) private var dismiss
 
-    private var candidatas: [Nota] {
+    /// As parecidas primeiro, separadas das outras: misturadas, a lista não
+    /// dizia quais tinham algo em comum com esta.
+    private var candidatas: (parecidas: [Nota], outras: [Nota]) {
         let jaJuntas = Set(Juntas.membros(de: nota.uuid))
         let pool = todas.filter {
             !jaJuntas.contains($0.uuid)
                 && Juntas.podeJuntar(fechada: $0.fechada, gesto: $0.gesto, obra: $0.origem.eObra)
         }
-        let ordem = Juntas.parecidas(
+        let ordem = Juntas.pontuadas(
             com: nota.tituloNaLista, texto: nota.textoDeQualquerOrigem, gesto: nota.gesto,
             candidatas: pool.map { ($0.uuid, $0.tituloNaLista, $0.textoDeQualquerOrigem, $0.gesto, $0.criadaEm) })
         let porId = Dictionary(uniqueKeysWithValues: pool.map { ($0.uuid, $0) })
-        return ordem.prefix(30).compactMap { porId[$0] }
+        let limite = ordem.prefix(40)
+        return (limite.filter { $0.pontos > 0 }.compactMap { porId[$0.uuid] },
+                limite.filter { $0.pontos == 0 }.compactMap { porId[$0.uuid] })
     }
 
     var body: some View {
@@ -168,30 +216,12 @@ struct JuntarView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             ScrollView {
-                LazyVStack(spacing: Tema.entreCartoes) {
-                    ForEach(candidatas, id: \.uuid) { outra in
-                        Button {
-                            Toque.selecao()
-                            juntou(outra)
-                            dismiss()
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(outra.tituloNaLista)
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(Tema.tinta)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-                                Text(outra.criadaEm.formatted(.dateTime.day().month(.wide)))
-                                    .font(.footnote.weight(.medium))
-                                    .foregroundStyle(Tema.tintaFraca)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 10)
-                            .cartao()
-                        }
-                        .buttonStyle(PressaoDeCartao())
-                        .accessibilityHint("Junta como versão desta nota")
-                    }
+                let c = candidatas
+                LazyVStack(alignment: .leading, spacing: Tema.entreCartoes) {
+                    if !c.parecidas.isEmpty { cabecalho("Parecidas") }
+                    ForEach(c.parecidas, id: \.uuid) { linha($0) }
+                    if !c.outras.isEmpty { cabecalho("Outras notas").padding(.top, c.parecidas.isEmpty ? 0 : 12) }
+                    ForEach(c.outras, id: \.uuid) { linha($0) }
                 }
                 .padding(.bottom, 24)
             }
@@ -205,78 +235,154 @@ struct JuntarView: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
     }
+
+    private func cabecalho(_ titulo: String) -> some View {
+        Text(titulo)
+            .font(Tema.meta.weight(.semibold))
+            .foregroundStyle(Tema.tintaSuave)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    private func linha(_ outra: Nota) -> some View {
+        Button {
+            Toque.selecao()
+            juntou(outra)
+            dismiss()
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(outra.tituloNaLista)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                // uma linha do texto: duas «Compras» só com título e data eram iguais
+                let previa = outra.textoDeQualquerOrigem
+                    .split(whereSeparator: \.isNewline)
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty && $0 != outra.tituloNaLista }
+                    .prefix(4).joined(separator: ", ")
+                if !previa.isEmpty {
+                    Text(previa)
+                        .font(.subheadline)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .lineLimit(1)
+                }
+                Text(outra.criadaEm.formatted(.dateTime.day().month(.wide)))
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .cartao()
+        }
+        .buttonStyle(PressaoDeCartao())
+        .accessibilityHint("Junta como versão desta nota")
+    }
 }
 
 /// Tela 3: a fileira de datas das versões, abaixo do topo da página, e o que
-/// mudou desde a versão anterior. Tocar numa data abre aquela versão.
+/// mudou desde a versão anterior. Tocar numa data abre aquela versão; o toque
+/// longo separa aquela versão das outras.
 struct VersoesDaNotaViva: View {
     let atual: Nota
+    /// Só as que podem andar juntas — quem chama já filtrou.
     let membros: [Nota]
     let abrir: (Nota) -> Void
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let separar: (Nota) -> Void
 
     private var ordenados: [Nota] { membros.sorted { $0.criadaEm > $1.criadaEm } }
 
+    private static let diaMes: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = .current
+        f.setLocalizedDateFormatFromTemplate("dMMM")
+        return f
+    }()
+    private static let diaMesAno: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = .current
+        f.setLocalizedDateFormatFromTemplate("dMMMyy")
+        return f
+    }()
+
     var body: some View {
+        let lista = ordenados
         VStack(alignment: .leading, spacing: 10) {
             ScrollView(.horizontal) {
                 HStack(spacing: 8) {
-                    ForEach(ordenados, id: \.uuid) { v in
-                        let esta = v.uuid == atual.uuid
-                        Button {
-                            guard !esta else { return }
-                            Toque.selecao()
-                            abrir(v)
-                        } label: {
-                            Text(rotulo(v.criadaEm))
-                                .font(.subheadline.weight(.semibold))
-                                .monospacedDigit()
-                                .foregroundStyle(esta ? .white : Tema.tinta)
-                                .padding(.horizontal, 12)
-                                .frame(height: 32)
-                                .background(esta ? Tema.chipAtivo : Tema.chip,
-                                            in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                                .frame(minHeight: Tema.alvo)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.discreto)
-                        .accessibilityLabel("Versão de " + v.criadaEm.formatted(.dateTime.day().month(.wide)))
-                        .accessibilityAddTraits(esta ? .isSelected : [])
+                    ForEach(lista, id: \.uuid) { v in
+                        chip(v, lista: lista)
                     }
                 }
                 .padding(.horizontal, Tema.margem)
             }
             .scrollIndicators(.hidden)
 
-            if let linha = oQueMudou {
-                linha
-                    .font(Tema.meta)
-                    .padding(.horizontal, Tema.margem)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("nota-viva-mudou")
-            }
+            // altura fixa (auditoria 17/09: o texto pulava até 48 pt ao trocar
+            // de data): a linha existe sempre — o que mudou, ou de quando é
+            (oQueMudou(lista) ?? Text(primeiraOuIgual(lista)).foregroundStyle(Tema.tintaFraca))
+                .font(Tema.meta)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40, alignment: .topLeading)
+                .padding(.horizontal, Tema.margem)
+                .accessibilityIdentifier("nota-viva-mudou")
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("nota-viva-versoes")
     }
 
-    private func rotulo(_ d: Date) -> String {
-        if Calendar.current.isDateInToday(d) { return "Hoje" }
-        // «10 set», sem o «de» e sem o ponto da abreviatura
-        let f = DateFormatter()
-        f.locale = .current
-        f.setLocalizedDateFormatFromTemplate(Calendar.current.isDate(d, equalTo: .now, toGranularity: .year) ? "dMMM" : "dMMMyy")
-        return f.string(from: d).replacingOccurrences(of: ".", with: "").replacingOccurrences(of: " de ", with: " ")
+    private func chip(_ v: Nota, lista: [Nota]) -> some View {
+        let esta = v.uuid == atual.uuid
+        return Button {
+            guard !esta else { return }
+            Toque.selecao()
+            abrir(v)
+        } label: {
+            Text(rotulo(v, lista: lista))
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(esta ? .white : Tema.tinta)
+                .padding(.horizontal, 12)
+                .frame(height: 32)
+                .background(esta ? Tema.chipAtivo : Tema.chip,
+                            in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                .frame(minHeight: Tema.alvo)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.discreto)
+        .contextMenu {
+            Button("Separar esta versão", systemImage: "square.split.2x1") { separar(v) }
+        }
+        .accessibilityLabel("Versão de " + v.criadaEm.formatted(.dateTime.day().month(.wide).hour().minute()))
+        .accessibilityAddTraits(esta ? .isSelected : [])
+        .accessibilityHint(esta ? "Versão aberta. Segure para separar" : "Abre esta versão. Segure para separar")
+    }
+
+    /// «Hoje», «10 set», «3 mai 25»; com a hora quando duas versões caem no mesmo dia.
+    private func rotulo(_ v: Nota, lista: [Nota]) -> String {
+        let cal = Calendar.current
+        let d = v.criadaEm
+        let mesmoDia = lista.contains { $0.uuid != v.uuid && cal.isDate($0.criadaEm, inSameDayAs: d) }
+        var base = cal.isDateInToday(d) ? "Hoje"
+            : (cal.isDate(d, equalTo: .now, toGranularity: .year) ? Self.diaMes : Self.diaMesAno).string(from: d)
+                .replacingOccurrences(of: ".", with: "").replacingOccurrences(of: " de ", with: " ")
+        if mesmoDia { base += ", " + d.formatted(date: .omitted, time: .shortened) }
+        return base
+    }
+
+    private func primeiraOuIgual(_ lista: [Nota]) -> String {
+        lista.last?.uuid == atual.uuid ? "A primeira versão" : "Igual à versão anterior"
     }
 
     /// «Desde 10 de setembro: + detergente · − leite». Só entre esta versão e a
-    /// anterior a ela; nada quando as duas dizem o mesmo.
-    private var oQueMudou: Text? {
-        guard let i = ordenados.firstIndex(where: { $0.uuid == atual.uuid }), i + 1 < ordenados.count else { return nil }
-        let anterior = ordenados[i + 1]
+    /// anterior; cada parte curta — em prosa, um parágrafo inteiro não cabe.
+    private func oQueMudou(_ lista: [Nota]) -> Text? {
+        guard let i = lista.firstIndex(where: { $0.uuid == atual.uuid }), i + 1 < lista.count else { return nil }
+        let anterior = lista[i + 1]
         let d = Juntas.diferenca(de: anterior.textoDeQualquerOrigem, para: atual.textoDeQualquerOrigem)
         guard !d.entrou.isEmpty || !d.saiu.isEmpty else { return nil }
-        let partes = d.entrou.prefix(4).map { "+ " + $0 } + d.saiu.prefix(4).map { "− " + $0 }
+        let curto = { (x: String) in x.count > 32 ? String(x.prefix(31)).trimmingCharacters(in: .whitespaces) + "…" : x }
+        let partes = d.entrou.prefix(4).map { "+ " + curto($0) } + d.saiu.prefix(4).map { "− " + curto($0) }
         return Text("Desde " + anterior.criadaEm.formatted(.dateTime.day().month(.wide)) + ": ").foregroundStyle(Tema.tintaSuave)
             + Text(partes.joined(separator: " · ")).foregroundStyle(Tema.tinta)
     }

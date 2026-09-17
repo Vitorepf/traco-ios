@@ -99,6 +99,9 @@ struct PerfilView: View {
                     // automática para fora da primeira tela)
                     ferias.respiro(recolhidas.aberta("ferias"))
                     dados
+                    // auditoria 17/09: sair morava na segunda linha, no caminho
+                    // do polegar; como no Ajustes, fica no fim e sozinho
+                    sairDaConta
                     Spacer(minLength: 8)
                 }
                 .padding(.horizontal, Tema.margem)
@@ -166,10 +169,34 @@ struct PerfilView: View {
         indiceQuantas = Indice.quantas
     }
 
+    @ViewBuilder private var sairDaConta: some View {
+        if ligada {
+            // sair é destrutivo e pede confirmação (auditoria 16/09 noite:
+            // parecia uma linha comum, sem cor nem aviso)
+            linhaAcao("rectangle.portrait.and.arrow.right", "Sair da conta",
+                      "a Sábia passa a usar só o aparelho", destrutiva: true) {
+                confirmarSaida = true
+            }
+            .accessibilityIdentifier("sair-conta")
+            .confirmationDialog("Sair da conta Grok?", isPresented: $confirmarSaida, titleVisibility: .visible) {
+                Button("Sair", role: .destructive) {
+                    ContaGrok.sair()
+                    ligada = false
+                    codigo = nil
+                    Task { estado = await ContaGrok.estado() }
+                }
+                Button("Ficar", role: .cancel) {}
+            } message: {
+                Text("As respostas pelas suas notas e a escolha dos conselhos deixam de funcionar até você entrar de novo.")
+            }
+            .padding(.top, 32)
+        }
+    }
+
     private var sabiaEVoce: some View {
-        recolhidas.secao("A sábia e você", id: "sabia") {
-            chave("person.text.rectangle", "A sábia conhece você",
-                  "Um retrato feito só com as suas palavras e contagens: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Em cada pergunta vai só a parte que toca o assunto. Nunca conclui, nunca pontua.",
+        recolhidas.secao("A Sábia e você", id: "sabia") {
+            chave("person.text.rectangle", "A Sábia conhece você",
+                  "Um retrato feito só com as suas palavras e contagens: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nas perguntas às Notas vai só a parte que toca o assunto. Nunca conclui, nunca pontua.",
                   id: "ajuste-retrato",
                   ligado: Binding(
                     get: { retratoLigado },
@@ -193,7 +220,7 @@ struct PerfilView: View {
                 .accessibilityIdentifier("sinais")
             if !degrausEmPalavras.isEmpty {
                 // ADR 04x: o autor vê o que a sábia vai cobrar dele
-                prosa("O que a sábia cobra, por forma: " + degrausEmPalavras)
+                prosa("Como a Sábia pergunta em cada forma — " + degrausEmPalavras)
                     .accessibilityIdentifier("degraus")
             }
             if !formasSugeridas.isEmpty {
@@ -201,7 +228,7 @@ struct PerfilView: View {
                       + ". Por isso o Traço passou a sugerir em vez de vestir. Abrir uma por vontade própria devolve o vestir.")
                     .accessibilityIdentifier("formas-sugeridas")
             }
-            linhaAcao("trash", "Esquecer tudo", "os sinais somem; as notas ficam", destrutiva: true, fio: false) {
+            linhaAcao("trash", "Esquecer tudo", "os registros somem; as notas ficam", destrutiva: true, fio: false) {
                 confirmarEsquecer = true
             }
             .accessibilityIdentifier("esquecer-sinais")
@@ -464,26 +491,7 @@ struct PerfilView: View {
 
             // a AÇÃO, separada de quem a conta é — reconhecida pelo chevron,
             // não pelo âmbar (ADR 10k)
-            if ligada {
-                // sair é destrutivo e pede confirmação (auditoria 16/09 noite:
-                // parecia uma linha comum, sem cor nem aviso)
-                linhaAcao("rectangle.portrait.and.arrow.right", "Sair da conta",
-                          "a IA passa a usar só o aparelho", destrutiva: true) {
-                    confirmarSaida = true
-                }
-                .accessibilityIdentifier("sair-conta")
-                .confirmationDialog("Sair da conta Grok?", isPresented: $confirmarSaida, titleVisibility: .visible) {
-                    Button("Sair", role: .destructive) {
-                        ContaGrok.sair()
-                        ligada = false
-                        codigo = nil
-                        Task { estado = await ContaGrok.estado() }
-                    }
-                    Button("Ficar", role: .cancel) {}
-                } message: {
-                    Text("As respostas pelas suas notas e a escolha dos conselhos deixam de funcionar até você entrar de novo.")
-                }
-            } else {
+            if !ligada {
                 linhaAcao("person.badge.key", entrando ? "esperando aprovação…" : "Entrar com a conta Grok",
                           "sem chave de API, sem cobrança por uso") {
                     entrar()
@@ -506,7 +514,7 @@ struct PerfilView: View {
         recolhidas.secao("Quem responde", id: "quem-responde") {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
                 // "Hoje: pela sua conta" repetia a Conta logo acima (auditoria 16/09 noite)
-                Text("A IA usa a sua assinatura do Grok, sem custo por uso; sem a conta, usa o modelo do próprio iPhone. Notas trancadas e expressivas nunca saem do aparelho.")
+                Text("A Sábia usa a sua assinatura do Grok, sem custo por uso; sem a conta, usa o modelo do próprio iPhone. Notas trancadas e a escrita expressiva nunca saem do aparelho.")
                 VStack(alignment: .leading, spacing: Tema.entreItens) {
                     Text(Self.oQueAIAFaz)
                     Text(Self.oQueAContaAcrescenta)
@@ -538,7 +546,7 @@ struct PerfilView: View {
     /// "reprovou" e sem o nosso plano de obra. O cartão diz o que a IA FAZ por
     /// ele, e a lista do que ela não faz vem depois — não antes.
     static var oQueAIAFaz: String {
-        "A IA faz por você, no aparelho e sem conta: "
+        "A Sábia faz por você, no aparelho e sem conta: "
             + Politica.peloAparelho.map(Politica.nome).joined(separator: ", ") + "."
     }
 

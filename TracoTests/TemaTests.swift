@@ -266,13 +266,13 @@ struct TemaTests {
         func frase(_ s: TimeInterval) -> String {
             CartaoAnaliseView.fraseDaEspera(desde: inicio, agora: inicio.addingTimeInterval(s))
         }
-        #expect(frase(0) == "a sábia pensa…")
-        #expect(frase(3.9) == "a sábia pensa…")
-        #expect(frase(4) == "a sábia pensa há 4 s…")
-        #expect(frase(36) == "a sábia pensa há 36 s…")
-        #expect(frase(77.5) == "a sábia pensa há 77 s…")
+        #expect(frase(0) == "a Sábia pensa…")
+        #expect(frase(3.9) == "a Sábia pensa…")
+        #expect(frase(4) == "a Sábia pensa há 4 s…")
+        #expect(frase(36) == "a Sábia pensa há 36 s…")
+        #expect(frase(77.5) == "a Sábia pensa há 77 s…")
         // relógio que anda para trás não vira número negativo na tela
-        #expect(frase(-5) == "a sábia pensa…")
+        #expect(frase(-5) == "a Sábia pensa…")
     }
 
     /// ADR 09n: parar de esperar não pode custar o que a pessoa escreveu.

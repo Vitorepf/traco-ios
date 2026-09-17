@@ -27,6 +27,9 @@ struct CampoFlutuante<Mais: View>: View {
     /// Ao escrever, o que mora antes do campo (o trilho do calendário) sai e a
     /// linha inteira é do texto (auditoria 16/09 noite: "Marcar" encolhia a 60 pt).
     var recolherMaisAoEscrever = false
+    /// Com texto, um «x» dentro do campo limpa tudo (auditoria 17/09: a busca
+    /// não tinha saída além de apagar letra por letra). Nil = sem «x».
+    var aoLimpar: (() -> Void)? = nil
     @ViewBuilder var mais: () -> Mais
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var focoProprio: Bool
@@ -77,6 +80,22 @@ struct CampoFlutuante<Mais: View>: View {
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
                 .focused(foco ?? $focoProprio)
+            if let aoLimpar, temTexto, aoParar == nil {
+                Button {
+                    Toque.selecao()
+                    aoLimpar()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.body)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.discreto)
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                .accessibilityLabel("Limpar")
+                .accessibilityIdentifier(identificador + "-limpar")
+            }
             Button {
                 if let aoParar {
                     aoParar()
@@ -140,11 +159,11 @@ extension CampoFlutuante where Mais == EmptyView {
     init(texto: Binding<String>, dica: String, ditado: Ditado, identificador: String,
          identificadorDoBotao: String? = nil, rotuloEnviar: String, rotuloDitar: String,
          aoEnviar: @escaping () -> Void, aoComecarDitado: @escaping () -> Void = {},
-         foco: FocusState<Bool>.Binding? = nil, aoParar: (() -> Void)? = nil) {
+         foco: FocusState<Bool>.Binding? = nil, aoParar: (() -> Void)? = nil, aoLimpar: (() -> Void)? = nil) {
         self.init(texto: texto, dica: dica, ditado: ditado, identificador: identificador,
                   identificadorDoBotao: identificadorDoBotao, rotuloEnviar: rotuloEnviar,
                   rotuloDitar: rotuloDitar, aoEnviar: aoEnviar, aoComecarDitado: aoComecarDitado,
-                  foco: foco, aoParar: aoParar) { EmptyView() }
+                  foco: foco, aoParar: aoParar, aoLimpar: aoLimpar) { EmptyView() }
     }
 }
 

@@ -239,7 +239,7 @@ struct ControleDeRetorno: View {
 }
 
 #Preview("não respondeu, e a saída ao lado") {
-    CartaoDeResposta(titulo: "O que falta no plano?", falhou: "a sábia não respondeu.", repetir: {}, rota: "preview") { Text("") }
+    CartaoDeResposta(titulo: "O que falta no plano?", falhou: "a Sábia não respondeu.", repetir: {}, rota: "preview") { Text("") }
         .padding()
         .background(Tema.fundo)
 }

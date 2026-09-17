@@ -25,7 +25,7 @@ struct LinhaDeEstado: View {
 
 #Preview("pensando e lendo") {
     VStack(alignment: .leading, spacing: 8) {
-        LinhaDeEstado("a sábia pensa…", .pensando)
+        LinhaDeEstado("a Sábia pensa…", .pensando)
         LinhaDeEstado("lendo…", .lendo)
     }
     .padding()
@@ -34,15 +34,15 @@ struct LinhaDeEstado: View {
 
 #Preview("falhou e sem conta") {
     VStack(alignment: .leading, spacing: 8) {
-        LinhaDeEstado("a sábia não respondeu.", .falhou)
-        LinhaDeEstado("a sábia não está neste aparelho. Sem ela, a busca continua.", .semConta)
+        LinhaDeEstado("a Sábia não respondeu.", .falhou)
+        LinhaDeEstado("a Sábia não está neste aparelho. Sem ela, a busca continua.", .semConta)
     }
     .padding()
     .background(Tema.fundo)
 }
 
 #Preview("AX5") {
-    LinhaDeEstado("a sábia não respondeu.", .falhou)
+    LinhaDeEstado("a Sábia não respondeu.", .falhou)
         .padding()
         .background(Tema.fundo)
         .environment(\.dynamicTypeSize, .accessibility5)
@@ -62,7 +62,7 @@ struct LinhaDeEstado: View {
 struct Espera: View {
     /// A frase da espera nas rotas da sábia. Minúscula, no presente: é uma
     /// linha de estado, não um título — e é uma só para as quatro (§14).
-    static let aSabiaPensa = "a sábia pensa"
+    static let aSabiaPensa = "a Sábia pensa"
 
     /// A frase no presente, minúscula, sem reticências: "a sábia pensa".
     /// O tempo e as reticências são desta view.
@@ -151,7 +151,7 @@ struct LinhaDeAutor: View {
                 .foregroundStyle(autor.cor)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(autor == .voce ? "Você" : "A sábia")
+        .accessibilityLabel(autor == .voce ? "Você" : "A Sábia")
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(autor == .voce ? "autor-voce" : "autor-sabia")
     }
@@ -214,8 +214,8 @@ struct CapsulaDeEspera: View {
 
 #Preview("espera com relógio e saída") {
     VStack(alignment: .leading, spacing: 12) {
-        Espera(frase: "a sábia pensa", desde: .now)
-        Espera(frase: "a sábia pensa", desde: .now.addingTimeInterval(-47), cancelar: {})
+        Espera(frase: "a Sábia pensa", desde: .now)
+        Espera(frase: "a Sábia pensa", desde: .now.addingTimeInterval(-47), cancelar: {})
         Espera(frase: "a IA confere a sua tentativa", desde: .now.addingTimeInterval(-241), cancelar: {})
     }
     .padding()

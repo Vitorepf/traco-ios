@@ -42,8 +42,8 @@ struct RespostaDaSabia: View {
 
     /// A linha "Referência:" que `RespostaNotas` acrescenta ao fim sai do corpo
     /// e vira nota de rodapé: ela diz de onde veio, não é o que a sábia diz.
-    /// Só a linha: o que vem depois dela num bloco próprio ("Contexto parcial:
-    /// …", `RespostaNotas`) é aviso para ler, e volta ao corpo.
+    /// Só a linha: o que vem depois dela num bloco próprio (o aviso da nota que
+    /// não coube, `RespostaNotas`) é para ler, e volta ao corpo.
     static func separar(_ bruto: String) -> (corpo: String, referencia: String?) {
         let texto = bruto.replacingOccurrences(of: "\r\n", with: "\n")
         guard let r = texto.range(of: "\nReferência: ", options: .backwards) else { return (texto, nil) }
@@ -161,7 +161,7 @@ struct FontesDaResposta: View {
                     Image(systemName: "doc.text")
                         .font(.footnote.weight(.semibold))
                         .accessibilityHidden(true)
-                    Text(resumo)
+                    Text(resumo.prefix(1).uppercased() + resumo.dropFirst())
                     Image(systemName: "chevron.down")
                         .font(.caption2.weight(.bold))
                         .rotationEffect(.degrees(aberto ? 180 : 0))
@@ -227,7 +227,8 @@ struct AcoesDaResposta: View {
     @State private var escolha: Bool?
 
     var body: some View {
-        HStack(spacing: 2) {
+        // auditoria 17/09: alvos de 44 pt, sem vão — o passo era 38
+        HStack(spacing: 0) {
             icone(copiado ? "checkmark" : "doc.on.doc", "Copiar a resposta", id: "copiar-sabia-notas") {
                 UIPasteboard.general.string = RespostaDaSabia.separar(texto).corpo
                 Toque.leve()
@@ -245,12 +246,12 @@ struct AcoesDaResposta: View {
                 Text(Image(systemName: escolha == false ? "hand.thumbsdown.fill" : "checkmark"))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Tema.tintaSuave)
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
                     .accessibilityLabel("anotado")
                     .accessibilityIdentifier("retorno-anotado")
             }
         }
-        .padding(.leading, -8)
+        .padding(.leading, -12)
     }
 
     private func icone(_ nome: String, _ rotulo: String, id: String, acao: @escaping () -> Void) -> some View {
@@ -259,7 +260,7 @@ struct AcoesDaResposta: View {
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(Tema.tintaFraca)
                 .contentTransition(.symbolEffect(.replace))
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
                 .alvo()
         }
@@ -304,7 +305,7 @@ struct AberturaDaConversa: View {
             Text("Pergunte às suas notas")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(Tema.tinta)
-            Text("A sábia lê o que você escreveu e mostra de quais notas tirou a resposta.")
+            Text("A Sábia lê o que você escreveu e mostra de quais notas tirou a resposta.")
                 .font(.body)
                 .foregroundStyle(Tema.tintaSuave)
                 .fixedSize(horizontal: false, vertical: true)

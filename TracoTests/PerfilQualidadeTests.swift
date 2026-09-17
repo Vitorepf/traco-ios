@@ -69,7 +69,7 @@ struct PerfilQualidadeTests {
     /// que a tela ainda está sendo acertada. Continua fora das cortadas.
     @Test("a primeira linha do cartão é o que a IA faz, e responder nas Notas não promete até a tela passar")
     func oCartaoAbreComOQueElaFaz() {
-        #expect(PerfilView.oQueAIAFaz.hasPrefix("A IA faz por você"))
+        #expect(PerfilView.oQueAIAFaz.hasPrefix("A Sábia faz por você"))
         #expect(!PerfilView.oQueAContaAcrescenta.contains(Politica.nome(.responderNasNotas)))
         // ADR 2026-09-16h: a regra escolhida aparece no cartão — e a Decisão vai
         // sozinha ao Grok; o Perfil diz que a conta faz isso

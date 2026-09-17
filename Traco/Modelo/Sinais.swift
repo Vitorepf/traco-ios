@@ -139,11 +139,11 @@ nonisolated enum Sinais {
     static func emPalavras() -> String {
         // a sombra (ADR 16d) não é gesto do autor: fora da contagem
         let lista = todos().filter { $0.tipo != .exposto && $0.tipo != .visto }
-        guard let primeiro = lista.first else { return "nenhum sinal ainda — eles nascem quando você solta uma forma, conclui uma, ou diz se uma pergunta serviu." }
+        guard let primeiro = lista.first else { return "Nenhum registro ainda — eles nascem quando você solta uma forma, conclui uma, ou diz se uma pergunta serviu." }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
         f.dateFormat = "d 'de' MMMM"
         let n = lista.count
-        return "\(n) \(n == 1 ? "sinal" : "sinais") desde \(f.string(from: primeiro.quando))."
+        return "\(n) \(n == 1 ? "registro" : "registros") desde \(f.string(from: primeiro.quando))"
     }
 }

@@ -29,7 +29,7 @@ struct VersoesView: View {
             }
 
             if versoes.isEmpty {
-                Text("Uma versão nasce a cada gravação que muda o texto.")
+                Text("Cada vez que você muda o texto e guarda, a alteração anterior fica aqui.")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaFraca)
             } else {

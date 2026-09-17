@@ -47,28 +47,28 @@ struct LenteView: View {
             VStack(alignment: .leading, spacing: 24) {
                 // o cabeçalho da casa: título nos tokens, Pronto como texto — a
                 // cápsula cinza pesava mais que o título (von-restorff invertido)
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline) {
                         // o mesmo nome do menu "+" (auditoria 16/09 noite: "Lente" era jargão)
                         Text("Como está escrito")
                             .font(Tema.tituloTela)
                             .tracking(Tema.trackingTitulo)
                             .foregroundStyle(Tema.tinta)
                             .accessibilityAddTraits(.isHeader)
-                        // "nada a apontar" vive aqui, na linha de metadados: um
-                        // parágrafo solto para dizer pouco era ruído
-                        Text(resumo(l) + (l.vazia ? " · nada a apontar" : ""))
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .monospacedDigit()
-                            .accessibilityIdentifier(l.vazia ? "lente-vazia" : "lente-resumo")
+                        Spacer(minLength: 8)
+                        // um "Pronto" só no app: a cápsula carvão do cabeçalho de folha
+                        Button { dismiss() } label: { Pilula("Pronto", forma: .acao) }
+                            .alvo()
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("lente-pronto")
                     }
-                    Spacer(minLength: 8)
-                    // um "Pronto" só no app: a cápsula carvão do cabeçalho de folha
-                    Button { dismiss() } label: { Pilula("Pronto", forma: .acao) }
-                        .alvo()
-                        .buttonStyle(PressaoDiscreta())
-                        .accessibilityIdentifier("lente-pronto")
+                    // "nada a apontar" vive aqui, na linha de metadados; na largura
+                    // inteira (auditoria 17/09: quebrava com 130 pt sobrando)
+                    Text(resumo(l) + (l.vazia ? " · nada a apontar" : ""))
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .monospacedDigit()
+                        .accessibilityIdentifier(l.vazia ? "lente-vazia" : "lente-resumo")
                 }
 
                 // ADR 05x: a forma desta nota e de onde ela vem. Informação,
@@ -173,7 +173,7 @@ struct LenteView: View {
                 // "Instigar" (e o mesmo em Contrapor) era o cabeçalho repetindo
                 // a linha — dois nomes para uma coisa (laço de 14/09).
                 if notaUUID != nil, gesto != .expressiva {
-                    secao("À sábia", id: "sabia", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count) {
+                    secao("À Sábia", id: "sabia", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(perguntasDaSabia, id: \.self) { q in
                                 // a pergunta é o conteúdo: quebra, não corta
@@ -256,7 +256,7 @@ struct LenteView: View {
                             .buttonStyle(.linha)
                             .disabled(contrapondoDesde != nil)
                             .accessibilityIdentifier("contrapor")
-                            .accessibilityHint("Vai à sábia; a resposta fica aqui, nunca na nota")
+                            .accessibilityHint("Vai à Sábia; a resposta fica aqui, nunca na nota")
                         }
                     }
                 }

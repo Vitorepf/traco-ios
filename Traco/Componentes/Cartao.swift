@@ -100,7 +100,7 @@ extension View {
 
 #Preview("os quatro") {
     VStack(spacing: 16) {
-        Text("A sábia, sobre a nota").frame(maxWidth: .infinity, alignment: .leading).cartao(.papel)
+        Text("A Sábia, sobre a nota").frame(maxWidth: .infinity, alignment: .leading).cartao(.papel)
         Text("Quando").frame(maxWidth: .infinity, alignment: .leading).cartao(.campo)
         Text("A barra que flutua").frame(maxWidth: .infinity, alignment: .leading).cartao(.flutuante)
         Text("Dentista").foregroundStyle(CalendarioTema.tinta(de: .saude))

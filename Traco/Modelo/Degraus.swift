@@ -60,6 +60,18 @@ nonisolated enum Degraus {
         sinais.filter { $0.tipo == .ficou && $0.forma == forma.rawValue }.count
     }
 
+    /// O degrau na língua de quem escreve (auditoria 17/09: «degrau 2» era
+    /// termo interno): o que a pergunta cobra naquele nível.
+    nonisolated static func emPalavras(degrau: Int) -> String {
+        switch max(0, min(4, degrau)) {
+        case 0: "pergunta pelo básico"
+        case 1: "pergunta como as ideias se ligam"
+        case 2: "pergunta pela evidência"
+        case 3: "pergunta pelo custo de errar"
+        default: "pergunta onde deixa de valer"
+        }
+    }
+
     /// Para o Perfil: o degrau de cada forma em que há sinal, em uma linha.
     /// Vazio sem sinal nenhum.
     nonisolated static func emPalavras(sinais: [Sinal]) -> String {
@@ -70,7 +82,7 @@ nonisolated enum Degraus {
         return formas.map { g in
             let a = ajuste(g, sinais: sinais)
             let nota = a < 0 ? " (desceu: duas perguntas não serviram)" : a > 0 ? " (subiu: duas perguntas serviram)" : ""
-            return "\(g.nome) no degrau \(instigar(g, sinais: sinais))\(nota)"
+            return "\(g.nome): \(emPalavras(degrau: instigar(g, sinais: sinais)))\(nota)"
         }.joined(separator: " · ") + "."
     }
 }

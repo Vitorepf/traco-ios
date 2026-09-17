@@ -236,7 +236,7 @@ struct CartaoAnaliseView: View {
     /// sempre a um toque.
     @ViewBuilder private var botaoPergunta: some View {
         if sessao.perguntaNaNota != nil {
-            Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
+            Button("Perguntar à Sábia") { sessao.perguntarASabia(no: context) }
                 .buttonStyle(.compacto)
                 .foregroundStyle(Tema.tintaSuave)
                 .accessibilityIdentifier("perguntar-sabia")
@@ -276,7 +276,7 @@ struct CartaoAnaliseView: View {
         case .sabiaPensando(_, let desde): Self.fraseDaEspera(desde: desde, agora: .now)
         case .resposta(_, let texto): texto
         case .vestido: "As suas palavras, com forma. Nenhuma mudou."
-        case .semConta: "a sábia " + Sabia.porOndeEmPalavras + "."
+        case .semConta: "a Sábia " + Sabia.porOndeEmPalavras + "."
         case .expressiva: "Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento."
         case .conselho(let c): c.regra.regra
         }
@@ -378,7 +378,7 @@ struct CartaoAnaliseView: View {
             case .semConta:
                 corpoCartao(trilho: Tema.aviso) {
                     chip(kicker, aviso: true)
-                    avisoTexto("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, tudo o mais continua.")
+                    avisoTexto("a Sábia " + Sabia.porOndeEmPalavras + ". Sem ela, tudo o mais continua.")
                 }
             case .expressiva:
                 corpoCartao(trilho: Tema.ambar) {
@@ -436,7 +436,7 @@ struct CartaoAnaliseView: View {
                 .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
             botaoPergunta
         case .pergunta:
-            Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
+            Button("Perguntar à Sábia") { sessao.perguntarASabia(no: context) }
                 .buttonStyle(.primario(alinhamento: .leading))
                 .accessibilityIdentifier("perguntar-sabia")
                 .accessibilityHint("A resposta vem aqui, nunca na nota")

@@ -32,6 +32,7 @@ struct NotasView: View {
     /// ou separar, e o «Desfazer» da última junção.
     @State private var juntarDe: Nota?
     @State private var juntas = Juntas.mapa()
+    @State private var contagensJuntas: [UUID: Int] = [:]
     @State private var desfazerJuntar: DesfazerJuntar?
     @State private var tarefaDesfazer: Task<Void, Never>?
     @State private var serieDe: UUID?
@@ -121,20 +122,20 @@ struct NotasView: View {
             .onChange(of: conversaNotas.trocas.count) { antes, depois in
                 if depois > antes {
                     Toque.suave()
-                    AccessibilityNotification.Announcement("A sábia respondeu.").post()
+                    AccessibilityNotification.Announcement("A Sábia respondeu.").post()
                 }
             }
             // VoiceOver: o cartão sobe sozinho no pé da tela — quem não vê precisa ouvir
             .onChange(of: conversaNotas.estado) { _, estado in
                 switch estado {
-                case .pensando: AccessibilityNotification.Announcement("A sábia está pensando.").post()
-                case .falhou: AccessibilityNotification.Announcement("A sábia não respondeu. Perguntar de novo está ao lado da pergunta.").post()
+                case .pensando: AccessibilityNotification.Announcement("A Sábia está pensando.").post()
+                case .falhou: AccessibilityNotification.Announcement("A Sábia não respondeu. Perguntar de novo está ao lado da pergunta.").post()
                 case .recolhida: AccessibilityNotification.Announcement("A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível. Você pode perguntar de novo.").post()
                 default: break
                 }
             }
             .onChange(of: conversaNotas.semModelo) { _, sem in
-                if sem { AccessibilityNotification.Announcement("A sábia " + Sabia.porOndeEmPalavras + ". A busca continua.").post() }
+                if sem { AccessibilityNotification.Announcement("A Sábia " + Sabia.porOndeEmPalavras + ". A busca continua.").post() }
             }
         }
         .sheet(isPresented: $mostrarTrabalhos) { TrabalhosView() }
@@ -142,6 +143,7 @@ struct NotasView: View {
             JuntarView(nota: nota, todas: notas) { outra in juntar(nota, com: outra) }
         }
         .overlay(alignment: .bottom) { barraDesfazerJuntar }
+        .task(id: chaveJuntas) { contagensJuntas = Juntas.contagens(juntas, notas.map(ficha)) }
     }
 
     // MARK: - Nota viva
@@ -178,9 +180,12 @@ struct NotasView: View {
         withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
             desfazerJuntar = DesfazerJuntar(antes: antes, frase: frase)
         }
+        AccessibilityNotification.Announcement(frase + ". Desfazer está no pé da tela.").post()
         tarefaDesfazer?.cancel()
+        // com VoiceOver a barra fica até a próxima ação: 6 s não bastam para chegar nela
+        guard !UIAccessibility.isVoiceOverRunning else { return }
         tarefaDesfazer = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(6))
+            try? await Task.sleep(for: .seconds(8))
             guard !Task.isCancelled else { return }
             withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
                 desfazerJuntar = nil
@@ -198,7 +203,10 @@ struct NotasView: View {
                 Spacer(minLength: 8)
                 Button("Desfazer") {
                     tarefaDesfazer?.cancel()
-                    Juntas.restaurar(d.antes)
+                    guard Juntas.restaurar(d.antes) else {
+                        sessao.mostrarToast("não consegui desfazer — as notas continuam inteiras.")
+                        return
+                    }
                     Toque.leve()
                     withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
                         juntas = Juntas.mapa()
@@ -213,7 +221,9 @@ struct NotasView: View {
             }
             .padding(.leading, 16)
             .padding(.trailing, 8)
-            .cartao(.papel, recuo: [])
+            .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
+            // flutua: sombra própria, para não ler como parte da lista (auditoria 17/09)
+            .shadow(color: Tema.sombraFlutuante, radius: 12, y: 4)
             .padding(.horizontal, Tema.margem)
             .padding(.bottom, 64)
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
@@ -221,26 +231,28 @@ struct NotasView: View {
     }
 
     /// Cada grupo aparece uma vez, pela versão mais nova que está à vista.
+    /// A regra mora em `Juntas.recolher` (com teste); aqui só a tradução.
     private func recolherJuntas(_ lista: [Nota]) -> [Nota] {
-        var vistos: Set<UUID> = []
-        let maisNova: [UUID: UUID] = lista.reduce(into: [:]) { acc, n in
-            guard let g = juntas[n.uuid] else { return }
-            if let atual = acc[g], let a = lista.first(where: { $0.uuid == atual }), a.criadaEm >= n.criadaEm { return }
-            acc[g] = n.uuid
-        }
-        return lista.filter { n in
-            guard let g = juntas[n.uuid] else { return true }
-            guard maisNova[g] == n.uuid, !vistos.contains(g) else { return false }
-            vistos.insert(g)
-            return true
-        }
+        guard !contagensJuntas.isEmpty else { return lista }
+        let porId = Dictionary(lista.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
+        return Juntas.recolher(lista.map(ficha), mapa: juntas, contagens: contagensJuntas).compactMap { porId[$0] }
     }
 
-    /// Quantas versões a nota viva tem (as que ainda existem). 1 = sozinha.
-    private func versoes(_ nota: Nota) -> Int {
-        guard let g = juntas[nota.uuid] else { return 1 }
-        let ids = Set(juntas.filter { $0.value == g }.map(\.key))
-        return notas.reduce(0) { $0 + (ids.contains($1.uuid) ? 1 : 0) }
+    /// Quantas versões a nota viva tem. 1 = sozinha (ou selada: nunca conta).
+    private func versoes(_ nota: Nota) -> Int { contagensJuntas[nota.uuid] ?? 1 }
+
+    private func ficha(_ n: Nota) -> Juntas.Ficha {
+        .init(uuid: n.uuid, criadaEm: n.criadaEm,
+              podeJuntar: Juntas.podeJuntar(fechada: n.fechada, gesto: n.gesto, obra: n.origem.eObra))
+    }
+
+    /// Recalcula as contagens quando o mapa muda ou quando alguma nota é
+    /// criada, apagada, selada ou muda de forma — não a cada quadro.
+    private var chaveJuntas: Int {
+        var h = Hasher()
+        h.combine(juntas)
+        for n in notas { h.combine(n.uuid); h.combine(n.fechada); h.combine(n.gestoRaw); h.combine(n.origemRaw) }
+        return h.finalize()
     }
 
     /// ADR 10i: o gesto de perguntar. A folha abre com a linha "?" em branco
@@ -310,7 +322,7 @@ struct NotasView: View {
                             .foregroundStyle(Tema.tinta)
                             .frame(width: 28)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(pensando ? "A sábia está pensando…" : "Continuar a conversa")
+                            Text(pensando ? "A Sábia está pensando…" : "Continuar a conversa")
                                 .font(.body.weight(.semibold))
                                 .foregroundStyle(Tema.tinta)
                             if let ultima = conversa.last?.pergunta ?? conversaNotas.perguntaParaRepetir {
@@ -456,7 +468,7 @@ struct NotasView: View {
                     .id("pendente")
                 }
                 if conversaNotas.semModelo {
-                    LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
+                    LinhaDeEstado("a Sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
                         .accessibilityIdentifier("sem-conta-notas")
                         .id("sem-modelo")
                 }
@@ -466,7 +478,7 @@ struct NotasView: View {
             .padding(.top, 8)
             .padding(.bottom, 24)
             .accessibilityElement(children: .contain)
-            .accessibilityLabel("Conversa com a sábia")
+            .accessibilityLabel("Conversa com a Sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
         .scrollBounceBehavior(.always)
@@ -532,7 +544,7 @@ struct NotasView: View {
                         .font(.body.weight(.medium))
                         .foregroundStyle(Tema.tinta)
                         .padding(.leading, 14)
-                        .padding(.trailing, filtradas.isEmpty ? 14 : 10)
+                        .padding(.trailing, 10)
                         .frame(height: 40)
                         .contentShape(Rectangle())
                     }
@@ -540,11 +552,13 @@ struct NotasView: View {
                     .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
                     .accessibilityHint("Retoma intenções, versões e próximos atos")
                     .accessibilityIdentifier("abrir-trabalhos")
-                    if !filtradas.isEmpty {
+                    // sempre à vista (auditoria 17/09: sumia com a busca vazia e a
+                    // cápsula do topo pulava de dois para um ícone); vazio, apagado
+                    do {
                         // o gesto de compartilhar que todo iPhone conhece (jakobs-law)
                         Button {
                             contextoURL = Corpus.urlComoContexto(
-                                filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
+                                filtradas.map(FatiaCorpus.de), nome: Self.nomeDoArquivo())
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.body.weight(.medium))
@@ -555,6 +569,8 @@ struct NotasView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.discreto)
+                        .disabled(filtradas.isEmpty)
+                        .opacity(filtradas.isEmpty ? 0.35 : 1)
                         .accessibilityLabel("Exportar as notas visíveis")
                         .accessibilityHint("Gera um arquivo com estas notas para outra IA, sem servidor")
                         // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
@@ -588,7 +604,7 @@ struct NotasView: View {
             .accessibilityHint("A conversa some; as suas notas voltam")
             .accessibilityIdentifier("fechar-resposta")
             Spacer(minLength: 0)
-            Text("Suas notas")
+            Text("Sábia")
                 .font(.body.weight(.semibold))
                 .foregroundStyle(Tema.tinta)
                 .accessibilityAddTraits(.isHeader)
@@ -839,10 +855,10 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let primeira = conversa.isEmpty
         return CampoFlutuante(texto: Bindable(conversaNotas).entrada,
-                              dica: primeira && !pensando ? "Pergunte às suas notas" : "Continue a conversa",
+                              dica: primeira && !pensando ? "Pergunte à Sábia" : "Continue a conversa",
                               ditado: ditado, identificador: "pergunta-notas",
                               identificadorDoBotao: pensando ? "parar-de-esperar" : "perguntar-notas",
-                              rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar a pergunta",
+                              rotuloEnviar: "Perguntar à Sábia", rotuloDitar: "Ditar a pergunta",
                               aoEnviar: perguntar, foco: $perguntaFocada,
                               aoParar: pensando ? { conversaNotas.interromper() } : nil)
             .onAppear {
@@ -860,7 +876,8 @@ struct NotasView: View {
     private var campoDeBuscaEPergunta: some View {
         CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "Fale com o Traço", ditado: ditado,
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
-                       rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
+                       rotuloEnviar: "Perguntar à Sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca,
+                       aoLimpar: { conversaNotas.busca = "" })
             // a largura exata do pé (abas + botão de escrever), centrado: as
             // pontas do campo alinham com as pontas da fileira de baixo
             .frame(width: Tema.larguraDoPe)
@@ -871,6 +888,56 @@ struct NotasView: View {
     }
 
     /// Enviar do campo do pé: a busca vira a pergunta e a folha da conversa abre.
+    /// «Traço — notas 17-09-2026.md» (auditoria 17/09: «traco-contexto» era jargão).
+    static func nomeDoArquivo(_ titulo: String? = nil) -> String {
+        let data = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
+            .split(separator: "-").reversed().joined(separator: "-")
+        let limpo = titulo.map { String($0.prefix(40)).replacingOccurrences(of: "/", with: "-") }
+        return (limpo.map { "Traço — \($0)" } ?? "Traço — notas \(data)") + ".md"
+    }
+
+    /// Termina em «?» ou tem quatro palavras ou mais: é pergunta, não busca.
+    private var pareceUmaPergunta: Bool {
+        guard filtro == nil, filtroDominio == nil, Politica.provedor(.responderNasNotas) != nil else { return false }
+        let t = busca.trimmingCharacters(in: .whitespacesAndNewlines)
+        return t.hasSuffix("?") || t.split(whereSeparator: \.isWhitespace).count >= 4
+    }
+
+    private var linhaPerguntarASabia: some View {
+        Button { perguntarDaBusca() } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Image(systemName: "text.bubble")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Perguntar à Sábia")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Tema.tinta)
+                    Text(busca.trimmingCharacters(in: .whitespacesAndNewlines))
+                        .font(.subheadline)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "arrow.up")
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 28, height: 28)
+                    .background(Tema.chipAtivo, in: Circle())
+                    .accessibilityHidden(true)
+            }
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cartao()
+        }
+        .buttonStyle(PressaoDeCartao())
+        .padding(.top, 12)
+        .padding(.bottom, 4)
+        .accessibilityIdentifier("perguntar-da-busca")
+    }
+
     private func perguntarDaBusca() {
         let texto = busca.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !texto.isEmpty else { return }
@@ -937,7 +1004,7 @@ struct NotasView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .padding(.bottom, 6)
-            ForEach(peloSentido, id: \.uuid) { nota in
+            ForEach(recolherJuntas(peloSentido), id: \.uuid) { nota in
                 botaoNota(nota)
                     .padding(.bottom, Tema.entreCartoes)
             }
@@ -1031,7 +1098,7 @@ struct NotasView: View {
     private var lista: some View {
         let visiveis = filtradas
         return Group {
-            if visiveis.isEmpty, peloSentido.isEmpty || busca.isEmpty {
+            if visiveis.isEmpty, peloSentido.isEmpty || busca.isEmpty, !pareceUmaPergunta {
                 // No eixo do app, onde os resultados nasceriam — não um placar
                 // centralizado contra a tela toda (law-of-continuity; mesmo
                 // conserto do Recordar em 9eb6124). O glifo decorativo saiu:
@@ -1056,7 +1123,7 @@ struct NotasView: View {
                               // é pergunta, não busca vazia (auditoria 16/09)
                               : !busca.isEmpty && filtro == nil && filtroDominio == nil
                                 && Politica.provedor(.responderNasNotas) != nil
-                              ? .init("Perguntar às suas notas", id: "perguntar-da-busca") { perguntarDaBusca() }
+                              ? .init("Perguntar à Sábia", id: "perguntar-da-busca") { perguntarDaBusca() }
                               : .init("Ver todas as notas", id: "limpar-busca") {
                                   busca = ""
                                   filtro = nil
@@ -1071,6 +1138,9 @@ struct NotasView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
+                        // auditoria 17/09: pergunta digitada não é busca vazia — a
+                        // primeira linha é perguntar; o que casa fica embaixo
+                        if pareceUmaPergunta { linhaPerguntarASabia }
                         // com zero pelas letras o vazio já diz tudo: contar "0" em cima é eco
                         if !busca.isEmpty || filtro != nil || filtroDominio != nil, !visiveis.isEmpty {
                             Text(contagem(recolherJuntas(visiveis).count))
@@ -1082,7 +1152,7 @@ struct NotasView: View {
                         // O arquivo tem tempo: seções por mês, não um pergaminho cego.
                         // com achados pelo sentido logo abaixo, "nenhuma nota com…"
                         // é nota de rodapé, não manchete
-                        if visiveis.isEmpty, !busca.isEmpty {
+                        if visiveis.isEmpty, !busca.isEmpty, !pareceUmaPergunta {
                             Text(vazioTitulo)
                                 .font(peloSentido.isEmpty ? Tema.corpo : Tema.meta)
                                 .foregroundStyle(peloSentido.isEmpty ? Tema.tintaSuave : Tema.tintaFraca)
@@ -1153,7 +1223,9 @@ struct NotasView: View {
     /// (zeigarnik-effect).
     private func contagem(_ n: Int) -> String {
         let notas = n == 1 ? "1 nota" : "\(n) notas"
-        if !busca.isEmpty { return "\(notas) com “\(busca)”" }
+        // «para», não «com»: a busca também acha pela palavra parecida
+        // (auditoria 17/09: «1 nota com "pilates"» sem «pilates» nela)
+        if !busca.isEmpty { return "\(notas) para “\(busca)”" }
         // o chip aceso pode ter rolado para fora da régua: a contagem diz por quê
         if let filtro { return "\(notas) · \(filtro.rawValue)" }
         if let filtroDominio { return "\(notas) · \(filtroDominio.nome)" }
@@ -1236,6 +1308,7 @@ struct NotasView: View {
             .buttonStyle(PressaoDeCartao())
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
+            .accessibilityValue(versoes(nota) > 1 ? "\(versoes(nota)) versões" : "")
             .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
             .accessibilityIdentifier("nota-notas")
 
@@ -1280,49 +1353,67 @@ struct NotasView: View {
     /// O mesmo menu no cartão da nota e no de «Hora de conferir», que é a mesma nota
     /// (auditoria 16/09 noite: o toque longo ali abria em vez de mostrar o menu).
     @ViewBuilder private func menuDaNota(_ nota: Nota) -> some View {
-        if !nota.trancada {
-            Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
-        }
+        // auditoria 17/09: nove itens numa pilha só; agora em quatro grupos —
+        // levar a nota · as notas em volta · organizar · apagar
+        let aberta = !nota.fechada && nota.gesto != .expressiva
         let fatia = FatiaCorpus.de(nota)
-        if !fatia.nuncaSai {
-            Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
-                contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
+        Section {
+            if !nota.trancada {
+                Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
             }
-        }
-        if !nota.fechada, nota.gesto != .expressiva {
-            // «Versões» agora são as datas da nota viva; o histórico de edição é «Alterações»
-            Button("Alterações", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
-            Button("Notas ligadas", systemImage: "link") { redeDe = nota }
-        }
-        // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
-        if !nota.fechada, nota.gesto != .expressiva {
-            Menu("Domínio", systemImage: "tag") {
-                ForEach(Dominio.allCases) { d in
-                    Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
-                }
-                Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
-                if nota.dominioTravado {
-                    Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
+            if !fatia.nuncaSai {
+                Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
+                    contextoURL = Corpus.urlComoContexto([fatia], nome: Self.nomeDoArquivo(nota.tituloNaLista))
                 }
             }
         }
-        // R3: as quatro linhas juntas, depois do quarto fecho
-        if nota.gesto == .expressiva, nota.serieUUID != nil {
-            Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
+        Section {
+            if aberta {
+                Button("Notas ligadas", systemImage: "link") { redeDe = nota }
+            }
+            if Juntas.podeJuntar(fechada: nota.fechada, gesto: nota.gesto, obra: nota.origem.eObra) {
+                Button("Juntar com…", systemImage: "square.on.square") { juntarDe = nota }
+            }
+            if versoes(nota) > 1 {
+                Button("Separar das versões", systemImage: "square.split.2x1") { separar(nota) }
+            }
+            if aberta {
+                // «Versões» são as datas da nota viva; o histórico de edição é «Alterações»
+                Button("Alterações", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
+            }
+            // R3: as quatro linhas juntas, depois do quarto fecho
+            if nota.gesto == .expressiva, nota.serieUUID != nil {
+                Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
+            }
         }
-        if Juntas.podeJuntar(fechada: nota.fechada, gesto: nota.gesto, obra: nota.origem.eObra) {
-            Button("Juntar com…", systemImage: "square.on.square") { juntarDe = nota }
+        Section {
+            // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
+            if aberta {
+                Menu("Domínio", systemImage: "tag") {
+                    ForEach(Dominio.allCases) { d in
+                        // o atual leva ✓ (auditoria 17/09: não se via qual estava)
+                        if nota.dominio == d {
+                            Button(d.nome, systemImage: "checkmark") { sessao.escolherDominio(d, na: nota, no: context) }
+                        } else {
+                            Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
+                        }
+                    }
+                    Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
+                    if nota.dominioTravado {
+                        Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
+                    }
+                }
+            }
+            Button("Selecionar", systemImage: "checkmark.circle") {
+                Toque.selecao()
+                escolhidas.insert(nota.uuid)
+            }
         }
-        if versoes(nota) > 1 {
-            Button("Separar das versões", systemImage: "square.split.2x1") { separar(nota) }
-        }
-        Button("Selecionar", systemImage: "checkmark.circle") {
-            Toque.selecao()
-            escolhidas.insert(nota.uuid)
-        }
-        // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
-        Button("Apagar", systemImage: "trash", role: .destructive) {
-            sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
+        Section {
+            // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
+            Button("Apagar", systemImage: "trash", role: .destructive) {
+                sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
+            }
         }
     }
 
@@ -1395,7 +1486,7 @@ struct NotasView: View {
         let prosa = linhas.enumerated().reduce(into: "") { acc, par in
             guard par.offset > 0 else { acc = par.element; return }
             let anterior = linhas[par.offset - 1]
-            acc += (".:;!?…".contains(anterior.last ?? ".") || par.offset == 1 ? " " : ", ") + par.element
+            acc += (".:;,!?…".contains(anterior.last ?? ".") || par.offset == 1 ? " " : ", ") + par.element
         }
         guard let r = prosa.range(of: titulo) else { return nil }
         // o título perde o ponto final: a prévia não pode começar por ele

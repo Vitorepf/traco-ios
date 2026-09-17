@@ -31,17 +31,17 @@ struct SuperficieDaRespostaTests {
     @Test func aEsperaFalaOTempo() {
         let t0 = Date(timeIntervalSince1970: 1_000)
         let frase = Espera.aSabiaPensa
-        #expect(frase == "a sábia pensa")
-        #expect(Espera.linha(frase, desde: t0, agora: t0) == "a sábia pensa…")
-        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(3)) == "a sábia pensa…")
-        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(4)) == "a sábia pensa há 4 s…")
-        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(241)) == "a sábia pensa há 241 s…")
+        #expect(frase == "a Sábia pensa")
+        #expect(Espera.linha(frase, desde: t0, agora: t0) == "a Sábia pensa…")
+        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(3)) == "a Sábia pensa…")
+        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(4)) == "a Sábia pensa há 4 s…")
+        #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(241)) == "a Sábia pensa há 241 s…")
         // a cápsula das Notas (REFERENCIA-HERMES §8): o relógio do Hermes
         #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0) == "0:00")
         #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0.addingTimeInterval(7)) == "0:07")
         #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0.addingTimeInterval(241)) == "4:01")
         // a Página delega à mesma linha: não há dois relógios
-        #expect(CartaoAnaliseView.fraseDaEspera(desde: t0, agora: t0.addingTimeInterval(47)) == "a sábia pensa há 47 s…")
+        #expect(CartaoAnaliseView.fraseDaEspera(desde: t0, agora: t0.addingTimeInterval(47)) == "a Sábia pensa há 47 s…")
     }
 
     /// A linha fechada das fontes: quantas, na língua do autor.
