@@ -1,0 +1,103 @@
+# instigar/contrapor volta 2 (grok-4.5, corrida 6598F42E): dois leitores cegos (a54d423f, aa58f4b3), itens embaralhados (semente 202609176); chave em leitura-cega-volta2-chave.json; regra nova: analogia marcada não é invenção
+V001 CUMPRE
+V002 CUMPRE
+V003 CUMPRE
+V004 CUMPRE
+V005 CUMPRE
+V006 CUMPRE
+V007 NÃO pergunta já respondida: o critério (margem e tempo)
+V008 CUMPRE
+V009 CUMPRE
+V010 CUMPRE
+V011 CUMPRE
+V012 NÃO invenção (requisito): argumenta por preço, distância e horário, que a nota tirou
+V013 CUMPRE
+V014 CUMPRE
+V015 CUMPRE
+V016 CUMPRE
+V017 NÃO invenção: analogia da calculadora afirma fato histórico
+V018 CUMPRE
+V019 NÃO pergunta já respondida: o critério
+V020 CUMPRE
+V021 CUMPRE
+V022 CUMPRE
+V023 CUMPRE
+V024 NÃO substituto do que falta: ensaio prévio no lugar do teste
+V025 CUMPRE
+V026 CUMPRE
+V027 NÃO fato suposto: trabalho por hora
+V028 CUMPRE
+V029 CUMPRE
+V030 CUMPRE
+V031 CUMPRE
+V032 CUMPRE
+V033 CUMPRE
+V034 CUMPRE
+V035 CUMPRE
+V036 CUMPRE
+V037 NÃO recusa covarde: contra vazio
+V038 CUMPRE
+V039 CUMPRE
+V040 CUMPRE
+V041 CUMPRE
+V042 CUMPRE
+V043 CUMPRE
+V044 NÃO gênero: «sozinho» sobre quem pratica
+V045 CUMPRE
+V046 CUMPRE
+V047 CUMPRE
+V048 CUMPRE
+V049 CUMPRE
+V050 NÃO substituto do que falta: ensaio prévio que a nota fecha
+V051 CUMPRE
+V052 NÃO outro requisito: contesta a razão dada (XLSX)
+V053 CUMPRE
+V054 CUMPRE
+V055 CUMPRE
+V056 CUMPRE
+V057 NÃO fato suposto (leve): outras formas não testadas
+V058 CUMPRE
+V059 CUMPRE
+V060 NÃO gênero: «carregar sozinho»
+V061 NÃO invenção: analogia da calculadora afirma fato histórico
+V062 CUMPRE
+V063 CUMPRE
+V064 CUMPRE
+V065 CUMPRE
+V066 CUMPRE
+V067 NÃO invenção: analogia da calculadora afirma fato histórico
+V068 NÃO outro requisito: contra vazio (18 parcelas × reserva)
+V069 CUMPRE
+V070 CUMPRE
+V071 CUMPRE
+V072 CUMPRE
+V073 CUMPRE
+V074 CUMPRE
+V075 CUMPRE
+V076 CUMPRE
+V077 CUMPRE
+V078 CUMPRE
+V079 CUMPRE
+V080 CUMPRE
+V081 NÃO invenção: «frequência zero» sem dado anotado
+V082 NÃO outro requisito (leve): perguntas circulares, nada do 1º parágrafo
+V083 NÃO invenção (requisito): preço, distância e horário descartados
+V084 CUMPRE
+V085 NÃO fato suposto (leve): a ligação encerrou o assunto
+V086 NÃO invenção: analogia da calculadora afirma fato histórico
+V087 CUMPRE
+V088 CUMPRE
+V089 CUMPRE
+V090 CUMPRE
+V091 CUMPRE
+V092 CUMPRE
+V093 CUMPRE
+V094 NÃO outro requisito: contra vazio (18 parcelas × reserva)
+V095 CUMPRE
+V096 NÃO outro requisito: nada do limite de R$ 1.000 nem dos clientes
+V097 CUMPRE
+V098 CUMPRE
+V099 CUMPRE
+V100 CUMPRE
+V101 CUMPRE
+V102 NÃO invenção: analogia da calculadora afirma fato histórico
