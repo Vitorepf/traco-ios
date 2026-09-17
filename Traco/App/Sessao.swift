@@ -1452,14 +1452,24 @@ final class Sessao {
             if existente.texto != texto || existente.campos != campos {
                 versaoAnterior = (existente.texto, existente.campos, existente.gesto, existente.fechada)
             }
-            existente.texto = texto
-            existente.gesto = gesto
-            existente.campos = campos
-            existente.expressivaPrazo = prazo
-            if trancar { existente.trancada = true }
-            if let sentidoPendente { existente.sentido = sentidoPendente }
-            existente.minutosEscritos = max(existente.minutosEscritos, minutosExpressiva)
-            existente.editadaEm = .now
+            // Gravar sem mudança não é edição (auditoria 16/09): trocar de aba ou o
+            // app perder o foco mudava a data e reescrevia os campos, e a resposta
+            // das Notas que dependia da nota era recolhida sem ninguém ter mexido.
+            let mudou = existente.texto != texto || existente.campos != campos || existente.gesto != gesto
+                || existente.expressivaPrazo != prazo || (trancar && !existente.trancada)
+                || sentidoPendente.map { $0 != existente.sentido } == true
+                || minutosExpressiva > existente.minutosEscritos
+                || existente.dominioTravado != dominioTravado || (dominioTravado && existente.dominio != dominio)
+            if mudou {
+                existente.texto = texto
+                existente.gesto = gesto
+                existente.campos = campos
+                existente.expressivaPrazo = prazo
+                if trancar { existente.trancada = true }
+                if let sentidoPendente { existente.sentido = sentidoPendente }
+                existente.minutosEscritos = max(existente.minutosEscritos, minutosExpressiva)
+                existente.editadaEm = .now
+            }
             nota = existente
         } else {
             nota = Nota(texto: texto, gesto: gesto, campos: campos, trancada: trancar,

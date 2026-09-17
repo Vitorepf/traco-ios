@@ -165,6 +165,7 @@
 		994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CF1006FD54376D4F9A5274 /* PaginaView.swift */; };
 		9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */; };
 		9A7198E223ED751893053F68 /* SabiaOrcamentoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */; };
+		9AC723B464ED2F909C71E3DA /* AuditoriaDoLiderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A2FBEC14832485F2525E96 /* AuditoriaDoLiderTests.swift */; };
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
 		9BC040C354342C4A9337EAB9 /* DoCadernoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39FDF5D127D1C7D7B719758 /* DoCadernoView.swift */; };
 		9D4A7DE2A579D091FC13AB6F /* HojeAVistaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036D93791373C39C70BA427B /* HojeAVistaTests.swift */; };
@@ -478,6 +479,7 @@
 		BE9984EDB4CF11B4855D1648 /* ConsultarObrasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsultarObrasTests.swift; sourceTree = "<group>"; };
 		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
 		C48E78EE65F3C16DDD899BE9 /* Degraus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Degraus.swift; sourceTree = "<group>"; };
+		C4A2FBEC14832485F2525E96 /* AuditoriaDoLiderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuditoriaDoLiderTests.swift; sourceTree = "<group>"; };
 		C5E62A0F1DA399D86F076645 /* Versoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versoes.swift; sourceTree = "<group>"; };
 		C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PraticaTrabalhoTests.swift; sourceTree = "<group>"; };
 		C7310FEF6AC131E1600693ED /* GuardaDeInstigar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardaDeInstigar.swift; sourceTree = "<group>"; };
@@ -727,6 +729,7 @@
 				8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */,
 				D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */,
 				AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */,
+				C4A2FBEC14832485F2525E96 /* AuditoriaDoLiderTests.swift */,
 				4AA98E63AA92191FE0E81A20 /* AvaliacaoIACarimboTests.swift */,
 				E039F3F107E8DC3EDD18C55E /* AvisoDoCompromissoTests.swift */,
 				C8E66413C8B5412C08CAF5E7 /* BibliotecaObrasTests.swift */,
@@ -1159,6 +1162,7 @@
 				15D58FA109E577388359863B /* AjusteDoExercicioTests.swift in Sources */,
 				167D033BE03D47F30DA5BAD5 /* AnaliseDeBordoTests.swift in Sources */,
 				810CC40FDE779309217667CD /* AnaliseLocalTests.swift in Sources */,
+				9AC723B464ED2F909C71E3DA /* AuditoriaDoLiderTests.swift in Sources */,
 				72D3AA8AC2BDE0A01372B14D /* AvaliacaoIACarimboTests.swift in Sources */,
 				8C9D2230F1FD4B08B21BFD7F /* AvisoDoCompromissoTests.swift in Sources */,
 				D48FEE99F512DB52E8ECE951 /* BibliotecaObrasTests.swift in Sources */,
