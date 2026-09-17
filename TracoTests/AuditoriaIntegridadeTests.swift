@@ -309,3 +309,24 @@ struct FormatacaoSemMarcaEmDobroTests {
         #expect(Caderno.continuar(velho: "a - b", novo: "a - b ") == "a - b ")
     }
 }
+
+/// Dono, 17/09: a IA escolhe também as caixas do caderno, sem mudar palavra.
+struct FormatacaoComCaixasTests {
+    @Test func aCaixaEmbrulhaSemMudarPalavraEVestirDeNovoNaoMexe() {
+        let texto = "Viagem\n\nA greve do metrô marcada para sexta.\n\nLevar o caderno no avião."
+        let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), .init(i: 1, forma: .risco), .init(i: 2, forma: .ideia)]
+        let uma = Sabia.aplicar(mapa, a: texto)
+        #expect(uma == "# Viagem\n\n:::risco\nA greve do metrô marcada para sexta.\n:::\n\n:::ideia\nLevar o caderno no avião.\n:::")
+        #expect(Sabia.aplicar(mapa, a: uma) == uma)
+        // o caderno lê a caixa que a IA vestiu
+        let blocos = Caderno.fatias(uma).map { $0.bloco }
+        #expect(blocos.contains(.recipiente(slug: "risco", linhas: ["A greve do metrô marcada para sexta."])))
+    }
+
+    @Test func oMapaDaIAAceitaAsCaixas() {
+        let mapa = Sabia.parseMapa(#"[{"i":0,"forma":"decisao"},{"i":1,"forma":"pros"}]"#, blocos: 2)
+        #expect(mapa?.map(\.forma) == [.decisao, .pros])
+        #expect(Sabia.FormaDeBloco.allCases.filter(\.caixa).allSatisfy { PapelForma.porSlug[$0.rawValue] != nil },
+                "toda caixa que a IA veste existe no catálogo do caderno")
+    }
+}

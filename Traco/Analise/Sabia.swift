@@ -14,6 +14,17 @@ enum Sabia {
     /// desconhecido invalida o mapa inteiro.
     nonisolated enum FormaDeBloco: String, CaseIterable, Sendable {
         case titulo, secao, lista, numerada, tarefas, citacao, codigo, tabela, prosa
+        // as caixas (`:::slug`, PapelForma) que a IA pode vestir sozinha — dono,
+        // 17/09: «uma lista vasta, aplicada de forma automática pelas IAs»
+        case lembrete, pergunta, ideia, definicao, exemplo, decisao, regra, risco, pros, contras, passos
+
+        /// A forma vira uma caixa do caderno (`:::slug … :::`)?
+        var caixa: Bool {
+            switch self {
+            case .lembrete, .pergunta, .ideia, .definicao, .exemplo, .decisao, .regra, .risco, .pros, .contras, .passos: true
+            default: false
+            }
+        }
     }
 
     nonisolated struct Rotulo: Equatable, Sendable {
@@ -23,11 +34,16 @@ enum Sabia {
 
     static let sistemaVestir = """
     Você dá FORMA a um texto sem tocar numa palavra. Recebe blocos numerados.
-    Responda APENAS um JSON válido: [{"i": <número do bloco>, "forma": "titulo"|"secao"|"lista"|"numerada"|"tarefas"|"citacao"|"codigo"|"tabela"|"prosa"}]
+    Responda APENAS um JSON válido: [{"i": <número do bloco>, "forma": "titulo"|"secao"|"lista"|"numerada"|"tarefas"|"citacao"|"codigo"|"tabela"|"lembrete"|"pergunta"|"ideia"|"definicao"|"exemplo"|"decisao"|"regra"|"risco"|"pros"|"contras"|"passos"|"prosa"}]
     Um item por bloco, na ordem. titulo = o título do texto inteiro (no máximo um) ·
     secao = cabeçalho de parte · lista = linhas paralelas sem ordem · numerada = passos em ordem ·
     tarefas = coisas a fazer · citacao = fala de outro · codigo = código ou comando · tabela = linhas com colunas
-    separadas por | ou tabulação · prosa = tudo o mais. Na dúvida, prosa. Nenhuma outra chave, nenhum texto.
+    separadas por | ou tabulação.
+    Caixas, só quando o bloco INTEIRO é isso: lembrete = algo a não esquecer · pergunta = uma dúvida em aberto ·
+    ideia = uma ideia ou insight · definicao = o que uma palavra ou conceito quer dizer · exemplo = um caso que
+    ilustra o que veio antes · decisao = o que foi decidido · regra = um princípio que quem escreve segue ·
+    risco = o que pode dar errado · pros = vantagens · contras = desvantagens · passos = um procedimento.
+    prosa = tudo o mais. Na dúvida, prosa. Nenhuma outra chave, nenhum texto.
     """
 
     /// ADR 04r: 900 caracteres. ADR 2026-09-10b: só no PEDIDO — o parser
@@ -1723,6 +1739,8 @@ enum Sabia {
 
     nonisolated private static func formaExistente(_ bloco: String) -> FormaDeBloco? {
         let primeira = bloco.split(whereSeparator: \.isNewline).first?.trimmingCharacters(in: .whitespaces) ?? ""
+        // uma caixa já vestida (`:::slug`) é escolha feita: não se veste de novo
+        if primeira.hasPrefix(":::") { return .prosa }
         if primeira.hasPrefix("```") || primeira.hasPrefix("~~~") { return .codigo }
         if primeira.hasPrefix("# ") { return .titulo }
         if primeira.hasPrefix("#") { return .secao }
@@ -1781,6 +1799,10 @@ enum Sabia {
                 for linha in celulas.dropFirst() { t.append("| " + linha.joined(separator: " | ") + " |") }
                 saida.append(t.joined(separator: "\n"))
             case .prosa: saida.append(bloco)
+            case .lembrete, .pergunta, .ideia, .definicao, .exemplo, .decisao, .regra, .risco, .pros, .contras, .passos:
+                // a caixa só embrulha: as linhas ficam como o autor escreveu
+                let corpo = forma == .passos ? cruas.map { semMarcador($0) } : cruas
+                saida.append(":::\(forma.rawValue)\n" + corpo.joined(separator: "\n") + "\n:::")
             }
         }
         var resultado = texto

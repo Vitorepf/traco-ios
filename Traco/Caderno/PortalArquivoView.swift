@@ -6,9 +6,22 @@ import UniformTypeIdentifiers
 
 struct SinalTipo: View {
     let nome: String
+    var simbolo: String? = nil
+    var cor: Color? = nil
 
     var body: some View {
-        Text(nome).rotulo()
+        if let simbolo {
+            Label {
+                Text(nome).rotulo()
+            } icon: {
+                Image(systemName: simbolo)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(cor ?? Tema.tintaSuave)
+            }
+            .labelStyle(.titleAndIcon)
+        } else {
+            Text(nome).rotulo()
+        }
     }
 }
 

@@ -29,10 +29,11 @@ struct ProsaView: View {
                                 .foregroundStyle(Tema.tintaFraca)
                                 .frame(minWidth: 20, alignment: .trailing)
                         } else {
-                            Circle()
-                                .fill(Tema.tintaFraca)
-                                .frame(width: 5, height: 5)
-                                .padding(.top, 8)
+                            // o marcador vive na linha de base do texto: o círculo com
+                            // folga fixa caía abaixo do meio da letra (17/09)
+                            Text("•")
+                                .font(Tema.corpo.weight(.bold))
+                                .foregroundStyle(Tema.tintaFraca)
                                 .frame(width: 20, alignment: .center)
                         }
                         Text(atributos(item))
@@ -97,8 +98,8 @@ struct ProsaView: View {
 
     private func tabela(_ cabeca: [String], _ corpo: [[String]]) -> some View {
         let cols = max(cabeca.count, corpo.map(\.count).max() ?? 0)
+        // sem o rótulo «TABELA»: a grade já diz o que é
         return VStack(alignment: .leading, spacing: 8) {
-            SinalTipo(nome: "tabela")
             Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
                 GridRow {
                     ForEach(0..<cols, id: \.self) { c in
@@ -338,16 +339,31 @@ struct RecipienteView: View {
         .background(fundo ? Tema.superficie : .clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
+    /// Pergunta, ideia, decisão e risco dividiam o mesmo trilho cinza — a caixa
+    /// dizia o nome e nada mais (auditoria da formatação, 17/09). Cada família
+    /// ganha o seu sinal e o tom do trilho; o texto segue em tinta, legível.
+    private var tomDoTrilho: (cor: Color, simbolo: String?) {
+        switch cromo {
+        case .pergunta: (Tema.tintaSuave, "questionmark.circle")
+        case .ideia: (Tema.ambar, "lightbulb")
+        case .decisao: (Tema.tinta, "checkmark.seal")
+        case .risco: (Tema.aviso, "exclamationmark.triangle")
+        default: (Tema.tintaFraca.opacity(0.55), nil)
+        }
+    }
+
     private var trilho: some View {
-        HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 1, style: .continuous)
-                .fill(Tema.tintaFraca.opacity(0.55))
-                .frame(width: 2)
+        let tom = tomDoTrilho
+        return HStack(alignment: .top, spacing: 12) {
+            RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                .fill(tom.cor.opacity(cromo == .padrao ? 1 : 0.85))
+                .frame(width: 3)
             VStack(alignment: .leading, spacing: 8) {
-                SinalTipo(nome: nome)
+                SinalTipo(nome: nome, simbolo: tom.simbolo, cor: cromo == .padrao ? nil : tom.cor)
                 prosa(italico: false, tinta: Tema.tinta, folga: 4)
             }
         }
+        .padding(.vertical, 4)
     }
 
     private var duplo: some View {
