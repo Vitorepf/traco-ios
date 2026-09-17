@@ -23,13 +23,8 @@ struct RedeView: View {
     /// Quem pode ser eco: nota de verdade, não esta, não selada, e AINDA NÃO
     /// ligada — o valor está justamente no que a rede não sabe.
     private func montarCandidatas(_ jaLigadas: Set<UUID>) -> [Nota] {
-        todas.filter {
-            $0.uuid != nota.uuid && !$0.fechada && $0.gesto != .expressiva
-                && !jaLigadas.contains($0.uuid)
-                && !Caderno.prosa(de: $0.texto).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-        .prefix(40)
-        .map { $0 }
+        // E6: o ponto único — as 40 mais recentes do autor, sem as já ligadas e sem as versões juntas
+        Sessao.candidatasDeEcos(de: nota.uuid, todas: todas, jaLigadas: jaLigadas)
     }
 
     /// O texto EXATO que viaja por candidata — e contra o qual a citação

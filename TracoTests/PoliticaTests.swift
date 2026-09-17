@@ -54,7 +54,8 @@ import Testing
         // `grok-4.5` contra 12 de 21 no `grok-4.3`, mesma fixture, mesma
         // janela, mesmo binário. Quem a puser de volta nesta lista sem uma
         // corrida nova quebra aqui — e quem tirar outra sem medida também.
-        let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar,
+        // E6 (17/09): `ecos` saiu por medida — 10 de 11 vínculos nas 6 repetições de duas corridas
+        let cortadas: [Politica.Operacao] = [.calibragem, .recordar,
                                             .instigar, .contrapor, .responder]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
         // ADR 08z: a chave da sonda só existe em DEBUG e só abre o que ela
@@ -89,7 +90,8 @@ import Testing
         // TENTADO, duas vezes, medido contra a base no mesmo binário, e as duas
         // versões saíram piores (base 14 e 15 de 20; candidatos 12 e 12). Manter a frase na
         // tela seria prometer ao autor um conserto que já falhou.
-        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
+        // E6 (17/09): `ecos` saiu do grupo "sem conserto conhecido" por medida — sobram dois
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 2)
         // E8 (16/09): `responder` volta ao grupo "em correção" — a medida achou a causa
         // nossa (a guarda que calava a resposta inteira) e o conserto seguinte está nomeado
         #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
@@ -291,8 +293,9 @@ import Testing
         #expect(cont.porque.contains("NOTA"))
         #expect(cont.motivo.contains("substituto"))
         let ecos = Politica.linha(.ecos)
-        #expect(ecos.regra == .indisponivelPorQualidade)
-        #expect(ecos.porque.contains("GuardaDeEcos"))
+        #expect(ecos.regra == .soGrok)
+        #expect(ecos.porque.contains("GuardaDeEcos") && ecos.porque.contains("VOLTOU em 17/09"))
+        #expect(Politica.pelaConta.contains(.ecos) && !Politica.indisponiveis.contains(.ecos))
     }
 
     /// Sem conta e sem aparelho (a suíte), produzir é indisponibilidade dita —

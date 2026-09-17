@@ -691,8 +691,10 @@ enum Sabia {
     - "trecho" é um pedaço LITERAL da nota número i, copiado sem mudar uma
       letra, entre 8 e 120 caracteres. É a prova de que você a leu.
     - Mesma COISA, não mesma palavra: o tema que volta, a mesma decisão com
-      outro nome, a tese que uma contradiz na outra. Coincidência de
-      vocabulário não é eco.
+      outro nome, a tese que uma contradiz na outra, a consequência — o que a
+      nota faz esbarra no que a outra fixou (limite, prazo, compromisso,
+      alternativa ainda em aberto) — e o mesmo padrão que se repete em outro
+      episódio. Coincidência de vocabulário não é eco.
     - Nenhuma outra chave, nenhum texto, nenhuma explicação, nenhum resumo.
     """
 
@@ -1351,8 +1353,9 @@ enum Sabia {
             .map { "[\($0.offset)] \($0.element)" }
             .joined(separator: "\n\n")
         let usuario = "NOTA:\n\(nota.prefix(3000))\n\nOUTRAS NOTAS:\n\(corpo.prefix(9000))"
+        // E6: no modelo medido das Notas — no padrão (grok-4.3) a linha de base achou 7 a 8 de 11
         guard let cru = await chamar(.ecos, sistema: sistemaEcos, usuario: usuario, temperatura: 0.2,
-                                     memoPor: "ecos\u{1}\(usuario.hashValue)",
+                                     memoPor: "ecos\u{1}\(usuario.hashValue)", modelo: Grok.modelo(daRota: modeloMedido),
                                      mensagemLocal: { montarEcos(nota: nota, candidatas: candidatas) })
         else { return nil }
         return parseEcos(cru, candidatas: candidatas)

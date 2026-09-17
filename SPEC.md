@@ -10666,3 +10666,13 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Medida** (Air, grok-4.5, corrida `C04C701E`, os 17 casos do instigar × 3, mesmos leitores cegos). «Quando» 6 de 206. Cegos 1/2, matriz 6/8, novos 2/3, q-qualidade 5/6, gênero 0, 43/51 — a melhor das cinco voltas.
 
 **Não passou** só na barra dos cegos: o caso da proposta de preço cai em 2 das 3 repetições por fato suposto («a de 8.400 passou a valer?»), o defeito que o `conserto` já nomeia. O instigar para como o contrapor (ADR 17j) e a frente volta ao líder para redesenho; as duas seguem cortadas na `Politica`, com as cinco voltas no `porque`.
+
+## ADR 2026-09-17l — Notas que se ligam (`ecos`) voltam: o pedido nomeia consequência e padrão, no modelo das Notas
+
+**Causa** (medida com o bruto, `prova/e6/LEIA.md`). Cortada em 08/09 por perder o vínculo por consequência. A linha de base no `grok-4.3` achou 8, 7 e 7 de 11 vínculos com o bruto igual à saída: o vazio era do modelo, não da `GuardaDeEcos`. O pedido só pedia notas "da MESMA coisa" — e caíam consequência, padrão e compromisso anotado noutra nota. O mesmo pedido no `grok-4.5`: 9, 11 e 10.
+
+**Decisão.** `sistemaEcos` nomeia a consequência (limite, prazo, compromisso, alternativa em aberto) e o mesmo padrão que se repete; `Sabia.ecos` roda no `modeloMedido`; a `Politica` põe `ecos` em `soGrok`, com "sugerir notas que se ligam" (o ecos acha mais que parecença, e se separa do «Parecidas» do juntar). As candidatas saem de um ponto único (`Sessao.candidatasDeEcos`) para a folha «Notas ligadas» e o contexto da Página: as 40 mais recentes do autor, sem as já ligadas e sem as versões juntas — obra e bot fora, porque a sugestão é entre notas suas. A seleção pelas palavras (a alavanca da 16g) foi escrita e DESCARTADA antes do commit: a revisão mostrou que vínculo por consequência pontua 0.
+
+**Prova.** Air, duas corridas (19 casos × 3, 4 deles reservados e escritos às cegas depois do pedido): vínculo 10 de 11 nas 6 repetições, zero trecho não literal, controles sem vínculo em toda resposta escrita, reservados ≥ 2 de 3, sem molde (as palavras da lista só aparecem copiadas da candidata). Testes: as 40 recentes sem a versão junta e sem a já ligada; obra, bot, selada e expressiva fora; a folha e a Página chamam o mesmo ponto; o pedido nomeia consequência e padrão.
+
+**Não medido e dívidas.** A seleção de produção não passou pela IA (E6c registrada: caderno de ≥ 200 notas, 40 recentes × 20 + 20 pelas palavras raras). A alternativa em aberto da oficina não vem; a falha de transporte não é repetida; o trecho literal de 121 caracteres derruba a sugestão em vez de ser cortado; `candidatasDoAutor` (as Notas) pode ter a mesma falha de palavras vazias em nota longa.

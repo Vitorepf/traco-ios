@@ -91,10 +91,9 @@ enum Politica {
         case .conferir:
             .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o Grok acertou 6 de 6 casos com a conta ligada em 08/09 — prova/qualidade-ia-q5-avaliacao-base.md e prova/q-qualidade-avaliacoes.jsonl")
         case .ecos:
-            .init(regra: .indisponivelPorQualidade,
-                  porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — ferramentas/orca/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl. CONFERIDA em 10/09 sobre a MESMA corrida, e a contagem fecha: o caso do vínculo mais útil volta [] nas 3 repetições, `qn-ecos-nota-curta` também, e `q5-ecos-sentido-e-contradicao` perde o índice 2 em 1 das 3. O que NÃO se pode afirmar é a CAUSA: aquele JSONL é anterior ao `Grok.Diagnostico.bruto` (ADR 10b) e não guarda o retorno do modelo — zero ocorrências no arquivo inteiro —, então lista vazia VINDA do modelo e lista DERRUBADA pela nossa tesoura (`parseEcos` só aceita o trecho como substring literal da candidata, e descarta em silêncio) são indistinguíveis no registro. É NÃO VERIFICÁVEL, não 'nenhuma derrubada'. O indício disponível vai contra a tesoura: nas repetições com vínculo, os 6 trechos passaram literais. A tesoura LOCAL (`GuardaDeEcos`) agora aceita a citação dela com acento ou espaço diferente; não inventa vínculo. A rota PERMANECE cortada até remedição com bruto. ferramentas/orca/cauda-ecos-calibragem-recordar.md e GuardaDeEcosTests",
-                  motivo: "deixa de fora justamente as notas que mais tinham a ver",
-                  medidaEm: "08/09/2026")
+            // E6 (17/09): voltou por MEDIDA, com o bruto. A regra e o motivo antigos estão no `porque`.
+            .init(regra: .soGrok,
+                  porque: "VOLTOU em 17/09 (E6), medida no Air com o bruto (prova/e6/LEIA.md): cortada em 08/09 por deixar de fora o vínculo por consequência (18 inscritos contra a sala de 15). Linha de base no grok-4.3: 8, 7 e 7 de 11 vínculos — o bruto era igual à saída, o vazio era do MODELO e não da GuardaDeEcos; o mesmo pedido no grok-4.5: 9, 11 e 10. Conserto: o pedido nomeia a consequência e o padrão que se repete, e a rota roda no `Sabia.modeloMedido`. Duas corridas sobre listas prontas de 13 a 17 candidatas: vínculo 10 de 11 nas 6 repetições, zero trecho não literal, controles sem vínculo em toda resposta escrita, 4 casos reservados (escritos às cegas) 3/3, 3/3, 2/2 e 3/3, 3/3, 2/3. A SELEÇÃO de produção (as 40 mais recentes do autor, sem as já ligadas e as versões juntas, num ponto único da folha e da Página) NÃO foi medida pela IA — a por palavras perdia justo a consequência e foi descartada; a E6c mede. Sobra: a alternativa ainda em aberto da oficina não vem (só o limite da sala), a falha de transporte não é repetida e o trecho de 121 caracteres derruba a sugestão")
         case .calibragem:
             .init(regra: .indisponivelPorQualidade, porque: "A PORTA LOCAL já aceita um par (`Sabia.paresDaCalibragem`, ADR 2026-09-11a) — `qn-calibragem-par-unico` deixaria de morrer antes do provedor. A rota PERMANECE cortada: a qualidade de 08/09 ainda não foi remedida depois dessa porta. Das 5 que chegaram, `qn-calibragem-previsao-acertada` volta [] 3 de 3 onde o requisito exige pergunta — calou sobre o que sustentou os acertos. Sem corrida nova, com bruto, um par já é matéria e a tela não promete volta. prova/q-qualidade-avaliacoes.jsonl e ferramentas/orca/cauda-ecos-calibragem-recordar.md",
                   motivo: "não diz nada quando você não errou",
@@ -205,7 +204,7 @@ enum Politica {
         // tentar de novo e não promete guardar nada — quem guardou o pedido é
         // que diz isso, depois de confirmar.
         case .responder: "Responder à sua pergunta pela IA está indisponível: ela ainda inventa uma situação que você não escreveu e, às vezes, só diz o que falta em vez de ajudar. O que você escreveu continua aqui, e a sua pergunta fica na nota."
-        case .ecos: "Sugerir notas parecidas está indisponível: a IA deixava de fora justamente as que mais tinham a ver."
+        case .ecos: "Sugerir notas que se ligam precisa da sua conta Grok (em Perfil)."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: ela ainda não diz nada quando você não errou. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: muitas vezes ela ainda não devolve pergunta nenhuma, e a que vem já entrega a resposta. O ritual segue com a pergunta fixa."
         case .instigar: "Instigar pela IA está indisponível: às vezes ela ainda pergunta supondo um fato que a nota não diz. As perguntas do método continuam na página."
@@ -255,7 +254,7 @@ enum Politica {
         case .vestir: "dar a forma certa à nota"
         case .recordar: "a pergunta do Recordar"
         case .conferir: "conferir o que voltou"
-        case .ecos: "sugerir notas parecidas"
+        case .ecos: "sugerir notas que se ligam"
         case .calibragem: "comparar o que você previu com o que aconteceu"
         case .padroes: "perguntas dos Padrões"
         case .classificar: "reconhecer o tipo de nota"

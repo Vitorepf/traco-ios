@@ -576,16 +576,10 @@ final class Sessao {
             notasLidasNaPergunta = 0
             return saida
         }
-        // ADR 04n: as candidatas a eco são as 40 mais PRÓXIMAS desta nota, não
-        // as 40 primeiras de um fetch sem ordem — e só quando há índice
-        let proximas = Indice.vizinhas(de: Caderno.prosa(de: texto), teto: 40, minimo: 0.15,
-                                       exceto: Set([notaUUID].compactMap { $0 }))
-        let ordem = Dictionary(uniqueKeysWithValues: proximas.enumerated().map { ($0.element.uuid, $0.offset) })
-        let candidatas = podem
+        // E6: as candidatas a eco saem do ponto único da folha «Notas ligadas» (as 40 mais recentes);
+        // antes, um fetch sem ordem quando o índice de sentido não existe (simulador)
+        let candidatas = Self.candidatasDeEcos(de: notaUUID, todas: podem, jaLigadas: Set(saida.map(\.uuid)))
             .filter { !jaTem.contains($0.tituloNaLista) }
-            .filter { ordem.isEmpty || ordem[$0.uuid] != nil }
-            .sorted { (ordem[$0.uuid] ?? .max) < (ordem[$1.uuid] ?? .max) }
-            .prefix(40).map { $0 }
         notasLidasNaPergunta = candidatas.count
         guard !candidatas.isEmpty else { return saida }
         let linhas = candidatas.map {
@@ -840,6 +834,22 @@ final class Sessao {
         }
         lidas.sort { $0.pontos == $1.pontos ? $0.editada > $1.editada : $0.pontos > $1.pontos }
         return lidas.prefix(teto).map(\.fonte)
+    }
+
+    /// E6: as candidatas a eco, num ponto só (a folha «Notas ligadas» e o contexto da Página):
+    /// as 40 mais recentes por edição, só notas do autor que se leem, sem a própria, sem as já
+    /// ligadas e sem as versões juntas dela (nota viva). É o que a folha já mandava — a medida da
+    /// E6 provou o pedido e o modelo sobre listas prontas, não uma seleção; a seleção pelas
+    /// palavras perdia justo o vínculo por consequência (revisão). ponytail: a ligação mais antiga
+    /// que as 40 fica fora; a E6c mede a alternativa passando pela seleção real.
+    static func candidatasDeEcos(de nota: UUID?, todas: [Nota], jaLigadas: Set<UUID>, teto: Int = 40) -> [Nota] {
+        let fora = jaLigadas.union(nota.map { Juntas.membros(de: $0) + [$0] } ?? [])
+        return todas.filter {
+            $0.origem == .autor && !fora.contains($0.uuid) && !$0.fechada && $0.gesto != .expressiva
+                && !Caderno.prosa(de: String($0.texto.prefix(3000))).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        .sorted { $0.editadaEm > $1.editadaEm }
+        .prefix(teto).map { $0 }
     }
 
     static let sistemaEscolherNotas = """

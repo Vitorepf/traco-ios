@@ -1,6 +1,6 @@
 {
   "adrs": {
-    "total": 168,
+    "total": 181,
     "duplicatas_historicas": {
       "2026-09-09q": "Q2-F (comparação pareada) e B2 (a rota que cala) reservaram a mesma letra em ramos paralelos"
     }
@@ -15,7 +15,6 @@
       "indisponivelPorQualidade": [
         "calibragem",
         "contrapor",
-        "ecos",
         "instigar",
         "recordar",
         "responder"
@@ -26,6 +25,7 @@
       "soGrok": [
         "conferir",
         "conferirTentativa",
+        "ecos",
         "escolherRegra",
         "padroes",
         "prepararPratica",
@@ -73,13 +73,11 @@
         "motivo": ""
       },
       "ecos": {
-        "regra": "indisponivelPorQualidade",
+        "regra": "soGrok",
         "provas": [
-          "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
-          "ferramentas/orca/q-qualidade.md",
-          "prova/q-qualidade-avaliacoes.jsonl"
+          "prova/e6/LEIA.md"
         ],
-        "motivo": "deixa de fora justamente as notas que mais tinham a ver"
+        "motivo": ""
       },
       "calibragem": {
         "regra": "indisponivelPorQualidade",
@@ -118,7 +116,8 @@
         "provas": [
           "ferramentas/orca/responder.md",
           "prova/10b",
-          "prova/10b2"
+          "prova/10b2",
+          "prova/e8-responder"
         ],
         "motivo": "inventa uma situação que você não escreveu, e às vezes só diz o que falta"
       },
@@ -128,18 +127,20 @@
           "ferramentas/orca/instigar.md",
           "ferramentas/orca/q-qualidade.md",
           "ferramentas/orca/revisao-q4-instigar.md",
+          "prova/e8-instigar-contrapor/LEIA.md",
           "prova/instigar-lote/t1",
           "prova/instigar-lote/t2",
           "prova/lote09c-q4-grok-4.3.jsonl",
           "prova/lote09c-q4-grok-4.5.jsonl"
         ],
-        "motivo": "quando você diz que não sabe quando foi, ela pergunta assim mesmo"
+        "motivo": "às vezes pergunta supondo um fato que a nota não diz"
       },
       "contrapor": {
         "regra": "indisponivelPorQualidade",
         "provas": [
           "ferramentas/orca/q-qualidade.md",
           "ferramentas/orca/q4f-contrapor.md",
+          "prova/e8-instigar-contrapor/LEIA.md",
           "prova/lote09g",
           "prova/lote09h",
           "prova/lote09i"

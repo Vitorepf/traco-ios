@@ -1,0 +1,120 @@
+[
+  {
+    "id": "e6r-01",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "O refrigerador que chegou este ano parou de gelar desde ontem. Um conhecido do prédio conserta essas coisas e vem sábado dar uma olhada; cobra 150.",
+      "itens": [
+        "Dentista: limpeza marcada para o dia 22, às 8h30. Levar a carteirinha do plano.",
+        "Ideia para o blog de receitas: série sobre pães de fermentação natural, um por semana.",
+        "Curso de inglês: revisar phrasal verbs da unidade 6 antes da prova de quinta.",
+        "Academia cobra taxa de matrícula de novo em janeiro; ver se compensa trocar pelo plano anual.",
+        "Pressão medida na farmácia: 13 por 8. Repetir em duas semanas e anotar.",
+        "Reunião com o time na segunda: levar números do trimestre e a proposta de novo fluxo de aprovação.",
+        "Mãe pediu ajuda para declarar o imposto de renda até o fim do mês.",
+        "Geladeira nova, comprada em março: garantia de dois anos só vale com assistência autorizada da marca. Se alguém de fora abrir o aparelho, perde a cobertura.",
+        "Lista do mercado: arroz, café, sabão em pó, banana, pão de forma.",
+        "Livro do mês: terminar os três últimos capítulos até domingo.",
+        "Planta da sala com folhas amarelas; talvez seja excesso de água.",
+        "Carro: rodízio é quinta, placa final 4.",
+        "Projeto da horta na varanda: comprar três vasos grandes e terra adubada.",
+        "Pagar o IPVA em três parcelas; a primeira vence dia 15."
+      ]
+    },
+    "esperadas": [7],
+    "requisitos": [
+      "Retorna ao menos os índices 7: o refrigerador ainda está na garantia de dois anos, e deixar alguém de fora da assistência autorizada abrir o aparelho faz perder a cobertura.",
+      "Não retorna 3 que só divide a palavra cobra",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6r-02",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Ontem, depois de uma discussão chata no trabalho, comprei um fone caro às duas da manhã pelo celular. Hoje já me arrependi.",
+      "itens": [
+        "Consulta do cardiologista remarcada para 3 de outubro, 14h.",
+        "Semana de entrega pesada: na madrugada de terça pedi três livros e uma luminária no aplicativo da loja. Nem abri as caixas ainda.",
+        "Receita de bolo de fubá da vó: 3 ovos, 2 xícaras de fubá, 1 de açúcar, forno médio.",
+        "Estudar para a certificação: simulado 2 deu 64%, precisa de 70 para passar.",
+        "Celular da avó está sem espaço; passar as fotos para o computador no domingo.",
+        "Vazamento embaixo da pia do banheiro voltou. Chamar o encanador de novo.",
+        "Meta de caminhada: 30 minutos, quatro vezes por semana.",
+        "Viagem de fim de ano: pesquisar pousadas em Paraty antes de novembro.",
+        "Mês passado, após a consulta que trouxe notícia ruim, gastei 400 reais em roupas numa loja online antes de dormir. Devolvi quase tudo.",
+        "Aniversário de casamento dos meus pais em dezembro; ver restaurante com os irmãos.",
+        "Revisar o contrato de aluguel: reajuste por IGPM ou IPCA?",
+        "Podcast recomendado sobre a história da imigração, episódio 12.",
+        "Trocar a resistência do chuveiro; a água sai morna.",
+        "Amigo secreto da firma: presente de até 50 reais.",
+        "Horário novo da natação: terças e quintas, 7h."
+      ]
+    },
+    "esperadas": [1, 8],
+    "requisitos": [
+      "Retorna ao menos os índices 1 e 8: são outros episódios da mesma compra noturna por impulso logo depois de um aperto ou notícia ruim.",
+      "Não retorna 4 que só divide a palavra celular",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6r-03",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Fechei a viagem à praia de 14 a 18 de novembro: pousada paga e passagem de ônibus comprada.",
+      "itens": [
+        "Médico pediu hemograma e glicemia em jejum; laboratório abre às 6h30.",
+        "Estudar Excel: tabela dinâmica e PROCV, 20 minutos por dia.",
+        "Receita que deu certo: frango ao curry com leite de coco, menos pimenta da próxima vez.",
+        "Ônibus 571 mudou o ponto final; agora a volta do trabalho demora mais vinte minutos.",
+        "Ideia para o quarto: prateleira acima da escrivaninha para os livros.",
+        "Cancelar a assinatura do streaming que ninguém usa.",
+        "Orçamento da reforma do banheiro: pedir mais dois antes de decidir.",
+        "Irmã pediu a receita do pão de queijo; mandar por mensagem.",
+        "Terapia: falar sobre a dificuldade de dizer não aos pedidos no trabalho.",
+        "Guardar 10% do salário todo mês na conta separada.",
+        "Combinei de ficar com o cachorro da vizinha de 15/11 a 17/11, enquanto ela visita a filha no interior.",
+        "Livros para doar: os de faculdade e as revistas antigas.",
+        "Revisão do carro: barulho na suspensão dianteira quando passa em lombada.",
+        "Comprar lâmpadas para a lavanderia e o corredor.",
+        "Curso online de fotografia libera o módulo 4 na próxima semana.",
+        "Pesquisar escola de natação para adultos perto de casa."
+      ]
+    },
+    "esperadas": [10],
+    "requisitos": [
+      "Retorna ao menos os índices 10: cuidar do cachorro da vizinha de 15 a 17/11 cai dentro dos dias da viagem, e as duas coisas não cabem juntas.",
+      "Não retorna 3 que só divide a palavra ônibus",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6r-04",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Violão: afinar de ouvido, começando pela corda mais grave e conferindo no diapasão.",
+      "itens": [
+        "Consulta com a nutricionista: diminuir o açúcar do café aos poucos.",
+        "Relatório mensal do setor sai dia 5; revisar as planilhas de despesas antes.",
+        "Trocar o óleo do carro em dezembro, está perto dos 10 mil km.",
+        "Presente da afilhada: kit de pintura ou livro de adesivos?",
+        "Condomínio subiu 12% em setembro; ler a ata da assembleia.",
+        "Série nova para ver no fim de semana, indicação do grupo da faculdade.",
+        "Varal da área de serviço: a corda arrebentou, comprar uma de náilon.",
+        "Remédio da pressão: tomar sempre depois do café da manhã.",
+        "Plano de estudos para o concurso: português segunda e quarta, direito constitucional terça e quinta.",
+        "Fatura do cartão veio com cobrança duplicada do aplicativo de transporte; contestar.",
+        "Limpar a calha antes das chuvas de dezembro.",
+        "Mãe faz 70 anos em janeiro; organizar o almoço desde já.",
+        "Doar as roupas de inverno que não servem.",
+        "Horta: o manjericão pegou pulgão, testar sabão neutro com água."
+      ]
+    },
+    "esperadas": [],
+    "requisitos": [
+      "Retorna lista vazia: nenhuma candidata trata de violão, afinação ou música",
+      "Não retorna 6 que só divide a palavra corda"
+    ]
+  }
+]

@@ -338,8 +338,9 @@ struct RespostaNotasTests {
         #expect(chamadas >= 1, "a chamada de produção sumiu — o portão perdeu o que guardava")
         #expect(codigo.contains("modelo: Grok.modelo(daRota: modeloMedido)"),
                 "o modelo da rota não passa pela sonda: TRACO_AVALIAR_MODELO deixaria de medir esta rota")
-        #expect(codigo.components(separatedBy: "modelo: Grok.modelo(daRota: modeloMedido)").count - 1 == 2,
-                "geração e conferência têm de passar as duas pela sonda, e só as duas")
+        // E6: o `ecos` também roda no modelo medido (linha de base no 4.3: 7 a 8 de 11 vínculos)
+        #expect(codigo.components(separatedBy: "modelo: Grok.modelo(daRota: modeloMedido)").count - 1 == 3,
+                "geração e conferência das Notas e o ecos passam pela sonda, e só esses três")
         // E o literal do modelo mora num lugar só, com a medida ao lado. Aqui a
         // conta é sobre o CRU: `codigoVisivel` apaga string junto com
         // comentário, e contar literal no texto sem literais dá zero — foi o

@@ -1,0 +1,286 @@
+[
+  {
+    "id": "e6-01",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Pensando de novo em largar a mesa alugada no escritório compartilhado. Três dias por semana lá e o resto em casa talvez resolva.",
+      "itens": [
+        "Aniversário da sobrinha no dia 9. Ela pediu um livro de dinossauros.",
+        "Trocar o tampo da mesa da cozinha, está descascando perto da pia.",
+        "Nota fiscal do mês: emitir até o dia 5 para os três clientes fixos.",
+        "Renegociar o plano de celular, estou pagando por 40 GB e uso 8.",
+        "Livro de estatística: o capítulo 4 tem os exercícios de regressão que a professora indicou.",
+        "Coworking: cancelar o plano mensal no fim de março. Pagar R$ 650 por mês para ir duas vezes não compensa.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Cliente da clínica veterinária pediu mais uma revisão no logo. Cobrar à parte a partir da terceira.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Lista do mercado:\n- arroz\n- detergente\n- café\n- banana",
+        "Bicicleta velha: trocar corrente e pneus e vender, ou reformar para usar no parque?",
+        "Seguro do carro vence em dezembro, cotar em pelo menos três lugares.",
+        "Resumo do artigo sobre hábitos de leitura: amostra pequena, só 60 pessoas.",
+        "Vó quer aprender a fazer chamada de vídeo. Mostrar com calma no domingo.",
+        "Doação para a igreja do bairro:\n- roupas que não servem mais\n- dois pares de tênis\n- cobertor velho"
+      ]
+    },
+    "esperadas": [
+      5
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 5: a nota nova reabre a decisão já anotada de cancelar o plano do coworking (escritório compartilhado).",
+      "Não retorna 1 que só divide a palavra mesa",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-02",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Dor de cabeça forte três manhãs seguidas, e o aparelho marcou 15 por 10 hoje cedo.",
+      "itens": [
+        "Ideia de projeto: mapa das feiras de bairro da cidade, com dia e horário de cada uma.",
+        "Dentista: limpeza marcada para 12/10 às 16h.",
+        "Transferência do aluguel todo dia 10. Colocar lembrete no dia 8.",
+        "Vender o aparelho de som antigo da sala, anunciar por R$ 300.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Irmã vai se mudar em janeiro, ofereci ajuda com as caixas de livros.",
+        "Prova de inglês para o mestrado: inscrição até 30/09, taxa de R$ 180.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Reunião com a agência na quinta às 10h por vídeo. Levar três propostas de paleta.",
+        "Parei o remédio da pressão por conta própria semana passada, estava dando tosse seca.",
+        "Lista do mercado:\n- arroz\n- detergente\n- café\n- banana",
+        "Podcast com a amiga da faculdade: gravar o piloto em outubro, tema é o bairro antigo.",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG.",
+        "Doação para a igreja do bairro:\n- roupas que não servem mais\n- dois pares de tênis\n- cobertor velho",
+        "Blog de receitas parado desde julho. Talvez voltar com um post por mês.",
+        "Bicicleta velha: trocar corrente e pneus e vender, ou reformar para usar no parque?"
+      ]
+    },
+    "esperadas": [
+      9
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 9: a pressão alta e a dor de cabeça aparecem depois de parar por conta própria o remédio da pressão (consequência provável, sem afirmar causa comprovada).",
+      "Não retorna 3 que só divide a palavra aparelho",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-03",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Fechei a geladeira nova em 10 vezes no cartão. A velha pifou de vez e não deu para esperar.",
+      "itens": [
+        "Caminhada de 40 minutos segunda, quarta e sexta. Semana passada só fui na segunda.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Livro de estatística: o capítulo 4 tem os exercícios de regressão que a professora indicou.",
+        "Podcast com a amiga da faculdade: gravar o piloto em outubro, tema é o bairro antigo.",
+        "Cartão de aniversário da avó: escrever no domingo e entregar no almoço.",
+        "Dentista: limpeza marcada para 12/10 às 16h.",
+        "Bicicleta velha: trocar corrente e pneus e vender, ou reformar para usar no parque?",
+        "Decisão do ano: nada de parcelar compra. Só à vista, ou não compra.",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG.",
+        "Resumo do artigo sobre hábitos de leitura: amostra pequena, só 60 pessoas.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Ideia de projeto: mapa das feiras de bairro da cidade, com dia e horário de cada uma.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Cliente da clínica veterinária pediu mais uma revisão no logo. Cobrar à parte a partir da terceira."
+      ]
+    },
+    "esperadas": [
+      7
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 7: a compra parcelada contradiz a decisão anotada de não parcelar nada no ano.",
+      "Não retorna 4 que só divide a palavra cartão",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-04",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Inscrição feita no curso de espanhol online, 12 módulos. Dessa vez vou até o fim.",
+      "itens": [
+        "Dentista: limpeza marcada para 12/10 às 16h.",
+        "Curso de fotografia: parei na aula 5 e continuei pagando três meses sem assistir.",
+        "Nota fiscal do mês: emitir até o dia 5 para os três clientes fixos.",
+        "Pagar o IPTU online até sexta, o boleto está no e-mail.",
+        "Vó quer aprender a fazer chamada de vídeo. Mostrar com calma no domingo.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG.",
+        "Livro de estatística: o capítulo 4 tem os exercícios de regressão que a professora indicou.",
+        "Seguro do carro vence em dezembro, cotar em pelo menos três lugares.",
+        "Aniversário da sobrinha no dia 9. Ela pediu um livro de dinossauros.",
+        "Violão: comprei o método, treinei três semanas e larguei quando chegaram as pestanas.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Transferência do aluguel todo dia 10. Colocar lembrete no dia 8.",
+        "Reunião com a agência na quinta às 10h por vídeo. Levar três propostas de paleta.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Doação para a igreja do bairro:\n- roupas que não servem mais\n- dois pares de tênis\n- cobertor velho"
+      ]
+    },
+    "esperadas": [
+      1,
+      10
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 1 e 10: fotografia e violão são o mesmo padrão de começar um aprendizado e largar no meio, que o novo curso promete quebrar.",
+      "Não retorna 3 que só divide a palavra online",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-05",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Ligaram da loja de móveis planejados: querem o catálogo impresso uma semana antes do combinado.",
+      "itens": [
+        "Lista do mercado:\n- arroz\n- detergente\n- café\n- banana",
+        "Cliente da clínica veterinária pediu mais uma revisão no logo. Cobrar à parte a partir da terceira.",
+        "Loja de ração fecha às 18h no sábado, comprar antes.",
+        "Caminhada de 40 minutos segunda, quarta e sexta. Semana passada só fui na segunda.",
+        "Irmã vai se mudar em janeiro, ofereci ajuda com as caixas de livros.",
+        "Logo da escola de natação: segunda rodada de ajustes até sexta.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Nota fiscal do mês: emitir até o dia 5 para os três clientes fixos.",
+        "Blog de receitas parado desde julho. Talvez voltar com um post por mês.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Aniversário da sobrinha no dia 9. Ela pediu um livro de dinossauros.",
+        "Trabalho da marcenaria: fotos dos ambientes até 5/10, diagramação 20/10, arquivo na gráfica 25/10.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Seguro do carro vence em dezembro, cotar em pelo menos três lugares.",
+        "Resumo do artigo sobre hábitos de leitura: amostra pequena, só 60 pessoas."
+      ]
+    },
+    "esperadas": [
+      11
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 11: o cronograma do catálogo da marcenaria é o prazo que o pedido de adiantar uma semana aperta.",
+      "Não retorna 2 que só divide a palavra loja",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-06",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Apareceu uma mancha amarelada no teto da sala, bem embaixo do banheiro de cima. Está crescendo.",
+      "itens": [
+        "Transferência do aluguel todo dia 10. Colocar lembrete no dia 8.",
+        "Livro de estatística: o capítulo 4 tem os exercícios de regressão que a professora indicou.",
+        "Encanador para o box de cima só consegue vir dia 3. Até lá, banho no chuveiro de baixo.",
+        "Vó quer aprender a fazer chamada de vídeo. Mostrar com calma no domingo.",
+        "Teto de gastos com mercado este mês: R$ 900.",
+        "Reunião com a agência na quinta às 10h por vídeo. Levar três propostas de paleta.",
+        "Trocar a resistência do chuveiro elétrico da área de serviço, está só morno.",
+        "Dentista: limpeza marcada para 12/10 às 16h.",
+        "Podcast com a amiga da faculdade: gravar o piloto em outubro, tema é o bairro antigo.",
+        "Doação para a igreja do bairro:\n- roupas que não servem mais\n- dois pares de tênis\n- cobertor velho",
+        "Prova de inglês para o mestrado: inscrição até 30/09, taxa de R$ 180.",
+        "Rejunte do box soltando no banheiro de cima; a água escorre pelo canto durante o banho.",
+        "Guardar 15% de tudo que entrar de freela numa conta separada para o imposto.",
+        "Bicicleta velha: trocar corrente e pneus e vender, ou reformar para usar no parque?",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG.",
+        "Caminhada de 40 minutos segunda, quarta e sexta. Semana passada só fui na segunda.",
+        "Blog de receitas parado desde julho. Talvez voltar com um post por mês."
+      ]
+    },
+    "esperadas": [
+      2,
+      11
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 2 e 11: o rejunte solto no box de cima explica a infiltração, e a visita do encanador é o prazo do mesmo conserto.",
+      "Não retorna 4 que só divide a palavra teto",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-07",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Topei ir com a turma da pós pro litoral em novembro, saindo dia 14 de noite e retornando no dia 16.",
+      "itens": [
+        "Nota fiscal do mês: emitir até o dia 5 para os três clientes fixos.",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Aniversário da sobrinha no dia 9. Ela pediu um livro de dinossauros.",
+        "Resumo do artigo sobre hábitos de leitura: amostra pequena, só 60 pessoas.",
+        "Passagem comprada para o interior: ida 14/11 cedo, volta 17/11. Almoço de aniversário do pai no dia 15.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Turma do futebol de quarta mudou de quadra, agora é perto do metrô.",
+        "Renegociar o plano de celular, estou pagando por 40 GB e uso 8.",
+        "Irmã vai se mudar em janeiro, ofereci ajuda com as caixas de livros.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Seguro do carro vence em dezembro, cotar em pelo menos três lugares.",
+        "Ideia de projeto: mapa das feiras de bairro da cidade, com dia e horário de cada uma.",
+        "Lista do mercado:\n- arroz\n- detergente\n- café\n- banana",
+        "Cliente da clínica veterinária pediu mais uma revisão no logo. Cobrar à parte a partir da terceira.",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG."
+      ]
+    },
+    "esperadas": [
+      4
+    ],
+    "requisitos": [
+      "Retorna ao menos os índices 4: a viagem ao litoral cai nos mesmos dias da passagem já comprada para o almoço de aniversário do pai.",
+      "Não retorna 6 que só divide a palavra turma",
+      "Cada trecho é literal da candidata indicada, 8 a 120 caracteres."
+    ]
+  },
+  {
+    "id": "e6-08",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Ideia para a varanda: horta em vasos com manjericão e cebolinha, regando de manhã cedo.",
+      "itens": [
+        "Nota fiscal do mês: emitir até o dia 5 para os três clientes fixos.",
+        "Dor no punho direito depois de muito tempo no mouse. Testar apoio de punho.",
+        "Irmã vai se mudar em janeiro, ofereci ajuda com as caixas de livros.",
+        "Seguro do carro vence em dezembro, cotar em pelo menos três lugares.",
+        "Exame de sangue em jejum na sexta de manhã. Levar o pedido impresso.",
+        "Barulho na máquina de lavar na centrifugação. Ver se é roupa desequilibrada antes de chamar técnico.",
+        "Livro de estatística: o capítulo 4 tem os exercícios de regressão que a professora indicou.",
+        "Vó quer aprender a fazer chamada de vídeo. Mostrar com calma no domingo.",
+        "Transferência do aluguel todo dia 10. Colocar lembrete no dia 8.",
+        "Reunião com a agência na quinta às 10h por vídeo. Levar três propostas de paleta.",
+        "Bicicleta velha: trocar corrente e pneus e vender, ou reformar para usar no parque?",
+        "Ligar para o tio sobre a documentação do terreno, ele pediu cópia do RG.",
+        "Cliente da clínica veterinária pediu mais uma revisão no logo. Cobrar à parte a partir da terceira.",
+        "Aniversário da sobrinha no dia 9. Ela pediu um livro de dinossauros."
+      ]
+    },
+    "esperadas": [],
+    "requisitos": [
+      "Retorna lista vazia: nenhuma candidata trata de horta, plantas ou varanda.",
+      "Não retorna 4 que só divide a palavra manhã"
+    ]
+  },
+  {
+    "id": "e6-09",
+    "operacao": "ecos",
+    "entrada": {
+      "texto": "Trocar a senha do roteador e o nome da rede. O sinal não chega no quarto dos fundos.",
+      "itens": [
+        "Caminhada de 40 minutos segunda, quarta e sexta. Semana passada só fui na segunda.",
+        "Dentista: limpeza marcada para 12/10 às 16h.",
+        "Trocar a resistência do chuveiro elétrico da área de serviço, está só morno.",
+        "Prova de inglês para o mestrado: inscrição até 30/09, taxa de R$ 180.",
+        "Guardar 15% de tudo que entrar de freela numa conta separada para o imposto.",
+        "Podcast com a amiga da faculdade: gravar o piloto em outubro, tema é o bairro antigo.",
+        "Lista do mercado:\n- arroz\n- detergente\n- café\n- banana",
+        "Sinal de 30% da casa de praia do réveillon pago, o restante na chegada.",
+        "Resumo do artigo sobre hábitos de leitura: amostra pequena, só 60 pessoas.",
+        "Doação para a igreja do bairro:\n- roupas que não servem mais\n- dois pares de tênis\n- cobertor velho",
+        "Vacina da gripe tomada no posto. Próxima dose só ano que vem.",
+        "Blog de receitas parado desde julho. Talvez voltar com um post por mês.",
+        "Irmã vai se mudar em janeiro, ofereci ajuda com as caixas de livros."
+      ]
+    },
+    "esperadas": [],
+    "requisitos": [
+      "Retorna lista vazia: nenhuma candidata trata de internet, roteador ou rede em casa.",
+      "Não retorna 7 que só divide a palavra sinal"
+    ]
+  }
+]

@@ -93,10 +93,9 @@ struct PerfilQualidadeTests {
     /// não aconteceu.
     /// Guardado pela frase, uma a uma: um portão que só conta as seis passaria
     /// igual com o texto de diagnóstico que o dono fotografou.
-    @Test("as seis linhas cortadas dizem o que acontece com ele, não o nosso diagnóstico")
+    @Test("as linhas cortadas dizem o que acontece com ele, não o nosso diagnóstico")
     func cadaLinhaCortadaFalaDoAutor() throws {
         let esperado: [Politica.Operacao: String] = [
-            .ecos: "deixa de fora justamente as notas que mais tinham a ver",
             .calibragem: "não diz nada quando você não errou",
             .recordar: "muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta",
             .responder: "inventa uma situação que você não escreveu, e às vezes só diz o que falta",
