@@ -85,7 +85,7 @@ struct BarraNavegacao: View {
                 HStack(spacing: 0) {
                     ForEach(Aba.naBarra) { glifo($0).symbolVariant(.fill) }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Tema.sobreAtivo)
                 .background(Tema.chipAtivo)
                 .mask {
                     GeometryReader { g in

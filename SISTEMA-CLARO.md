@@ -235,6 +235,12 @@ depois, e o veredito do dono em vídeo antes de dar por bom.
 
 A aceitação e as emendas são registradas na SPEC. O texto abaixo conserva a justificativa da proposta; não abre nova aprovação nem substitui decisões posteriores.
 
+> **Emenda (ADR 2026-09-17c, [SISTEMA-ESCURO.md](SISTEMA-ESCURO.md)).** O "um
+> mundo só, nunca dois" do parágrafo abaixo proibia o app virar claro numa aba
+> e escuro noutra — a lei da coerência. Em 17/set o dono pediu o modo escuro no
+> Perfil, e a lei passou a ser **um mundo só POR VEZ**, escolhido por ele. Os
+> hex deste arquivo não se moveram; estão congelados em `MundoEscuroTests`.
+
 §11 dizia "tema escuro único, a página preta é o produto". Em 02/set o dono
 viu o calendário claro e decidiu: o Traço inteiro passa a viver no mundo
 claro do clone, com a mesma paleta e elementos ainda mais limpos. Regras que

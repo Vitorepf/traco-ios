@@ -64,7 +64,7 @@ struct CampoFlutuante<Mais: View>: View {
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
                     .font(aoParar != nil || temTexto || ditado.gravando ? .caption2.weight(.bold) : .footnote.weight(.medium))
                     .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tintaSuave)
+                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? Tema.sobreAtivo : Tema.tintaSuave)
                     .frame(width: 26, height: 26)
                     .background {
                         // o disco se LEVANTA do poço, como a escala escolhida

@@ -47,7 +47,7 @@ struct CalendarioView: View {
             conteudo(agora: contexto.date)
         }
         .foregroundStyle(CalendarioTema.tinta)
-        .preferredColorScheme(.light)
+        .mundoDoAutor()
         .sheet(item: $trabalhoAberto) { destino in
             TrabalhoView(trabalho: destino.trabalho, acaoEmFoco: destino.acaoID)
         }
@@ -320,7 +320,7 @@ struct CalendarioView: View {
                         // 28 de disco (antes enchia os 44 e encostava nas bordas)
                         Text(escala.letra)
                             .font(CalendarioTema.escala)
-                            .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
+                            .foregroundStyle(ligado ? Tema.sobreAtivo : CalendarioTema.tintaSuave)
                             .frame(width: 28, height: 28)
                             .background {
                                 if ligado {
@@ -352,7 +352,7 @@ struct CalendarioView: View {
                 } label: {
                     Text("Hoje")
                         .font(CalendarioTema.chrome)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Tema.sobreAtivo)
                         .padding(.horizontal, 10)
                         .frame(height: 32)
                         .background(CalendarioTema.chipActivo, in: Capsule())
@@ -404,9 +404,9 @@ struct CalendarioChipDia: View {
                 .font(CalendarioTema.letra)
             Text(Calendario.formatar(dia, "d", cal))
                 .font(compacto ? CalendarioTema.meta.monospacedDigit() : CalendarioTema.dia)
-                .foregroundStyle(activo ? .white : feriado != nil ? CalendarioTema.feriado : CalendarioTema.tintaSuave)
+                .foregroundStyle(activo ? Tema.sobreAtivo : feriado != nil ? CalendarioTema.feriado : CalendarioTema.tintaSuave)
         }
-        .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
+        .foregroundStyle(activo ? Tema.sobreAtivo : CalendarioTema.tintaSuave)
         .frame(width: lado, height: lado)
         .background(activo ? CalendarioTema.chipActivo : CalendarioTema.chip, in: Circle())
         .overlay {

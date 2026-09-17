@@ -67,8 +67,9 @@ struct ArranqueFalhouView: View {
             .padding(.vertical, Tema.entreSecoes)
         }
         .background(Tema.fundo.ignoresSafeArea())
-        // um mundo só (ADR 2026-09-02h): a falha não estreia o modo escuro
-        .preferredColorScheme(.light)
+        // a falha não estreia mundo nenhum: ela abre no que o autor escolheu
+        // (ADR 17c), mesmo sem disco — o ajuste mora nos UserDefaults
+        .mundoDoAutor()
         .accessibilityIdentifier("disco-falhou")
     }
 

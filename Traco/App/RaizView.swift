@@ -149,8 +149,9 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.Duracao.media)
             : .easeOut(duration: Tema.Duracao.fecho), reduzido: reduceMotion),
             value: sessao.fechoExpressiva)
-        // um mundo só (ADR 2026-09-02h): nunca claro numa aba e escuro noutra
-        .preferredColorScheme(.light)
+        // um mundo só POR VEZ (ADR 02h, emendada pela 17c): nunca claro numa
+        // aba e escuro noutra — e qual dos dois é escolha do autor, no Perfil
+        .mundoDoAutor()
         .environment(\.abrirCalendarioDoTrabalho, { data in
             guard sessao.salvar(no: context) else { return false }
             agenda.ancora = Calendario.inicioDoDia(data, agenda.cal)

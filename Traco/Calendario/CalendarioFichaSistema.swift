@@ -70,7 +70,7 @@ struct CalendarioFichaSistemaView: View {
         .foregroundStyle(CalendarioTema.tinta)
         .background(CalendarioTema.fundo.ignoresSafeArea())
         .environment(\.locale, Locale(identifier: "pt_BR"))
-        .preferredColorScheme(.light)
+        .mundoDoAutor()
         // ADR 04u/04w: folha de uma linha nasce no médio; com DO CADERNO
         // deixa de ser de uma linha e sobe ao grande
         .presentationDetents(doCaderno.isEmpty ? [.medium] : [.large])

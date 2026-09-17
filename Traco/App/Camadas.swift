@@ -39,7 +39,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // profundidade de verdade: a folha do sistema escurece o fundo
                 // em 48%; a nossa escurecia 0,7% e lia como substituição
-                .overlay(Color.black.opacity(0.28 * fracao).ignoresSafeArea())
+                .overlay(Tema.veu.opacity(fracao).ignoresSafeArea())
                 // e RECUA: a folha de cima não desliza sobre um plano — ela
                 // cobre uma página que afunda na pilha (dono, 01/set: caderno
                 // de folhas, não painéis)
@@ -56,7 +56,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 // "extremamente zoado"). Só enquanto a folha anda: parada, a
                 // borda está fora da tela e a sombra não tem o que mostrar.
                 .compositingGroup()
-                .shadow(color: Color(hex: 0x1C1C1E, opacity: pos == 0 || pos <= -largura ? 0 : 0.22), radius: 18, x: 6)
+                .shadow(color: Tema.sombraCamada.opacity(pos == 0 || pos <= -largura ? 0 : 1), radius: 18, x: 6)
                 .offset(x: pos)
                 // movimento reduzido: corte total. Já teve fade de opacidade
                 // aqui; como `arrastando` cai um quadro antes de `arquivoAberto`

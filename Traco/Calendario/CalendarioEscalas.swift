@@ -549,7 +549,7 @@ struct CalendarioMesView: View {
                 Text(Calendario.formatar(dia, "d", agenda.cal))
                     .font(CalendarioTema.dia)
                     // feriado em vermelho de folhinha, não riscado
-                    .foregroundStyle(activo ? .white : !noMes ? CalendarioTema.tintaMorta
+                    .foregroundStyle(activo ? Tema.sobreAtivo : !noMes ? CalendarioTema.tintaMorta
                                      : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
                     .frame(width: 28, height: 28)
                     .background {
@@ -714,7 +714,7 @@ struct CalendarioAnoView: View {
             .monospacedDigit()
             // o ano também marca o feriado (dono, 03/set: "em qualquer tipo de
             // visualização"): o número em vermelho de folhinha
-            .foregroundStyle(ancora ? .white : !noMes ? CalendarioTema.tintaMorta
+            .foregroundStyle(ancora ? Tema.sobreAtivo : !noMes ? CalendarioTema.tintaMorta
                              : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
             .frame(maxWidth: .infinity, minHeight: 13)
             .background {
