@@ -456,6 +456,62 @@ struct CalendarioAgendaTests {
         #expect(semMarca.count == 1)
     }
 
+    /// O relato do dono (17/09): ditou os compromissos do dia de uma vez e
+    /// NENHUM entrou. Bastava uma parte sem marca para a frase inteira virar um
+    /// título só — e uma fala de vinte itens sempre tem uma.
+    @Test("um item sem dia nem hora no meio não engole os outros")
+    func umItemMudoNaoEngoleOsOutros() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let lidos = CalendarioFrase.lerVarios(
+            "dentista terça 10h, comprar pão, correr quinta 6h, reunião sexta 15h",
+            ancora: agora, agora: agora, cal
+        )
+        #expect(lidos.count == 3)
+        #expect(lidos.first?.titulo == "Dentista")
+        #expect(cal.component(.hour, from: try #require(lidos.last).inicio) == 15)
+    }
+
+    /// O ditado com pontuação corta a hora do dia numa vírgula: "às 14h" sozinho
+    /// não tem título e sumia, deixando o compromisso na hora padrão.
+    @Test("a hora separada por vírgula volta ao compromisso a que pertence")
+    func aHoraSeparadaVoltaAoCompromisso() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let lidos = CalendarioFrase.lerVarios("reunião dia 12, às 14h", ancora: agora, agora: agora, cal)
+        #expect(lidos.count == 1)
+        let e = try #require(lidos.first)
+        #expect(e.titulo == "Reunião")
+        #expect(cal.component(.hour, from: e.inicio) == 14)
+    }
+
+    /// Com `addsPunctuation` o reconhecedor devolve frases com ponto final —
+    /// e o ponto também separa compromissos. "6h30" não é afetado: o ponto só
+    /// corta quando vem espaço depois.
+    @Test("o ponto final do ditado separa compromissos")
+    func oPontoFinalSepara() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let lidos = CalendarioFrase.lerVarios(
+            "Dentista terça às 10h. Correr quinta às 6h. Jantar sábado às 20h.",
+            ancora: agora, agora: agora, cal
+        )
+        #expect(lidos.count == 3)
+        #expect(lidos.map(\.titulo) == ["Dentista", "Correr", "Jantar"])
+    }
+
+    /// Vinte de uma vez é o caso real do dono: escrever vinte demorava demais.
+    @Test("vinte compromissos ditados de uma vez entram os vinte")
+    func vinteDeUmaVez() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let frase = (1...20).map { "reunião dia \($0) às 10h" }.joined(separator: ", ")
+        let lidos = CalendarioFrase.lerVarios(frase, ancora: agora, agora: agora, cal)
+        #expect(lidos.count == 20)
+        #expect(lidos.allSatisfy { cal.component(.hour, from: $0.inicio) == 10 })
+        #expect(lidos.allSatisfy { $0.titulo == "Reunião" })
+    }
+
     @Test("a linha da nota só vira compromisso com dia E hora")
     func linhaDatada() throws {
         let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)

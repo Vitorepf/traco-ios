@@ -659,22 +659,65 @@ nonisolated enum CalendarioFrase {
     /// Vários compromissos numa frase só ("dentista sexta 14h e reunião
     /// segunda 10h; correr terça 6h") — a pessoa fala dez e os dez ficam
     /// marcados (goal de 14/09). A frase parte em " e ", vírgula, ponto e
-    /// vírgula e quebra de linha, mas SÓ vira vários quando TODAS as partes
-    /// carregam dia, hora ou repetição: "jantar com a Ana e o Pedro às 20h" é
-    /// um compromisso, e "o Pedro" sem marca nunca vira evento sozinho.
+    /// vírgula, ponto final e quebra de linha.
+    ///
+    /// Cada parte que carrega dia, hora ou repetição vira um compromisso. A
+    /// parte que NÃO carrega marca nenhuma não se perde nem nasce sozinha: vai
+    /// junto com a próxima que carregue — e é por isso que "jantar com a Ana e
+    /// o Pedro às 20h" continua sendo UM compromisso, e "o Pedro" nunca vira
+    /// evento. O que sobra no fim volta ao último compromisso, relido inteiro.
+    ///
+    /// Antes, bastava UMA parte sem marca para o método desistir de todas e ler
+    /// a frase inteira como um compromisso só (relato do dono, 17/09: ditou os
+    /// compromissos do dia e nenhum entrou). Vinte itens ditados não têm vinte
+    /// marcas perfeitas — e um item mudo não é razão para engolir os outros
+    /// dezanove.
     nonisolated static func lerVarios(
         _ prosa: String, ancora: Date, agora: Date, _ cal: Calendar,
         manha: Int = 8, tarde: Int = 14, noite: Int = 20
     ) -> [EventoCalendario] {
+        func umDe(_ texto: String) -> EventoCalendario? {
+            ler(texto, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite)
+        }
+        func aFraseInteira() -> [EventoCalendario] { umDe(prosa).map { [$0] } ?? [] }
+
         let partes = prosa
             .replacingOccurrences(of: "\\s+e\\s+", with: "\n", options: .regularExpression)
+            // o ditado com pontuação separa por ponto final; "14.30" não é ponto
+            // final — o ponto só corta quando vem espaço (ou o fim) depois dele
+            .replacingOccurrences(of: "\\.(?=\\s|$)", with: "\n", options: .regularExpression)
             .split(whereSeparator: { $0 == "\n" || $0 == ";" || $0 == "," })
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        guard partes.count > 1, partes.allSatisfy({ temMarca($0, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) }) else {
-            return ler(prosa, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite).map { [$0] } ?? []
+        guard partes.count > 1 else { return aFraseInteira() }
+
+        var lidos: [EventoCalendario] = []
+        // o texto que gerou cada compromisso lido — para poder reler o último
+        var brutos: [String] = []
+        // partes sem marca, à espera da próxima que tenha
+        var pendente: [String] = []
+
+        for parte in partes {
+            if temMarca(parte, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) {
+                // "12 de outubro, às 14h" parte em duas com marca nas duas, e a
+                // segunda não tem título: junta-se à primeira em vez de sumir
+                let junto = (pendente + [parte]).joined(separator: " e ")
+                if let e = umDe(junto) {
+                    lidos.append(e)
+                    brutos.append(junto)
+                    pendente = []
+                    continue
+                }
+            }
+            pendente.append(parte)
         }
-        return partes.compactMap { ler($0, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) }
+
+        guard !pendente.isEmpty else { return lidos.isEmpty ? aFraseInteira() : lidos }
+        // a cauda muda ("correr terça 6h e depois alongar") pertence ao último
+        guard let ultimo = brutos.last,
+              let e = umDe(([ultimo] + pendente).joined(separator: " e ")) else { return aFraseInteira() }
+        lidos[lidos.count - 1] = e
+        return lidos
     }
 
     /// Uma linha de NOTA que é compromisso: precisa de dia (ou repetição) E
