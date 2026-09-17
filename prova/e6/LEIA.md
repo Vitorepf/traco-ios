@@ -88,3 +88,32 @@ A sonda passa PELA seleção real: caderno sintético de ≥ 200 notas, escrito 
 - **Perguntas das Notas (`candidatasDoAutor`, 30):** esperada sem palavra em comum **0 de 6**; controles com palavra **2 de 2**.
 - **Tempo com 400 notas:** A 9,9 ms; **B 167 ms** com a nota longa (barra < 50 ms); `candidatasDoAutor` 33 ms.
 - **Leitura:** confirma a previsão — nenhuma seleção por data ou por palavra alcança o vínculo antigo sem palavra em comum, e B ainda estoura o tempo. Vale a ressalva (1): o caderno foi construído para esse caso. Próximo: o braço C no Air.
+
+## E6c — braço C, a Sábia escolhe pelo índice do caderno (registrado ANTES do código e da corrida)
+
+**Índice** (`Sessao.indiceDoCaderno`): uma linha por nota do autor que se lê (sem selada, expressiva, obra ou bot; sem a própria nota e as já ligadas), da mais recente para a mais antiga: `[n] título (até 80) · AAAA-MM-DD · 1ª frase depois do título (até 160)`, ou o começo da leitura guardada da E9 quando a nota longa tem uma. **Teto: 24.000 caracteres**; passando, entram as linhas mais recentes até o teto e o índice registra quantas notas cobriu. No caderno da E6c: **236 notas, 20.093 caracteres** (medido antes, por script, no mesmo formato).
+
+**Chamadas** (as duas no `modeloMedido`): (1) a escolha — a nota (ou a pergunta) e o índice; o Grok devolve até 15 números, com o que conta como vínculo dito como lista condicional (o mesmo pedido de ecos: mesmo assunto, mesma decisão, contradição, consequência, o mesmo padrão), "de qualquer época e com outras palavras"; nenhuma que sirva: `[]`. (2) o ecos de hoje, com as linhas das escolhidas (título :: 240 caracteres da prosa). A pergunta das Notas usa só a chamada (1), com o pedido "as notas que podem responder".
+
+**Sonda:** operações `ecosPeloIndice` (o caderno com datas e ids, a nota-alvo) e `notasPeloIndice` (o caderno e a pergunta). Grava: ids escolhidos, ecos devolvidos, caracteres do índice e notas cobertas, caracteres de cada pedido, segundos de cada chamada. Lote: os 10 ecos e as 8 perguntas de `prova/e6c/caderno.json`, × 3.
+
+**O que se conta** (sem barra fixada — o líder decide com os números): esperadas entre as 15 escolhidas (de 12 nos ecos; de 6 nas perguntas sem palavra; controles 2); esperadas na resposta final do ecos; trecho não literal (tem de ser 0); tempo total e tamanho dos pedidos. **Limite registrado:** o caderno da E6c não tem caso de eco sem vínculo (controle de ecos) — os controles vazios da E6 continuam valendo para o pedido do ecos.
+
+**Condição do líder para PRODUÇÃO (não para a medida):** hoje o Perfil diz «Nas perguntas às Notas vai só a parte que toca o assunto»; com o índice vai uma linha de toda nota aberta do autor — se o C passar, o texto do Perfil muda no mesmo commit que liga o índice (texto do líder); selada e expressiva fora do índice, com teste que acusa.
+**Lote do braço C:** `prova/e6c/lote-braco-c.json` (sha `a38b2a14…`), os 10 ecos e as 8 perguntas com o caderno inteiro (ids e datas), × 3.
+
+**Regra de produção do índice (líder, 17/09, fora desta medida):** passando de 24 mil caracteres, o índice ENCURTA a linha antes de tirar nota — primeiro some a 1ª frase das notas mais antigas (fica título e data), depois o título cai para 40; só então sai nota, e o recibo diz quantas saíram. Cortar as antigas inteiras repete a cegueira que a E6c mediu.
+
+**Caderno real do dono, só contagem** (Air, 17/09, `sqlite3` somente leitura, nenhum texto lido ou impresso): **22** notas abertas do autor (sem selada, queimada ou expressiva), todas com texto; o índice teria **no máximo 1.817 caracteres** (teto superior: título até 80 + data + resto até 160), **1.453** só com título e data. O teto de 24 mil não aperta hoje.
+
+## E6c — braço C, medida (corrida `DD73C017`, grok-4.5, dylib `885b9392…`, `prova/e6c/braco-c-grok.jsonl` sha `940b058f…`)
+
+Pelo JSONL, 54 casos, 0 erros:
+- **Ecos (12 esperadas por repetição):** entre as 15 escolhidas **12, 12, 12**; na resposta final **12, 12, 11** (`c07` rep 3 perde a antiga n010 na 2ª chamada, embora escolhida); **trecho não literal 0**; notas a mais na resposta 2 por repetição; escolhidas em média 11,4 / 11,9 / 10,3.
+- **Perguntas das Notas:** esperada sem palavra em comum entre as escolhidas **6 de 6** nas 3; controles **2 de 2** nas 3.
+- **Índice:** 235 a 236 notas, **~20 mil caracteres**; pedido da escolha ~20,1 mil; pedido do ecos com as escolhidas ~2,1 mil (máx. 3,5 mil).
+- **Tempo:** escolha mediana **6,9 s** (pior 51,5 s); ecos mediana 8,0 s (pior 27 s); **total do eco pelas duas chamadas mediana 21,2 s, pior 58,1 s** — hoje a folha leva 5 a 7 s.
+
+Contra a linha de base sem IA no mesmo caderno (A 2/12, B 1/12, Notas 0/6), **o índice acha o vínculo antigo e sem palavra em comum** — com a ressalva do caderno adversarial. O custo é de 3 a 8 vezes o tempo da folha de hoje.
+
+**Decisão do líder (17/09):** o caderno do dono tem **22 notas abertas** (índice ≤ 1.817 caracteres): as 40 recentes do ecos já cobrem o caderno inteiro e `candidatasDoAutor` inclui as de pontuação 0 abaixo de 30 — **hoje não há corte**. O C fica como **capacidade medida e guardada**, sem chamador na produção, e vira produção quando o caderno passar de 30 notas abertas (com a regra de encurtar a linha antes de tirar nota e o texto novo do Perfil). **O gatilho fica visível:** `Sessao.cortesDaSelecao` conta as notas que a escolha das Notas (30) e o ecos (40) deixam de ver, e o recibo (`fora` do resultado das Notas e `foraDoPacote` da sonda) diz "notas do autor: N fora da escolha (limite de 30)" no dia em que começar; teste `oCorteDaSelecaoEntraNoRecibo`.

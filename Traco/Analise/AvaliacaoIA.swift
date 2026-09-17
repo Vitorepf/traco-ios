@@ -13,7 +13,7 @@ enum AvaliacaoIA {
     private static let operacoes = ["produzir", "prepararPratica", "conferirTentativa", "revisar",
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
         "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok", "escolherRegra",
-        "conferirContraponto"]
+        "conferirContraponto", "ecosPeloIndice", "notasPeloIndice"]
 
     /// QUAL pedido rodou cada caso, pelo dado e não pelo nome do arquivo. A
     /// 10b precisou reconstruir isto procurando os 2.327 bytes do prompt DENTRO
@@ -98,12 +98,17 @@ enum AvaliacaoIA {
         /// caderno em memória com elas e as obras de `itens` e passa pela
         /// SELEÇÃO da sessão (contexto, candidatas, escolha pelo sentido).
         var caderno: [NotaDoCaso]?
+        /// E6c: o id (do caderno) da nota aberta em `ecosPeloIndice`.
+        var alvo: String?
     }
 
     private struct NotaDoCaso: Codable {
         var texto: String
         var gesto: String?
         var campos: [String: String]?
+        /// E6c: id e data do caderno sintético (a seleção pelo índice ordena por data).
+        var id: String?
+        var editadaEm: String?
     }
 
     /// ADR 2026-09-09h — a produção passa a conversa anterior
@@ -364,6 +369,7 @@ enum AvaliacaoIA {
             var fontesDoCaso = try exigir(e.fontes, "fontes")
             var idsDoCaderno: [UUID] = []
             var candidatas = 0
+            var corteDaSelecao: [String] = []
             var obrasNoCaderno = 0
             var retratoCompleto = e.retrato ?? ""
             var retratoCortados: [String] = []
@@ -388,6 +394,7 @@ enum AvaliacaoIA {
                 obrasNoCaderno = base.filter(\.obra).count
                 let doAutor = Sessao.candidatasDoAutor(pergunta: pergunta, no: ctx)
                 candidatas = doAutor.count
+                corteDaSelecao = Sessao.reciboDoCorte(Sessao.cortesDaSelecao(todas: try ctx.fetch(FetchDescriptor<Nota>())))
                 fontesDoCaso += await Sessao.comNotasPeloSentido(pergunta: pergunta, fontes: base, candidatas: doAutor,
                                                                  perguntar: Sessao.escolherNotasPelaConta)
                 obras = []  // as do caderno já vieram pela seleção da sessão
@@ -415,7 +422,7 @@ enum AvaliacaoIA {
                 conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
                 catalogo: catalogo, retrato: retrato))
             var saida: [String: Any] = [
-                "pacoteChars": r.tamanhoDoPacote, "foraDoPacote": r.fora,
+                "pacoteChars": r.tamanhoDoPacote, "foraDoPacote": r.fora + corteDaSelecao,
                 "leiturasGuardadas": fontesDoCaso.compactMap(\.sintese).map(\.count), "leituraSegundos": segundosDaLeitura,
                 "notasPorPartes": r.notasPorPartes.count,
                 "pacoteCharsInteiros": antes?.mensagem.count ?? -1, "pacoteCharsPelaPergunta": depois?.mensagem.count ?? -1,
@@ -460,6 +467,44 @@ enum AvaliacaoIA {
         case "contrapor":
             let r = try exigir(await Sabia.contrapor(texto: Caderno.prosa(de: texto), gesto: gesto, retrato: e.retrato ?? ""))
             return ["contra": r.contra, "foraDaLista": r.foraDaLista, "outroCampo": r.outroCampo]
+        case "ecosPeloIndice", "notasPeloIndice":
+            // E6c, braço C (em medida): o caderno com datas e ids; nada disto tem chamador na produção
+            let caderno = try exigir(e.caderno, "caderno")
+            let recipiente = try ModelContainer.traco(emMemoria: true)
+            let ctx = recipiente.mainContext
+            var idDoCaso: [UUID: String] = [:]
+            var alvoNota: Nota?
+            for n in caderno {
+                let data = n.editadaEm.flatMap { try? Date($0, strategy: .iso8601) } ?? .now
+                let nota = Nota(texto: n.texto, editadaEm: data)
+                ctx.insert(nota)
+                idDoCaso[nota.uuid] = n.id ?? ""
+                if let id = n.id, id == e.alvo { alvoNota = nota }
+            }
+            try ctx.save()
+            let todas = try ctx.fetch(FetchDescriptor<Nota>())
+            let paraPergunta = caso.operacao == "notasPeloIndice"
+            let alvoTexto = paraPergunta ? try exigir(e.pergunta, "pergunta") : Caderno.prosa(de: try exigir(alvoNota, "alvo").texto)
+            let indice = Sessao.indiceDoCaderno(todas: todas, exceto: Set([alvoNota?.uuid].compactMap { $0 }))
+            let t0 = Date()
+            let escolha = try exigir(await Sabia.escolherPeloIndice(alvo: alvoTexto, indice: indice.texto,
+                                                                     total: indice.notas.count, paraPergunta: paraPergunta))
+            let escolhidas = escolha.map { indice.notas[$0] }
+            var saida: [String: Any] = [
+                "indiceChars": indice.texto.count, "indiceNotas": indice.notas.count,
+                "pedidoEscolhaChars": alvoTexto.count + indice.texto.count,
+                "segundosEscolha": Date().timeIntervalSince(t0),
+                "escolhidas": escolhidas.map { idDoCaso[$0.uuid] ?? "" },
+            ]
+            if !paraPergunta {
+                let linhas = escolhidas.map { "\($0.tituloNaLista) :: \(Caderno.prosa(de: $0.texto).prefix(240))" }
+                let t1 = Date()
+                let ecos = linhas.isEmpty ? [] : try exigir(await Sabia.ecos(nota: alvoTexto, candidatas: linhas, gesto: nil))
+                saida["segundosEcos"] = Date().timeIntervalSince(t1)
+                saida["pedidoEcosChars"] = alvoTexto.count + linhas.joined(separator: "\n\n").count
+                saida["ecos"] = ecos.map { ["id": idDoCaso[escolhidas[$0.i].uuid] ?? "", "trecho": $0.trecho] as [String: Any] }
+            }
+            return saida
         case "conferirContraponto":
             // E8 volta 4 (B): o falso positivo da conferência sobre respostas JÁ JULGADAS —
             // `itens` = [contra, foraDaLista] como os leitores os leram; nada disto vai à tela

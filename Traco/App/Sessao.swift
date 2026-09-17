@@ -836,6 +836,19 @@ final class Sessao {
         return lidas.prefix(teto).map(\.fonte)
     }
 
+    /// E6c: quantas notas abertas do autor a escolha das Notas (limite 30) e o ecos (limite 40,
+    /// sem a própria nota) deixam de ver. Com o caderno do dono (22 em 17/09) é zero; quando não
+    /// for, é o gatilho de ligar o índice (braço C, prova/e6/LEIA.md).
+    static func cortesDaSelecao(todas: [Nota]) -> (notas: Int, ecos: Int) {
+        let abertas = todas.filter { $0.origem == .autor && !$0.fechada && $0.gesto != .expressiva && $0.temVoz }.count
+        return (max(0, abertas - 30), max(0, abertas - 1 - 40))
+    }
+
+    static func reciboDoCorte(_ corte: (notas: Int, ecos: Int)) -> [String] {
+        (corte.notas > 0 ? ["notas do autor: \(corte.notas) fora da escolha (limite de 30)"] : [])
+            + (corte.ecos > 0 ? ["notas do autor: \(corte.ecos) fora das candidatas a eco (limite de 40)"] : [])
+    }
+
     /// E6: as candidatas a eco, num ponto só (a folha «Notas ligadas» e o contexto da Página):
     /// as 40 mais recentes por edição, só notas do autor que se leem, sem a própria, sem as já
     /// ligadas e sem as versões juntas dela (nota viva). É o que a folha já mandava — a medida da
@@ -850,6 +863,44 @@ final class Sessao {
         }
         .sorted { $0.editadaEm > $1.editadaEm }
         .prefix(teto).map { $0 }
+    }
+
+    // MARK: E6c — o índice do caderno (braço C, em medida; sem chamador na produção até passar)
+
+    /// Uma linha por nota do autor que se lê, da mais recente para a mais antiga:
+    /// `[n] título · AAAA-MM-DD · 1ª frase depois do título`, ou o começo da leitura guardada da
+    /// E9 quando a nota longa tem uma. Passando do teto, ficam as mais recentes, e `notas` diz
+    /// quantas o índice cobriu. ponytail: 236 notas dão ~20 mil caracteres; acima do teto, a
+    /// mais antiga fica fora — a medida da E6c diz se isso basta.
+    static func indiceDoCaderno(todas: [Nota], exceto: Set<UUID>, teto: Int = 24_000) -> (notas: [Nota], texto: String) {
+        let dia = Date.ISO8601FormatStyle(timeZone: .current).year().month().day()
+        var notas: [Nota] = [], linhas: [String] = [], total = 0
+        let podem = todas.filter { $0.origem == .autor && !exceto.contains($0.uuid) && !$0.fechada && $0.gesto != .expressiva }
+            .sorted { $0.editadaEm > $1.editadaEm }
+        for nota in podem {
+            let prosa = Caderno.prosa(de: String(nota.texto.prefix(3000))).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !prosa.isEmpty else { continue }
+            let resumo = leituraGuardadaParaIndice(nota) ?? primeiraFrase(depoisDoTitulo: prosa)
+            let linha = "[\(notas.count)] \(nota.tituloNaLista.prefix(80)) · \(nota.editadaEm.formatted(dia)) · \(resumo.prefix(160))"
+            guard total + linha.count + 1 <= teto else { break }
+            total += linha.count + 1
+            notas.append(nota)
+            linhas.append(linha)
+        }
+        return (notas, linhas.joined(separator: "\n"))
+    }
+
+    private static func leituraGuardadaParaIndice(_ nota: Nota) -> String? {
+        guard nota.texto.count > RespostaNotas.tetoInteira, let a = fonteParaPergunta(nota)?.assinatura else { return nil }
+        return SinteseDeNota.ler(nota.uuid, assinatura: a)
+    }
+
+    /// A frase que vem depois da primeira linha (o título); "" quando a nota é só o título.
+    static func primeiraFrase(depoisDoTitulo prosa: String) -> String {
+        let resto = prosa.split(separator: "\n", maxSplits: 1).dropFirst().first.map(String.init)?
+            .replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces) ?? ""
+        guard let fim = resto.range(of: #"[.!?…](\s|$)"#, options: .regularExpression) else { return resto }
+        return String(resto[..<fim.lowerBound]) + String(resto[fim.lowerBound])
     }
 
     static let sistemaEscolherNotas = """
@@ -1041,7 +1092,8 @@ final class Sessao {
         return .init(resposta: retorno.texto + avisoHistorico, fontes: retorno.enviadas,
                      dependencias: dependencias, fontesCitadas: retorno.citadas,
                      conversaValida: aindaValidas,
-                     obraParaPlantar: retorno.obraParaPlantar)
+                     obraParaPlantar: retorno.obraParaPlantar,
+                     fora: retorno.fora + Self.reciboDoCorte(Self.cortesDaSelecao(todas: notas)))
     }
 
     /// Fase 0: aceite da guarda de obra. A nota é o nome que ela pediu —

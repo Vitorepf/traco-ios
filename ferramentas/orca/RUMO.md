@@ -992,3 +992,8 @@ CRLF. **Isso é conteúdo do autor, e não é decisão de quem está de passagem
 
 **Reprodução:** `ferramentas/orca/crlf-irmaos.swift`, roda com `swift` e imprime os dois
 polos do `perguntaNaNota` e as quatro contagens. Quem consertar tem de fazê-la mudar.
+
+### Gatilhos registrados (17/09, E6c)
+
+- **Ligar o índice do caderno (E6c, braço C) quando o caderno passar de 30 notas abertas do autor** — medido no Air em `prova/e6c/braco-c-grok.jsonl` (sha `940b058f…`): ecos 12/12 entre as escolhidas, Notas 6/6, total do eco ~21 s de mediana; hoje o dono tem 22. O recibo das Notas diz "notas do autor: N fora da escolha (limite de 30)" no dia em que o corte começar (`Sessao.cortesDaSelecao`). Ao ligar: a regra de encurtar a linha antes de tirar nota, o texto novo do Perfil (líder) e o desenho da espera para ~20 s. Detalhe em `prova/e6/LEIA.md`.
+

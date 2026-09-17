@@ -29,6 +29,8 @@ final class ConversaNotas {
         var fontesMudaram = false
         /// Nome da obra que a guarda recusou. A folha oferece plantar.
         var obraParaPlantar: String? = nil
+        /// E7/E6c: o recibo do que ficou fora e por quê, inclusive o corte da escolha (gatilho do índice).
+        var fora: [String] = []
     }
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 

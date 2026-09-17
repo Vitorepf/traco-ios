@@ -239,6 +239,7 @@
 		DD01525E60FAF30B4BE9678B /* CatalogoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4779123F03E7ECFA8CAEB9B9 /* CatalogoTests.swift */; };
 		DF3CF31107269E5F44915CBB /* Politica.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D38D66CE676B1CC86F2344E /* Politica.swift */; };
 		DFB8A76941988D499912E415 /* PastaEspelho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321D01689589D22A24681F9F /* PastaEspelho.swift */; };
+		E011404CAD1AD68E43F9B10C /* IndiceDoCadernoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3710E6FAFF6EA93CCDC8381 /* IndiceDoCadernoTests.swift */; };
 		E392DABE7E7AC33038D67110 /* PadroesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481F4361236B561E2D58A0D1 /* PadroesView.swift */; };
 		E5380F1B20384BEBC3ABBD06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4D7AFFE24FE679844349AD3 /* Assets.xcassets */; };
 		EAE5E994955519A08418ADD6 /* CadernoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A488C4342AF60848A88895 /* CadernoTests.swift */; };
@@ -472,6 +473,7 @@
 		B2C82A29BB5E74DA79ECDBAE /* ProximoCompromisso.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximoCompromisso.swift; sourceTree = "<group>"; };
 		B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturarIntent.swift; sourceTree = "<group>"; };
 		B34FA98F79085411C8C75034 /* CalendarioTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTrabalhoTests.swift; sourceTree = "<group>"; };
+		B3710E6FAFF6EA93CCDC8381 /* IndiceDoCadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndiceDoCadernoTests.swift; sourceTree = "<group>"; };
 		B40B38EBE36DBAA12A3FD392 /* caderno-v2-bf535c5.store */ = {isa = PBXFileReference; path = "caderno-v2-bf535c5.store"; sourceTree = "<group>"; };
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
@@ -775,6 +777,7 @@
 				E2CF0DDF404F7CD7357532DC /* GuardaDeInstigarTests.swift */,
 				727E99F9253F86D264C4B346 /* GuardaDeObraTests.swift */,
 				036D93791373C39C70BA427B /* HojeAVistaTests.swift */,
+				B3710E6FAFF6EA93CCDC8381 /* IndiceDoCadernoTests.swift */,
 				B0BBA6436049FAFFC6A04D00 /* IntegridadeCorpusTests.swift */,
 				0AACA865AA4D86AF3CFEEEAC /* IntegridadeEntradaTests.swift */,
 				CEE5A0BF90A8A66D87A0B64C /* IntegridadeRotasTests.swift */,
@@ -1213,6 +1216,7 @@
 				ECA4462D1B0AE97F289B7ECC /* GuardaDeInstigarTests.swift in Sources */,
 				760D209CD0A589044B965AD7 /* GuardaDeObraTests.swift in Sources */,
 				9D4A7DE2A579D091FC13AB6F /* HojeAVistaTests.swift in Sources */,
+				E011404CAD1AD68E43F9B10C /* IndiceDoCadernoTests.swift in Sources */,
 				FCC9FDE2F1DE401A5F60C4E0 /* IntegridadeCorpusTests.swift in Sources */,
 				4588AF25A6B240A074095E45 /* IntegridadeEntradaTests.swift in Sources */,
 				793BE3AE186B9D29159CC21E /* IntegridadeRotasTests.swift in Sources */,
