@@ -18,7 +18,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 
 ## ALTA
 
-### [→] 1. A resposta da Sábia some depois de só abrir uma fonte — executora: `salvar` muda `editadaEm` sem edição
+### [x] 1. A resposta da Sábia some depois de só abrir uma fonte — executora: `salvar` muda `editadaEm` sem edição — 7999e99c (executora)
 - **Onde:** Conversa. Capturas `49-sabia-fontes.png` → `51-sabia-fonte-nota.png` → `52-volta-da-fonte.png`.
 - **Evidência:** a resposta levou cerca de 35 s. Toquei na fonte «Subir o preço do plano anual», só li e toquei em voltar, sem editar nada. A resposta tinha virado «A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível.» e um botão «Perguntar de novo».
 - **Reincidência:** a segunda resposta (`54-resposta-2.png`) também sumiu. Isso aconteceu depois de navegar por Calendário, Padrões e Perfil, sem abrir fonte nenhuma. Vi na tela às 21:44, mas a captura foi sobrescrita.
@@ -26,14 +26,14 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** só recolher quando o hash do texto da fonte mudar de verdade. Abrir sem editar não pode gravar nada. Se a fonte mudou, manter a resposta com uma linha «Uma fonte mudou depois desta resposta · Atualizar».
 - **Como verificar:** perguntar, abrir as 3 fontes, voltar. A resposta tem de estar lá, idêntica.
 
-### [→] 2. Índices internos aparecem nas perguntas dos Padrões — executora: título no pedido + guarda de «NOTA n»
+### [x] 2. Índices internos aparecem nas perguntas dos Padrões — executora: título no pedido + guarda de «NOTA n» — dd189095 (executora)
 - **Onde:** Padrões › Perguntas. Capturas `67-padroes-perguntas.png` e `68-padroes-rolada.png`.
 - **Evidência:** as perguntas trazem textos como «Na NOTA 3 você escreveu…», «…da NOTA 6?» e «NOTA 1 traz… e NOTA 12 menciona…».
 - **Impacto:** o autor não sabe qual é a «NOTA 6». A pergunta vira ruído e mostra a costura do prompt.
 - **Correção:** trocar os índices pelo título da nota entre aspas antes de exibir. Se sobrar algum índice, descartar a pergunta.
 - **Como verificar:** nenhuma pergunta exibida casa com `/\bNOTA\s*\d+/i`.
 
-### [→] 3. A nota vira compromisso sem aviso — executora: toast «Guardada em Notas · marcado …»
+### [x] 3. A nota vira compromisso sem aviso — executora: toast «Guardada em Notas · marcado …» — a293fbac (executora): toast; «Desfazer» e «Veio da nota» abertos
 - **Onde:** página de escrever → Calendário. Capturas `05-digitando-2.png`, `10-concluir-toast.png`, `61-cal-lista.png` e `62-ficha-compromisso.png`.
 - **Evidência:** às 21:16 concluí a nota «Reunião com o fornecedor amanhã as 10h…». O único retorno foi «guardada em Notas». No Calendário apareceu «Reunião com o fornecedor», 17/09, das 10:00 às 11:00, com o domínio Trabalho. O arquivo `superficie.json` do App Group foi regravado às 21:16:41 (`geradoEm` 1789604201) já com esse compromisso.
 - **Impacto:** um efeito colateral invisível. O autor não sabe que marcou algo, nem como desfazer. A ficha também não liga de volta à nota de origem.
@@ -47,7 +47,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um nome para cada conceito. Por exemplo, «3 datas» ou «3 listas» para as juntadas, e «Alterações» só para edições. Ou então Alterações mostra também as datas juntadas.
 - **Como verificar:** em nenhuma tela a palavra «versão» se refere a duas coisas.
 
-### [x] 5. A IA tem cinco nomes — a61099b4: «Sábia» nas telas do líder; strings da Sessão/Sábia com a executora
+### [x] 5. A IA tem cinco nomes — a61099b4 + 0edadb7c (executora)
 - **Onde:** app inteiro. Capturas `11-notas-lista.png`, `46-sabia-espera-1.png`, `34-busca-vazia.png`, `07-lente-a.png` e `73-perfil-3.png`.
 - **Evidência:**
   - o campo diz «Fale com o Traço»;
@@ -100,7 +100,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 
 ## MÉDIA
 
-### [ ] 10. «Concluir», «Pronto» e «Fechar» em cinco estilos
+### [x] 10. «Concluir», «Pronto» e «Fechar» em cinco estilos — b31171b2
 - **Evidência:**
   - «Concluir» é preto na nota (`05`) e âmbar na Decisão (`38` e `41`).
   - «Pronto» aparece em pílula preta (`07`, `21`, `62` e `77`) e em texto âmbar no Desenhar (`83`).
@@ -111,7 +111,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** confirmar é sempre «Pronto» no mesmo estilo e na mesma posição (canto superior direito). Fechar sem salvar é sempre «X» à esquerda. «Concluir» tem uma cor só.
 - **Como verificar:** comparar as 7 capturas lado a lado.
 
-### [ ] 11. O botão de voltar tem dois estilos e às vezes mente
+### [x] 11. O botão de voltar tem dois estilos e às vezes mente — b31171b2: só a seta
 - **Evidência:**
   - «‹ Notas» é texto fino (`05`), enquanto a conversa usa um círculo de vidro (`46`).
   - Vindo dos Padrões, a pergunta mostra «‹ Notas», mas volta para Padrões (`69` → `70`).
@@ -120,7 +120,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um componente de voltar só, com o rótulo da tela de origem, ou só a seta.
 - **Como verificar:** entrar por Padrões e por Conversa. O rótulo bate com o destino.
 
-### [ ] 12. Âmbar fora da regra
+### [~] 12. Âmbar fora da regra — b31171b2: «+», Desfazer, Depois disto, Concluir; ficam o realce da busca, o «agora» e o botão de escrever (aprovados)
 - **Evidência:**
   - ícones do menu «+» (`03` e `06`);
   - realce da busca (`33`);
@@ -136,7 +136,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** ações, realce e «agora» vão para a cor de ação neutra (tinta ou cinza forte), e a linha do agora fica vermelha como no Calendário da Apple. O âmbar fica só no traço do autor e em «Hora de conferir».
 - **Como verificar:** amostrar a cor âmbar em todas as capturas. Ela só aparece nesses dois usos.
 
-### [ ] 13. O retorno do Concluir é fraco
+### [~] 13. O retorno do Concluir é fraco — b31171b2: ✓ e sombra; a transição da página fica
 - **Onde:** capturas `09-concluir-quadros.png` e `10-concluir-toast.png`.
 - **Evidência:**
   - O texto some num único quadro de 0,1 s, sem transição.
@@ -178,7 +178,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** «1 nota parecida» quando o resultado é aproximado. Desligar a autocapitalização do campo. A prévia mostra a frase em volta do termo, com «…».
 - **Como verificar:** repetir as duas buscas.
 
-### [~] 17. A busca não tem saída — «x» e compartilhar fixo; falta tocar na aba limpar
+### [x] 17. A busca não tem saída — «x» e compartilhar fixo; falta tocar na aba limpar — a61099b4 + b31171b2: «x» e aba acesa limpa
 - **Onde:** capturas `34-busca-vazia.png` e `33`.
 - **Evidência:**
   - O campo não tem «x» nem «Cancelar».
@@ -196,7 +196,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um menu com rótulo claro («Exportar notas para outra IA…») e uma linha explicando o conteúdo. Arquivo com nome legível, por exemplo «Traço — notas 16-09-2026.txt».
 - **Como verificar:** o menu tem texto antes da folha do sistema.
 
-### [ ] 19. A Decisão abre com o teclado no último campo e a escala vira texto livre
+### [~] 19. A Decisão abre com o teclado no último campo e a escala vira texto livre — b31171b2: escala num toque; abrir sem teclado fica em aberto
 - **Onde:** capturas `38-decisao.png` e `42-decisao-aquem.png`.
 - **Evidência:**
   - Ao abrir uma Decisão para conferir, o foco já está em «O que aconteceu». O teclado cobre metade da tela, e o título e as opções ficam fora de vista.
@@ -213,7 +213,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** sem título, usar «O que estou decidindo» como título ou colapsar o espaço. Conferir se as opções guardadas estão todas sendo exibidas.
 - **Como verificar:** abrir as duas decisões. Não há espaço vazio e o número de opções bate.
 
-### [ ] 21. Datas em seis formatos
+### [~] 21. Datas em seis formatos — Juntar com igual à lista; formatador único em aberto
 - **Evidência:**
   - «Quarta-feira, 16 de setembro» (`02`)
   - «16 de Setembro», com maiúscula (`57`)
@@ -256,7 +256,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** dar lugar próprio ao Trabalho (aba ou seção nomeada) e renomear o domínio, por exemplo para «Profissional».
 - **Como verificar:** chegar a Trabalho em 1 toque a partir de um rótulo legível.
 
-### [ ] 25. As abas não têm rótulo e a barra muda de lugar
+### [=] 25. As abas não têm rótulo e a barra muda de lugar — dono aprovou o Dock só com ícones
 - **Onde:** capturas `11`, `57`, `66` e `71`.
 - **Evidência:**
   - As 4 abas são só ícones, e o de Padrões (flor de pontos) não se explica.
@@ -266,7 +266,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** rótulos curtos nas abas (Notas · Calendário · Padrões · Perfil) e uma barra com a mesma forma e presença em toda raiz.
 - **Como verificar:** comparar as 4 raízes.
 
-### [ ] 26. Calendário: D/S/M/A ambíguo, alvos pequenos e «Marcar» sem prévia
+### [~] 26. Calendário: D/S/M/A ambíguo, alvos pequenos e «Marcar» sem prévia — prévia do Marcar (b31171b2); D/S/M/A mantido pelo dono
 - **Onde:** capturas `57`, `58`, `64`, `65` e `82-cal-retorno.png`.
 - **Evidência:**
   - «S» é Semana e também Segunda e Sábado na faixa de dias logo acima.
@@ -277,7 +277,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** «Dia · Semana · Mês · Ano», ou um menu com o nome da visão atual. Segmentos de 44 pt. Prévia ao vivo acima do campo («Sex., 18 set. · 13:00–14:00»). O rascunho abre o campo em largura total, ou é descartado com aviso.
 - **Como verificar:** digitar o exemplo e ver a prévia. Medir os segmentos.
 
-### [~] 27. Padrões: pergunta aberta desalinhada e hierarquia invertida nas hipóteses — margem e «Descartar pergunta»; falta a ordem título/estado nas hipóteses
+### [x] 27. Padrões: pergunta aberta desalinhada e hierarquia invertida nas hipóteses — margem e «Descartar pergunta»; falta a ordem título/estado nas hipóteses — a61099b4 + b31171b2
 - **Onde:** capturas `69-padroes-pergunta-aberta.png` e `76-perfil-4.png`.
 - **Evidência:**
   - O cartão «Pergunta dos Padrões» começa em x=10 pt, enquanto o texto da página está em x=21 pt. O topo do cartão (y=143) fica 3 pt abaixo de «4 para conferir».
@@ -298,7 +298,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** reservar altura fixa para a linha «Desde…» (ou colapsá-la numa linha com «+3 −2 ›»). Chips de 44 pt. Adições e remoções em linhas ou com marca visual própria.
 - **Como verificar:** trocar as 3 datas. O título não se move.
 
-### [~] 29. Lente: quebra ruim e folha meio vazia — subtítulo e menu; altura da folha fica
+### [~] 29. Lente: quebra ruim e folha meio vazia — subtítulo e menu; altura da folha fica — a61099b4
 - **Onde:** capturas `07-lente-a.png`, `03-mais-menu.png` e `06-mais-com-texto.png`.
 - **Evidência:**
   - «24 palavras · 3 frases · nada / a apontar» quebra com cerca de 130 pt livres à direita.
@@ -320,7 +320,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 
 ## BAIXA
 
-### [ ] 31. As decisões a conferir aparecem duas vezes
+### [x] 31. As decisões a conferir aparecem duas vezes — b31171b2
 Os 4 cartões «Hora de conferir» (`37`) reaparecem como cartões comuns na lista «Hoje» (`12` e `13`). **Correção:** omitir da lista quem está no topo, ou marcar o cartão da lista.
 
 ### [ ] 32. Seções da lista pulam direto para o mês
@@ -329,7 +329,7 @@ Depois de «Hoje» vem «Setembro» (`14`), sem «Ontem» nem «7 dias anteriore
 ### [ ] 33. O título grande não recolhe
 «Notas» continua grande ao rolar (`12`), e os cartões passam por baixo com fade. Na Decisão rolada, o conteúdo encosta em «‹ Notas» sem fundo (`41`, em y≈100). **Correção:** título que recolhe para a barra e efeito de borda de rolagem.
 
-### [ ] 34. Ficha do compromisso
+### [x] 34. Ficha do compromisso — b31171b2
 Linhas com passo de 40 pt, medido em 269, 309, 349 e 390 (`62`). «X» e «Pronto» aparecem juntos. «Abrir os Ajustes» é texto preto sem cara de botão, e «não repete» está em minúscula. **Correção:** linhas de 44 pt, um só botão de fechar e link com cor de ação.
 
 ### [ ] 35. Visão Ano
@@ -341,7 +341,7 @@ A sexta linha inteira é de dias esmaecidos de outubro (`59`). **Correção:** m
 ### [ ] 37. Modo lista do Calendário
 O modo lista mantém «A» aceso e o título «2026» (`61`). Depois de relançar, o app volta ao modo «D» sem lembrar a escolha (`84`). **Correção:** estado próprio para lista e lembrar a última visão.
 
-### [ ] 38. Métodos
+### [=] 38. Métodos — «Expressiva» não tem campos para abrir
 «Expressiva» não tem chevron, ao contrário das outras linhas (`77`). O conteúdo aberto usa rótulos em caixa-alta colados com 4 pt no parágrafo anterior e começa em x=20, enquanto o título da linha está em x=60 (`78`). O caminho «metodos» aparece sem acento (`76`). **Correção:** chevron em todas as linhas, 12 pt antes de cada rótulo e recuo alinhado ao título.
 
 ### [ ] 39. Detalhes do Perfil
@@ -356,7 +356,7 @@ A fonte abre rolada no meio da Decisão, não no topo (`51`). **Correção:** ab
 ### [ ] 42. «Concluir» sem edição
 Abrir uma nota existente já mostra «Concluir» sem nenhuma edição (`16`). As Notas da Apple mostram «OK» só durante a edição. **Correção:** mostrar só com o foco no texto.
 
-### [ ] 43. Folha da obra
+### [x] 43. Folha da obra — b31171b2
 O título aparece truncado, «Lenny's Podcast — regras conf…», com espaço sobrando embaixo (`50`). **Correção:** título em até 2 linhas, ou o nome da obra no lugar de «regras conferidas».
 
 ---
