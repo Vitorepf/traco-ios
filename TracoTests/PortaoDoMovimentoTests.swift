@@ -119,11 +119,13 @@ struct PortaoDoMovimentoTests {
     static func fontes(_ raiz: URL) -> [String] {
         var achados: [String] = []
         for pasta in ["Traco", "TracoWidget"] {
-            let base = raiz.appending(path: pasta)
+            // links resolvidos dos dois lados: numa árvore sob /tmp o enumerador
+            // devolve /private/tmp e o relativo saía com o caminho inteiro dentro
+            let base = raiz.appending(path: pasta).resolvingSymlinksInPath()
             guard let caminhada = FileManager.default.enumerator(
                 at: base, includingPropertiesForKeys: nil) else { continue }
             for caso in caminhada {
-                guard let url = caso as? URL, url.pathExtension == "swift" else { continue }
+                guard let url = (caso as? URL)?.resolvingSymlinksInPath(), url.pathExtension == "swift" else { continue }
                 let relativo = pasta + "/"
                     + url.path.replacingOccurrences(of: base.path + "/", with: "")
                 if relativo != ondeAsCurvasMoram { achados.append(relativo) }

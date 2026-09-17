@@ -406,6 +406,33 @@ nonisolated enum RespostaNotas {
         return String(cabe[..<corte]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Aspas prometem a palavra literal de quem escreve (o pedido: «palavras de
+    /// quem escreve só entre aspas, literais»), e a conferência só olhava o id
+    /// da fonte (auditoria 17/09). O trecho entre «» ou “” que não está em
+    /// fonte, título nem pedido perde as aspas e fica como síntese da Sábia —
+    /// fiel, não literal — em vez de citação que ninguém escreveu. Nada some.
+    /// ponytail: compara sem caixa, acento e espaço repetido; aspas retas ficam de fora.
+    static func aspasHonestas(_ texto: String, pacote: Pacote) -> String {
+        func dobra(_ s: String) -> String {
+            s.folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: nil)
+                .split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        }
+        let palheiro = dobra(([pacote.mensagem] + pacote.fontes.flatMap { [$0.texto, $0.titulo] })
+            .joined(separator: "\n"))
+        guard let rx = try? NSRegularExpression(pattern: "«([^«»]{1,600})»|“([^“”]{1,600})”") else { return texto }
+        let ns = texto as NSString
+        var saida = texto
+        for m in rx.matches(in: texto, range: NSRange(location: 0, length: ns.length)).reversed() {
+            let grupo = m.range(at: 1).location != NSNotFound ? m.range(at: 1) : m.range(at: 2)
+            let dentro = ns.substring(with: grupo)
+            let limpo = dobra(dentro.trimmingCharacters(in: .punctuationCharacters))
+            guard !limpo.isEmpty, !palheiro.contains(limpo),
+                  let todo = Range(m.range, in: saida) else { continue }
+            saida.replaceSubrange(todo, with: dentro)
+        }
+        return saida
+    }
+
     static func interpretar(_ cru: String, pacote: Pacote) -> Retorno? {
         guard let dados = cru.data(using: .utf8),
               let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
@@ -422,7 +449,8 @@ nonisolated enum RespostaNotas {
         // cortada no último fim de parágrafo ou de frase e diz que foi cortada.
         let original = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
         let escrito = Self.dentroDoTeto(original)
-        let texto = semRotulos(escrito, pacote: pacote)
+        let semRotulo = semRotulos(escrito, pacote: pacote)
+        let texto = aspasHonestas(semRotulo, pacote: pacote)
         let trechos = Dictionary(pacote.trechos.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         var citadas: [FonteNotas] = []
         for id in ids {
@@ -486,7 +514,7 @@ nonisolated enum RespostaNotas {
             resposta += "\n\nHistórico parcial: algumas respostas anteriores da IA ficaram fora; suas perguntas e correções foram mantidas integralmente."
         }
         return Retorno(texto: resposta, enviadas: pacote.fontes, citadas: citadas,
-                       escreveuRotuloInterno: texto != escrito, cortada: escrito != original,
+                       escreveuRotuloInterno: semRotulo != escrito, cortada: escrito != original,
                        citadaPelaLeitura: citadaPelaLeitura)
     }
 

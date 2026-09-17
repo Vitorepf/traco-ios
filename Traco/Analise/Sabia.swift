@@ -1378,11 +1378,24 @@ enum Sabia {
         return String(data: dados, encoding: .utf8)
     }
 
+    /// A candidata vai inteira ou não vai: o corte em 9.000 caracteres partia a
+    /// última linha no meio e deixava de fora, sem dizer, as que não cabiam
+    /// (auditoria 17/09). Devolve quantas das primeiras cabem no teto.
+    nonisolated static func quantasCabem(_ candidatas: [String], teto: Int = 9000) -> Int {
+        var total = 0
+        for (i, c) in candidatas.enumerated() {
+            let custo = "[\(i)] ".count + c.count + (i > 0 ? 2 : 0)
+            guard total + custo <= teto else { return i }
+            total += custo
+        }
+        return candidatas.count
+    }
+
     /// Os ecos desta nota entre as candidatas. `candidatas` é o texto EXATO que
     /// viaja: a prova literal é conferida contra ele, não contra a nota inteira.
     static func ecos(nota: String, candidatas: [String], gesto: Gesto?) async -> [Eco]? {
         guard gesto != .expressiva, !candidatas.isEmpty else { return nil }
-        let corpo = candidatas.enumerated()
+        let corpo = candidatas.prefix(quantasCabem(candidatas)).enumerated()
             .map { "[\($0.offset)] \($0.element)" }
             .joined(separator: "\n\n")
         let usuario = "NOTA:\n\(nota.prefix(3000))\n\nOUTRAS NOTAS:\n\(corpo.prefix(9000))"

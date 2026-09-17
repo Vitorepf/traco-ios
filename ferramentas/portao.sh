@@ -54,7 +54,19 @@ EOF
     # serializa com as outras voltas; sem paralelo, que pendura com vários simuladores ligados
     "$RAIZ/ferramentas/orca/com-trava.sh" xcodebuild test -project Traco.xcodeproj \
       -scheme Traco -destination "platform=iOS Simulator,id=$UDID" -derivedDataPath "$DD-suite" \
-      -parallel-testing-enabled NO >"$log" 2>&1 || true
+      -parallel-testing-enabled NO >"$log" 2>&1 &
+    corrida=$!
+    # com vários simuladores ligados o xcodebuild imprime o fim da suíte e pendura
+    # (16 e 17/09): 20 s depois da linha final, encerra — o veredito já está no log
+    while kill -0 "$corrida" 2>/dev/null; do
+      if grep -qE 'Test run with [0-9]+ tests' "$log"; then
+        sleep 20
+        pkill -P "$corrida" xcodebuild 2>/dev/null || true
+        break
+      fi
+      sleep 5
+    done
+    wait "$corrida" 2>/dev/null || true
     grep -E '\.swift:[0-9]+:[0-9]+: error' "$log" | sort -u | head -20 >&2 || true
     # a linha "Test run with N tests" do Swift Testing conta errado quando há
     # teste pulado (711 com 1323 passando, 17/09): a conta vem das linhas
@@ -62,7 +74,9 @@ EOF
     falhas=$(grep -c '✘ Test .* failed' "$log" || true)
     pulados=$(grep -c '➜ Test ' "$log" || true)
     grep -E '✘ Test .* (failed|recorded an issue)' "$log" | head -20 >&2 || true
-    if grep -q '\*\* TEST SUCCEEDED \*\*' "$log" && [ "$falhas" = 0 ] && [ "$ok" -gt 0 ]; then
+    # sem "TEST SUCCEEDED" quando o vigia encerrou: vale a linha final do Swift Testing sem ✘
+    if { grep -q '\*\* TEST SUCCEEDED \*\*' "$log" || grep -qE '✔ Test run with' "$log"; } \
+       && [ "$falhas" = 0 ] && [ "$ok" -gt 0 ]; then
       echo "portão: verde — $ok passaram, $pulados pulados com motivo, 0 falhas"
       exit 0
     fi

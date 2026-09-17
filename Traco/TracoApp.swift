@@ -19,7 +19,14 @@ struct TracoApp: App {
         _disco = State(initialValue: disco)
         // ADR 05u: a suíte roda dentro deste processo; a superfície do App
         // Group real (widget, orçamento, atividades) não é dela
-        if emTeste { SuperficieDisco.isolarParaTestes() }
+        if emTeste {
+            SuperficieDisco.isolarParaTestes()
+            // os sinais do autor mudam o que a análise faz (três «Soltar» seguidos
+            // viram sugestão): a suíte gravava no sinais.json do aparelho e, depois
+            // de algumas corridas, o próprio teste do vestir falhava (17/09)
+            Sinais.url = FileManager.default.temporaryDirectory
+                .appendingPathComponent("sinais-suite-\(UUID().uuidString).json")
+        }
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
         if case .aberto = disco { Self.aoAbrir() }
     }

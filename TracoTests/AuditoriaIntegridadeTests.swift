@@ -185,3 +185,39 @@ struct CopiaVoltaAoCadernoTests {
         #expect(voltou.campos["obstaculo"] == "medo")
     }
 }
+
+/// As candidatas a eco vão inteiras ou não vão (o corte em 9.000 partia a última).
+struct EcosCabemInteirosTests {
+    @Test func aCandidataQueNaoCabeFicaDeForaInteira() {
+        let linha = String(repeating: "a", count: 296) // "[i] " + 296 = 300, mais 2 de separador
+        let quarenta = Array(repeating: linha, count: 40)
+        let n = Sabia.quantasCabem(quarenta)
+        #expect(n == 29) // 300 + 9 × 302 + 19 × 303 = 8.775; a 30ª passaria de 9.000
+        let corpo = quarenta.prefix(n).enumerated().map { "[\($0.offset)] \($0.element)" }.joined(separator: "\n\n")
+        #expect(corpo.count <= 9000)
+        #expect(Sabia.quantasCabem(["curta"]) == 1)
+        #expect(Sabia.quantasCabem([]) == 0)
+    }
+}
+
+/// Aspas nas Notas são palavra literal de quem escreve, ou deixam de ser aspas.
+struct AspasHonestasTests {
+    private func pacote() -> RespostaNotas.Pacote {
+        let fonte = FonteNotas(id: UUID(), titulo: "Proposta atual",
+                               texto: "Decidi subir o preço para R$ 8.400 a partir de outubro.",
+                               editadaEm: .now)
+        return RespostaNotas.Pacote(mensagem: "quanto vou cobrar?", fontes: [fonte], omitidas: 0)
+    }
+
+    @Test func citacaoLiteralFicaInventadaPerdeAsAspas() {
+        let p = pacote()
+        #expect(RespostaNotas.aspasHonestas("Você escreveu «subir o preço para R$ 8.400».", pacote: p)
+                == "Você escreveu «subir o preço para R$ 8.400».")
+        #expect(RespostaNotas.aspasHonestas("Na “Proposta atual” você fixou o valor.", pacote: p)
+                == "Na “Proposta atual” você fixou o valor.")
+        #expect(RespostaNotas.aspasHonestas("Você escreveu «dobrar o preço já».", pacote: p)
+                == "Você escreveu dobrar o preço já.")
+        // caixa, acento e espaço não fazem a citação deixar de ser literal
+        #expect(RespostaNotas.aspasHonestas("«DECIDI  SUBIR o preco»", pacote: p) == "«DECIDI  SUBIR o preco»")
+    }
+}

@@ -443,7 +443,10 @@ struct AutoAnaliseTests {
         s.autoAnalise = true
         s.texto = "quero correr de manhã"
         s.agendarAutoAnalise(depois: 0)
-        try await Task.sleep(for: .milliseconds(80))
+        // espera o estado, não um relógio: 80 ms fixos falhavam com a máquina
+        // carregada (quatro simuladores ligados, 17/09)
+        let prazo = Date().addingTimeInterval(2)
+        while s.gesto != .woop, Date() < prazo { try await Task.sleep(for: .milliseconds(20)) }
         // §17.3 superou a fatia 1: no automático a forma já vem vestida
         #expect(s.cartao == .vestida(.woop, pergunta: AnaliseLocal.perguntaWOOP))
         #expect(s.gesto == .woop)
@@ -1089,7 +1092,9 @@ struct RotaDoWidgetTests {
         s.autoAnalise = false
         s.texto = "preciso construir a tela de login do app\n? qual banco de dados?"
         s.analisar()
-        try await Task.sleep(for: .milliseconds(120))
+        // espera o cartão, não um relógio (120 ms fixos falham com a máquina carregada)
+        let prazo = Date().addingTimeInterval(2)
+        while s.cartao == nil, Date() < prazo { try await Task.sleep(for: .milliseconds(20)) }
         // a classificação roda: "tela"/"app" roteiam Especificação
         if case .forma(let g, _)? = s.cartao {
             #expect(g == .spec)
@@ -1104,7 +1109,9 @@ struct RotaDoWidgetTests {
         s.autoAnalise = false
         s.texto = "bom dia\n? quanto custa tirar passaporte"
         s.analisar()
-        try await Task.sleep(for: .milliseconds(120))
+        // espera o cartão, não um relógio (120 ms fixos falham com a máquina carregada)
+        let prazo = Date().addingTimeInterval(2)
+        while s.cartao == nil, Date() < prazo { try await Task.sleep(for: .milliseconds(20)) }
         if case .pergunta(let q)? = s.cartao {
             #expect(q == "quanto custa tirar passaporte")
         } else {
