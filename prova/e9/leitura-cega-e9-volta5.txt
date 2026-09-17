@@ -1,0 +1,15 @@
+# Volta 5 (corrida 73610ADE): leitura cega pelos mesmos dois leitores.
+
+## Leitor 1 — casos da nota enorme (a não inventa, b não contradiz, c concisão, d utilidade)
+e9-a-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (R$ 410 vigente desde agosto; 380 e 440 como histórico)
+e9-a-ampla rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (três mudanças com as datas certas: 11/02; 22/04 e depois 15/07; 20/05; no limite de tamanho)
+e9-b-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE
+e9-b-ampla rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (as três conclusões)
+e9-c-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (peroba, 1,80 m × 70 cm, MDF naval descartado com o motivo)
+e9-c-ampla rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (três decisões e o exaustor em aberto; rep 1 a mais longa, com um 09/08 não conferível mas coerente)
+Totais: (a)+(b) 0 violações em 18; (c)+(d) nas 3 repetições 6 de 6; gênero 0.
+Ressalva: as amplas ficam no teto de concisão (~100–130 palavras, perto do dobro do essencial) por detalhe de contexto e, em e9-c-ampla, lembretes de outras notas; nenhuma fala da mecânica nem enche de rotina.
+
+## Leitor 2 — voz, gênero e casos da V (141)
+VOZ 0. GÊNERO 0 (flexões só sobre terceiros ou coisas). prec-01..06 SIM ×3; real-01 SIM ×3 (não dar desconto, oferecer o bônus de implantação). INVENÇÃO/CONTRADIÇÃO 0.
+Ressalvas (não contadas): prec-02 rep 1 «com app» vem do nome de uma opção; alheia-2 reps 1 e 3 texto genérico que sugere nota sobre o assunto; p-17 rep 2 alarga a regra do Hormozi («ou ganhar tração»), rep 3 junta caso de outro vídeo (atribuído ao mestre); p-19 rep 1 conselho genérico sem regra; p-20 rep 3 «exija um SDR claro»; pr-05 rep 1 «o 'banco' do caixa».

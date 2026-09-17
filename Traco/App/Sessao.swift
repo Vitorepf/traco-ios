@@ -915,8 +915,11 @@ final class Sessao {
     // MARK: E9 — a nota longa leva a leitura guardada da Sábia
 
     static var sintetizarPelaConta: (@Sendable (String, String, String) async -> String?)? {
-        Politica.provedor(.responderNasNotas) == nil ? nil : { @Sendable s, u, e in
-            await Sabia.chamar(.responderNasNotas, sistema: s, usuario: u, temperatura: 0, timeout: 120, esquema: e)
+        guard Politica.provedor(.responderNasNotas) != nil else { return nil }
+        // E9 volta 5: no modelo das Notas — no padrão (grok-4.3) a leitura juntou duas datas
+        let modelo = Grok.modelo(daRota: Sabia.modeloMedido)
+        return { @Sendable s, u, e in
+            await Sabia.chamar(.responderNasNotas, sistema: s, usuario: u, temperatura: 0, timeout: 120, esquema: e, modelo: modelo)
         }
     }
 

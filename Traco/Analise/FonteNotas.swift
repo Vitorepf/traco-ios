@@ -85,6 +85,9 @@ nonisolated enum RespostaNotas {
         /// ADR 2026-09-16k: o texto do modelo passou do teto e foi cortado no
         /// último fim de parágrafo ou frase. A tela decide se sinaliza.
         var cortada: Bool = false
+        /// E9 volta 5: o modelo não citou trecho e a fonte veio da leitura guardada. A sonda
+        /// conta (sem isto, "cita a nota" passaria sozinho — 09o).
+        var citadaPelaLeitura: Bool = false
         /// E7: o tamanho do pacote que foi ao modelo e o que ficou fora. A sonda lê.
         var tamanhoDoPacote: Int = 0
         var fora: [String] = []
@@ -430,6 +433,7 @@ nonisolated enum RespostaNotas {
             if !citadas.contains(where: { $0.id == trecho.fonte.id }) { citadas.append(trecho.fonte) }
         }
         var resposta: String
+        var citadaPelaLeitura = false
         switch base {
         case "insuficiente":
             // ADR 2026-09-09h — a RECUSA COVARDE morava aqui: o app jogava
@@ -445,6 +449,12 @@ nonisolated enum RespostaNotas {
         case "notas":
             if pacote.fontes.isEmpty { resposta = limiteSemBase }
             else {
+                // E9 volta 5: a resposta tirada da leitura guardada não tem linha a citar e
+                // calava inteira; sem ID nenhum, vale só com leitura no pacote, e a fonte é a
+                // nota dela. ID só de linha em branco continua recusado: apontou outra nota (revisão)
+                // ponytail: com leitura em duas notas, cita as duas; ID por leitura no esquema se errar a fonte
+                if ids.isEmpty { citadas = pacote.fontes.filter { $0.sintese != nil } }
+                citadaPelaLeitura = ids.isEmpty && !citadas.isEmpty
                 guard !citadas.isEmpty, !texto.isEmpty else { return nil }
                 let titulos = citadas.flatMap { fonte -> [String] in
                     if fonte.obra {
@@ -476,7 +486,8 @@ nonisolated enum RespostaNotas {
             resposta += "\n\nHistórico parcial: algumas respostas anteriores da IA ficaram fora; suas perguntas e correções foram mantidas integralmente."
         }
         return Retorno(texto: resposta, enviadas: pacote.fontes, citadas: citadas,
-                       escreveuRotuloInterno: texto != escrito, cortada: escrito != original)
+                       escreveuRotuloInterno: texto != escrito, cortada: escrito != original,
+                       citadaPelaLeitura: citadaPelaLeitura)
     }
 
     static func esquemaRemoto(_ pacote: Pacote) -> String {

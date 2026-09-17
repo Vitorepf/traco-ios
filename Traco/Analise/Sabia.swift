@@ -1319,12 +1319,12 @@ enum Sabia {
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
                        timeout: TimeInterval = Grok.teto,
                        memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
-                       esquema: String? = nil,
+                       esquema: String? = nil, modelo: String = Grok.modelo,
                        mensagemLocal: (() -> String?)? = nil) async -> String? {
         // revisão da E9: o `timeout` não chegava — a espera de 20 s da escolha era a de 300 s
         await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
                                     timeout: timeout, memoPor: chave, esforco: esforco, esquema: esquema,
-                                    mensagemLocal: mensagemLocal)?.texto
+                                    modelo: modelo, mensagemLocal: mensagemLocal)?.texto
     }
 
     /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
@@ -1336,24 +1336,23 @@ enum Sabia {
     /// Onde o aparelho foi medido e não serviu, a falha do Grok não desce a
     /// ele — devolve nil, e a tela diz (nunca um resultado pior, calado).
     ///
-    /// ADR 2026-09-09n: o ESFORÇO viaja por operação. O modelo não viaja: o
-    /// padrão de `Grok.modelo` já é o melhor que a conta expõe (DIRETRIZ §10),
-    /// e parâmetro que só recebe o padrão é configuração para valor que não
-    /// muda. O que muda por operação é quanto o modelo pensa; quem não pede
+    /// ADR 2026-09-09n: o ESFORÇO viaja por operação. O modelo viaja só onde a
+    /// medida pediu outro que o padrão (E9 volta 5: a leitura guardada das Notas
+    /// no `modeloMedido`); o resto fica no `Grok.modelo`. Quem não pede
     /// nada fica no `Grok.esforcoMinimo`, e o teto é o mesmo para todas,
     /// porque com este modelo não há mais rota que não pense.
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
                                       timeout: TimeInterval = Grok.teto,
                                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
-                                      esquema: String? = nil,
+                                      esquema: String? = nil, modelo: String = Grok.modelo,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         guard let quem = Politica.provedor(operacao) else { return nil }
         // O esquema é do PROTOCOLO da API e só existe do lado do Grok; a
         // descida ao aparelho tem esquema tipado próprio, por rota.
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
                                                        temperatura: temperatura, timeout: timeout,
-                                                       memoPor: chave, esquema: esquema, esforco: esforco) {
+                                                       memoPor: chave, esquema: esquema, esforco: esforco, modelo: modelo) {
             return (r, Politica.Provedor.grok.rawValue)
         }
         guard Politica.desceAoAparelho(operacao) else { return nil }

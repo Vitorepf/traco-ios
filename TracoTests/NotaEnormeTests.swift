@@ -165,6 +165,48 @@ struct NotaEnormeTests {
                 && !Sabia.sistemaConferirNasNotas.contains("Diga o que ESTA consulta contém"))
         #expect(SinteseDeNota.sistema.contains("Comece pelo que MUDOU") && Sabia.semGenero.contains("«vale mais firmeza»"))
     }
+
+    /// E9 volta 5: a leitura no 4.3 juntou duas entradas sob uma data só ("em 22/04… ficou em
+    /// R$ 410") e a resposta copiou. O pedido data cada valor pela entrada, leva o `semGenero`,
+    /// e a versão sobe para a leitura velha não ser reusada. (O modelo — `modeloMedido` — a
+    /// sonda prova pelo `modeloSolicitado` da chamada.)
+    @Test func aLeituraDataCadaValorPelaEntrada() {
+        #expect(SinteseDeNota.sistema.contains("com a data da ENTRADA em que foi escrito"))
+        #expect(SinteseDeNota.sistema.contains("Nunca junte numa frase fatos de entradas diferentes sob uma data só"))
+        #expect(SinteseDeNota.sistema.contains(Sabia.semGenero))
+        #expect(SinteseDeNota.versaoDoPedido == 3)
+    }
+
+    /// E9 volta 5: a resposta ampla tirada da leitura não tem linha a citar — a base "notas"
+    /// sem trecho calava a resposta inteira (`e9-a-ampla` rep 2). Vale só com leitura no
+    /// pacote, e a fonte é a nota da leitura; sem leitura, continua recusada.
+    @Test func baseNotasSemTrechoValeSoComLeituraNoPacote() throws {
+        var diario = FonteNotas(id: UUID(), titulo: "Diário de trabalho 2026", texto: Self.diario(), editadaEm: .now)
+        let compras = FonteNotas(id: UUID(), titulo: "Compras da gráfica", texto: "Gráfica Pontal: panfletos e milheiro.", editadaEm: .now)
+        let cru = #"{"base":"notas","texto":"O milheiro da Pontal foi corrigido para R$ 410.","trechoIDs":[]}"#
+        let pergunta = "o que mudou no diário de trabalho e nas compras da gráfica Pontal?"
+        let sem = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [diario, compras], conversa: [],
+                                                    catalogo: "", retrato: "", teto: 16_000))
+        #expect(sem.fontes.count == 2)
+        #expect(RespostaNotas.interpretar(cru, pacote: sem) == nil, "sem leitura no pacote, notas sem trecho não tem fonte")
+        diario.sintese = "Em 15/07 o milheiro foi corrigido para R$ 410."
+        let com = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [diario, compras], conversa: [],
+                                                    catalogo: "", retrato: "", teto: 16_000))
+        let r = try #require(RespostaNotas.interpretar(cru, pacote: com), "a leitura sustenta a resposta: não cala")
+        #expect(r.citadas.map(\.id) == [diario.id], "a fonte é a nota da leitura, não todas as enviadas")
+        #expect(r.texto.contains("Referência: “Diário de trabalho 2026”") && !r.texto.contains("Compras da gráfica"))
+        #expect(r.citadaPelaLeitura, "a sonda sabe que o modelo não citou")
+        // revisão: ID só de linha em branco apontou OUTRA nota — não vira a nota da leitura
+        let comBranco = FonteNotas(id: UUID(), titulo: "Compras da gráfica", texto: "Gráfica Pontal: panfletos.\n\nMilheiro a R$ 500.", editadaEm: .now)
+        let p = try #require(RespostaNotas.montar(pergunta: pergunta, fontes: [diario, comBranco], conversa: [],
+                                                  catalogo: "", retrato: "", teto: 16_000))
+        let branco = try #require(p.trechos.first { $0.fonte.id == comBranco.id && $0.texto.isEmpty }).id
+        let cruBranco = #"{"base":"notas","texto":"O milheiro custa R$ 500.","trechoIDs":["\#(branco)"]}"#
+        #expect(RespostaNotas.interpretar(cruBranco, pacote: p) == nil)
+        let linha = try #require(p.trechos.first { $0.fonte.id == comBranco.id && $0.texto.contains("R$ 500") }).id
+        let citada = try #require(RespostaNotas.interpretar(#"{"base":"notas","texto":"O milheiro custa R$ 500.","trechoIDs":["\#(linha)"]}"#, pacote: p))
+        #expect(citada.citadas.map(\.id) == [comBranco.id] && !citada.citadaPelaLeitura, "com trecho, a fonte é a do trecho")
+    }
 }
 
 /// E9: partes são da nota do AUTOR. Obra e nota do bot enormes seguem as regras delas.

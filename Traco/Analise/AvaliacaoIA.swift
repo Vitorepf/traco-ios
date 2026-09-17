@@ -422,6 +422,7 @@ enum AvaliacaoIA {
                 "texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),
                 // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
                 "escreveuRotuloInterno": r.escreveuRotuloInterno,
+                "citadaPelaLeitura": r.citadaPelaLeitura,
                 "conferida": r.conferida,
                 "reparadaNaConferencia": r.reparadaNaConferencia,
             ]

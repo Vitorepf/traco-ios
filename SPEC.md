@@ -10632,3 +10632,13 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **O que a volta provou.** O gênero vinha dos nossos pedidos: caiu de 3 e 11 para 0 e 2 com a varredura (ADR 17f). A barra do instigar agora cai só num item leve de um cego, em 1 das 3 repetições. O contrapor erra no que a nota FECHOU: o `contra` defende as razões descartadas, e a `foraDaLista` varia a saída fechada, mesmo com o `fechadas` preenchido no mesmo JSON. Além disso, a analogia marcada ainda afirma fato histórico.
 
 **Conserto nomeado, não feito (decisão do líder):** instigar — remedir com o degrau 0 sem "passo mais básico" (3 no bruto, que a guarda do commit não tira mais). Contrapor — conferência nossa do `contra` e da `foraDaLista` contra o próprio `fechadas`; `outroCampo` só com estrutura; `contra` não vazio no esquema.
+
+## ADR 2026-09-17h — Nota enorme, volta 5: a leitura no modelo das Notas, datada por entrada; a E9 fecha
+
+**Causa** (ADR 17e). A leitura guardada rodava no padrão global (`grok-4.3`) e juntou duas entradas do diário sob uma data só; a resposta copiou. A resposta ampla tirada da leitura não tinha linha a citar, e `interpretar` calava a base "notas" sem ID.
+
+**Decisão.** (a) `Sessao.sintetizarPelaConta` chama no `Sabia.modeloMedido` (`grok-4.5`) — `Sabia.chamar` ganha `modelo:`, com o `Grok.modelo` de padrão para os outros chamadores; o pedido da leitura data cada valor, decisão e mudança pela ENTRADA em que foi escrito e nunca junta entradas sob uma data; leva o `semGenero`; `versaoDoPedido` 3. (b) Base "notas" SEM ID NENHUM vale quando o pacote traz leitura, e a fonte é a nota (ou as notas) da leitura; ID só de linha em branco continua recusado (revisão adversarial: ele apontava outra nota); a sonda grava `citadaPelaLeitura`.
+
+**Prova.** Testes que falhavam antes: `aLeituraDataCadaValorPelaEntrada`, `baseNotasSemTrechoValeSoComLeituraNoPacote` (com leitura vale e cita só a nota da leitura; sem leitura, nil; ID de linha em branco, nil; ID de linha, a fonte do trecho). Air, corrida `73610ADE`, mesmo lote: nota enorme 18/18, leitura no `grok-4.5` nos 18, vazias 0, 16i 29/29/29, precedência 5/6, 5/6, 6/6, `real-01` 3/3; leitores cegos: (a)+(b) 0 violações, concisão e utilidade 6 de 6, voz 0, gênero 0. Diferença declarada: o binário medido tinha o retorno para a leitura mais largo e não gravava `citadaPelaLeitura`; nenhuma resposta do lote muda.
+
+**Dívidas.** Com leitura em duas notas e nenhum ID, as duas são citadas (o conserto é um ID por leitura no esquema); a leitura acima de 400 mil caracteres lê só o começo; as amplas ficam no teto de concisão; a escolha das notas segue no `grok-4.3`.

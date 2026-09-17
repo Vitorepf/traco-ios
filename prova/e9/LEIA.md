@@ -51,3 +51,13 @@ Pelo JSONL: nota enorme 17/18 (a 18ª é a vazia); vazias **1** (`e9-a-ampla` re
 Só (a) e (b): **(a)** a leitura guardada roda no `modeloMedido` das Notas (`grok-4.5`), não no padrão global (`grok-4.3`); o pedido manda escrever cada valor, decisão e mudança com a data da ENTRADA em que foi escrito, nunca juntar numa frase fatos de entradas diferentes sob uma data só; o `semGenero` entra no pedido; `versaoDoPedido` sobe para 3 (a leitura da volta 4 não é reusada). **(b)** base "notas" sem trecho citado deixa de calar a resposta **só** quando alguma nota do pacote traz `leituraDaSabia`: a fonte citada é a nota (ou as notas) da leitura; sem leitura no pacote, continua recusada. Testes nos dois sentidos, e o do modelo e da data no pedido.
 
 **Mesma régua, mesmo lote** (`lote.json`, sha `f4635f27…`: os 6 casos × 3 e a remedida da E7 × 3), mesmos leitores cegos, mesmo aparelho. Na sonda: a chamada da leitura com `modeloSolicitado` `grok-4.5`. **Passou** → a E9 fecha inteira. **Não passou** → a E9 fica parcial e para (sem volta 6).
+
+## Volta 5 — medida (corrida `73610ADE`, dylib `cb1f10fb…`, `medida-volta5-grok.jsonl`)
+
+Pelo JSONL: nota enorme no pacote **18/18**; leitura presente **18/18**; vazias **0**; 16i **29/29/29**; precedência 5/6, 5/6, 6/6; `real-01` 3/3. A leitura roda no `grok-4.5` (a chamada `{"leitura":…}` tem `modeloSolicitado` `grok-4.5` nos 18). Base "notas" sem trecho citado: 1 (`e9-a-ampla` rep 3, conferência) — antes calava a resposta; agora ela sai com a nota da leitura como fonte.
+
+**Diferença declarada entre o binário medido e o commit** (revisão adversarial depois da corrida começar): o retorno para a leitura era mais largo no binário (qualquer `citadas` vazio, inclusive ID só de linha em branco) e ficou só para "sem ID nenhum"; no lote, a única resposta que usou o retorno não tinha ID nenhum — nenhuma resposta muda. A sonda ganhou `citadaPelaLeitura`, que o binário medido não grava.
+
+**Leitura cega** (`leitura-cega-e9-volta5.txt`): (a)+(b) **0 violações** em 18; (c)+(d) nas 3 repetições **6 de 6**; voz **0**, gênero **0**; casos da V e `real-01` SIM em todas; invenção 0. Ressalva do leitor: as amplas ficam no teto de concisão (~100–130 palavras).
+
+**Passou em todas as réguas:** (1) 18/18; (2) zero violações e 6 de 6; (3) 16i 29/29/29, `real-01` 3/3, notas esperadas 5/6, 5/6, 6/6, voz 0, gênero 0, vazias 0. **A E9 fecha inteira.**
