@@ -18,6 +18,7 @@ struct RedeView: View {
     /// que nenhuma cite a outra. Vazio = nada verificado, e aí não se mostra.
     @State private var ecos: [Sabia.Eco] = []
     @State private var candidatas: [Nota] = []
+    @State private var escolhendo = false
 
     /// Quem pode ser eco: nota de verdade, não esta, não selada, e AINDA NÃO
     /// ligada — o valor está justamente no que a rede não sabe.
@@ -51,6 +52,17 @@ struct RedeView: View {
         withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { ecos = achados ?? [] }
     }
 
+    /// Liga pelo caminho que o autor vê: a nota abre na página com o título da
+    /// outra no fim, entre [[ ]] — nada muda no caderno sem estar à vista.
+    private func ligar(_ alvo: Nota) {
+        guard sessao.salvar(no: context) else { return }
+        sessao.abrir(nota)
+        let fim = sessao.texto.hasSuffix("\n") || sessao.texto.isEmpty ? "" : "\n\n"
+        sessao.texto += fim + "[[\(alvo.tituloNaLista)]]"
+        sessao.irPara(.escrever, no: context)
+        dismiss()
+    }
+
     private func lerLigacoes() {
         ligacoes = Rede.ligacoes(todas.map(\.paraRede))
     }
@@ -82,12 +94,25 @@ struct RedeView: View {
                             Text("Esta nota ainda não se liga a nenhuma.")
                                 .font(Tema.corpo)
                                 .foregroundStyle(Tema.tintaSuave)
-                            Text("Para ligar, escreva no texto o título de outra nota entre colchetes duplos.")
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaFraca)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityIdentifier("rede-vazia")
+                    }
+                    // auditoria 17/09: a folha vazia ensinava a sintaxe e não tinha ação;
+                    // ligar é um toque, e o título escolhido entra na nota, à vista
+                    if !nota.fechada, nota.gesto != .expressiva {
+                        Button {
+                            Toque.selecao()
+                            escolhendo = true
+                        } label: {
+                            Label("Ligar a uma nota…", systemImage: "link.badge.plus")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Tema.tinta)
+                                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.discreto)
+                        .accessibilityIdentifier("rede-ligar")
                     }
                     if !daqui.isEmpty { secao("Esta nota cita", daqui.map(\.para)) }
                     if !paraCa.isEmpty { secao("Citam esta nota", paraCa.map(\.de)) }
@@ -103,6 +128,9 @@ struct RedeView: View {
         .presentationDetents([.large]) // ADR 04u: folha de leitura nasce inteira, nunca cortada no médio
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
+        .sheet(isPresented: $escolhendo) {
+            JuntarView(nota: nota, todas: todas, juntou: ligar, paraLigar: true)
+        }
         .task {
             lerLigacoes()
             await procurarEcos()

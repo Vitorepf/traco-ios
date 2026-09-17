@@ -174,6 +174,9 @@ struct JuntarView: View {
     let nota: Nota
     let todas: [Nota]
     let juntou: (Nota) -> Void
+    /// A mesma folha escolhe a nota para LIGAR (Notas ligadas): muda o título,
+    /// a frase e quem fica de fora (só ela mesma, não as versões).
+    var paraLigar = false
     @Environment(\.dismiss) private var dismiss
     /// Achar a nota certa num caderno grande (auditoria 17/09: sem busca).
     @State private var filtro = ""
@@ -181,7 +184,7 @@ struct JuntarView: View {
     /// As parecidas primeiro, separadas das outras: misturadas, a lista não
     /// dizia quais tinham algo em comum com esta.
     private var candidatas: (parecidas: [Nota], outras: [Nota]) {
-        let jaJuntas = Set(Juntas.membros(de: nota.uuid))
+        let jaJuntas: Set<UUID> = paraLigar ? [nota.uuid] : Set(Juntas.membros(de: nota.uuid))
         let termo = filtro.trimmingCharacters(in: .whitespaces)
         let pool = todas.filter {
             !jaJuntas.contains($0.uuid)
@@ -201,7 +204,7 @@ struct JuntarView: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Juntar com")
+                    Text(paraLigar ? "Ligar a" : "Juntar com")
                         .font(.title2.weight(.bold))
                         .tracking(-0.4)
                     Text(nota.tituloNaLista)
@@ -214,7 +217,9 @@ struct JuntarView: View {
                     .accessibilityIdentifier("juntar-pronto")
             }
 
-            Text("A nota escolhida vira uma versão desta. Nada se apaga, e dá para separar de novo.")
+            Text(paraLigar
+                 ? "O título da nota escolhida entra no fim desta, entre [[ ]], e as duas passam a se ligar."
+                 : "A nota escolhida vira uma versão desta. Nada se apaga, e dá para separar de novo.")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .fixedSize(horizontal: false, vertical: true)
@@ -306,7 +311,7 @@ struct JuntarView: View {
             .cartao()
         }
         .buttonStyle(PressaoDeCartao())
-        .accessibilityHint("Junta como versão desta nota")
+        .accessibilityHint(paraLigar ? "Liga esta nota à escolhida" : "Junta como versão desta nota")
     }
 }
 
