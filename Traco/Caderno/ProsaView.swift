@@ -172,6 +172,16 @@ struct ProsaView: View {
     let bloco: BlocoCaderno
     var aoAlternarTarefa: ((Int) -> Void)?
 
+    /// A conta da lista, quando contar é trabalho: de três itens para cima e com
+    /// pelo menos um feito. Com tudo feito, ela vira o fecho — a lista acabada
+    /// diz isso e some do caminho. Menos de três itens, ou nada feito: `nil`,
+    /// porque o rótulo que repete o que a tela já mostra é ruído (o dono tirou o
+    /// «TABELA» por isso).
+    nonisolated static func linhaDoProgresso(feitas: Int, total: Int) -> String? {
+        guard total >= 3, feitas > 0 else { return nil }
+        return feitas == total ? "tudo feito." : "\(feitas) de \(total)"
+    }
+
     var body: some View {
         switch bloco {
         case .paragrafo(let t):
@@ -213,6 +223,17 @@ struct ProsaView: View {
             .accessibilityIdentifier("portal-lista")
         case .tarefas(let xs):
             VStack(alignment: .leading, spacing: 2) {
+                if let linha = Self.linhaDoProgresso(feitas: xs.filter(\.feito).count, total: xs.count) {
+                    // frase normal, não rótulo em caixa alta: a conta é CONTEÚDO,
+                    // e caixa alta só agrupa (ADR 10k)
+                    Text(linha)
+                        .font(Tema.miudo)
+                        .foregroundStyle(xs.allSatisfy(\.feito) ? Tema.feito : Tema.tintaFraca)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .padding(.bottom, 2)
+                        .accessibilityLabel(xs.allSatisfy(\.feito)
+                                            ? "Lista completa" : "\(xs.filter(\.feito).count) de \(xs.count) feitas")
+                }
                 ForEach(Array(xs.enumerated()), id: \.offset) { i, item in
                     // `firstTextBaseline`: no item que quebra em duas linhas a
                     // bolinha centrada parava ao lado da SEGUNDA (auditoria 17/09)

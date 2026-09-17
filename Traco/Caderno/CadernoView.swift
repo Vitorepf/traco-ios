@@ -840,6 +840,9 @@ struct CadernoView: View {
         next[indice].feito.toggle()
         texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(next))
         (aoMarcarTarefa ?? aoMudar)()
+        // o último item da lista é uma cerimônia pequena: o dedo sente o fecho
+        // (a lista acabada já diz «tudo feito.» no alto)
+        if next.count >= 3, next.allSatisfy(\.feito), !xs.allSatisfy(\.feito) { Toque.fechou() }
     }
 
     private func importarFoto(_ item: PhotosPickerItem?) async {

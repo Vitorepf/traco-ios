@@ -357,6 +357,18 @@ struct ListaDeComprasTests {
 
     /// Dono, 17/09, na tela: tocar a bolinha do ÚLTIMO item não fazia nada —
     /// «Leite» e «ovo» riscavam, «macarrao» não.
+    /// A conta da lista aparece quando contar é trabalho, e vira o fecho quando
+    /// acaba. Menos de três itens, ou nada feito: nada na tela (o dono tirou o
+    /// rótulo «TABELA» porque repetia o que a grade já mostrava).
+    @Test func aContaDaListaSoApareceQuandoContarEhTrabalho() {
+        #expect(ProsaView.linhaDoProgresso(feitas: 0, total: 5) == nil)
+        #expect(ProsaView.linhaDoProgresso(feitas: 1, total: 2) == nil)
+        #expect(ProsaView.linhaDoProgresso(feitas: 2, total: 5) == "2 de 5")
+        #expect(ProsaView.linhaDoProgresso(feitas: 5, total: 5) == "tudo feito.")
+        #expect(ProsaView.linhaDoProgresso(feitas: 3, total: 3) == "tudo feito.")
+        #expect(ProsaView.linhaDoProgresso(feitas: 2, total: 2) == nil, "duas coisas não pedem conta")
+    }
+
     @Test func oUltimoItemDaListaTambemAlterna() throws {
         let texto = "# Comprar\n- [ ] Leite\n- [ ] farinha\n- [ ] ovo\n- [ ] macarrao"
         let fatias = Caderno.fatias(texto)
@@ -667,6 +679,15 @@ struct NotaVelhaSeConsertaTests {
                                 novo: Caderno.tituloComResto(.titulo(1, "Comprar"), resto: ""))
         }
         #expect(!t.contains("\n\n\n"), Comment(rawValue: t.debugDescription))
+        // a raiz: o `fonte` da fatia carrega as linhas em branco de depois, e
+        // `aplicar` punha o separador de novo — uma linha em branco por gravação
+        var doc = "# Comprar\n\n- [ ] leite\n- [ ] pão\n- [ ] café"
+        for _ in 0..<12 {
+            let fs = Caderno.fatias(doc)
+            let alvo = fs.first { if case .tarefas = $0.bloco { true } else { false } } ?? fs[0]
+            doc = Caderno.aplicar(fs, id: alvo.id, bloco: alvo.bloco)
+        }
+        #expect(doc == "# Comprar\n\n- [ ] leite\n- [ ] pão\n- [ ] café", Comment(rawValue: doc.debugDescription))
         // e a nota que já engordou enxuga no conserto
         #expect(!Caderno.consertarVestidoErrado(Self.doIPhone).contains("\n\n\n"))
     }

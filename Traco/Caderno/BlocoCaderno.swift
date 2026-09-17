@@ -834,7 +834,13 @@ enum Caderno: Sendable {
     }
 
     nonisolated static func aplicar(_ fatias: [FatiaCaderno], id: String, novo: String) -> String {
+        // O `fonte` de uma fatia inclui as linhas em branco que vêm DEPOIS dela
+        // (`depoisDeVazias`), e o `joined` abaixo põe o separador outra vez: sem
+        // tirar o rabo em branco, cada gravação somava uma linha em branco — a
+        // nota «Comprar» do dono chegou a 43 (17/09). O que está DENTRO do bloco
+        // não se toca (o verso com linha em branco no meio é do autor).
         var partes = fatias.map { $0.id == id ? novo : $0.fonte }
+            .map { parte in String(parte.reversed().drop(while: { $0.isNewline }).reversed()) }
         while partes.last?.isEmpty == true {
             partes.removeLast()
         }
