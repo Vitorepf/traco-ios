@@ -746,6 +746,9 @@ struct NotasView: View {
                     .accessibilityLabel("A volta: \(Volta.cobranca(par.campo)) \(titulo(par.nota))")
                     .accessibilityHint("Abre a nota com o campo da volta")
                     .accessibilityIdentifier("volta-notas")
+                    // a linha da volta É uma nota da lista: segurar tem de
+                    // dar o mesmo menu que a linha do mês, com as Versões
+                    .contextMenu { menuDaNota(par.nota) }
                     if i < devidas.count - 1 {
                         Rectangle().fill(Tema.linha).frame(height: 0.5)
                     }
@@ -985,44 +988,55 @@ struct NotasView: View {
             escolhidas.contains(nota.uuid) ? Tema.chip : .clear,
             in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
-        .contextMenu {
-            if !nota.trancada {
-                Button("Recordar") { sessao.recordarDaNotas(nota) }
+        .contextMenu { menuDaNota(nota) }
+    }
+
+    /// O menu do toque longo de uma nota. Saiu de dentro do `botaoNota`
+    /// porque a MESMA nota aparece em duas linhas da lista — a do mês e a da
+    /// volta, no topo — e só a do mês tinha menu: segurar a linha âmbar não
+    /// abria nada, e "Versões" parecia não existir para aquela nota (report
+    /// do dono, 17/09: a nota de compra que espera conferência).
+    @ViewBuilder private func menuDaNota(_ nota: Nota) -> some View {
+        if !nota.trancada {
+            Button("Recordar") { sessao.recordarDaNotas(nota) }
+        }
+        let fatia = FatiaCorpus.de(nota)
+        if !fatia.nuncaSai {
+            Button("Como contexto") {
+                contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
             }
-            let fatia = FatiaCorpus.de(nota)
-            if !fatia.nuncaSai {
-                Button("Como contexto") {
-                    contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
+        }
+        // ADR 02m: a tela pergunta ao disco de quem é a versão, em vez de
+        // repetir a regra. Versão é de TODA nota; só a expressiva — aberta,
+        // selada ou queimada — fica de fora, porque o que se destrói não
+        // sobrevive em cópia.
+        if Versoes.valemPara(gesto: nota.gesto, fechada: nota.fechada) {
+            Button("Versões") { versoesDe = nota }
+            Button("Ligações") { redeDe = nota }
+        }
+        // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
+        if !nota.fechada, nota.gesto != .expressiva {
+            Menu("Domínio") {
+                ForEach(Dominio.allCases) { d in
+                    Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
+                }
+                Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
+                if nota.dominioTravado {
+                    Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
                 }
             }
-            if !nota.fechada, nota.gesto != .expressiva {
-                Button("Versões") { versoesDe = nota }
-                Button("Ligações") { redeDe = nota }
-            }
-            // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
-            if !nota.fechada, nota.gesto != .expressiva {
-                Menu("Domínio") {
-                    ForEach(Dominio.allCases) { d in
-                        Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
-                    }
-                    Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
-                    if nota.dominioTravado {
-                        Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
-                    }
-                }
-            }
-            // R3: as quatro linhas juntas, depois do quarto fecho
-            if nota.gesto == .expressiva, nota.serieUUID != nil {
-                Button("Ver a série") { serieDe = nota.serieUUID }
-            }
-            Button("Escolher") {
-                Toque.selecao()
-                escolhidas.insert(nota.uuid)
-            }
-            // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
-            Button("Apagar", role: .destructive) {
-                sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
-            }
+        }
+        // R3: as quatro linhas juntas, depois do quarto fecho
+        if nota.gesto == .expressiva, nota.serieUUID != nil {
+            Button("Ver a série") { serieDe = nota.serieUUID }
+        }
+        Button("Escolher") {
+            Toque.selecao()
+            escolhidas.insert(nota.uuid)
+        }
+        // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
+        Button("Apagar", role: .destructive) {
+            sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
         }
     }
 

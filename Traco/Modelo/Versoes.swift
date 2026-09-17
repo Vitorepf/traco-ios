@@ -29,12 +29,20 @@ nonisolated enum Versoes {
         return ((try? dec.decode([VersaoNota].self, from: data)) ?? []).sorted { $0.data > $1.data }
     }
 
+    /// A regra, num lugar só: versão é de TODA nota — de compra, de decisão,
+    /// de método ou de prosa solta —, menos a expressiva, aberta, selada ou
+    /// queimada (§8). Quem MOSTRA o campo pergunta aqui, como quem GRAVA:
+    /// eram duas cópias da mesma condição, e uma podia mudar sem a outra.
+    nonisolated static func valemPara(gesto: Gesto?, fechada: Bool) -> Bool {
+        gesto != .expressiva && !fechada
+    }
+
     /// Guarda `texto`/`campos` como uma versão, se diferem da última guardada.
     /// Quem chama passa o que ESTAVA gravado antes de sobrescrever.
     @discardableResult
     nonisolated static func registrar(_ uuid: UUID, texto: String, campos: [String: String],
                                       gesto: Gesto?, fechada: Bool, agora: Date = .now) -> Bool {
-        guard gesto != .expressiva, !fechada else { return false }
+        guard valemPara(gesto: gesto, fechada: fechada) else { return false }
         let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !limpo.isEmpty || !campos.values.allSatisfy({ $0.trimmingCharacters(in: .whitespaces).isEmpty }) else { return false }
         var lista = listar(uuid)
