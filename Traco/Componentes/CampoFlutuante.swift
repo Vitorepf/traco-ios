@@ -39,6 +39,7 @@ struct CampoFlutuante<Mais: View>: View {
         Mais.self == EmptyView.self || (recolherMaisAoEscrever && escrevendo) ? 14 : 4
     }
     @State private var larguraDoTexto: CGFloat = .infinity
+    @State private var quadro: CGRect = .zero
 
     private var dicaQueCabe: String {
         guard let dicaCurta else { return dica }
@@ -80,6 +81,11 @@ struct CampoFlutuante<Mais: View>: View {
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
                 .focused(foco ?? $focoProprio)
+                .onChange(of: escrevendo) { _, agora in
+                    Teclado.campoDoPeAtivo = agora
+                    if agora { Teclado.quadroDoCampoDoPe = quadro }
+                }
+                .onDisappear { if escrevendo { Teclado.campoDoPeAtivo = false } }
             if let aoLimpar, temTexto, aoParar == nil {
                 Button {
                     Toque.selecao()
@@ -152,6 +158,11 @@ struct CampoFlutuante<Mais: View>: View {
         // material fino, sem borda nem sombra desenhada
         .glassEffect(.regular.tint(.white.opacity(0.35)).interactive(),
                      in: RoundedRectangle(cornerRadius: Tema.raioDoCampo, style: .continuous))
+        // o toque que fecha o teclado precisa saber onde o campo está (Teclado)
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { novo in
+            quadro = novo
+            if escrevendo { Teclado.quadroDoCampoDoPe = novo }
+        }
     }
 }
 

@@ -100,6 +100,7 @@ struct PaginaView: View {
             }
         }
         .onChange(of: focoPagina) { _, agora in
+            Teclado.paginaEmFoco = agora
             if agora { sessao.acabouDeAbrir = false }
         }
         .onChange(of: sessao.mostrarNotas) { _, aberto in

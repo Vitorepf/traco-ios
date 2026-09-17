@@ -211,6 +211,11 @@ struct RaizView: View {
                 Revisoes.agendarRevisaoSemanal()
             }
         }
+        // o teclado do campo do pé fecha com um toque fora, e começar a rolar o
+        // calendário ou uma lista o recolhe (dono, 17/09: «o teclado não fecha ao
+        // marcar um compromisso»); o papel da página mantém a regra dele
+        .scrollDismissesKeyboard(.immediately)
+        .onAppear { Teclado.instalarToqueQueFecha() }
         // ADR 04k: os encadeamentos que marcam compromisso passam pela agenda
         .onAppear {
             sessao.agenda = agenda
