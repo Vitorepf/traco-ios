@@ -58,7 +58,13 @@ private func temp(_ nome: String) -> URL {
         #expect(Degraus.concluidas(.spec, sinais: s) == 2)
         // ADR 09i: o degrau muda o que se cobra e NÃO se nomeia — a redação
         // anterior ("DEGRAU 0", "o passo que se pula") voltava citada.
-        #expect(Degraus.instrucaoDeInstigar(0).contains("passo mais básico"))
+        // E8 volta 3: "passo mais básico" voltou 3 vezes como assunto da pergunta — sai da redação e entra na guarda
+        #expect(Degraus.instrucaoDeInstigar(0).contains("primeiro passo que este texto ainda não deu")
+                && !Degraus.instrucaoDeInstigar(0).contains("passo mais básico"))
+        // e os degraus entram no pedido do instigar: não ensinam gênero (a varredura da volta 2 não os viu)
+        for d in 0...4 {
+            #expect(Degraus.instrucaoDeInstigar(d).range(of: #"\b(ela|dela|enganada|enganado|sozinha|sozinho)\b"#, options: .regularExpression) == nil, "degrau \(d)")
+        }
         #expect(Degraus.instrucaoDeInstigar(9) == Degraus.instrucaoDeInstigar(4))
         #expect(Degraus.instrucaoDeInstigar(9).contains("LIMITE"))
         // ADR 09i·2: a medida de 09/09 leu o degrau 4 repetindo o degrau 0. O
@@ -914,13 +920,25 @@ private func temp(_ nome: String) -> URL {
         // saiu do fim: era a penúltima linha e não mandava em nada
         #expect(!Sabia.sistemaContrapor.contains("Não atribua a ela recurso"))
         // E8 volta 2: o pedido não ensina gênero — quem escreve é "quem escreve", e o semGenero vai junto;
-        // o outroCampo é analogia marcada, nunca fato histórico afirmado
+        // (o outroCampo: ver a volta 3 abaixo)
         for pedido in [Sabia.sistemaContrapor, Sabia.sistemaContraporComEsquema, Sabia.sistemaInstigar, Sabia.sistemaInstigarBase] {
             #expect(pedido.contains(Sabia.semGenero))
             #expect(pedido.range(of: #"\b(ela|dela|ELA|DELA)\b"#, options: .regularExpression) == nil, "\(pedido.prefix(60))")
         }
-        #expect(Sabia.sistemaContrapor.contains("nunca fato histórico afirmado") && !Sabia.sistemaContrapor.contains("época"))
         #expect(Sabia.vazaAlheio("qual o passo básico que falta?", termos: Sabia.andaimeDoPedido, texto: "Estudo espanhol."))
+        #expect(Sabia.vazaAlheio("qual passo mais básico falta?", termos: Sabia.andaimeDoPedido, texto: "Estudo espanhol."))
+        // E8 volta 3 (A), só pelo pedido: a guarda por palavra contra o `fechadas` foi medida no bruto
+        // da volta 2 e cortava 29 frases boas em 54 (ADR 2026-09-10d de novo)
+        for pedido in [Sabia.sistemaContrapor, Sabia.sistemaContraporComEsquema] {
+            #expect(pedido.contains("sem episódio histórico, datado ou não, sem objeto técnico, época ou pessoa nomeada")
+                    && !pedido.contains("outra época") && !pedido.contains("MARCADA"), "\(pedido.prefix(40))")
+        }
+        #expect(Sabia.sistemaContraporComEsquema.contains("tudo o que a nota fechou, esteja ou não em fechadas, é dado aceito")
+                && Sabia.sistemaContraporComEsquema.contains("nunca defende manter, retomar ou reconsiderar o que foi fechado")
+                && Sabia.sistemaContraporComEsquema.contains("não é versão menor, parcial, adaptada nem meio-termo de nada que a nota fechou")
+                // o esquema proíbe o contra vazio: o pedido deste braço não pode deixá-lo vazio (revisão da volta 3)
+                && Sabia.sistemaContraporComEsquema.contains(#"o contra nunca é "": se a razão escrita sustenta a escolha"#))
+        #expect(Sabia.esquemaContrapor.contains(#""contra":{"type":"string","minLength":1}"#))
         // a rota ligada das Notas também não ensina gênero (líder, 17/09: prioridade)
         for trecho in ["que ela já anotou", "fala dela", "dúvida dela", "como se fosse dela", "ONDE ela confirma"] {
             #expect(!Sabia.sistemaResponderNasNotas.contains(trecho) && !Sabia.sistemaConferirNasNotas.contains(trecho), "\(trecho)")

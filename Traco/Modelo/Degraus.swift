@@ -47,11 +47,11 @@ nonisolated enum Degraus {
     /// assunto, e por isso não tem mais nome citável aqui.
     nonisolated static func instrucaoDeInstigar(_ degrau: Int) -> String {
         switch max(0, min(4, degrau)) {
-        case 0: "Cobre o passo mais básico que este texto ainda não deu: o que ele trata como resolvido e não está."
-        case 1: "Cobre a RELAÇÃO entre duas coisas que ela escreveu: uma contradiz a outra? uma depende da outra? Perguntar o que cada uma significa, sozinha, NÃO cumpre isto."
-        case 2: "Cobre a EVIDÊNCIA: como ela sabe o que escreveu, e o que mostraria o contrário. Perguntar o que ela quis dizer ou o que vai fazer NÃO cumpre isto."
-        case 3: "Cobre o CUSTO de errar: o que ela perde se estiver enganada, e para que lado ela costuma errar. Perguntar se vai dar certo NÃO cumpre isto."
-        default: "Cobre o LIMITE: pegue a afirmação de que tudo ali depende e pergunte em que caso ela deixa de valer, e o que ela veria acontecer se estivesse enganada. Perguntar o que ela quis dizer, o que vai fazer com o que tem, ou o que pode dar errado, NÃO cumpre isto."
+        case 0: "Cobre o primeiro passo que este texto ainda não deu: o que ele trata como resolvido e não está."
+        case 1: "Cobre a RELAÇÃO entre duas coisas que o texto diz: uma contradiz a outra? uma depende da outra? Perguntar o que cada uma significa, isolada, NÃO cumpre isto."
+        case 2: "Cobre a EVIDÊNCIA: de onde vem o que o texto afirma, e o que mostraria o contrário. Perguntar o que quis dizer ou o que vai fazer NÃO cumpre isto."
+        case 3: "Cobre o CUSTO de errar: o que se perde se o que o texto afirma não se confirmar, e para que lado essa avaliação costuma errar. Perguntar se vai dar certo NÃO cumpre isto."
+        default: "Cobre o LIMITE: pegue a afirmação de que tudo ali depende e pergunte em que caso essa afirmação deixa de valer, e o que se veria acontecer se não valesse. Perguntar o que quis dizer, o que vai fazer com o que tem, ou o que pode dar errado, NÃO cumpre isto."
         }
     }
 

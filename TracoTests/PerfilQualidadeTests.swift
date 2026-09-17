@@ -118,7 +118,8 @@ struct PerfilQualidadeTests {
         // de 20, candidatos 12 e 12. Um conserto que já falhou é promessa, não conserto.
         for op in [Politica.Operacao.instigar, .contrapor] {
             let c = try #require(Politica.linha(op).conserto)
-            #expect(c.hasPrefix("falta ela "), "\(op): o conserto não fala com ele — \(c)")
+            // E8 volta 3 (líder, 17/09): a IA tem nome na tela — «Sábia» —, como no conserto do `responder`
+            #expect(c.hasPrefix("falta a Sábia "), "\(op): o conserto não fala com ele — \(c)")
             #expect(!c.contains("falta medir"), "\(op): agenda nossa na tela — \(c)")
         }
     }

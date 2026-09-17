@@ -127,7 +127,8 @@ import Testing
             let linha = PerfilView.restoDa(r)
             #expect(linha.contains(leitura), "\(op): a tela não diz o que o LOTE-3 leu — \(linha)")
             #expect(!linha.contains("08/09"), "\(op): motivo de 08/09 ainda na tela — \(linha)")
-            #expect(Politica.linha(op).medidaEm == "10/09/2026", "\(op): a data não é a do LOTE-3")
+            // E8 volta 3 (17/09, grok-4.5, leitores cegos): as duas remedidas e reprovadas de novo
+            #expect(Politica.linha(op).medidaEm == "17/09/2026", "\(op): a data não é a da E8 volta 3")
         }
         // ADR 09v — O RETORNO tem de chegar à TELA, não só à tabela: a operação
         // que voltou some da lista de reprovadas do Perfil, e a frase que o
@@ -178,7 +179,7 @@ import Testing
         #expect(Politica.linha(.contrapor).regra == .indisponivelPorQualidade)
         #expect(Politica.provedor(.contrapor, contaLigada: true, bordo: true) == nil)
         #expect(!Politica.desceAoAparelho(.contrapor))
-        #expect(Politica.linha(.contrapor).medidaEm == "10/09/2026")
+        #expect(Politica.linha(.contrapor).medidaEm == "17/09/2026")
         let frase = Politica.semProvedor(.contrapor)
         #expect(frase.contains("oferece um substituto para o que você disse que não tem"))
         #expect(!frase.contains("fato inventado"), "a frase de 08/09 sobreviveu à medida que a derrubou")
@@ -196,7 +197,10 @@ import Testing
         // o conserto nomeado deixa de ser "falta a leitura de mérito": a leitura
         // ACONTECEU e reprovou; o que falta é uma frase no pedido.
         let conserto = try #require(Politica.linha(.contrapor).conserto)
-        #expect(conserto.contains("aceitar essa falta como ela é"), "o conserto não nomeia o defeito que sobrou — \(conserto)")
+        // E8 volta 3: o que sobrou nos cegos é defender ou variar o descartado; o episódio
+        // histórico caiu a 0 e não volta à tela
+        #expect(conserto == "falta a Sábia não defender nem variar o que você já descartou", "o conserto não nomeia o defeito que sobrou — \(conserto)")
+        #expect(Politica.linha(.instigar).conserto == "falta a Sábia não supor um fato ao perguntar sobre o que a nota já respondeu")
         #expect(!conserto.contains("leitura de mérito"))
     }
 

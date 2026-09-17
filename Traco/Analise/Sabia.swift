@@ -400,8 +400,10 @@ enum Sabia {
     /// ADR 2026-09-10d — a TERCEIRA alavanca: o ESQUEMA DA SAÍDA. As duas
     /// primeiras foram redações do PEDIDO, medidas e descartadas (LOTE-7 e
     /// LOTE-8); esta não pede nada de novo. O `corpoContrapor` é BYTE A BYTE o
-    /// mesmo nos dois braços — a única diferença é a FORMA que a resposta tem
-    /// de ter, e essa o esquema da API aplica, não o prompt.
+    /// mesmo nos dois braços — a diferença é a FORMA que a resposta tem de ter,
+    /// que o esquema da API aplica, e, desde a E8 volta 3, duas regras só deste
+    /// braço (o contra não defende o fechado nem vem vazio; a foraDaLista não o
+    /// varia): comparar com o braço antigo mede forma e redação juntas.
     static let sistemaContraporComEsquema = formaContraporComEsquema + "\n" + corpoContrapor
 
     /// A forma antiga: três chaves, nenhuma delas conferível pelo nosso lado.
@@ -410,7 +412,7 @@ enum Sabia {
     {"contra": "…", "foraDaLista": "…", "outroCampo": "…"}
     contra = a posição contrária à da nota, no melhor que alguém competente a defenderia — e DENTRO do que a nota já fixou ·
     foraDaLista = uma opção que não está entre as que a nota listou ·
-    outroCampo = uma analogia MARCADA de outro campo com a MESMA estrutura de problema ("é como quando…") ou uma pergunta ("isso lembra…?"), nunca fato histórico afirmado; "" se não houver uma fiel.
+    outroCampo = uma analogia HIPOTÉTICA, no presente, pela ESTRUTURA do problema ("é como alguém que…"), sem episódio histórico, datado ou não, sem objeto técnico, época ou pessoa nomeada; ou uma pergunta ("isso lembra…?"); "" se não houver uma fiel.
     """
 
     /// A forma nova. Duas chaves a mais, e as duas são FATO, não juízo:
@@ -435,10 +437,10 @@ enum Sabia {
     Você lê a nota de quem escreve e devolve o que a nota NÃO considerou. Responda APENAS um JSON válido, sem markdown:
     {"fechadas": ["…"], "contra": "…", "foraDaLista": "…", "dependeDe": "…", "outroCampo": "…"}
     fechadas = tudo o que a nota diz não ter, já ter descartado, recusado ou posto fora da conta, um item por saída fechada, nas palavras da nota; [] se a nota não fecha nada ·
-    contra = a posição contrária à da nota, no melhor que alguém competente a defenderia — e DENTRO do que a nota já fixou ·
-    foraDaLista = uma opção que não está entre as que a nota listou ·
+    contra = a posição contrária à da nota, no melhor que alguém competente a defenderia — e DENTRO do que a nota já fixou; tudo o que a nota fechou, esteja ou não em fechadas, é dado aceito: o contra nunca defende manter, retomar ou reconsiderar o que foi fechado, e ataca o que ficou aberto; o contra nunca é "": se a razão escrita sustenta a escolha, diga o limite real dessa razão ·
+    foraDaLista = uma opção que não está entre as que a nota listou e não é versão menor, parcial, adaptada nem meio-termo de nada que a nota fechou ·
     dependeDe = o recurso, meio ou condição de que a foraDaLista precisa para existir, nomeado em uma frase curta; "" só quando a foraDaLista está vazia ·
-    outroCampo = uma analogia MARCADA de outro campo com a MESMA estrutura de problema ("é como quando…") ou uma pergunta ("isso lembra…?"), nunca fato histórico afirmado; "" se não houver uma fiel.
+    outroCampo = uma analogia HIPOTÉTICA, no presente, pela ESTRUTURA do problema ("é como alguém que…"), sem episódio histórico, datado ou não, sem objeto técnico, época ou pessoa nomeada; ou uma pergunta ("isso lembra…?"); "" se não houver uma fiel.
     """
 
     private static let corpoContrapor = """
@@ -448,8 +450,9 @@ enum Sabia {
     estatística, fonte ou declaração de terceiro que a nota não deu. Proibido também o que é da vida de quem escreve e
     não está escrito: renda, salário, dívida, reserva, equipe, ferramenta, prazo ou obrigação. Se a nota não diz
     quanto quem escreve ganha, o gasto não "compromete a renda" nem "aperta o orçamento" — a frase que disser
-    isso é apagada inteira e o campo fica sem contraponto nenhum. O outroCampo é analogia MARCADA ("é como
-    quando…") ou pergunta ("isso lembra…?"), nunca fato histórico afirmado; sem analogia fiel, deixe "".
+    isso é apagada inteira e o campo fica sem contraponto nenhum. O outroCampo é analogia HIPOTÉTICA, no
+    presente, pela estrutura do problema ("é como alguém que…"), ou pergunta ("isso lembra…?"); nunca episódio
+    histórico, datado ou não, nem objeto técnico, época ou pessoa nomeada; sem analogia fiel, deixe "".
     Melhor um contraponto de três linhas sem números do que um número que não existe.
     Nada de elogio, nada de conclusão por quem escreve. Se um dos três não tiver conteúdo honesto, deixe "" — silêncio é resposta válida.
     Mas silêncio nos TRÊS só quando a nota realmente não deixa nada a examinar: quando a razão escrita já
@@ -477,7 +480,7 @@ enum Sabia {
     {"type":"object","additionalProperties":false,\
     "properties":{\
     "fechadas":{"type":"array","items":{"type":"string"}},\
-    "contra":{"type":"string"},\
+    "contra":{"type":"string","minLength":1},\
     "foraDaLista":{"type":"string"},\
     "dependeDe":{"type":"string"},\
     "outroCampo":{"type":"string"}},\
@@ -1061,9 +1064,9 @@ enum Sabia {
     /// que esta guarda existe para não comprar.
     nonisolated static let andaimeDoPedido = ["degrau", "metodo", "rascunho",
                                               "movimento basico", "passo que se pula",
-                                              // E8 volta 2: vazou no Air (2 de 51). "passo mais basico" (1) não entra: é a
-                                              // redação do degrau 0, e a guarda não pode conter o que o pedido diz (ADR 09i)
-                                              "passo basico"]
+                                              // E8: vazaram no Air (2 e 3 de 51); o degrau 0 deixou de dizer "passo mais básico"
+                                              // na volta 3, e só então o termo entrou (a guarda não contém o que o pedido diz, ADR 09i)
+                                              "passo basico", "passo mais basico"]
 
     /// O que o `contrapor` não pode dizer sem que o autor tenha dito antes: a
     /// FORMA da evidência fabricada em 08/09 (porcentagem sem dono, citação de

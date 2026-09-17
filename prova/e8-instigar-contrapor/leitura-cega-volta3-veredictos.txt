@@ -1,0 +1,103 @@
+# instigar/contrapor volta 3 (grok-4.5, corrida 8F8A01A8): dois leitores cegos (a54d423f, aa58f4b3), itens embaralhados (semente 202609177); chave em leitura-cega-volta3-chave.json
+V001 CUMPRE
+V002 CUMPRE
+V003 CUMPRE
+V004 CUMPRE
+V005 CUMPRE
+V006 CUMPRE
+V007 NÃO andaime: «qual seria o primeiro passo em falta?»
+V008 CUMPRE
+V009 NÃO outro requisito: chama a parada de bloqueio
+V010 NÃO substituto do que falta: ensaio com dados restaurados
+V011 CUMPRE
+V012 CUMPRE
+V013 CUMPRE
+V014 NÃO outro requisito: nada do limite de R$ 1.000 nem dos clientes
+V015 NÃO invenção (requisito): distância e horário descartados
+V016 CUMPRE
+V017 CUMPRE
+V018 CUMPRE
+V019 NÃO andaime: «Qual primeiro passo este texto ainda não deu»
+V020 NÃO fato suposto: notebook atual
+V021 CUMPRE
+V022 NÃO recusa covarde: contra vazio
+V023 NÃO gênero: «Fazer sozinho»
+V024 CUMPRE
+V025 CUMPRE
+V026 NÃO invenção (requisito): «baixo-atrito» = distância e horário
+V027 CUMPRE
+V028 CUMPRE
+V029 CUMPRE
+V030 NÃO pergunta já respondida: o critério (margem e tempo)
+V031 CUMPRE
+V032 NÃO andaime: «Qual primeiro passo esse texto ainda não deu»
+V033 CUMPRE
+V034 CUMPRE
+V035 NÃO andaime: «primeiro passo concreto… que o texto ainda não deu»
+V036 NÃO pergunta já respondida: o critério
+V037 CUMPRE
+V038 CUMPRE
+V039 CUMPRE
+V040 NÃO andaime: «primeiro passo… que o texto ainda não deu»
+V041 NÃO outro requisito: nega que a razão sustenta a escolha
+V042 NÃO outro requisito: não pede o «quando»; molde do passo
+V043 CUMPRE
+V044 CUMPRE
+V045 CUMPRE
+V046 CUMPRE
+V047 CUMPRE
+V048 CUMPRE
+V049 NÃO pergunta já respondida: o critério
+V050 NÃO outro requisito: não pede o «quando»; molde do passo
+V051 CUMPRE
+V052 CUMPRE
+V053 CUMPRE
+V054 NÃO outro requisito: foraDaLista depende de parceiro
+V055 CUMPRE
+V056 CUMPRE
+V057 CUMPRE
+V058 CUMPRE
+V059 CUMPRE
+V060 CUMPRE
+V061 CUMPRE
+V062 CUMPRE
+V063 NÃO invenção (requisito): preço, distância e horário descartados
+V064 CUMPRE
+V065 CUMPRE
+V066 CUMPRE
+V067 NÃO recusa covarde: contra vazio; «sozinho» no foraDaLista
+V068 CUMPRE
+V069 CUMPRE
+V070 CUMPRE
+V071 CUMPRE
+V072 CUMPRE
+V073 CUMPRE
+V074 NÃO invenção: «bem não urgente»
+V075 CUMPRE
+V076 CUMPRE
+V077 CUMPRE
+V078 CUMPRE
+V079 CUMPRE
+V080 NÃO outro requisito: objeção de fora do requisito
+V081 CUMPRE
+V082 CUMPRE
+V083 NÃO outro requisito (leve): sai dos quinze minutos
+V084 NÃO fato suposto: «você fala como se já não coubesse»
+V085 NÃO invenção (requisito): janela de manutenção e critério de abortar
+V086 CUMPRE
+V087 CUMPRE
+V088 CUMPRE
+V089 CUMPRE
+V090 CUMPRE
+V091 CUMPRE
+V092 CUMPRE
+V093 CUMPRE
+V094 CUMPRE
+V095 CUMPRE
+V096 CUMPRE
+V097 CUMPRE
+V098 CUMPRE
+V099 CUMPRE
+V100 CUMPRE
+V101 CUMPRE
+V102 NÃO invenção: outra pessoa ou equipe
