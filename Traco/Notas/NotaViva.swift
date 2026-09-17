@@ -267,7 +267,10 @@ struct JuntarView: View {
                         .foregroundStyle(Tema.tintaSuave)
                         .lineLimit(1)
                 }
-                Text(outra.criadaEm.formatted(.dateTime.day().month(.wide)))
+                // a mesma data do cartão das Notas: hora hoje, dia nos outros
+                Text(Calendar.current.isDateInToday(outra.criadaEm)
+                     ? outra.criadaEm.formatted(date: .omitted, time: .shortened)
+                     : outra.criadaEm.formatted(.dateTime.day().month(.wide)))
                     .font(.footnote.weight(.medium))
                     .foregroundStyle(Tema.tintaFraca)
             }

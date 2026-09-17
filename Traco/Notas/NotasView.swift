@@ -214,7 +214,7 @@ struct NotasView: View {
                     }
                 }
                 .font(Tema.corpo.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
+                .foregroundStyle(Tema.tinta)
                 .buttonStyle(.discreto)
                 .alvo()
                 .accessibilityIdentifier("desfazer-juntar")
@@ -1161,7 +1161,10 @@ struct NotasView: View {
                         // a porta dos Trabalhos não entra no resultado de uma busca
                         continuarConversa
                         secaoDaVolta
-                        ForEach(meses(recolherJuntas(visiveis)), id: \.titulo) { mes in
+                        // quem está à vista em «Hora de conferir» não se repete logo
+                        // abaixo (auditoria 17/09: os cartões apareciam duas vezes)
+                        let noTopo = Set((voltasAbertas ? voltas : Array(voltas.prefix(2))).map(\.nota.uuid))
+                        ForEach(meses(recolherJuntas(visiveis).filter { !noTopo.contains($0.uuid) }), id: \.titulo) { mes in
                             secao(mes.titulo)
                             ForEach(mes.notas, id: \.uuid) { nota in
                                 botaoNota(nota)

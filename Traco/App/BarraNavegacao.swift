@@ -59,8 +59,9 @@ struct BarraNavegacao: View {
                 ForEach(Aba.naBarra) { item in
                     let aceso = aba == item
                     Button {
-                        guard !aceso else { return }
-                        Toque.selecao()
+                        // a aba acesa também avisa: quem cuida dela decide o que é
+                        // «voltar ao começo» (a busca das Notas limpa, auditoria 17/09)
+                        if !aceso { Toque.selecao() }
                         aba = item
                     } label: {
                         glifo(item).foregroundStyle(Tema.tintaFraca)

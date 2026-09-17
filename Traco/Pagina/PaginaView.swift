@@ -110,7 +110,9 @@ struct PaginaView: View {
             contarLigadas()
             carregarVersoes()
         }
-        .tint(Tema.ambar)
+        // o âmbar é do traço do autor, e cada cursor o pede por si; o resto da
+        // página (ícones do «+», menus) fica na tinta (auditoria 17/09)
+        .tint(Tema.tinta)
         .sheet(isPresented: $sessao.mostrarRecordar) { folhaDoRecordar }
         .onAppear {
             #if DEBUG
@@ -388,13 +390,24 @@ struct PaginaView: View {
                 // largura cheia, texto na margem; vive no fluxo do pé, nunca por
                 // cima das ações (a linha de recusa da gravação fica aqui até o
                 // disco dizer sim, ADR 05s)
-                Text(toast)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                // auditoria 17/09: com a forma e a cor do campo, o aviso lia como um
+                // segundo campo; agora é um objeto que pousa — ícone, tinta e sombra
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    if toast.hasPrefix("Guardada") {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.body)
+                            .foregroundStyle(Tema.tinta)
+                            .accessibilityHidden(true)
+                    }
+                    Text(toast)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .cartao(.papel, recuo: [])
+                    .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
+                    .shadow(color: Tema.sombraFlutuante, radius: 12, y: 4)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 8)
                     .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
@@ -508,11 +521,19 @@ struct PaginaView: View {
             // "Notas" solto lia como título da página (auditoria 13/09,
             // defeito 5): o chevron diz que é a saída para o arquivo. A
             // tentativa de 13/09 caía só em AX5, que saiu da suíte.
+            // auditoria 17/09: «‹ Notas» mentia quando a página vinha dos
+            // Padrões ou da conversa (voltava para lá). O mesmo voltar da
+            // conversa — só a seta, no vidro — diz a verdade em todo caminho.
             Button { sessao.irNotas(no: context) } label: {
-                Text("‹ Notas").lineLimit(1).fixedSize()
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
             }
+                .glassEffect(.regular.interactive(), in: .circle)
                 .keyboardShortcut("l", modifiers: .command)
-                .alvo()
+                .accessibilityLabel("Voltar")
                 .accessibilityIdentifier("notas-da-pagina")
 
             Spacer()
@@ -521,7 +542,8 @@ struct PaginaView: View {
                 .keyboardShortcut(.return, modifiers: .command)
                 // cinza lia como desabilitado (auditoria 16/09 noite): com texto,
                 // tinta; âmbar quando a forma está completa
-                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambarTinta : Tema.tinta)
+                // uma cor só (auditoria 17/09: preto na nota, âmbar na Decisão)
+                .foregroundStyle(Tema.tinta)
                 .fontWeight(.semibold)
                 .opacity(sessao.temVoz ? 1 : 0)
                 .allowsHitTesting(sessao.temVoz)

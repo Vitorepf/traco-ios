@@ -426,14 +426,26 @@ struct LeituraDaObra: View {
                 .padding(.vertical, 12)
             }
             .background(Tema.fundo)
-            .navigationTitle(titulo)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Fechar") { dismiss() }
+            // o cabeçalho das folhas do app (auditoria 17/09: título cortado em
+            // «regras conf…» e «Fechar» num terceiro estilo)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                HStack(alignment: .top) {
+                    Text(titulo.replacingOccurrences(of: " — regras conferidas", with: ""))
+                        .font(.title2.weight(.bold))
+                        .tracking(-0.4)
+                        .foregroundStyle(Tema.tinta)
+                        .lineLimit(2)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer(minLength: 12)
+                    Pilula("Pronto", forma: .acao) { dismiss() }
                         .accessibilityIdentifier("fechar-obra")
                 }
+                .padding(.horizontal, Tema.margem)
+                .padding(.top, 20)
+                .padding(.bottom, 8)
+                .background(Tema.fundo)
             }
+            .toolbar(.hidden, for: .navigationBar)
         }
         .presentationDragIndicator(.visible)
     }

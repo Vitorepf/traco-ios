@@ -337,11 +337,13 @@ struct PerfilView: View {
                 // a frase da hipótese recua para o subtítulo (G4 da L1). A
                 // identidade à esquerda é o ESTADO pela forma — círculo vazio
                 // em aberto, relógio devido, visto descoberto, xis abandonado.
+                // o que se decidiu é o título; o estado é o subtítulo (auditoria
+                // 17/09: o estado em destaque e a decisão em cinza invertiam o sujeito)
+                let estado = Latencia.rotulo(r.estado) + " · " + medidaDe(r) + (r.autoria.map { " · " + $0 } ?? "")
                 LinhaDeLista(Self.glifo(r.estado),
-                             Latencia.rotulo(r.estado) + " · " + medidaDe(r)
-                                + (r.autoria.map { " · " + $0 } ?? ""),
-                             r.texto.isEmpty ? nil : r.texto,
-                             linhasDoTitulo: nil, fio: r.id != lista.last?.id)
+                             r.texto.isEmpty ? estado.capitalizadoNoInicio : r.texto,
+                             r.texto.isEmpty ? nil : estado.capitalizadoNoInicio,
+                             linhasDoTitulo: 2, fio: r.id != lista.last?.id)
             }
         }
         .accessibilityElement(children: .contain)

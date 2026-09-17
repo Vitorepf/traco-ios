@@ -37,7 +37,8 @@ struct CamposFormaView: View {
                     contextoDaVolta
                         .marco(.nenhum, topo: true, base: true)
                 }
-                LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id), foco: $campoFocado)
+                LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id), foco: $campoFocado,
+                           escala: campo.id == "saldo" ? ["Aquém", "Igual", "Além"] : nil)
                     .marco(marco(de: campo), topo: campo.soDepois,
                            base: campo.soDepois ? campo.id != visiveis.last(where: \.soDepois)?.id : true)
                     // a forma chega como quem entra: campo a campo, um respiro
@@ -99,7 +100,7 @@ struct CamposFormaView: View {
                                 .font(Tema.barra)
                             Spacer(minLength: 0)
                         }
-                        .foregroundStyle(pronto ? Tema.ambarTinta : Tema.tintaFraca)
+                        .foregroundStyle(pronto ? Tema.tinta : Tema.tintaFraca)
                         .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
                         .contentShape(Rectangle())
                     }
@@ -212,6 +213,10 @@ private struct LinhaCampo: View {
     var teto: Int? = nil
     @Binding var texto: String
     var foco: FocusState<String?>.Binding
+    /// Resposta que é uma de poucas (auditoria 17/09: «aquém, igual ou além»
+    /// era digitação livre). Um toque escreve a palavra; o campo continua
+    /// aberto para o autor dizer mais.
+    var escala: [String]? = nil
 
     private var preenchido: Bool {
         !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -264,6 +269,30 @@ private struct LinhaCampo: View {
                 }
                 .accessibilityLabel(rotulo)
                 .accessibilityIdentifier("campo-\(id)")
+            if let escala {
+                HStack(spacing: 8) {
+                    ForEach(escala, id: \.self) { opcao in
+                        let marcada = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+                            .lowercased().hasPrefix(opcao.lowercased())
+                        Button {
+                            Toque.selecao()
+                            texto = marcada ? "" : opcao
+                        } label: {
+                            Text(opcao)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(marcada ? .white : Tema.tinta)
+                                .padding(.horizontal, 16)
+                                .frame(height: 36)
+                                .background(marcada ? Tema.chipAtivo : Tema.chip, in: Capsule())
+                                .frame(minHeight: Tema.alvo)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.discreto)
+                        .accessibilityAddTraits(marcada ? .isSelected : [])
+                        .accessibilityIdentifier("escala-\(id)-\(opcao.lowercased())")
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 12)

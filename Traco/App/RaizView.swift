@@ -89,7 +89,18 @@ struct RaizView: View {
                 BarraNavegacao(
                     aba: Binding(
                         get: { sessao.abaArquivo },
-                        set: { nova in sessao.irPara(nova, no: context) }
+                        set: { nova in
+                            // tocar na aba em que já se está volta ao começo: nas
+                            // Notas, limpa a busca (auditoria 17/09: não havia saída)
+                            if nova == sessao.abaArquivo {
+                                if nova == .notas, !sessao.conversaNotas.busca.isEmpty {
+                                    Toque.selecao()
+                                    sessao.conversaNotas.busca = ""
+                                }
+                                return
+                            }
+                            sessao.irPara(nova, no: context)
+                        }
                     ),
                     escondida: tecladoAberto,
                     aoNovaNota: {

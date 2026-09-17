@@ -52,7 +52,7 @@ struct CalendarioFichaView: View {
                             }
                         ))
                         .tint(CalendarioTema.chipActivo)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 12)
                         divisoria
                         // série: a data é o COMEÇO dela, não "o dia" — dizer
                         // "Data" numa coisa que acontece toda sexta é mentira
@@ -128,7 +128,7 @@ struct CalendarioFichaView: View {
                                 .font(.footnote)
                                 .foregroundStyle(promessa == .jaPassou ? CalendarioTema.aviso : CalendarioTema.tintaSuave)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.vertical, 10)
+                                .padding(.vertical, 12)
                                 .accessibilityIdentifier("ficha-aviso-promessa")
                         case .desligados:
                             // ADR 03e: permissão negada não é beco — a tela diz, e
@@ -145,6 +145,7 @@ struct CalendarioFichaView: View {
                                 }
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(CalendarioTema.tinta)
+                                .underline()
                                 .frame(minHeight: Tema.alvo, alignment: .leading)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,7 +159,7 @@ struct CalendarioFichaView: View {
                                 .font(.footnote)
                                 .foregroundStyle(CalendarioTema.aviso)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.vertical, 10)
+                                .padding(.vertical, 12)
                         }
                     }
                     .font(.callout)
@@ -257,7 +258,7 @@ struct CalendarioFichaView: View {
                     Spacer()
                     Text(evento.repete
                          ? Calendario.diasEmLetras(evento.repeteEm, agenda.cal)
-                         : "não repete")
+                         : "Não repete")
                         .foregroundStyle(CalendarioTema.tintaSuave)
                         .accessibilityIdentifier("ficha-repete-dias")
                     // o mesmo sinal das outras linhas que abrem escolha (auditoria 16/09 noite)
@@ -300,7 +301,7 @@ struct CalendarioFichaView: View {
             .transition(.identity)
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .accessibilityIdentifier("ficha-repete")
     }
 
@@ -349,7 +350,7 @@ struct CalendarioFichaView: View {
                     }
                     .foregroundStyle(aberto ? CalendarioTema.tinta : CalendarioTema.tintaSuave)
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.linha)

@@ -33,12 +33,8 @@ struct SerieView: View {
                         .foregroundStyle(Tema.tintaSuave)
                 }
                 Spacer()
-                Button("Pronto") { dismiss() }
-                    .font(Tema.barra)
-                    .foregroundStyle(Tema.tinta)
-                    .padding(.horizontal, 14)
-                    .frame(height: 36)
-                    .background(Tema.chip, in: Capsule())
+                // o «Pronto» do app: a cápsula carvão (auditoria 17/09)
+                Pilula("Pronto", forma: .acao) { dismiss() }
                     .accessibilityIdentifier("serie-pronto")
             }
 

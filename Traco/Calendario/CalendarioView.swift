@@ -288,7 +288,10 @@ struct CalendarioView: View {
         // Dono, 14/09: UMA linha, e com o material da cápsula anterior — o
         // que vai à esquerda (lista/grade, escalas, Hoje) entra na mesma
         // cápsula de vidro do campo, como o "+" entrava.
-        campoProsa(agora: agora)
+        VStack(alignment: .leading, spacing: 8) {
+            previaDaProsa(agora: agora)
+            campoProsa(agora: agora)
+        }
         .frame(width: Tema.larguraDoPe)
             .frame(maxWidth: .infinity)
         .padding(.bottom, tecladoAberto ? 8 : Tema.doca - 14)   // 1u até o Dock; com teclado, 8 acima dele (dono, 16/09: o campo entrava no teclado)
@@ -396,6 +399,35 @@ struct CalendarioView: View {
         .padding(.leading, 3)
         .padding(.trailing, 3)
         .fixedSize()
+    }
+
+    /// O que o «Marcar» entendeu, antes de enviar (auditoria 17/09: «Almoço com
+    /// Ana sexta 13h» ia sem mostrar o dia). A mesma leitura do envio.
+    @ViewBuilder private func previaDaProsa(agora: Date) -> some View {
+        let frase = agenda.prosa.trimmingCharacters(in: .whitespacesAndNewlines)
+        if frase.count >= 3, CalendarioFrase.consulta(frase, ancora: agenda.ancora, agora: agora, agenda.cal) == nil,
+           let e = CalendarioFrase.lerVarios(frase, ancora: agenda.ancora, agora: agora, agenda.cal,
+                                             manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite)).first {
+            let dia = e.inicio.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
+            let quando = e.diaInteiro ? dia + " · dia inteiro"
+                : dia + " · " + e.inicio.formatted(date: .omitted, time: .shortened) + "–" + e.fim.formatted(date: .omitted, time: .shortened)
+            HStack(spacing: 6) {
+                Image(systemName: "calendar")
+                    .font(.footnote.weight(.semibold))
+                    .accessibilityHidden(true)
+                Text(e.titulo.isEmpty ? quando : e.titulo + " · " + quando)
+                    .lineLimit(1)
+            }
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(Tema.tinta)
+            .padding(.horizontal, 12)
+            .frame(height: 32)
+            .glassEffect(.regular, in: .capsule)
+            .padding(.leading, 4)
+            .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+            .accessibilityLabel("Vai marcar: \(e.titulo), \(quando)")
+            .accessibilityIdentifier("calendario-previa")
+        }
     }
 
     private func campoProsa(agora: Date) -> some View {

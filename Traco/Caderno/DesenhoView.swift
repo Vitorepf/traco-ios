@@ -28,7 +28,7 @@ struct DesenhoView: View {
                     dismiss()
                 }
                 .font(Tema.chrome.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
+                .foregroundStyle(Tema.tinta)
                 .alvo()
                 .accessibilityIdentifier("desenho-pronto")
             }
