@@ -47,11 +47,11 @@ nonisolated enum Degraus {
     /// assunto, e por isso não tem mais nome citável aqui.
     nonisolated static func instrucaoDeInstigar(_ degrau: Int) -> String {
         switch max(0, min(4, degrau)) {
-        case 0: "Cobre o primeiro passo que este texto ainda não deu: o que ele trata como resolvido e não está."
-        case 1: "Cobre a RELAÇÃO entre duas coisas que o texto diz: uma contradiz a outra? uma depende da outra? Perguntar o que cada uma significa, isolada, NÃO cumpre isto."
-        case 2: "Cobre a EVIDÊNCIA: de onde vem o que o texto afirma, e o que mostraria o contrário. Perguntar o que quis dizer ou o que vai fazer NÃO cumpre isto."
-        case 3: "Cobre o CUSTO de errar: o que se perde se o que o texto afirma não se confirmar, e para que lado essa avaliação costuma errar. Perguntar se vai dar certo NÃO cumpre isto."
-        default: "Cobre o LIMITE: pegue a afirmação de que tudo ali depende e pergunte em que caso essa afirmação deixa de valer, e o que se veria acontecer se não valesse. Perguntar o que quis dizer, o que vai fazer com o que tem, ou o que pode dar errado, NÃO cumpre isto."
+        case 0: "Pergunte sobre o que o texto trata como resolvido sem ter resolvido."
+        case 1: "Pergunte se duas coisas escritas no texto se contradizem ou dependem uma da outra. Perguntar o que cada uma significa, isolada, NÃO cumpre isto."
+        case 2: "Pergunte de onde vem o que o texto afirma e o que mostraria o contrário. Perguntar o que quis dizer ou o que vai fazer NÃO cumpre isto."
+        case 3: "Pergunte o que se perde se o que o texto afirma não se confirmar, e para que lado essa avaliação costuma errar. Perguntar se vai dar certo NÃO cumpre isto."
+        default: "Pergunte em que caso aquilo de que tudo ali depende deixa de valer, e o que se veria acontecer se não valesse. Perguntar o que quis dizer, o que vai fazer com o que tem, ou o que pode dar errado, NÃO cumpre isto."
         }
     }
 

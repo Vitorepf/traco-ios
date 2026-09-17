@@ -134,6 +134,7 @@
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
 		7A40D574819B61176C09C344 /* LinhasDeProveniencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */; };
 		7A884C0F2EEE3A6ACA98DFB3 /* PortaoDoTryBangTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620B5566A2EFBFFE129994A6 /* PortaoDoTryBangTests.swift */; };
+		7AAF2F3DE428C3A2E608DEBE /* VoltaQuatroInstigarContraporTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84943B2C1BE667BDA45264C /* VoltaQuatroInstigarContraporTests.swift */; };
 		7BAC0E20B2373FE363ECD31D /* GuardaDeContrapor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA76904A5D72B6FB35018CF6 /* GuardaDeContrapor.swift */; };
 		7C15C76324CC98F49ADD1DFE /* RevisaoRetryAjusteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81514866E64A2F4223FF30E /* RevisaoRetryAjusteTests.swift */; };
 		7C1C6E4F04DB0F87F10AE130 /* Pilula.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9622B1F0FCBD585B72089CD2 /* Pilula.swift */; };
@@ -471,6 +472,7 @@
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
 		B5A488C4342AF60848A88895 /* CadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoTests.swift; sourceTree = "<group>"; };
+		B84943B2C1BE667BDA45264C /* VoltaQuatroInstigarContraporTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoltaQuatroInstigarContraporTests.swift; sourceTree = "<group>"; };
 		B8D1B89DFE640B09BE5BDEC0 /* caderno-v4-pre08u.store */ = {isa = PBXFileReference; path = "caderno-v4-pre08u.store"; sourceTree = "<group>"; };
 		B95713C947DED6A38489925D /* Lente.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lente.swift; sourceTree = "<group>"; };
 		B9E514D1B05A813B7A669ED3 /* PraticaTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PraticaTrabalho.swift; sourceTree = "<group>"; };
@@ -815,6 +817,7 @@
 				4B9C5AB945E277330A388C0C /* SustentacaoPaginaTests.swift */,
 				0B04DABEDFD9C86D45507C64 /* TemaTests.swift */,
 				DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */,
+				B84943B2C1BE667BDA45264C /* VoltaQuatroInstigarContraporTests.swift */,
 				6A2FF06629BFE6347A139815 /* Fixtures */,
 			);
 			path = TracoTests;
@@ -1251,6 +1254,7 @@
 				6E1009440C0DBDB5B213659A /* SustentacaoPaginaTests.swift in Sources */,
 				DA6C18AAF7BE831A53CC6306 /* TemaTests.swift in Sources */,
 				44BADDD31419D3764ECE1AE5 /* TrabalhoTests.swift in Sources */,
+				7AAF2F3DE428C3A2E608DEBE /* VoltaQuatroInstigarContraporTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

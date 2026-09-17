@@ -59,14 +59,15 @@ private func temp(_ nome: String) -> URL {
         // ADR 09i: o degrau muda o que se cobra e NÃO se nomeia — a redação
         // anterior ("DEGRAU 0", "o passo que se pula") voltava citada.
         // E8 volta 3: "passo mais básico" voltou 3 vezes como assunto da pergunta — sai da redação e entra na guarda
-        #expect(Degraus.instrucaoDeInstigar(0).contains("primeiro passo que este texto ainda não deu")
-                && !Degraus.instrucaoDeInstigar(0).contains("passo mais básico"))
+        // volta 4: "primeiro passo" também voltou como molde (7 em 51); o degrau cobra em verbos
+        #expect(Degraus.instrucaoDeInstigar(0).contains("trata como resolvido sem ter resolvido")
+                && !Degraus.instrucaoDeInstigar(0).contains("passo"))
         // e os degraus entram no pedido do instigar: não ensinam gênero (a varredura da volta 2 não os viu)
         for d in 0...4 {
             #expect(Degraus.instrucaoDeInstigar(d).range(of: #"\b(ela|dela|enganada|enganado|sozinha|sozinho)\b"#, options: .regularExpression) == nil, "degrau \(d)")
         }
         #expect(Degraus.instrucaoDeInstigar(9) == Degraus.instrucaoDeInstigar(4))
-        #expect(Degraus.instrucaoDeInstigar(9).contains("LIMITE"))
+        #expect(Degraus.instrucaoDeInstigar(9).contains("deixa de valer"))
         // ADR 09i·2: a medida de 09/09 leu o degrau 4 repetindo o degrau 0. O
         // degrau é o único parâmetro da operação: cada nível diz o que cobra E
         // o que não conta como cumprido, e nenhum é igual a outro.

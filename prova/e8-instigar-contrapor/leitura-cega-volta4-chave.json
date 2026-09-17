@@ -1,0 +1,410 @@
+{
+ "V001": [
+  "q4-contrapor-com-numero-do-autor",
+  3
+ ],
+ "V002": [
+  "q4-instigar-o-autor-escreve-metodo",
+  1
+ ],
+ "V003": [
+  "e8-contra-descartes-e-recurso-que-falta",
+  3
+ ],
+ "V004": [
+  "qn-contrapor-decisao-financeira",
+  3
+ ],
+ "V005": [
+  "e8-contra-numeros-da-nota",
+  3
+ ],
+ "V006": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  2
+ ],
+ "V007": [
+  "qn-contrapor-restricao-real",
+  2
+ ],
+ "V008": [
+  "q4-instigar-o-autor-escreve-metodo",
+  3
+ ],
+ "V009": [
+  "qn-instigar-decisao-com-restricao",
+  1
+ ],
+ "V010": [
+  "q4-contrapor-com-numero-do-autor",
+  2
+ ],
+ "V011": [
+  "revisor-instigar-fatos-negados",
+  1
+ ],
+ "V012": [
+  "e8-inst-suposicao-implicita",
+  2
+ ],
+ "V013": [
+  "revisor-instigar-nota-que-ja-responde",
+  1
+ ],
+ "V014": [
+  "qn-instigar-decisao-com-restricao",
+  2
+ ],
+ "V015": [
+  "q4-contrapor-com-numero-do-autor",
+  1
+ ],
+ "V016": [
+  "q4-contrapor-tudo-ou-nada",
+  1
+ ],
+ "V017": [
+  "q4-contrapor-outro-campo-sem-fabricar",
+  1
+ ],
+ "V018": [
+  "q4-instigar-sem-metodo-degrau-0",
+  1
+ ],
+ "V019": [
+  "continuidade-contrapor",
+  1
+ ],
+ "V020": [
+  "q4-instigar-premissa-incerta",
+  2
+ ],
+ "V021": [
+  "e8-contra-descartes-e-recurso-que-falta",
+  1
+ ],
+ "V022": [
+  "qn-contrapor-restricao-real",
+  1
+ ],
+ "V023": [
+  "qn-contrapor-premissa-tudo-ou-nada",
+  3
+ ],
+ "V024": [
+  "continuidade-instigar",
+  1
+ ],
+ "V025": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  3
+ ],
+ "V026": [
+  "q4-contrapor-restricao-real",
+  3
+ ],
+ "V027": [
+  "q4-instigar-texto-magro",
+  1
+ ],
+ "V028": [
+  "q4-instigar-premissa-incerta",
+  3
+ ],
+ "V029": [
+  "revisor-instigar-fatos-negados",
+  3
+ ],
+ "V030": [
+  "qn-instigar-contexto-insuficiente",
+  2
+ ],
+ "V031": [
+  "qn-contrapor-sem-analogia-inventada",
+  3
+ ],
+ "V032": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  1
+ ],
+ "V033": [
+  "continuidade-contrapor",
+  3
+ ],
+ "V034": [
+  "e8-inst-suposicao-implicita",
+  1
+ ],
+ "V035": [
+  "q4-instigar-com-metodo-decisao",
+  2
+ ],
+ "V036": [
+  "q4-contrapor-razao-ja-sustentada",
+  1
+ ],
+ "V037": [
+  "e8-inst-dois-nao-sei",
+  3
+ ],
+ "V038": [
+  "qn-contrapor-sem-analogia-inventada",
+  2
+ ],
+ "V039": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  2
+ ],
+ "V040": [
+  "qn-contrapor-afirmacao-ja-sustentada",
+  3
+ ],
+ "V041": [
+  "qn-instigar-degrau-avancado",
+  1
+ ],
+ "V042": [
+  "revisor-contrapor-alternativas-negadas",
+  3
+ ],
+ "V043": [
+  "qn-contrapor-premissa-tudo-ou-nada",
+  2
+ ],
+ "V044": [
+  "qn-instigar-premissa-incerta",
+  2
+ ],
+ "V045": [
+  "q4-instigar-com-metodo-decisao",
+  1
+ ],
+ "V046": [
+  "q4-contrapor-premissa-do-futuro",
+  2
+ ],
+ "V047": [
+  "revisor-instigar-fatos-negados",
+  2
+ ],
+ "V048": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  1
+ ],
+ "V049": [
+  "qn-instigar-premissa-incerta",
+  1
+ ],
+ "V050": [
+  "revisor-instigar-nota-que-ja-responde",
+  3
+ ],
+ "V051": [
+  "qn-contrapor-afirmacao-ja-sustentada",
+  2
+ ],
+ "V052": [
+  "q4-instigar-sem-metodo-degrau-0",
+  3
+ ],
+ "V053": [
+  "qn-contrapor-sem-analogia-inventada",
+  1
+ ],
+ "V054": [
+  "revisor-contrapor-alternativas-negadas",
+  2
+ ],
+ "V055": [
+  "q4-contrapor-tudo-ou-nada",
+  2
+ ],
+ "V056": [
+  "q4-instigar-texto-magro",
+  2
+ ],
+ "V057": [
+  "q4-contrapor-outro-campo-sem-fabricar",
+  2
+ ],
+ "V058": [
+  "revisor-contrapor-razoes-fechadas",
+  2
+ ],
+ "V059": [
+  "q4-contrapor-restricao-real",
+  1
+ ],
+ "V060": [
+  "continuidade-instigar",
+  2
+ ],
+ "V061": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  1
+ ],
+ "V062": [
+  "qn-contrapor-decisao-financeira",
+  2
+ ],
+ "V063": [
+  "e8-contra-no-proprio-criterio",
+  2
+ ],
+ "V064": [
+  "q4-contrapor-premissa-do-futuro",
+  1
+ ],
+ "V065": [
+  "continuidade-instigar",
+  3
+ ],
+ "V066": [
+  "q4-instigar-premissa-incerta",
+  1
+ ],
+ "V067": [
+  "q4-contrapor-tudo-ou-nada",
+  3
+ ],
+ "V068": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  2
+ ],
+ "V069": [
+  "revisor-contrapor-alternativas-negadas",
+  1
+ ],
+ "V070": [
+  "e8-inst-dois-nao-sei",
+  1
+ ],
+ "V071": [
+  "e8-inst-suposicao-implicita",
+  3
+ ],
+ "V072": [
+  "q4-instigar-sem-metodo-degrau-0",
+  2
+ ],
+ "V073": [
+  "e8-contra-no-proprio-criterio",
+  1
+ ],
+ "V074": [
+  "revisor-instigar-nota-que-ja-responde",
+  2
+ ],
+ "V075": [
+  "qn-instigar-degrau-avancado",
+  2
+ ],
+ "V076": [
+  "qn-contrapor-afirmacao-ja-sustentada",
+  1
+ ],
+ "V077": [
+  "q4-instigar-texto-magro",
+  3
+ ],
+ "V078": [
+  "qn-instigar-contexto-insuficiente",
+  1
+ ],
+ "V079": [
+  "e8-contra-numeros-da-nota",
+  1
+ ],
+ "V080": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  3
+ ],
+ "V081": [
+  "continuidade-contrapor",
+  2
+ ],
+ "V082": [
+  "e8-contra-descartes-e-recurso-que-falta",
+  2
+ ],
+ "V083": [
+  "revisor-contrapor-razoes-fechadas",
+  1
+ ],
+ "V084": [
+  "q4-contrapor-restricao-real",
+  2
+ ],
+ "V085": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  3
+ ],
+ "V086": [
+  "q4-instigar-com-metodo-decisao",
+  3
+ ],
+ "V087": [
+  "e8-inst-dois-nao-sei",
+  2
+ ],
+ "V088": [
+  "e8-contra-numeros-da-nota",
+  2
+ ],
+ "V089": [
+  "qn-contrapor-premissa-tudo-ou-nada",
+  1
+ ],
+ "V090": [
+  "q4-contrapor-razao-ja-sustentada",
+  3
+ ],
+ "V091": [
+  "qn-instigar-degrau-avancado",
+  3
+ ],
+ "V092": [
+  "qn-instigar-decisao-com-restricao",
+  3
+ ],
+ "V093": [
+  "e8-contra-no-proprio-criterio",
+  3
+ ],
+ "V094": [
+  "q4-contrapor-outro-campo-sem-fabricar",
+  3
+ ],
+ "V095": [
+  "qn-instigar-premissa-incerta",
+  3
+ ],
+ "V096": [
+  "qn-contrapor-restricao-real",
+  3
+ ],
+ "V097": [
+  "q4-contrapor-razao-ja-sustentada",
+  2
+ ],
+ "V098": [
+  "q4-instigar-o-autor-escreve-metodo",
+  2
+ ],
+ "V099": [
+  "revisor-contrapor-razoes-fechadas",
+  3
+ ],
+ "V100": [
+  "qn-instigar-contexto-insuficiente",
+  3
+ ],
+ "V101": [
+  "q4-contrapor-premissa-do-futuro",
+  3
+ ],
+ "V102": [
+  "qn-contrapor-decisao-financeira",
+  1
+ ]
+}

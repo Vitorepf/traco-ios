@@ -6,7 +6,7 @@ import Foundation
 /// A rota permanece cortada na Politica até remedição pareada.
 nonisolated enum GuardaDeInstigar {
     enum Perna: String, CaseIterable, Sendable {
-        case que, quando, darCerto, causa
+        case que, quando, darCerto, causa, criterio
     }
 
     /// Palpite de domínio que a nota não deu. A palavra DELA volta.
@@ -23,6 +23,7 @@ nonisolated enum GuardaDeInstigar {
         if darCertoFechado(t) { s.insert(.darCerto) }
         if causaFechada(t) { s.insert(.causa) }
         if queFechado(t) { s.insert(.que) }
+        if criterioFechado(t) { s.insert(.criterio) }
         return s
     }
 
@@ -42,6 +43,8 @@ nonisolated enum GuardaDeInstigar {
                 || p.contains(regex: #"por que (comecou|aconteceu|foi)"#)
                 || p.contains(regex: #"por causa de (que|quem)"#)
                 || p.contains(regex: #"qual foi o motivo"#)
+        case .criterio:
+            return p.contains("criterio")
         case .que:
             return p.contains(regex: #"o que aconteceu"#)
                 || p.contains(regex: #"o que foi que aconteceu"#)
@@ -68,6 +71,13 @@ nonisolated enum GuardaDeInstigar {
     private static func darCertoFechado(_ t: String) -> Bool {
         t.contains(regex: #"(nem|nao) sei o que (seria|era|e) dar certo"#)
             || t.contains(regex: #"dar certo.{0,48}seria"#)
+    }
+
+    /// E8 volta 4: a nota que dá a razão já deu o critério — perguntar «que critério separa…»
+    /// é pergunta respondida. Medido no bruto v2+v3: tira 6, 5 reprovadas por isso e 1 aprovada;
+    /// sem a razão na nota (sala × casa), o critério é a pergunta certa e fica.
+    private static func criterioFechado(_ t: String) -> Bool {
+        t.contains(regex: #"\b(porque|pois|ja que|criterio)\b"#) || t.contains("por causa d")
     }
 
     private static func causaFechada(_ t: String) -> Bool {

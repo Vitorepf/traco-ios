@@ -1,0 +1,614 @@
+{
+ "v2-V100": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V045": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V014": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V028": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V035": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V027": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "fato suposto: trabalho por hora"
+ },
+ "v2-V018": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V021": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V068": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "outro requisito: contra vazio (18 parcelas × reserva)"
+ },
+ "v2-V076": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V011": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V055": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V001": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V059": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V075": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V061": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "invenção: analogia da calculadora afirma fato histórico"
+ },
+ "v2-V017": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção: analogia da calculadora afirma fato histórico"
+ },
+ "v2-V102": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "invenção: analogia da calculadora afirma fato histórico"
+ },
+ "v2-V024": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "substituto do que falta: ensaio prévio no lugar do teste"
+ },
+ "v2-V047": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V050": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "substituto do que falta: ensaio prévio que a nota fecha"
+ },
+ "v2-V081": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "invenção: «frequência zero» sem dado anotado"
+ },
+ "v2-V083": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): preço, distância e horário descartados"
+ },
+ "v2-V012": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): argumenta por preço, distância e horário, que a nota tirou"
+ },
+ "v2-V044": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "gênero: «sozinho» sobre quem pratica"
+ },
+ "v2-V032": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V038": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V030": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V043": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V091": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V026": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V023": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V098": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V041": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V067": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção: analogia da calculadora afirma fato histórico"
+ },
+ "v2-V086": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "invenção: analogia da calculadora afirma fato histórico"
+ },
+ "v2-V052": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "outro requisito: contesta a razão dada (XLSX)"
+ },
+ "v2-V003": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V066": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V094": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "outro requisito: contra vazio (18 parcelas × reserva)"
+ },
+ "v2-V079": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V053": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V070": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V060": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "gênero: «carregar sozinho»"
+ },
+ "v2-V097": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V056": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V048": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V015": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V037": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "recusa covarde: contra vazio"
+ },
+ "v2-V074": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v2-V088": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V070": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V088": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V065": {
+  "caso": "q4-contrapor-tudo-ou-nada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V029": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V071": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V090": {
+  "caso": "q4-contrapor-com-numero-do-autor",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V087": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V037": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V027": {
+  "caso": "q4-contrapor-outro-campo-sem-fabricar",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V038": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V064": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V098": {
+  "caso": "q4-contrapor-razao-ja-sustentada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V096": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V028": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V092": {
+  "caso": "q4-contrapor-restricao-real",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V012": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V095": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V002": {
+  "caso": "q4-contrapor-premissa-do-futuro",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V100": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V085": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): janela de manutenção e critério de abortar"
+ },
+ "v3-V010": {
+  "caso": "revisor-contrapor-alternativas-negadas",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "substituto do que falta: ensaio com dados restaurados"
+ },
+ "v3-V063": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): preço, distância e horário descartados"
+ },
+ "v3-V015": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): distância e horário descartados"
+ },
+ "v3-V026": {
+  "caso": "revisor-contrapor-razoes-fechadas",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "invenção (requisito): «baixo-atrito» = distância e horário"
+ },
+ "v3-V005": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V083": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "outro requisito (leve): sai dos quinze minutos"
+ },
+ "v3-V054": {
+  "caso": "continuidade-contrapor",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "outro requisito: foraDaLista depende de parceiro"
+ },
+ "v3-V051": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V024": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V086": {
+  "caso": "qn-contrapor-premissa-tudo-ou-nada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V055": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V102": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "invenção: outra pessoa ou equipe"
+ },
+ "v3-V003": {
+  "caso": "qn-contrapor-restricao-real",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V045": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V089": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V048": {
+  "caso": "qn-contrapor-sem-analogia-inventada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V080": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "outro requisito: objeção de fora do requisito"
+ },
+ "v3-V041": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "outro requisito: nega que a razão sustenta a escolha"
+ },
+ "v3-V008": {
+  "caso": "qn-contrapor-afirmacao-ja-sustentada",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V020": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "fato suposto: notebook atual"
+ },
+ "v3-V062": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V004": {
+  "caso": "qn-contrapor-decisao-financeira",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V067": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "recusa covarde: contra vazio; «sozinho» no foraDaLista"
+ },
+ "v3-V082": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V023": {
+  "caso": "e8-contra-descartes-e-recurso-que-falta",
+  "repeticao": 3,
+  "veredito": "NÃO",
+  "causa": "gênero: «Fazer sozinho»"
+ },
+ "v3-V074": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 1,
+  "veredito": "NÃO",
+  "causa": "invenção: «bem não urgente»"
+ },
+ "v3-V022": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 2,
+  "veredito": "NÃO",
+  "causa": "recusa covarde: contra vazio"
+ },
+ "v3-V043": {
+  "caso": "e8-contra-numeros-da-nota",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V068": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 1,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V079": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 2,
+  "veredito": "CUMPRE",
+  "causa": ""
+ },
+ "v3-V001": {
+  "caso": "e8-contra-no-proprio-criterio",
+  "repeticao": 3,
+  "veredito": "CUMPRE",
+  "causa": ""
+ }
+}

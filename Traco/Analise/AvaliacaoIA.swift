@@ -12,7 +12,8 @@ enum AvaliacaoIA {
     private static var iniciou = false
     private static let operacoes = ["produzir", "prepararPratica", "conferirTentativa", "revisar",
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
-        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok", "escolherRegra"]
+        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok", "escolherRegra",
+        "conferirContraponto"]
 
     /// QUAL pedido rodou cada caso, pelo dado e não pelo nome do arquivo. A
     /// 10b precisou reconstruir isto procurando os 2.327 bytes do prompt DENTRO
@@ -459,6 +460,12 @@ enum AvaliacaoIA {
         case "contrapor":
             let r = try exigir(await Sabia.contrapor(texto: Caderno.prosa(de: texto), gesto: gesto, retrato: e.retrato ?? ""))
             return ["contra": r.contra, "foraDaLista": r.foraDaLista, "outroCampo": r.outroCampo]
+        case "conferirContraponto":
+            // E8 volta 4 (B): o falso positivo da conferência sobre respostas JÁ JULGADAS —
+            // `itens` = [contra, foraDaLista] como os leitores os leram; nada disto vai à tela
+            let r = try exigir(await Sabia.conferirContraponto(texto: texto, contra: itens.first ?? "",
+                                                               foraDaLista: itens.dropFirst().first ?? ""))
+            return ["campos": r.campos, "frases": r.frases, "tiradas": r.tiradas]
         case "vestir":
             let blocos = e.itens ?? Sabia.blocos(texto)
             let r = try exigir(await Sabia.vestir(blocos: blocos, gesto: gesto))

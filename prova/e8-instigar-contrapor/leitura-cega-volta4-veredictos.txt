@@ -1,0 +1,103 @@
+# instigar/contrapor volta 4 (grok-4.5, corrida 026DF0EA): dois leitores cegos (a54d423f, aa58f4b3), itens embaralhados (semente 202609178); chave em leitura-cega-volta4-chave.json
+V001 CUMPRE
+V002 NÃO fato suposto: «ler com fluência»
+V003 CUMPRE
+V004 CUMPRE
+V005 NÃO fato suposto: «compra não urgente»
+V006 CUMPRE
+V007 CUMPRE
+V008 CUMPRE
+V009 CUMPRE
+V010 CUMPRE
+V011 CUMPRE
+V012 CUMPRE
+V013 NÃO fato suposto: a chance do preço certo saiu de jogo
+V014 CUMPRE
+V015 CUMPRE
+V016 CUMPRE
+V017 CUMPRE
+V018 CUMPRE
+V019 CUMPRE
+V020 NÃO fato suposto: «passou a valer no mercado»
+V021 CUMPRE
+V022 CUMPRE
+V023 CUMPRE
+V024 CUMPRE
+V025 CUMPRE
+V026 NÃO invenção: alguém que já entrega a demanda
+V027 CUMPRE
+V028 NÃO fato suposto: «passou a valer nesse mercado»
+V029 CUMPRE
+V030 NÃO fato suposto: supõe que o mesmo evento se repetiu
+V031 CUMPRE
+V032 CUMPRE
+V033 CUMPRE
+V034 CUMPRE
+V035 CUMPRE
+V036 CUMPRE
+V037 NÃO pergunta já negada: as horas desta semana
+V038 CUMPRE
+V039 CUMPRE
+V040 CUMPRE
+V041 CUMPRE
+V042 CUMPRE
+V043 CUMPRE
+V044 NÃO outro requisito: juízo do modelo embutido
+V045 CUMPRE
+V046 CUMPRE
+V047 CUMPRE
+V048 CUMPRE
+V049 CUMPRE
+V050 CUMPRE
+V051 CUMPRE
+V052 NÃO andaime: «quando» de fórmula («passou a valer como condição»)
+V053 CUMPRE
+V054 NÃO invenção (requisito): parar no meio
+V055 CUMPRE
+V056 CUMPRE
+V057 CUMPRE
+V058 CUMPRE
+V059 CUMPRE
+V060 CUMPRE
+V061 NÃO andaime: «quando» de fórmula («costuma surgir»)
+V062 NÃO outro requisito: contra vazio (guarda de fato)
+V063 CUMPRE
+V064 CUMPRE
+V065 CUMPRE
+V066 NÃO andaime: «quando» de fórmula («passou a valer no mercado»)
+V067 CUMPRE
+V068 NÃO andaime: «quando» sem relação («os sete pediram de novo»)
+V069 NÃO substituto do que falta: ensaio numa réplica isolada
+V070 NÃO fato suposto: «base pronta sem plano»
+V071 NÃO andaime: «quando» da mudança
+V072 NÃO andaime: «quando» de fórmula («passou a valer como condição»)
+V073 CUMPRE
+V074 CUMPRE
+V075 NÃO andaime: «Quando essa escolha foi feita?»
+V076 CUMPRE
+V077 CUMPRE
+V078 CUMPRE
+V079 NÃO invenção (leve): sem colchão
+V080 NÃO andaime: «quando» de fórmula («costuma aparecer»)
+V081 CUMPRE
+V082 CUMPRE
+V083 NÃO invenção (requisito): distância
+V084 NÃO invenção: outra pessoa
+V085 CUMPRE
+V086 CUMPRE
+V087 CUMPRE
+V088 CUMPRE
+V089 CUMPRE
+V090 CUMPRE
+V091 CUMPRE
+V092 CUMPRE
+V093 CUMPRE
+V094 CUMPRE
+V095 NÃO andaime: «quando» de fórmula («passou a valer»)
+V096 NÃO invenção: outra pessoa
+V097 CUMPRE
+V098 NÃO andaime: «quando passou a» de fórmula
+V099 NÃO invenção (requisito): preço, distância e horário
+V100 CUMPRE
+V101 CUMPRE
+V102 CUMPRE
