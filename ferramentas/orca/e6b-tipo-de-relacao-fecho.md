@@ -74,7 +74,7 @@ relatadas, não como documento.
 | a mais nova apontada certo em toda versão | **em aberto, e com uma falha de fiação** (§5) | — |
 | nada sugerido nos casos sem ligação | **em aberto na E6b; passou na E6** | E6: *controles sem vínculo em toda resposta escrita* |
 | nenhum trecho inventado | **em aberto na E6b; passou na E6** | E6: *zero trecho não literal* |
-| resposta em até 7 s | **em aberto, e sem instrumento** (§5) | — |
+| resposta em até 7 s | **em aberto, mas o instrumento existe** (§5) | `duracaoSegundos`, em toda linha `casoConcluido` do JSONL |
 
 **A medição anterior (E6), essa sim está fechada** e é a única base numérica real
 que temos. Está no `porque` de `Traco/Analise/Politica.swift:93` e na
@@ -111,20 +111,27 @@ velho demais para valer como resposta.
 
 ---
 
-## 5. Duas falhas de instrumento — elas impedem fechar duas barras mesmo com o bruto na mão
+## 5. Uma falha de fiação — e uma correção ao que esta nota dizia antes
 
-Estas eu consegui ler no código, e são independentes de a corrida ter sido salva
-ou não:
+**(a) CORREÇÃO: a barra dos 7 segundos TEM instrumento, e eu disse o contrário.**
+A primeira redação desta nota afirmou que o tempo não era gravado. Está errado, e
+o erro era meu: eu tinha olhado só o `case "ecos"` e não o laço que o chama. A
+sonda cronometra **todo caso**, com relógio monotônico —
+`let inicio = ContinuousClock.now` (`AvaliacaoIA.swift:273`) antes de `executar`,
+e `registro["duracaoSegundos"]` (`:290`) na linha `casoConcluido`. Vale para as
+dezesseis operações, `ecos` inclusive, e o mesmo já está em `main`
+(`AvaliacaoIA.swift:240` e `:257`).
 
-**(a) A barra dos 7 segundos não tem instrumento.** O `case "ecos"` da sonda
-(`AvaliacaoIA.swift:526`) **não grava tempo**. O irmão dele, o braço da E6c
-(`AvaliacaoIA.swift:491-505`), grava `segundosEscolha` e `segundosEcos`; o `ecos`
-puro não. `Grok.Diagnostico` (`Grok.swift:172`) também não tem duração. Sobra
-diferenciar o carimbo `data` de linhas consecutivas do JSONL — aproximação que
-mede o caso inteiro, não a chamada. **Sem uma linha de código a mais, essa barra
-não fecha nem com a corrida em mãos.**
+Para o `ecos` essa duração **é** o tempo de resposta: um caso de `ecos` faz UMA
+chamada ao Grok, e `Grok.esquecerMemo()` roda antes de cada repetição
+(`AvaliacaoIA.swift:234`), então nenhuma repetição volta pelo memo. O que sobra
+por cima da chamada é o parser. O `segundosEcos` do braço da E6c
+(`AvaliacaoIA.swift:505`) existe porque **lá** são duas chamadas em sequência
+(escolha pelo índice + ecos) e é preciso separá-las; no `ecos` puro não há o que
+separar. **Nada a consertar aqui: a barra dos 7 s fecha com o JSONL como ele é.**
 
-**(b) Em produção a data da NOTA não viaja.** `Sessao.swift:592` chama
+**(b) Em produção a data da NOTA não viaja.** Esta fica de pé.
+`Sessao.swift:592` chama
 `Sabia.ecos(nota:candidatas:gesto:)` **sem** `notaEditadaEm`. As candidatas levam
 a data delas (via `linhaDeEco`), mas a nota aberta não leva a sua. O modelo é
 mandado decidir qual das duas é a mais nova **com a data de uma só**. Na sonda a
@@ -153,11 +160,56 @@ Em ordem, e o primeiro item resolve mais que ele mesmo:
 3. **Escrever a régua da E6b em arquivo**, antes da próxima corrida, e não só na
    conversa. As sete barras acima vieram de relato; uma barra que não está em
    disco não é pré-registrada.
-4. **Instrumentar o tempo no `case "ecos"`** (item 5a) — dois `Date()`, como já
-   estão no braço da E6c.
-5. **Passar `notaEditadaEm` em `Sessao.swift:592`** (item 5b), senão a barra da
-   versão mais nova mede uma coisa e o app faz outra.
-6. **Só então repetir a corrida.** Refazê-la sem 3, 4 e 5 devolve o mesmo buraco.
+4. **Passar `notaEditadaEm` em `Sessao.swift:592`** (item 5b), senão a barra da
+   versão mais nova mede uma coisa e o app faz outra. O patch está no §7.
+5. **Só então repetir a corrida.** Refazê-la sem 3 e 4 devolve o mesmo buraco.
+
+O tempo de resposta **não** entra nesta lista: a primeira redação desta nota
+punha aqui um quarto item para instrumentar o `case "ecos"`, e ele saiu porque
+era engano meu (§5a). Menos um conserto a fazer.
+
+---
+
+## 7. O patch do item 4, e por que ele não vem commitado
+
+**Ele não pode entrar em `main`, e a razão não é cautela minha.** Em `main` a E6b
+não existe: `Sabia.Eco` tem só `i` e `trecho` (`Sabia.swift:592`), `sistemaEcos`
+não pede tipo nenhum, `ecos(...)` não tem o parâmetro `notaEditadaEm`
+(`Sabia.swift:1155`), e `linhaDeEco`/`candidatasDeEcos` **não existem** —
+`Sessao` monta as candidatas de outro jeito. Escrever "o conserto de uma linha"
+em cima de `main` seria reimplementar a E6 e a E6b inteiras às cegas, num galho
+que vai colidir de frente com a árvore do dono quando ela subir. **Uma linha na
+árvore certa vale mais que cem linhas na errada.**
+
+Na árvore de 17/09 é isto, e só isto:
+
+```diff
+--- a/Traco/App/Sessao.swift
++++ b/Traco/App/Sessao.swift
+@@ -590,7 +590,9 @@
+         let linhas = candidatas.map(Self.linhaDeEco)
+         guard let ecos = await Sabia.ecos(nota: Caderno.prosa(de: texto),
+-                                          candidatas: linhas, gesto: gesto)
++                                          candidatas: linhas, gesto: gesto,
++                                          notaEditadaEm: podem.first { $0.uuid == notaUUID }?
++                                              .editadaEm)
+         else { return saida }
+```
+
+Os dois nomes estão em escopo e conferidos: `notaUUID` é propriedade da `Sessao`
+(`Sessao.swift:15`) e `podem` é o array de `Nota` filtrado na mesma função
+(`:562`), o mesmo que já vai a `candidatasDeEcos` na linha 587. Nenhuma outra
+linha muda: `Sabia.ecos` já tem o parâmetro com valor padrão `nil`
+(`Sabia.swift:1437`) e já sabe montar o «(editada em …)» (`:1442`).
+
+O teste que acompanha: uma nota aberta com `editadaEm` conhecida, e a asserção de
+que o texto do pedido que sai de `Sabia.ecos` contém «(editada em …)» com essa
+data. Hoje ele falha; com o patch, passa.
+
+**Não compilei nem rodei nada disto.** Esta máquina é Linux e não tem toolchain
+Swift; o Traço é app de iOS 26 com SwiftUI e SwiftData, e o portão da casa
+(`ferramentas/portao.sh`) roda num simulador. Quem aplicar tem de passar o portão
+antes de commitar — como manda o `AGENTS.md`.
 
 ---
 
