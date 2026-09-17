@@ -40,32 +40,37 @@
         "provas": [
           "prova/4.md",
           "prova/qualidade-ia-avaliacao-base.md"
-        ]
+        ],
+        "motivo": ""
       },
       "prepararPratica": {
         "regra": "soGrok",
         "provas": [
           "prova/6.md"
-        ]
+        ],
+        "motivo": ""
       },
       "conferirTentativa": {
         "regra": "soGrok",
         "provas": [
           "prova/6.md"
-        ]
+        ],
+        "motivo": ""
       },
       "revisar": {
         "regra": "soGrok",
         "provas": [
           "prova/5.md"
-        ]
+        ],
+        "motivo": ""
       },
       "conferir": {
         "regra": "soGrok",
         "provas": [
           "prova/q-qualidade-avaliacoes.jsonl",
           "prova/qualidade-ia-q5-avaliacao-base.md"
-        ]
+        ],
+        "motivo": ""
       },
       "ecos": {
         "regra": "indisponivelPorQualidade",
@@ -73,27 +78,31 @@
           "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
           "ferramentas/orca/q-qualidade.md",
           "prova/q-qualidade-avaliacoes.jsonl"
-        ]
+        ],
+        "motivo": "deixa de fora justamente as notas que mais tinham a ver"
       },
       "calibragem": {
         "regra": "indisponivelPorQualidade",
         "provas": [
           "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
           "prova/q-qualidade-avaliacoes.jsonl"
-        ]
+        ],
+        "motivo": "não diz nada quando você não errou"
       },
       "padroes": {
         "regra": "soGrok",
         "provas": [
           "prova/qualidade-ia-q5-avaliacao-base.md"
-        ]
+        ],
+        "motivo": ""
       },
       "recordar": {
         "regra": "indisponivelPorQualidade",
         "provas": [
           "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
           "prova/q-qualidade-avaliacoes.jsonl"
-        ]
+        ],
+        "motivo": "muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta"
       },
       "responderNasNotas": {
         "regra": "soGrok",
@@ -101,7 +110,8 @@
           "ferramentas/orca/q3-responder-nas-notas.md",
           "prova/lote09d-q3-grok-4.3.jsonl",
           "prova/lote09d-q3-grok-4.5.jsonl"
-        ]
+        ],
+        "motivo": ""
       },
       "responder": {
         "regra": "indisponivelPorQualidade",
@@ -109,7 +119,8 @@
           "ferramentas/orca/responder.md",
           "prova/10b",
           "prova/10b2"
-        ]
+        ],
+        "motivo": "inventa uma situação que você não escreveu, e às vezes só diz o que falta"
       },
       "instigar": {
         "regra": "indisponivelPorQualidade",
@@ -121,7 +132,8 @@
           "prova/instigar-lote/t2",
           "prova/lote09c-q4-grok-4.3.jsonl",
           "prova/lote09c-q4-grok-4.5.jsonl"
-        ]
+        ],
+        "motivo": "quando você diz que não sabe quando foi, ela pergunta assim mesmo"
       },
       "contrapor": {
         "regra": "indisponivelPorQualidade",
@@ -131,19 +143,23 @@
           "prova/lote09g",
           "prova/lote09h",
           "prova/lote09i"
-        ]
+        ],
+        "motivo": "oferece um substituto para o que você disse que não tem"
       },
       "vestir": {
         "regra": "grokDepoisBordo",
-        "provas": []
+        "provas": [],
+        "motivo": ""
       },
       "classificar": {
         "regra": "grokDepoisBordo",
-        "provas": []
+        "provas": [],
+        "motivo": ""
       },
       "dominio": {
         "regra": "soBordo",
-        "provas": []
+        "provas": [],
+        "motivo": ""
       },
       "escolherRegra": {
         "regra": "soGrok",
@@ -151,7 +167,8 @@
           "prova/16g",
           "prova/16i",
           "prova/16j"
-        ]
+        ],
+        "motivo": ""
       }
     }
   },

@@ -1,0 +1,33 @@
+<title>Mapa do Traço</title>
+<style>
+:root{--papel:#F4F4F2;--cartao:#FFFFFF;--tinta:#1C1C1E;--suave:#5F5F64;--fraca:#68686C;--linha:rgba(28,28,30,.08);--ambar:#7A5A16;--aviso:#B5432F;--verde:#2F6B3F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#131312;--cartao:#1E1E1D;--tinta:#F2F2EF;--suave:#B0B0AB;--fraca:#9A9A95;--linha:rgba(242,242,239,.1);--ambar:#D9A542;--aviso:#E07A66;--verde:#7CC08E}}
+:root[data-theme="dark"]{--papel:#131312;--cartao:#1E1E1D;--tinta:#F2F2EF;--suave:#B0B0AB;--fraca:#9A9A95;--linha:rgba(242,242,239,.1);--ambar:#D9A542;--aviso:#E07A66;--verde:#7CC08E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:40px 64px}
+h1{font-size:34px;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--suave);margin:0 0 28px;max-width:62ch}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.tipo{background:var(--cartao);border-radius:14px;border:.5px solid var(--linha);padding:16px 18px;box-shadow:0 .5px 1px rgba(28,28,30,.05),0 4px 10px rgba(28,28,30,.04)}
+.tipo header{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:0 12px;padding-bottom:10px;border-bottom:.5px solid var(--linha)}
+.tipo h2{font-size:19px;margin:0;letter-spacing:-.01em}
+.tipo header p{grid-column:1;margin:2px 0 0;color:var(--suave);font-size:14px}
+.resumo{grid-row:1;grid-column:2;color:var(--fraca);font-size:13px;font-variant-numeric:tabular-nums}
+ul{list-style:none;margin:0;padding:0}
+li{padding:10px 0;border-bottom:.5px solid var(--linha)}
+li:last-child{border-bottom:0;padding-bottom:0}
+.op{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;align-items:baseline}
+.nome{font-weight:600;flex:1 1 14ch}
+.estado{font-size:13px;white-space:nowrap}
+.estado.conta{color:var(--verde)} .estado.aparelho{color:var(--suave)} .estado.cortada{color:var(--aviso)}
+.motivo{margin:2px 0 0;color:var(--suave);font-size:14px}
+.rodape{margin-top:28px;color:var(--fraca);font-size:13px}
+.rodape ul{margin-top:6px} .rodape li{border:0;padding:2px 0}
+</style>
+<main>
+<h1>Mapa do Traço</h1>
+<p class="sub">Os seis tipos de app que o Traço junta e o estado de cada função de IA, lidos direto do código. Nada nesta página é escrito à mão.</p>
+<div class="grade"><section class="tipo"><header><h2>Caderno</h2><p>A página que veste a forma certa</p><span class="resumo">3 de 3 funcionando</span></header><ul><li><div class="op"><span class="nome">Vestir a forma</span><span class="estado aparelho">aparelho e conta</span></div></li><li><div class="op"><span class="nome">Reconhecer a forma</span><span class="estado aparelho">aparelho e conta</span></div></li><li><div class="op"><span class="nome">O domínio da nota</span><span class="estado aparelho">no aparelho</span></div></li></ul></section><section class="tipo"><header><h2>Segundo cérebro</h2><p>A memória que responde e traz de volta</p><span class="resumo">2 de 4 funcionando</span></header><ul><li><div class="op"><span class="nome">Responder nas Notas</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">Sugerir notas parecidas</span><span class="estado cortada">cortada</span></div><p class="motivo">Deixa de fora justamente as notas que mais tinham a ver</p></li><li><div class="op"><span class="nome">Perguntas dos Padrões</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">A pergunta do Recordar</span><span class="estado cortada">cortada</span></div><p class="motivo">Muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta</p></li></ul></section><section class="tipo"><header><h2>Biblioteca dos mestres</h2><p>A regra certa, com a fonte</p><span class="resumo">1 de 1 funcionando</span></header><ul><li><div class="op"><span class="nome">Escolher a regra dos mestres</span><span class="estado conta">com a conta Grok</span></div></li></ul></section><section class="tipo"><header><h2>Diário de decisões</h2><p>O que você esperava contra o que aconteceu</p><span class="resumo">1 de 2 funcionando</span></header><ul><li><div class="op"><span class="nome">Conferir o que voltou</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">Comparar o que você previu com o que aconteceu</span><span class="estado cortada">cortada</span></div><p class="motivo">Não diz nada quando você não errou</p></li></ul></section><section class="tipo"><header><h2>Tutor</h2><p>A IA que pergunta e contrapõe</p><span class="resumo">0 de 3 funcionando</span></header><ul><li><div class="op"><span class="nome">Responder à sua pergunta</span><span class="estado cortada">cortada</span></div><p class="motivo">Inventa uma situação que você não escreveu, e às vezes só diz o que falta</p></li><li><div class="op"><span class="nome">Instigar</span><span class="estado cortada">cortada</span></div><p class="motivo">Quando você diz que não sabe quando foi, ela pergunta assim mesmo</p></li><li><div class="op"><span class="nome">Contrapor</span><span class="estado cortada">cortada</span></div><p class="motivo">Oferece um substituto para o que você disse que não tem</p></li></ul></section><section class="tipo"><header><h2>Fazer</h2><p>Trabalho e Calendário</p><span class="resumo">4 de 4 funcionando</span></header><ul><li><div class="op"><span class="nome">Preparar versões no Trabalho</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">Preparar exercícios</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">Conferir a sua tentativa</span><span class="estado conta">com a conta Grok</span></div></li><li><div class="op"><span class="nome">Revisar uma versão</span><span class="estado conta">com a conta Grok</span></div></li></ul></section></div>
+<div class="rodape"><strong>Conferência:</strong> 168 decisões no SPEC, 17 funções de IA. Gerado em 16/09/2026 por ferramentas/mapa/mapa.py.<ul><li>Nenhum: a documentação bate com o código.</li></ul></div>
+</main>
