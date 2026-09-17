@@ -19,8 +19,6 @@ appId: app.traco
       id: "cartao-analise"
     timeout: 5000
 - takeScreenshot: /tmp/traco-verify/hoje/02-cartao-woop
-- tapOn:
-    id: "abrir-campos"
 - takeScreenshot: /tmp/traco-verify/hoje/03-forma-woop
 # a folha dos campos cobre a topbar: fecha antes de concluir
 - swipe:

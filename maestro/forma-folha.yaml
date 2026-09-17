@@ -8,10 +8,8 @@ appId: app.traco
 # §17: a forma veste sozinha; a folha sobe a UM toque (modal não rouba a escrita)
 - extendedWaitUntil:
     visible:
-      id: "abrir-campos"
+      id: "soltar-forma"
     timeout: 8000
-- tapOn:
-    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "forma-woop"

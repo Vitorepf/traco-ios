@@ -11,8 +11,6 @@ appId: app.traco
     visible:
       id: "cartao-analise"
     timeout: 8000
-- tapOn:
-    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "campo-problema"

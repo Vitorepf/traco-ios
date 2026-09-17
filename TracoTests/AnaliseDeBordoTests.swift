@@ -72,8 +72,8 @@ import Testing
     }
 
     /// A prova de verdade: o modelo do sistema roteia um WOOP sem rede nenhuma.
-    @Test func oModeloDoAparelhoRoteiaUmDesejo() async throws {
-        guard #available(iOS 26.0, *), AnaliseDeBordo.disponivel else { return }
+    @Test(.enabled("sem Apple Intelligence no aparelho: o modelo do sistema não existe aqui") { @MainActor in AnaliseDeBordo.disponivel })
+    func oModeloDoAparelhoRoteiaUmDesejo() async throws {
         // pela porta sem portão: a suíte desliga os modelos (ADR 03p), e é
         // justamente aqui que queremos o modelo LIGADO
         let v = await AnaliseDeBordo.classificarSemPortao(

@@ -2488,19 +2488,32 @@ final class Sessao {
         no context: ModelContext, anunciar: Bool = true
     ) -> Int {
         guard !itens.isEmpty else { return 0 }
+        // a cópia que o próprio Traço escreveu traz o id: nota que já está no
+        // caderno não entra de novo, e a que volta mantém a identidade
+        var ids = Set(((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map(\.uuid))
+        var n = 0
         for item in itens {
+            if let id = item.id, ids.contains(id) { continue }
             let gesto = item.gestoNome.flatMap(Gesto.doNome)
             let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
             let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
+            if let id = item.id { nota.uuid = id }
             nota.criadaEm = item.criadaEm
+            nota.editadaEm = item.editadaEm ?? item.criadaEm
             nota.origem = item.origem
+            if let d = item.dominioNome.flatMap(Dominio.doNome) { nota.dominio = d }
             context.insert(nota)
+            ids.insert(nota.uuid)
+            n += 1
+        }
+        guard n > 0 else {
+            if anunciar { mostrarToast("nada novo: essas notas já estão no caderno.") }
+            return 0
         }
         guard persistir(context) else {
             mostrarToast("não consegui importar — as notas não entraram.")
             return 0
         }
-        let n = itens.count
         if anunciar { mostrarToast("\(n) nota\(n == 1 ? "" : "s") importada\(n == 1 ? "" : "s").") }
         // ADR 04o/05s: importar é rota inteira — as notas que entraram chegam
         // ao espelho, ao Spotlight e ao índice agora, não no próximo arranque.

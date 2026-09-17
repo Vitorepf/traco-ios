@@ -11,18 +11,9 @@ struct PaginaView: View {
     /// Q2: os títulos das outras notas alimentam o completar de `[[ligação]]`.
     @Query(sort: \Nota.editadaEm, order: .reverse) private var notas: [Nota]
     @FocusState private var focoPagina: Bool
-    @State private var mostrarCampos = false
     @State private var perguntaDaPagina = ""
     @State private var ditado = Ditado()
     @State private var baseDoDitado = ""
-    /// A folha dos campos está a subir ou em cena: o encaixe inteiro (cartão e
-    /// pé) sai POR CORTE antes de ela subir e volta por corte quando ela desce.
-    /// Com o encaixe em cena enquanto o teclado descia, o papel crescia na hora
-    /// (o `UIScrollView` recebe o frame final de imediato) e os rótulos dos
-    /// campos — conteúdo do próprio papel — ficavam legíveis entre o cartão e o
-    /// pé por ~100 ms, sem e com Reduzir Movimento (G4 final da V12, A1; ADR
-    /// 08f, V12-E). Sem encaixe, a única superfície naquela faixa é o papel.
-    @State private var folhaEmCena = false
     /// A vizinhança da nota aberta (quantas a citam ou são citadas por ela):
     /// calculada ao abrir, não a cada quadro — a rede cruza o caderno inteiro.
     @State private var ligadas = 0
@@ -47,63 +38,6 @@ struct PaginaView: View {
         // de arquivo que a raiz já mostra.
         pagina
             .opacity(chegou || reduceMotion ? 1 : 0)
-            .sheet(isPresented: $mostrarCampos) {
-                if let gesto = sessao.gesto, gesto != .expressiva {
-                    VStack(alignment: .leading, spacing: 0) {
-                        // "voltar" em tinta, não no âmbar do tint (2,0:1 sobre
-                        // branco, ADR 02h): o cabeçalho é o de toda folha
-                        CabecalhoDeFolha(saida: .voltar, aoSair: {
-                            guard sessao.salvar(no: context) else { return }
-                            mostrarCampos = false
-                        }, prefixo: "campos")
-                            .padding(.horizontal, Tema.margem)
-                            .padding(.top, 16)
-                        // a folha tem cabeçalho de verdade: o nome da forma é
-                        // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
-                        // que descarta — o olho não entra pela ação destrutiva
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(gesto.nome)
-                                .font(Tema.tituloTela)
-                                .tracking(Tema.trackingTitulo)
-                                .foregroundStyle(Tema.tinta)
-                                .accessibilityAddTraits(.isHeader)
-                            Spacer(minLength: 8)
-                            Button("Deixar como nota") {
-                                sessao.soltarForma()
-                                mostrarCampos = false
-                            }
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .buttonStyle(.discreto)
-                            .accessibilityIdentifier("soltar-na-folha")
-                            .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
-                        }
-                        .padding(.horizontal, Tema.margem)
-                        .padding(.top, 20)
-                        .padding(.bottom, 12)
-
-                        ScrollView {
-                            CamposFormaView(
-                                gesto: gesto,
-                                campos: $sessao.campos,
-                                conferenciaDevida: sessao.conferenciaDevida,
-                                campoInicial: sessao.campoPedido,
-                                criadaEm: sessao.criadaEmDaPagina,
-                                aoEncadear: { e in
-                                    mostrarCampos = false
-                                    sessao.encadear(e, no: context)
-                                }
-                            )
-                                .padding(.bottom, 24)
-                        }
-                        .scrollDismissesKeyboard(.interactively)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .presentationDetents([.large]) // ADR 04u: folha de leitura nasce inteira, nunca cortada no médio
-                    .presentationDragIndicator(.visible)
-                    .presentationBackground(Tema.superficie)
-                }
-            }
         .sheet(item: $trabalhoAberto) { trabalho in TrabalhoView(trabalho: trabalho) }
         .sheet(item: $redeAberta) { nota in RedeView(nota: nota, todas: notas, sessao: sessao) }
         .task(id: sessao.notaUUID) {
@@ -210,20 +144,6 @@ struct PaginaView: View {
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(80))
                 if !sessao.mostrarNotas { restaurarFoco() }
-            }
-        }
-        // a forma vestiu sozinha, mas a folha NÃO sobe sozinha: modal no meio da
-        // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
-        .onChange(of: sessao.gesto) { _, g in
-            // duas comparações numa linha estouravam o type-checker do Xcode 27
-            let semForma: Bool = g == nil
-            if semForma || g == .expressiva { mostrarCampos = false }
-        }
-        .onChange(of: mostrarCampos) { _, aberto in
-            if !aberto {
-                var t = Transaction(); t.disablesAnimations = true
-                withTransaction(t) { folhaEmCena = false }
-                restaurarFoco()
             }
         }
         // VoiceOver: o cartão muda sozinho no rodapé — quem não vê precisa ouvir
@@ -422,11 +342,10 @@ struct PaginaView: View {
                 // linha: a página é do texto dele. As saídas ficam à vista; a
                 // prosa abre a um toque, no lugar, sem mexer no teclado.
                 CartaoAnaliseView(cartao: cartao, sessao: sessao,
-                                  aoAbrirCampos: { abrirCampos() },
                                   // com a folha dos campos em cena o cartão fica
                                   // como está: mudar de forma por trás dela é
                                   // desenhar o encaixe em duas geometrias
-                                  recolhido: focoPagina || mostrarCampos)
+                                  recolhido: focoPagina)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 12)
                     // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem
@@ -589,21 +508,14 @@ struct PaginaView: View {
 
     /// O encaixe sai por corte (transação sem animação) e SÓ DEPOIS a folha
     /// sobe com a sua própria curva: duas mudanças de estado, duas transações.
-    private func abrirCampos() {
-        var t = Transaction(); t.disablesAnimations = true
-        withTransaction(t) { folhaEmCena = true }
-        mostrarCampos = true
-    }
-
     private var editor: some View {
         CadernoView(
             // o pé é voz + pergunta + "+": a página em branco é a hora de ditar
             // (dono, 14/09: "microfone nas notas, sempre à mão"); só a folha o cobre
-            rodape: folhaEmCena || campoDaFormaEmFoco ? nil : AnyView(bottomBar),
+            rodape: campoDaFormaEmFoco ? nil : AnyView(bottomBar),
             abaixo: camposAbaixo,
-            acima: folhaEmCena ? nil : AnyView(acimaDoPe),
+            acima: AnyView(acimaDoPe),
             esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
-            folhaEmCena: folhaEmCena,
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
@@ -899,7 +811,7 @@ struct PaginaView: View {
     /// ficava preso numa tela sem campo nenhum.
     private func restaurarFoco() {
         guard sessao.aba == .escrever, sessao.confirmacao == nil,
-              sessao.fechoExpressiva == nil, !mostrarCampos
+              sessao.fechoExpressiva == nil
         else { return }
         // nota aberta da lista chega sem teclado: metade da nota ficava
         // escondida atrás dele (auditoria 15/09, 11). A flag NÃO se consome
@@ -911,7 +823,7 @@ struct PaginaView: View {
         // do empurrão e a barra atravessava a tela solta, a meio caminho)
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(reduceMotion ? 0 : 320))
-            guard sessao.aba == .escrever, sessao.confirmacao == nil, !mostrarCampos, !sessao.acabouDeAbrir else { return }
+            guard sessao.aba == .escrever, sessao.confirmacao == nil, !sessao.acabouDeAbrir else { return }
             focoPagina = true
         }
     }

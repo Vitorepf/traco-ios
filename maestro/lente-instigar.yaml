@@ -1,4 +1,5 @@
-# Instigar (ADR o): a sábia devolve perguntas; sem conta, o app diz.
+# Instigar e Contrapor estão cortados por qualidade (Politica): a Lente não os oferece
+# como botão que só responde «indisponível» (auditoria 17/09). O Perfil diz o que está fora.
 appId: app.traco
 ---
 - launchApp:
@@ -15,11 +16,7 @@ appId: app.traco
     visible: {id: "abrir-lente"}
     timeout: 6000
 - tapOn: {id: "abrir-lente"}
-- extendedWaitUntil:
-    visible: {id: "instigar"}
-    timeout: 6000
-- tapOn: {id: "instigar"}
-- extendedWaitUntil:
-    visible: "pensando.*|.*\\?"
-    timeout: 4000
-- takeScreenshot: /tmp/traco-verify/nav/88-instigar
+- waitForAnimationToEnd: {timeout: 2000}
+- assertNotVisible: {id: "instigar"}
+- assertNotVisible: {id: "contrapor"}
+- takeScreenshot: /tmp/traco-verify/nav/88-lente-sem-rota-cortada

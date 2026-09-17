@@ -397,8 +397,8 @@ private func temp(_ nome: String) -> URL {
         #expect(Indice.cosseno([], []) == 0)
     }
 
-    @Test func oIndiceAproximaESeloTira() throws {
-        guard Indice.disponivel else { return }
+    @Test(.enabled(if: Indice.disponivel, "sem NLEmbedding PT no aparelho: o índice de sentido não existe aqui"))
+    func oIndiceAproximaESeloTira() throws {
         let a = UUID(), b = UUID(), c = UUID()
         Indice.sincronizar([
             .init(uuid: a, editadaEm: .now, voz: "quero começar a correr de manhã", podeEntrar: true),
@@ -695,8 +695,8 @@ private func temp(_ nome: String) -> URL {
         #expect(DoCadernoView.consulta(titulo: "", notas: "") == "")
     }
 
-    @Test func oCompromissoAchaANotaQueFalaDele() {
-        guard Indice.disponivel else { return }
+    @Test(.enabled(if: Indice.disponivel, "sem NLEmbedding PT no aparelho: o índice de sentido não existe aqui"))
+    func oCompromissoAchaANotaQueFalaDele() {
         let orcamento = UUID(), corrida = UUID()
         Indice.sincronizar([
             .init(uuid: orcamento, editadaEm: .now, voz: "preciso fechar o orçamento do trimestre com a equipe de finanças", podeEntrar: true),
@@ -713,8 +713,8 @@ private func temp(_ nome: String) -> URL {
 @Suite(.serialized) struct AnexoNoSentidoTests {
     init() { Indice.url = temp("indice-anexo").appendingPathComponent("indice.json") }
 
-    @Test func oPDFAnexadoDaSentidoANota() throws {
-        guard Indice.disponivel else { return }
+    @Test(.enabled(if: Indice.disponivel, "sem NLEmbedding PT no aparelho: o índice de sentido não existe aqui"))
+    func oPDFAnexadoDaSentidoANota() throws {
         let id = UUID()
         let pdf = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 400, height: 300)).pdfData { ctx in
             ctx.beginPage()
@@ -744,8 +744,8 @@ private func temp(_ nome: String) -> URL {
 @Suite(.serialized) struct PerguntarNasNotasTests {
     init() { Indice.url = temp("indice-barra").appendingPathComponent("indice.json") }
 
-    @MainActor @Test func oContextoTemCatalogoVizinhasEConversaERespeitaOSelo() throws {
-        guard Indice.disponivel else { return }
+    @MainActor @Test(.enabled(if: Indice.disponivel, "sem NLEmbedding PT no aparelho: o índice de sentido não existe aqui"))
+    func oContextoTemCatalogoVizinhasEConversaERespeitaOSelo() throws {
         let c = try contextoDeTeste()
         let aberta = Nota(texto: "quero começar a correr de manhã antes do trabalho")
         let trancada = Nota(texto: "pretendo fazer exercício cedo todos os dias")

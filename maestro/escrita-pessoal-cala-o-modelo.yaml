@@ -21,4 +21,4 @@ appId: app.traco
 - waitForAnimationToEnd:
     timeout: 8000
 - assertNotVisible: "Deixar como nota"
-- assertNotVisible: {id: "abrir-campos"}
+- assertNotVisible: {id: "soltar-forma"}

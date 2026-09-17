@@ -6,11 +6,10 @@ appId: app.traco
 - tapOn: {id: pagina}
 - inputText: "terminei de ler o livro sobre atenção e o autor defende que a atenção é finita"
 - extendedWaitUntil:
-    visible: {id: "abrir-campos"}
+    visible: {id: "soltar-forma"}
     timeout: 8000
 - assertVisible: "LEITURA"
 - takeScreenshot: /tmp/traco-verify/ciclo/03-leitura-vestida
-- tapOn: {id: "abrir-campos"}
 - extendedWaitUntil:
     visible: {id: "forma-leitura"}
     timeout: 5000

@@ -8,10 +8,8 @@ appId: app.traco
 # §17: veste sozinha; a folha dos campos sobe a um toque
 - extendedWaitUntil:
     visible:
-      id: "abrir-campos"
+      id: "soltar-forma"
     timeout: 8000
-- tapOn:
-    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "forma-woop"

@@ -15,8 +15,6 @@ appId: app.traco
       id: "cartao-analise"
     timeout: 8000
 - takeScreenshot: /tmp/traco-verify/auditoria/04-cartao-vestido
-- tapOn:
-    id: "abrir-campos"
 - takeScreenshot: /tmp/traco-verify/auditoria/05-folha-campos
 - swipe:
     direction: DOWN

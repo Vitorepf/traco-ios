@@ -15,8 +15,6 @@ appId: app.traco
 - assertVisible: "Deixar como nota"
 # o texto do autor fica na página; os campos moram na folha
 - assertVisible: "quero correr de manhã"
-- tapOn:
-    id: "abrir-campos"
 - assertVisible:
     id: "forma-woop"
 - swipe:

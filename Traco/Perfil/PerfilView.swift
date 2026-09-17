@@ -928,6 +928,10 @@ struct PerfilView: View {
             }
             .accessibilityIdentifier("exportar-corpus")
             .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
+            if let desde = Corpus.copiaFalhouEm {
+                LinhaDeEstado("a cópia em .md não consegue gravar desde \(desde.formatted(date: .abbreviated, time: .shortened)). As notas no aparelho estão intactas.", .falhou)
+                    .accessibilityIdentifier("copia-falhou")
+            }
             linhaAcao("square.and.arrow.down", "Importar notas", "de arquivos de texto; nenhuma chega trancada") {
                 importarMd = true
             }

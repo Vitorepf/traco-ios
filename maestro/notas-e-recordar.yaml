@@ -7,10 +7,8 @@ appId: app.traco
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
     visible:
-      id: "abrir-campos"
+      id: "soltar-forma"
     timeout: 8000
-- tapOn:
-    id: "abrir-campos"
 - tapOn:
     id: "campo-obstaculo"
 - inputText: "o celular na cama"

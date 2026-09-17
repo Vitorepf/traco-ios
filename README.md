@@ -99,7 +99,11 @@ de falhas e a evidência do fluxo.
 
 ## Sem servidor
 
-Notas em SwiftData no aparelho, com backup automático em `.md` no app Arquivos.
+Notas em SwiftData no aparelho, com um espelho legível em `.md` no app Arquivos
+(e numa pasta sua, se escolher). O espelho leva as notas abertas e os metadados
+das protegidas; importado de volta, mantém a identidade e não duplica. Não leva
+Trabalhos, anexos nem versões: a cópia completa do caderno é o backup do iPhone.
+Se a cópia em `.md` parar de gravar, o Perfil diz desde quando.
 As revisões espaçadas são notificações locais. Rotas de IA podem falar direto
 com a xAI usando a conta Grok do autor (Keychain) ou usar Apple Intelligence
 quando disponível. Não há backend próprio a hospedar. O fallback depende da

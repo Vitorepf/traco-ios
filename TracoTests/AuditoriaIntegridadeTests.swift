@@ -160,3 +160,28 @@ struct AuditoriaIntegridadeTests {
         #expect(!LenteView.cortada(.responderNasNotas))
     }
 }
+
+/// A cópia em .md volta ao caderno sem duplicar nem perder a identidade.
+@MainActor
+struct CopiaVoltaAoCadernoTests {
+    @Test func importarACopiaDuasVezesNaoDuplicaEMantemOId() throws {
+        let origem = try ModelContainer.traco(emMemoria: true)
+        let nota = Nota(texto: "decidi subir o preço", gesto: .woop, campos: ["obstaculo": "medo"])
+        nota.dominio = .trabalho
+        nota.editadaEm = Date(timeIntervalSince1970: 1_000_000)
+        origem.mainContext.insert(nota)
+        try origem.mainContext.save()
+        let md = Corpus.arquivoMd(FatiaCorpus.de(nota))
+
+        let destino = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        #expect(s.importarCorpus(Corpus.importar(md), no: destino.mainContext, anunciar: false) == 1)
+        #expect(s.importarCorpus(Corpus.importar(md), no: destino.mainContext, anunciar: false) == 0)
+        let voltou = try #require(try destino.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(try destino.mainContext.fetch(FetchDescriptor<Nota>()).count == 1)
+        #expect(voltou.uuid == nota.uuid)
+        #expect(voltou.editadaEm == nota.editadaEm)
+        #expect(voltou.dominio == .trabalho)
+        #expect(voltou.campos["obstaculo"] == "medo")
+    }
+}

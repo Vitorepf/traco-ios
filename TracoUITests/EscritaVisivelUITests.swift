@@ -6,7 +6,7 @@ import XCTest
 /// teste por arquivos-sinal em `/tmp/v12e/`: o teste escreve `<fase>.pronto`
 /// quando a tela está no estado, e espera `<fase>.segue` para continuar.
 /// Roteiro: página nova → texto maior que o papel (a forma veste sozinha) →
-/// três letras no fim → três letras no MEIO → "Abrir os campos".
+/// três letras no fim → três letras no MEIO (a folha dos campos saiu em 14/09).
 ///
 /// V12-F: cartão e "Abrir os campos" são PRÉ-CONDIÇÕES que falham, nunca
 /// estados aceitáveis. O re-G3 da V12-E apanhou este teste a passar verde sem
@@ -71,19 +71,9 @@ import XCTest
             return
         }
         guard exigir(cartao, "o cartão da forma não está na tela — o caminho do A1 começa nele") else { return }
-        if tamanho != nil {
-            // em AX as saídas vivem no menu da própria linha do cartão
-            cartao.tap()
-            sleep(1)
-        }
-        let abrir = app.buttons.matching(NSPredicate(format: "identifier == 'abrir-campos' OR label == 'Abrir os campos'")).firstMatch
-        guard exigir(abrir, "o botão \"Abrir os campos\" não está na tela — sem o toque não há A1") else { return }
+        // 14/09 (9be69966): "Abrir os campos" saiu — a forma vestida já mostra
+        // os campos no papel; não há folha a abrir nem transição a filmar
         sinal("gravar")
-        abrir.tap()
-        sleep(3)
-        let folha = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'forma-'")).firstMatch
-        guard exigir(folha, "a folha dos campos não abriu depois do toque", prazo: 2) else { return }
-        sinal("aberto")
     }
 
     /// V12-G (B1 do re-G4): o pé INTEIRO acima do teclado, medido em pontos

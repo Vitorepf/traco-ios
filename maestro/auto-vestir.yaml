@@ -15,8 +15,6 @@ appId: app.traco
     timeout: 6000
 - assertVisible: "quero correr de manhã"
 # o cartão é a porta: um toque abre a folha dos campos
-- tapOn:
-    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "forma-woop"

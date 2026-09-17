@@ -6,9 +6,8 @@ appId: app.traco
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
-    visible: {id: "abrir-campos"}
+    visible: {id: "soltar-forma"}
     timeout: 25000
-- tapOn: {id: "abrir-campos"}
 - extendedWaitUntil:
     visible: {id: "forma-woop"}
     timeout: 5000

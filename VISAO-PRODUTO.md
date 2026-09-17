@@ -27,13 +27,13 @@ Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço po
 
 **O diferencial fica em cima da base.** A decisão que você escreve encontra, na hora e com a fonte, o que seus mestres disseram, e depois é confrontada com o que de fato aconteceu. Nenhum dos seis tipos faz isso sozinho, porque nenhum junta a sua escrita, o acervo dos mestres e o resultado. Nome sugerido para a categoria: **um conselho de mestres que vive no seu caderno.**
 
-**Estado em 16/09/2026 (datado, não certificado):**
-- *Caderno:* forte — 28 formas reconhecidas sem menu.
-- *Segundo cérebro:* responder com as suas notas funciona com a conta Grok, citando de qual nota veio; ligações só manuais (`[[título]]`); «sugerir notas parecidas» (rota `ecos`) está **cortada por qualidade** e volta a ser medida na entrega E6 (`ferramentas/orca/PROMPT-LIDER-CONSELHO.md`); não há mapa de ligações.
-- *Biblioteca:* 75 regras conferidas de Hormozi e Lenny; o Grok escolhe a regra certa em 38 de 40 (ADR 16g).
-- *Diário de decisões:* a Decisão cobra a conferência na data e o resultado ajusta as regras (ADR 16e).
-- *Tutor:* instigar e contrapor seguem cortados por qualidade (ADR 08q).
-- *Fazer:* Calendário é a parte mais polida (dia, semana, mês, ano, widget, avisos); Trabalho tem spec, versões e entregas. Os cinco primeiros ajudam a pensar e decidir; o sexto transforma em ação — nenhum dos dois é congelado (dono, 16/09).
+**Estado em 17/09/2026 (datado, não certificado; quem responde cada operação de IA está na tabela de `Traco/Analise/Politica.swift`, que vence este parágrafo):**
+- *Caderno:* forte — 28 formas reconhecidas sem menu; os campos da forma vestida aparecem no próprio papel.
+- *Segundo cérebro:* responder com as suas notas funciona com a conta Grok, citando de qual nota veio; «Notas ligadas» (rota `ecos`) **voltou em 17/09** por medida (E6) e sugere, o autor liga com um toque; a busca pelo sentido não existe no iPhone (sem modelo de frases em português no aparelho) e cai nas palavras; não há mapa de ligações.
+- *Biblioteca:* 75 regras conferidas de Hormozi e Lenny; o Grok escolhe a regra certa em 38 de 40 (ADR 16g). A obra importada não aparece na lista nem na busca: só surge citada numa resposta.
+- *Diário de decisões:* a Decisão cobra a conferência na data e o resultado ajusta as regras (ADR 16e); nenhuma tela mostra ainda esse ajuste, e ler o juízo pela IA (calibragem) segue cortado.
+- *Tutor:* instigar, contrapor, responder à pergunta dentro da nota, a pergunta do Recordar e a calibragem seguem cortados por qualidade (ADR 08q, remedidos em 17/09); a Lente não os oferece como botão. A ajuda de tutor que funciona é a prática dentro do Trabalho.
+- *Fazer:* Calendário é a parte mais polida (dia, semana, mês, ano, widget, avisos); Trabalho tem spec, versões e entregas, mas a jornada completa (intenção → artefato → ação → evidência → ajuste) ainda não foi feita com uso real. Os cinco primeiros ajudam a pensar e decidir; o sexto transforma em ação — nenhum dos dois é congelado (dono, 16/09).
 
 Uma mudança que fortalece só um tipo isolado, sem ligá-lo aos outros, tende a copiar um concorrente. A que aproxima dois tipos — a nota que encontra o mestre, a decisão que volta com o resultado — é a que só o Traço pode fazer.
 

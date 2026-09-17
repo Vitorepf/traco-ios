@@ -17,4 +17,4 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "Deixar como nota"
     timeout: 8000
-- assertVisible: {id: "abrir-campos"}
+- assertVisible: {id: "soltar-forma"}

@@ -300,7 +300,12 @@ enum Corpus {
 
     /// O que um .md traz para dentro. A `origem` diz quem escreveu (ADR 08u):
     /// ausente no cabeçalho = o autor.
-    typealias ItemImportado = (texto: String, gestoNome: String?, criadaEm: Date, origem: OrigemNota)
+    /// `id`, `editadaEm` e `dominioNome` vêm do cabeçalho que o próprio Traço
+    /// escreve: sem eles, importar a cópia devolvia notas com identidade nova
+    /// (versões, juntas e Trabalhos perdiam o vínculo) e importar duas vezes
+    /// duplicava o caderno (auditoria 17/09).
+    typealias ItemImportado = (texto: String, gestoNome: String?, criadaEm: Date, origem: OrigemNota,
+                               id: UUID?, editadaEm: Date?, dominioNome: String?)
 
     /// REGRA DO SELO: import JAMAIS cria nota trancada.
     nonisolated static func importar(_ conteudo: String) -> [ItemImportado] {
@@ -346,7 +351,7 @@ enum Corpus {
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
             if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false, 0) }
-            return ([(limpo, nil, .now, pareceObra(limpo) ? .obraSuposta : .autor)], true, 1)
+            return ([(limpo, nil, .now, pareceObra(limpo) ? .obraSuposta : .autor, nil, nil, nil)], true, 1)
         }
         let tinta = comTinta(conteudo)
         var saida: [ItemImportado] = []
@@ -388,7 +393,17 @@ enum Corpus {
             // vira id: texto livre de um .md alheio não entra como forma.
             let gestoNome = idDoMetodo
                 ?? nomeDoGesto.flatMap { Gesto.doNome($0)?.conhecido == true ? $0 : nil }
-            saida.append((corpo, gestoNome, data, origem))
+            // lidos só do cabeçalho; não mudam a delimitação (ADR 09y)
+            func valor(_ chave: String) -> String? {
+                cabecalho.split(whereSeparator: \.isNewline).lazy
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .first { $0.hasPrefix(chave + ": ") }
+                    .map { String($0.dropFirst(chave.count + 2)).trimmingCharacters(in: .whitespaces) }
+            }
+            saida.append((corpo, gestoNome, data, origem,
+                          valor("id").flatMap(UUID.init(uuidString:)),
+                          valor("editada").flatMap(f.date(from:)),
+                          valor("dominio")))
             // A conta fecha-se sozinha SÓ PARA `continue`, e por construção:
             // esta linha é a ÚLTIMA do corpo do laço, então todo caminho que
             // pula o bloco deixa a conta curta sem bookkeeping por ramo.
@@ -626,8 +641,25 @@ enum Corpus {
     nonisolated static func escreverSeMudou(_ dados: Data?, em alvo: URL) -> Bool {
         guard let dados else { return false }
         if let atual = try? Data(contentsOf: alvo), atual == dados { return false }
-        try? dados.write(to: alvo, options: .atomic)
-        return true
+        do {
+            try dados.write(to: alvo, options: .atomic)
+            PastaEspelho.defaults.removeObject(forKey: chaveFalhaDaCopia)
+            return true
+        } catch {
+            // disco cheio, pasta sem permissão: a cópia parou de andar, e o
+            // Perfil diz desde quando (a escrita do autor no caderno está intacta)
+            if PastaEspelho.defaults.object(forKey: chaveFalhaDaCopia) == nil {
+                PastaEspelho.defaults.set(Date(), forKey: chaveFalhaDaCopia)
+            }
+            return false
+        }
+    }
+
+    nonisolated static let chaveFalhaDaCopia = "espelho-falhou-em"
+
+    /// Desde quando a cópia em .md não consegue gravar. `nil` = gravando.
+    static var copiaFalhouEm: Date? {
+        PastaEspelho.defaults.object(forKey: chaveFalhaDaCopia) as? Date
     }
 
     static func escrever(fatias: [FatiaCorpus], em raiz: URL, soOsMeus: Bool = false, geracao g: Int = 0) {

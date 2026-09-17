@@ -3,7 +3,6 @@ import SwiftUI
 struct CartaoAnaliseView: View {
     let cartao: CartaoAnalisar
     let sessao: Sessao
-    var aoAbrirCampos: (() -> Void)?
     /// O autor está a ESCREVER (teclado de pé). Aí a página é dele: o cartão
     /// vale uma linha, e a prosa abre a um toque (ADR 05y, correção do G4).
     var recolhido = false

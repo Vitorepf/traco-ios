@@ -243,7 +243,8 @@ struct IntegridadeRotasTests {
         try isolado { _ in
             let c = try ModelContainer.traco(emMemoria: true)
             let s = Sessao()
-            let itens: [Corpus.ItemImportado] = [(texto: "veio de um .md", gestoNome: nil, criadaEm: Date(), origem: .autor)]
+            let itens: [Corpus.ItemImportado] = [(texto: "veio de um .md", gestoNome: nil, criadaEm: Date(), origem: .autor,
+                                                  id: nil, editadaEm: nil, dominioNome: nil)]
             s.persistirNoDisco = { _ in throw Recusa.disco }
             #expect(s.importarCorpus(itens, no: c.mainContext) == 0)
             #expect(s.toast?.contains("importada") != true)
