@@ -453,9 +453,10 @@ enum AvaliacaoIA {
             // e some sem deixar rastro. O retorno BRUTO viaja em
             // `chamadasGrok[].bruto`: sem ele a medida conta o que sobrou da nossa
             // guarda e chama isso de "o modelo".
-            return try exigir(await Sabia.instigar(texto: texto, gesto: gesto, degrau: e.degrau ?? 0, retrato: e.retrato ?? ""))
+            // E8: o texto vai como a produção o manda (`Caderno.prosa`, Sessao e LenteView) — em 10/09 ia cru
+            return try exigir(await Sabia.instigar(texto: Caderno.prosa(de: texto), gesto: gesto, degrau: e.degrau ?? 0, retrato: e.retrato ?? ""))
         case "contrapor":
-            let r = try exigir(await Sabia.contrapor(texto: texto, gesto: gesto, retrato: e.retrato ?? ""))
+            let r = try exigir(await Sabia.contrapor(texto: Caderno.prosa(de: texto), gesto: gesto, retrato: e.retrato ?? ""))
             return ["contra": r.contra, "foraDaLista": r.foraDaLista, "outroCampo": r.outroCampo]
         case "vestir":
             let blocos = e.itens ?? Sabia.blocos(texto)

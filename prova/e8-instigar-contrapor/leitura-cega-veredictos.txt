@@ -1,0 +1,103 @@
+# instigar/contrapor (grok-4.5, corrida 77158A03): dois leitores cegos, itens embaralhados; chave em leitura-cega-chave.json
+V001 CUMPRE
+V002 CUMPRE
+V003 NÃO gênero: «estiver enganada»
+V004 CUMPRE
+V005 CUMPRE
+V006 NÃO invenção: analogia histórica como fato
+V007 NÃO gênero: «que ela fixou»; analogia histórica
+V008 CUMPRE
+V009 CUMPRE
+V010 NÃO requisito: não reconhece que a razão sustenta a escolha
+V011 CUMPRE
+V012 NÃO gênero: «que ela fixou»
+V013 NÃO gênero: «que ela usa»
+V014 NÃO gênero: «ela mesma usou»
+V015 CUMPRE
+V016 NÃO pergunta já respondida: o que seria dar certo
+V017 CUMPRE
+V018 CUMPRE
+V019 NÃO gênero: «sozinha»
+V020 CUMPRE
+V021 CUMPRE
+V022 NÃO gênero: «que ela fixou»
+V023 NÃO invenção: analogia do GPS como fato
+V024 NÃO gênero: «estiver enganada»
+V025 NÃO pergunta já respondida: o critério
+V026 CUMPRE
+V027 CUMPRE
+V028 CUMPRE
+V029 CUMPRE
+V030 CUMPRE
+V031 NÃO gênero: «sozinho»
+V032 CUMPRE
+V033 CUMPRE
+V034 CUMPRE
+V035 CUMPRE
+V036 CUMPRE
+V037 CUMPRE
+V038 CUMPRE
+V039 NÃO invenção: analogia do GPS como fato
+V040 CUMPRE
+V041 CUMPRE
+V042 CUMPRE
+V043 CUMPRE
+V044 CUMPRE
+V045 CUMPRE
+V046 CUMPRE
+V047 CUMPRE
+V048 NÃO gênero: «ela mesma descreveu»
+V049 CUMPRE
+V050 NÃO gênero: «que ela fixou»
+V051 NÃO invenção: analogia da calculadora como fato
+V052 CUMPRE
+V053 CUMPRE
+V054 CUMPRE
+V055 CUMPRE
+V056 CUMPRE
+V057 CUMPRE
+V058 CUMPRE
+V059 CUMPRE
+V060 CUMPRE
+V061 NÃO requisito: andaime «passo básico»
+V062 CUMPRE
+V063 NÃO substituto do que falta: ensaio numa réplica
+V064 CUMPRE
+V065 CUMPRE
+V066 CUMPRE
+V067 CUMPRE
+V068 CUMPRE
+V069 NÃO invenção: distância e horário que a nota tirou
+V070 NÃO requisito: andaime «passo básico»
+V071 NÃO gênero: «enganada… sozinha»
+V072 CUMPRE
+V073 CUMPRE
+V074 NÃO requisito: contra vazio
+V075 CUMPRE
+V076 CUMPRE
+V077 NÃO requisito: não contrapõe o tudo ou nada
+V078 CUMPRE
+V079 CUMPRE
+V080 CUMPRE
+V081 CUMPRE
+V082 CUMPRE
+V083 CUMPRE
+V084 CUMPRE
+V085 CUMPRE
+V086 NÃO invenção: preço, distância e horário descartados
+V087 NÃO invenção: analogia histórica como fato
+V088 CUMPRE
+V089 CUMPRE
+V090 NÃO gênero: «ela própria fixou»
+V091 CUMPRE
+V092 CUMPRE
+V093 CUMPRE
+V094 NÃO invenção: analogia do GPS como fato
+V095 CUMPRE
+V096 CUMPRE
+V097 CUMPRE
+V098 CUMPRE
+V099 CUMPRE
+V100 NÃO gênero: «ela mesma isolou»
+V101 CUMPRE
+V102 CUMPRE

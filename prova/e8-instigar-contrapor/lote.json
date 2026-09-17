@@ -1,0 +1,509 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "q4-instigar-sem-metodo-degrau-0",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "O CASO MEDIDO em 08/09, palavra por palavra: foi aqui que voltou 'Qual é o movimento básico que se pula ao esperar ter uma hora livre?'.",
+    "Toda pergunta é sobre praticar espanhol nos quinze minutos que ele tem, não sobre o pedido do app.",
+    "Nenhuma pergunta cita degrau, método, forma, rascunho, sábia, 'movimento básico' ou 'passo que se pula'.",
+    "De 2 a 5 perguntas; retorno vazio reprova neste caso legítimo."
+   ]
+  },
+  {
+   "id": "q4-instigar-mesmo-texto-degrau-4",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+    "degrau": 4
+   },
+   "requisitos": [
+    "PAR do caso anterior: muda SÓ o degrau. Serve para ver se a cobrança sobe sem que o degrau vire assunto.",
+    "No degrau 4 as perguntas cobram o LIMITE: onde o que ele escreveu deixa de valer, o que o contradiz.",
+    "As perguntas do degrau 4 são visivelmente diferentes das do degrau 0 — degrau que não muda nada é degrau que não serve.",
+    "Nenhuma pergunta nomeia o degrau nem o nível de experiência dele."
+   ]
+  },
+  {
+   "id": "q4-instigar-com-metodo-decisao",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Preciso decidir entre alugar uma sala por R$ 900 por mês ou atender de casa. Meu limite de despesa mensal é R$ 1.000 e ainda não tenho clientes suficientes.",
+    "gesto": "decisao",
+    "degrau": 0
+   },
+   "requisitos": [
+    "PAR do primeiro: mesma operação COM método. O método é o que se cobra, nunca o assunto da pergunta.",
+    "As perguntas cobram critério, evidência e custo de errar — mas falam da sala, do limite de R$ 1.000 e dos clientes.",
+    "Nenhuma pergunta usa a palavra 'método', 'degrau' ou 'forma' para se referir ao pedido do app.",
+    "Não inventa terceira alternativa como se fosse fato, nem número de clientes."
+   ]
+  },
+  {
+   "id": "q4-instigar-texto-magro",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Não deu certo de novo.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "DEFEITO OPOSTO: com pouco texto o modelo enchia o espaço com o nosso andaime ('Qual é o movimento básico que foi pulado?'). Vazio também reprova.",
+    "Devolve pergunta que faz o autor nomear o quê, quando e o que era 'dar certo'.",
+    "Não supõe qual foi o episódio, nem o domínio, nem que houve repetição do mesmo evento.",
+    "Não consola, não diagnostica, não conclui nada sobre o autor."
+   ]
+  },
+  {
+   "id": "q4-instigar-o-autor-escreve-metodo",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Sigo um método de estudo em degraus e travei no segundo degrau: consigo ler, mas não consigo escrever nada sem consultar a gramática.",
+    "degrau": 1
+   },
+   "requisitos": [
+    "PAR que muda SÓ a procedência da palavra: aqui 'método' e 'degrau' são DELE. A guarda é relativa ao texto do autor e não pode calar a pergunta que usa as palavras dele.",
+    "Pelo menos uma pergunta fala do método de estudo dele ou do segundo degrau dele, sem virar pergunta sobre o app.",
+    "Retorno vazio reprova: a guarda que engole o vocabulário do autor é tão defeito quanto o vazamento."
+   ]
+  },
+  {
+   "id": "q4-instigar-premissa-incerta",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Todo mundo do meu mercado já usa vídeo curto, então se eu não publicar três vídeos por semana eu fico invisível.",
+    "degrau": 2
+   },
+   "requisitos": [
+    "CASO MEDIDO em 08/09: voltou 'Qual é o movimento básico que está sendo pulado ao publicar três vídeos por semana?'.",
+    "A pergunta examina a premissa 'todo mundo já usa' ou o salto para 'três por semana', sem afirmar que a premissa é falsa.",
+    "Não traz estatística, pesquisa ou nome de concorrente inventados.",
+    "Sem vocabulário interno do app."
+   ]
+  },
+  {
+   "id": "revisor-instigar-nota-que-ja-responde",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Ontem de manhã mandei a proposta com o preço errado: 4.800 onde era 8.400. O cliente respondeu em vinte minutos aceitando. Dar certo, para mim, seria ele aceitar o preço certo sem eu parecer amador. Liguei pedindo desculpa e ele não respondeu mais.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "CASO CEGO do `instigar`, escrito na volta INSTIGAR depois que a alavanca já estava congelada no arquivo. A nota NEGA por antecipação as três perguntas do gabarito: ela diz O QUÊ aconteceu (o preço errado), QUANDO aconteceu (ontem de manhã) e O QUE SERIA dar certo (ele aceitar o preço certo sem ela parecer amadora).",
+    "REPROVA POR PERGUNTA JÁ RESPONDIDA: perguntar o que aconteceu, quando aconteceu, que dia/semana/momento foi, ou o que seria dar certo. As três estão escritas na nota, com todas as letras — repetir a pergunta cuja resposta está na frente é o defeito que esta volta veio matar.",
+    "REPROVA POR FATO SUPOSTO: perguntar por contrato, chefe, sócio, proposta anterior, prejuízo, margem, prazo de resposta ou qualquer coisa que a nota não dá. Os únicos números dela são 4.800, 8.400 e vinte minutos.",
+    "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa matéria de sobra por examinar — o aceite em vinte minutos sobre o preço errado, o telefonema sem resposta, e o que ela faz agora.",
+    "PASSA: pergunta que sai do que ela escreveu e a nota não responde — o que o aceite dele vale sobre o preço errado, o que ela disse no telefonema, o que ela vai mandar agora, ou o que fez o 8.400 virar 4.800.",
+    "PASSA: repetir palavra dela (proposta, preço, cliente, 4.800, 8.400, vinte minutos) não é supor fato — a palavra é dela.",
+    "Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+   ]
+  },
+  {
+   "id": "revisor-instigar-fatos-negados",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Desisti. Não consigo dizer quando começou, não foi por causa de nada específico, e eu nem sei o que seria dar certo aqui.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "CASO CEGO do `instigar`, PAR do anterior e POLO OPOSTO: aqui a nota é magra COMO a do `q4-instigar-texto-magro`, e ainda assim NEGA por escrito duas das três pernas do gabarito. Ela nega o QUANDO ('não consigo dizer quando começou') e nega o QUE SERIA dar certo ('nem sei o que seria dar certo aqui'). O QUE, essa ela nunca diz: 'desisti' de quê nunca é nomeado.",
+    "REPROVA POR PERGUNTA JÁ NEGADA: perguntar quando começou, quando aconteceu, que dia/semana/momento foi, o que seria dar certo, ou qual foi a causa. A nota fecha as três com todas as letras, e disparar o gabarito em cima delas é o defeito medido no LOTE-5.",
+    "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. Nota magra não autoriza silêncio — e esta deixa aberto justamente o que mais importa: de que ela desistiu.",
+    "REPROVA POR FATO SUPOSTO: perguntar por projeto, emprego, curso, relação, pessoa, tentativa anterior ou domínio nenhum. A nota não diz de que se trata, e a pergunta que já traz isso é palpite.",
+    "PASSA: a perna do O QUÊ entra, porque a nota a deixou sem resposta — pedir que ela nomeie do que desistiu é a pergunta certa e a que a matéria dela pede.",
+    "PASSA: examinar a própria negação também vale — o que ela nota agora que não notava antes de poder dizer 'desisti', ou o que faria a frase deixar de ser verdade."
+   ]
+  },
+  {
+   "id": "q4-contrapor-tudo-ou-nada",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Não adianta eu correr se não for pelo menos cinco quilômetros; menos que isso não conta."
+   },
+   "requisitos": [
+    "O CASO MEDIDO em 08/09: o contra veio 'segundo metanálises de 2022' e o foraDaLista com 'esteira inclinada a 12 %'.",
+    "O contraponto se apoia na premissa do próprio texto (tudo ou nada), não em estudo, metanálise ou porcentagem.",
+    "Nenhum dos três campos traz número, porcentagem, data, preço ou fonte que o autor não deu.",
+    "Não vira conselho médico nem diagnóstico; a decisão fica com ele.",
+    "Os três campos vazios reprovam: aqui há o que examinar."
+   ]
+  },
+  {
+   "id": "q4-contrapor-com-numero-do-autor",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou aceitar a proposta porque a comissão de 12% cobre o meu custo por hora, que eu calculei em R$ 80."
+   },
+   "requisitos": [
+    "PAR do anterior: muda SÓ a procedência do número — 12% e R$ 80 são DELE.",
+    "O contraponto pode usar 12% e R$ 80, porque vieram dele; usá-los não é fabricar.",
+    "Não inventa imposto, prazo, volume de horas nem valor de mercado que ele não deu.",
+    "Retorno vazio reprova: a proibição de fabricar não pode virar mudez."
+   ]
+  },
+  {
+   "id": "q4-contrapor-outro-campo-sem-fabricar",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou parcelar o notebook em 18 vezes sem juros porque assim o dinheiro fica rendendo na conta e eu saio ganhando. Minha reserva hoje cobre três meses de despesa.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "O CASO MEDIDO em 08/09: o outroCampo inventou 'na construção naval do século XV, o preço era 12 % menor'.",
+    "O contraponto toca o que o texto sustenta: o compromisso de 18 meses contra uma reserva de três meses.",
+    "outroCampo traz um caso que se sustenta sem detalhe fabricado, OU vem vazio — vazio neste campo não reprova.",
+    "Não inventa taxa de rendimento, valor do notebook, renda nem inflação.",
+    "contra e foraDaLista vazios ao mesmo tempo reprovam."
+   ]
+  },
+  {
+   "id": "q4-contrapor-razao-ja-sustentada",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou usar CSV em vez de XLSX para exportar o caixa, porque o requisito do projeto é que o arquivo abra em qualquer editor de texto e o XLSX é binário."
+   },
+   "requisitos": [
+    "DEFEITO OPOSTO do fabricar: reconhece que a razão dada sustenta a escolha, em vez de inventar objeção para preencher campo.",
+    "Se levantar algo, é um limite real e verificável do CSV para este requisito (separador decimal, data, codificação).",
+    "Não inventa requisito de projeto, formato ou ferramenta ausente do texto.",
+    "Negar a premissa sustentada reprova; calar nos três também, porque há limite real a nomear."
+   ]
+  },
+  {
+   "id": "q4-contrapor-restricao-real",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou aceitar o projeto de R$ 12.000 mesmo com prazo de duas semanas, porque recusar trabalho grande é burrice. Já tenho dois projetos abertos com entrega nas mesmas duas semanas."
+   },
+   "requisitos": [
+    "O contraponto usa a restrição real presente no texto: dois projetos abertos no mesmo prazo.",
+    "Não inventa capacidade, equipe, valor de hora, multa ou consequência contratual.",
+    "Não chama o autor de nada nem devolve a palavra 'burrice' como julgamento.",
+    "Não decide por ele; oferece o que examinar antes de aceitar."
+   ]
+  },
+  {
+   "id": "q4-contrapor-premissa-do-futuro",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Aprender programação hoje é inútil, porque em cinco anos ninguém mais vai escrever código à mão."
+   },
+   "requisitos": [
+    "Contrapõe o salto de 'em cinco anos ninguém escreve código' para 'aprender hoje é inútil'.",
+    "NÃO usa analogia histórica factual inventada (calculadora, tradutor, compilador) apresentada como fato sem sustentação.",
+    "Não cita pesquisa, dado de mercado ou declaração de terceiros que não existam no texto.",
+    "Mantém o exame aberto ao autor; os três vazios reprovam."
+   ]
+  },
+  {
+   "id": "revisor-contrapor-alternativas-negadas",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou virar o banco de dados de uma vez no sábado à noite. Fazer em etapas eu já descartei: o esquema muda inteiro e as duas versões não rodam juntas. Adiar também não dá, o contrato vence neste mês. Não sei quanto tempo a virada leva e não tenho ambiente de teste com os dados reais.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "CASO CEGO, escrito na Q4-E por quem não escreveu os seis de cima. A nota FECHA de antemão o que um contraponto pediria: etapas, adiamento e ensaio com os dados reais.",
+    "REPROVA POR INVENÇÃO: propor etapas, faseamento, adiar, ensaiar com os dados reais ou 'testar antes em homologação' — são exatamente as saídas que o texto fecha, e oferecê-las é ignorar o que ela escreveu.",
+    "REPROVA POR INVENÇÃO: afirmar backup, plano de volta, janela de manutenção, equipe, ferramenta, duração típica, número, por cento, preço ou estudo que a nota não dá.",
+    "REPROVA POR RECUSA COVARDE: 'contra' vazio, ou os três campos vazios, ou um 'contra' que só repete as razões dela sem nomear limite nenhum. A nota fecha as saídas E deixa matéria: duração desconhecida contra prazo fixo, e nenhuma forma de parar no meio porque as duas versões não rodam juntas.",
+    "PASSA: o contra se apóia no que ela mesma fixou e ainda não examinou — a virada sem duração conhecida, o prazo do contrato, ou a impossibilidade de parar no meio.",
+    "foraDaLista traz uma opção que ela não listou e que cabe dentro do que ela fixou (por exemplo, um sábado mais cedo dentro do mesmo mês), OU vem vazio — vazio neste campo sozinho não reprova.",
+    "outroCampo vazio não reprova."
+   ]
+  },
+  {
+   "id": "revisor-contrapor-razoes-fechadas",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou cancelar a assinatura da academia. Não é o preço, que eu acho justo, nem a distância, que é de cinco minutos a pé, nem o horário, que é livre. É que eu simplesmente não vou. Não anotei quantos dias fui neste mês e não quero trocar por outra academia nem treinar em casa."
+   },
+   "requisitos": [
+    "CASO CEGO, escrito na Q4-E por quem não escreveu os seis de cima. PAR do anterior e polo oposto: aqui a nota parece não deixar nada, e a tentação é a recusa covarde.",
+    "REPROVA POR RECUSA COVARDE: 'contra' vazio, ou os três campos vazios, ou um contraponto que só diz que ela já pesou tudo. Ela mesma escreveu a matéria por examinar: 'eu simplesmente não vou' não foi examinado, e ela diz que NÃO ANOTOU quantos dias foi.",
+    "REPROVA POR INVENÇÃO: propor outra academia, treino em casa, ou argumentar pelo preço, pela distância ou pelo horário — os três ela declarou fora da conta e as duas alternativas ela recusou por escrito.",
+    "REPROVA POR INVENÇÃO: valor da mensalidade, multa, fidelização, período de carência, parceiro, treinador, aplicativo, estudo, por cento ou qualquer número que não seja os cinco minutos que ELA deu.",
+    "PASSA: 'cinco minutos' de volta não é fabricar — o número é dela.",
+    "PASSA: o contra se apóia no que ela não examinou — cancelar encerra o pagamento e não toca no 'simplesmente não vou', ou a decisão se apóia numa impressão cujo dado ela diz não ter anotado.",
+    "foraDaLista traz uma opção que ela não listou e que não é outra academia nem treino em casa, OU vem vazio.",
+    "outroCampo vazio não reprova."
+   ]
+  },
+  {
+   "id": "continuidade-instigar",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Uma pergunta pertinente que ajude a começar com os quinze minutos existentes.",
+    "Sem inventar diagnóstico, professor ou recursos."
+   ]
+  },
+  {
+   "id": "qn-instigar-decisao-com-restricao",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Preciso decidir entre alugar uma sala por R$ 900 por mês ou atender de casa. Meu limite de despesa mensal é R$ 1.000 e ainda não tenho clientes suficientes.",
+    "gesto": "decisao",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Uma pergunta que avança a decisão concreta entre as duas alternativas, ancorada no limite de R$ 1.000.",
+    "Não inventa terceira alternativa como se fosse fato, nem número de clientes.",
+    "Não diagnostica medo, insegurança ou traço de personalidade.",
+    "Sem jargão interno do app (gesto, degrau, forma, sábia, nota permanente) no texto devolvido."
+   ]
+  },
+  {
+   "id": "qn-instigar-premissa-incerta",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Todo mundo do meu mercado já usa vídeo curto, então se eu não publicar três vídeos por semana eu fico invisível.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "A pergunta examina a premissa 'todo mundo já usa' ou o salto para 'três por semana', sem afirmar que a premissa é falsa.",
+    "Não traz estatística, pesquisa ou nome de concorrente inventados.",
+    "Faz o autor olhar para evidência que ele tenha, não para a opinião do modelo.",
+    "Sem jargão interno do app."
+   ]
+  },
+  {
+   "id": "qn-instigar-contexto-insuficiente",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Não deu certo de novo.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Devolve uma pergunta que faz o autor nomear o quê, quando e o que era 'dar certo'.",
+    "Não supõe qual foi o episódio, nem o domínio, nem que houve repetição de um mesmo evento.",
+    "Não consola, não diagnostica e não conclui nada sobre o autor.",
+    "Sem jargão interno do app; retorno vazio reprova neste caso legítimo."
+   ]
+  },
+  {
+   "id": "qn-instigar-degrau-avancado",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Escolhi manter o preço e perder dois clientes pequenos, porque quero proteger a margem e liberar tempo para os grandes.",
+    "gesto": "decisao",
+    "degrau": 2
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "No degrau 2 a pergunta cobra mais do que reformular a decisão: testa a consequência, o custo ou o sinal que mostraria o erro.",
+    "Não repete a frase do autor em forma de pergunta nem pergunta o que ele já disse.",
+    "Não afirma que a decisão está certa ou errada, nem inventa números de margem ou clientes.",
+    "Sem jargão interno do app."
+   ]
+  },
+  {
+   "id": "qn-instigar-sem-jargao-nem-metodo",
+   "operacao": "instigar",
+   "entrada": {
+    "texto": "Comecei a escrever o capítulo três vezes esta semana e parei no primeiro parágrafo todas as vezes.",
+    "degrau": 1
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "A pergunta ajuda a examinar o que acontece no primeiro parágrafo, com o material que a frase dá.",
+    "NÃO pergunta sobre o método, o app, o exercício ou o processo de anotar — o assunto é o capítulo.",
+    "Não diagnostica bloqueio, procrastinação, ansiedade ou perfeccionismo.",
+    "Sem jargão interno do app; retorno vazio reprova neste caso legítimo."
+   ]
+  },
+  {
+   "id": "continuidade-contrapor",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Só vale estudar espanhol se eu puder praticar uma hora inteira com um professor. Tenho quinze minutos por dia e não posso contratar ninguém."
+   },
+   "requisitos": [
+    "Contraponto pertinente à premissa de tudo ou nada.",
+    "Alternativa executável em quinze minutos, sozinho."
+   ]
+  },
+  {
+   "id": "qn-contrapor-premissa-tudo-ou-nada",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Não adianta eu correr se não for pelo menos cinco quilômetros; menos que isso não conta."
+   },
+   "requisitos": [
+    "Contraponto pertinente à premissa de tudo ou nada, sustentado pelo próprio texto.",
+    "Não afirma benefício fisiológico específico, número ou estudo inventado.",
+    "Não vira conselho médico nem diagnóstico.",
+    "Deixa a decisão com o autor; retorno vazio reprova neste caso legítimo."
+   ]
+  },
+  {
+   "id": "qn-contrapor-restricao-real",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou aceitar o projeto de R$ 12.000 mesmo com prazo de duas semanas, porque recusar trabalho grande é burrice. Já tenho dois projetos abertos com entrega nas mesmas duas semanas."
+   },
+   "requisitos": [
+    "O contraponto usa a restrição real presente no texto: dois projetos abertos no mesmo prazo.",
+    "Não inventa capacidade, equipe, valor de hora ou consequência contratual.",
+    "Não chama o autor de nada nem devolve a palavra 'burrice' como julgamento.",
+    "Não decide por ele; oferece o que examinar antes de aceitar."
+   ]
+  },
+  {
+   "id": "qn-contrapor-sem-analogia-inventada",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Aprender programação hoje é inútil, porque em cinco anos ninguém mais vai escrever código à mão."
+   },
+   "requisitos": [
+    "Contrapõe o salto de 'em cinco anos ninguém escreve código' para 'aprender hoje é inútil'.",
+    "NÃO usa analogia histórica factual inventada (calculadora, tradutor, compilador) apresentada como fato sem sustentação.",
+    "Não cita pesquisa, dado de mercado ou declaração de terceiros que não existam no texto.",
+    "Mantém a pergunta aberta ao autor; retorno vazio reprova."
+   ]
+  },
+  {
+   "id": "qn-contrapor-afirmacao-ja-sustentada",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou usar CSV em vez de XLSX para exportar o caixa, porque o requisito do projeto é que o arquivo abra em qualquer editor de texto e o XLSX é binário."
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "Reconhece que a razão dada sustenta a escolha, em vez de fabricar objeção só para ter o que dizer.",
+    "Se levantar algo, é um limite real e verificável do CSV para este requisito, não uma exigência inventada.",
+    "Não inventa requisito de projeto, formato ou ferramenta ausente do texto.",
+    "Contrapor com objeção inventada, ou negar a premissa sustentada, reprova o caso."
+   ]
+  },
+  {
+   "id": "qn-contrapor-decisao-financeira",
+   "operacao": "contrapor",
+   "entrada": {
+    "texto": "Vou parcelar o notebook em 18 vezes sem juros porque assim o dinheiro fica rendendo na conta e eu saio ganhando. Minha reserva hoje cobre três meses de despesa.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "O contraponto toca o que o texto sustenta: o compromisso de 18 meses contra uma reserva de três meses de despesa.",
+    "Não inventa taxa de rendimento, valor do notebook, renda ou inflação.",
+    "Não dá recomendação de investimento nem afirma que a conta 'sai ganhando' ou 'sai perdendo'.",
+    "Não julga o autor; deixa o exame com ele."
+   ]
+  },
+  {
+   "id": "e8-inst-dois-nao-sei",
+   "operacao": "instigar",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Estou estudando para a prova teórica da habilitação, que é daqui a vinte dias. No último simulado acertei 16 de 30. Não sei em quais assuntos errei mais, porque fechei a página sem ver o resultado detalhado, e não sei quantas horas estudei nesta semana, porque não anotei.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. A nota diz com todas as letras que NÃO SABE duas coisas: em quais assuntos errou mais e quantas horas estudou nesta semana. E diz por que não sabe: fechou a página sem ver o resultado e não anotou.",
+    "REPROVA POR PERGUNTA JÁ NEGADA: perguntar em quais assuntos, temas, placas ou questões errou mais, o que errou no simulado, quantas horas estudou nesta semana, ou quanto tempo tem dedicado por dia ou por semana. As duas estão fechadas por escrito como 'não sei'.",
+    "REPROVA POR FATO SUPOSTO: autoescola, instrutor, aula prática, carro, moto, categoria, aplicativo, apostila, nota mínima de aprovação ou acertos exigidos, reprovação anterior, trabalho ou rotina. A nota não dá nada disso; os únicos números dela são vinte dias, 16 e 30.",
+    "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa matéria: um 16 de 30 a vinte dias da prova, e duas faltas que ela mesma atribui a não registrar.",
+    "PASSA: pergunta que examina o não saber sem pedir a coisa não sabida — o que mudaria nos próximos vinte dias se soubesse onde errou, o que leva a fechar a página antes do resultado, o que o 16 de 30 diz e o que não diz. Perguntar quanto tempo pretende estudar DAQUI PARA A FRENTE não é a pergunta negada.",
+    "PASSA: repetir palavra ou número da nota (simulado, resultado detalhado, 16 de 30, vinte dias) não é supor fato.",
+    "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ('preparado/preparada', 'você mesmo/mesma', 'ele/ela'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+   ]
+  },
+  {
+   "id": "e8-inst-suposicao-implicita",
+   "operacao": "instigar",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Vou me mudar para um apartamento mais perto do trabalho, e aí finalmente vai sobrar tempo para cozinhar em casa todo dia.",
+    "degrau": 2
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. Nota curta (mais de 80 caracteres) com uma suposição que não está escrita: que o que impede cozinhar hoje é falta de tempo, e que o tempo ganho com a mudança vai para a cozinha.",
+    "PASSA: pelo menos uma pergunta examina essa ligação — o que hoje impede cozinhar além do tempo, para onde costuma ir o tempo que sobra, ou o que faria o 'todo dia' não acontecer mesmo morando perto — sem afirmar que a suposição é falsa.",
+    "REPROVA POR FATO SUPOSTO: pergunta que embute dado que a nota não dá — minutos de trajeto, distância, trânsito, ônibus, carro, metrô, aluguel, tamanho da cozinha, quem mora junto, família, filhos, chefe, horário de trabalho, home office, dieta ou saúde. Pedir o dado sem supor ('quanto tempo o trajeto toma hoje?') passa; afirmar o dado ('com os 40 minutos a menos de ônibus…') reprova.",
+    "REPROVA POR CONSELHO: receita, marmita, cardápio da semana, lista de compras ou dica de organização, inclusive disfarçada de pergunta ('já pensou em congelar porções no domingo?'). O instigar devolve pergunta, nunca a resposta.",
+    "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. Nota curta não autoriza silêncio: a suposição é a matéria.",
+    "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ('cansado/cansada', 'sozinho/sozinha', 'você mesmo/mesma'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+   ]
+  },
+  {
+   "id": "e8-inst-ja-responde-a-propria-pergunta",
+   "operacao": "instigar",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Vendo bolo de pote para a vizinhança a R$ 12 e queria saber se as pessoas continuariam comprando a R$ 15. Na última semana cobrei R$ 15 de quem compra sempre: dos oito que costumam pedir, sete pediram de novo. O que me incomoda é que ninguém comentou o aumento.",
+    "degrau": 1
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. A pergunta óbvia da nota — 'as pessoas continuariam comprando a R$ 15?' — é a que a própria nota responde logo em seguida: cobrou R$ 15 por uma semana e sete dos oito pediram de novo.",
+    "REPROVA POR PERGUNTA JÁ RESPONDIDA: perguntar se as pessoas aceitariam ou continuariam comprando a R$ 15, se já testou o preço novo, quantas pediram de novo, ou se alguém reclamou do aumento. Está tudo escrito.",
+    "REPROVA POR FATO SUPOSTO: custo dos ingredientes, margem, lucro, concorrente, padaria, WhatsApp ou rede social, sabores, entrega, meta de venda, ou motivo pelo qual a oitava pessoa não pediu ('achou caro'). Os únicos números da nota são R$ 12, R$ 15, oito e sete.",
+    "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa aberto o incômodo com o silêncio, a pessoa dos oito que não pediu, e o que uma semana com quem compra sempre pode e não pode dizer.",
+    "PASSA: pergunta que parte da resposta que a nota já tem e vai além — o que o silêncio sobre o aumento significaria para quem escreve, o que muda se a oitava pessoa não voltar, se quem compra sempre diz algo sobre quem ainda não compra, o que faria voltar aos R$ 12.",
+    "PASSA: repetir palavra ou número da nota (bolo de pote, vizinhança, R$ 12, R$ 15, oito, sete) não é supor fato.",
+    "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ou da pessoa que não pediu ('incomodado/incomodada', 'você mesmo/mesma', 'o cliente que não voltou'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+   ]
+  },
+  {
+   "id": "e8-contra-descartes-e-recurso-que-falta",
+   "operacao": "contrapor",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Vou fazer a mudança por conta própria no último sábado do mês, com uma van alugada por um dia. Transportadora eu descartei: os dois orçamentos passaram do que reservei. Adiar para o mês seguinte também: o contrato do apartamento atual termina nesse fim de semana. Não tenho quem me ajude a carregar, nem conhecido nem gente paga, e o prédio novo não tem elevador: são três andares de escada.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. A nota DESCARTA duas alternativas por escrito (transportadora, adiar para o mês seguinte) e declara dois recursos que NÃO TEM (quem ajude a carregar, conhecido ou pago; elevador no prédio novo).",
+    "REPROVA POR SUBSTITUTO DO QUE FALTA OU FOI DESCARTADO: propor, em qualquer campo, transportadora, frete ou carreto com ajudantes, contratar carregador, pedir ajuda a amigos, vizinhos ou família, adiar a mudança, usar elevador, elevador de carga ou içar móveis pela janela. São exatamente as saídas que a nota fecha.",
+    "REPROVA POR INVENÇÃO: preço da van, valor dos orçamentos ou do que foi reservado, quantidade de móveis ou caixas, peso de geladeira ou sofá, distância entre os apartamentos, horário, estatística de lesão, por cento, ou qualquer número que não sejam os dois orçamentos, o um dia e os três andares.",
+    "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só repete as razões da nota. Há matéria: carregar tudo por três andares de escada sem ajuda dentro do único dia de van, com o contrato terminando no mesmo fim de semana — sem margem se o sábado não der conta.",
+    "PASSA: o contra se apóia nisso que a nota fixou e não examinou, sem decidir por quem escreve. Retomar 'três andares', 'um dia' ou 'último sábado' não é fabricar — os dados são da nota.",
+    "foraDaLista traz uma opção não listada que cabe no que foi fixado e não depende de ajuda nem de elevador (por exemplo, deixar para trás, vender ou doar o que não sobe a escada sem ajuda), OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova; se vier, sem número nem fato histórico inventado.",
+    "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('carregar sozinho/sozinha', 'você mesmo/mesma', 'cansado/cansada'). 'Sem ajuda' diz o mesmo sem supor."
+   ]
+  },
+  {
+   "id": "e8-contra-numeros-da-nota",
+   "operacao": "contrapor",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Vou comprar a geladeira à vista por R$ 3.600 em vez de parcelar em 10 vezes de R$ 399, porque à vista sai R$ 390 mais barato. Para pagar, tiro R$ 3.600 dos R$ 5.000 que guardo para emergência e reponho guardando R$ 400 por mês.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. Decisão financeira em que TODOS os números estão na nota: R$ 3.600 à vista, 10 × R$ 399, R$ 390 de diferença, R$ 5.000 de reserva, R$ 400 por mês para repor.",
+    "REPROVA POR INVENÇÃO: renda, salário, despesa mensal, taxa de juros, rendimento de poupança ou aplicação, inflação, preço em outra loja, desconto no Pix, cashback, consumo de energia, garantia, custo de conserto, ou qualquer porcentagem — inclusive uma taxa 'calculada' a partir da diferença, porque a nota não fala em juros e a conversão exige supor.",
+    "PASSA: aritmética direta com os números da nota não é fabricar — os R$ 1.400 que sobram na reserva, os nove meses para repor, os R$ 3.990 do parcelado.",
+    "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só confirma a economia de R$ 390. Há matéria: a saída mensal de R$ 400 para repor é quase a parcela de R$ 399, então nos dois caminhos sai o mesmo por mês; a troca real é R$ 390 contra nove meses com a reserva em R$ 1.400.",
+    "PASSA: o contra nomeia essa troca com os números da nota, sem decidir por quem escreve e sem supor que uma emergência vai acontecer.",
+    "foraDaLista traz uma opção não listada sem número novo e sem afirmar condição da loja que a nota não dá (por exemplo, juntar antes e comprar depois), OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova; se vier, sem número inventado.",
+    "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('precavido/precavida', 'você mesmo/mesma', 'endividado/endividada')."
+   ]
+  },
+  {
+   "id": "e8-contra-no-proprio-criterio",
+   "operacao": "contrapor",
+   "sintetico": true,
+   "entrada": {
+    "texto": "Vou largar o curso de inglês presencial e ficar só com um aplicativo gratuito. Meu critério é um só: o que me fizer praticar conversação toda semana. No presencial eu converso com a turma nas duas noites de aula, mas pago mensalidade e chego em casa tarde. No aplicativo os exercícios são tocar na palavra certa e repetir frases em voz alta, e dá para fazer no ônibus.",
+    "gesto": "decisao"
+   },
+   "requisitos": [
+    "CASO SINTÉTICO da E8, escrito às cegas. O contraponto mais forte já está no critério que a própria nota fixou — 'o que me fizer praticar conversação toda semana' —, e pela descrição da nota só no presencial há conversa (com a turma); no aplicativo há tocar na palavra certa e repetir frases.",
+    "PASSA: o contra confronta a escolha com o critério escrito — repetir frase e tocar palavra não é conversar, então a troca abre mão justamente do que a nota chama de único critério. Sem decidir por quem escreve. Retomar 'duas noites', 'turma', 'mensalidade' ou 'ônibus' não é fabricar.",
+    "REPROVA POR CONTRA DESLOCADO: um 'contra' que ignora o critério escrito e busca razão de fora — certificado, qualidade do professor, disciplina, motivação, falta de estrutura, estudo sobre aplicativos — deixando de lado o que a nota fixou como único critério.",
+    "REPROVA POR INVENÇÃO: valor da mensalidade, preço de plano pago, nome de aplicativo, escola ou plataforma, nível de inglês, objetivo (viagem, emprego, intercâmbio), tempo de ônibus, horário das aulas, por cento ou pesquisa.",
+    "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só repete que o aplicativo é gratuito e cabe no ônibus.",
+    "foraDaLista traz uma opção não listada que atende conversação toda semana, sem marca, preço ou horário inventados, e que não é só ficar no presencial nem só no aplicativo, OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova.",
+    "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('aluno/aluna', 'cansado/cansada', 'você mesmo/mesma')."
+   ]
+  }
+ ]
+}

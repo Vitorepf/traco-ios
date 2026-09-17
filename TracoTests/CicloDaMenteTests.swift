@@ -177,12 +177,12 @@ private func temp(_ nome: String) -> URL {
         let ok = Sabia.parseContraparte(#"{"contra":"A tese oposta sustenta que o custo de trocar supera o ganho de velocidade.","foraDaLista":"Adiar a escolha um mês e medir o uso real.","outroCampo":"Na aviação, a lista de verificação nasceu de um acidente, não de uma reunião."}"#)
         #expect(ok?.contra.hasPrefix("A tese oposta") == true)
         #expect(ok?.outroCampo.contains("aviação") == true)
-        // instrução é descartada; chave extra e não-JSON derrubam tudo.
+        // instrução é descartada; não-JSON derruba tudo; chave extra é ignorada (varredura das guardas que calam, 17/09).
         // ADR 09s: esvaziada pela guarda é VAZIA, não `nil` — `nil` ficou só
         // para o que não deu para ler.
         let instrucao = Sabia.parseContraparte(#"{"contra":"Você deve reconsiderar a opção A com calma.","foraDaLista":"","outroCampo":""}"#)
         #expect(instrucao?.vazia == true)
-        #expect(Sabia.parseContraparte(#"{"contra":"Uma frase honesta e longa o bastante.","resumo":"x"}"#) == nil)
+        #expect(Sabia.parseContraparte(#"{"contra":"Uma frase honesta e longa o bastante.","resumo":"x"}"#)?.contra == "Uma frase honesta e longa o bastante.")
         #expect(Sabia.parseContraparte("claro! aqui vai") == nil)
     }
 }
@@ -321,6 +321,15 @@ private func temp(_ nome: String) -> URL {
         #expect(r?.outroCampo.contains("aviação") == true)
         // sem texto do autor nada é dele: a guarda fecha, não abre
         #expect(Sabia.parseContraparte(cru, texto: "")?.contra.isEmpty == true)
+    }
+
+    /// Varredura das guardas que calam (17/09): a frase com número ou fato que ele não deu sai;
+    /// a frase que se apoia no que ele escreveu fica no mesmo campo.
+    @Test func sóAFraseAlheiaSaiDoCampo() {
+        let nota = "Vou parcelar o notebook em 18 vezes. Minha reserva cobre três meses de despesa."
+        let cru = #"{"contra":"Parcelar cria obrigação fixa por 18 vezes sobre uma reserva de três meses. A conta rende 0,9% ao mês.","foraDaLista":"","outroCampo":""}"#
+        #expect(Sabia.parseContraparte(cru, texto: nota)?.contra == "Parcelar cria obrigação fixa por 18 vezes sobre uma reserva de três meses.")
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["Por que parcelar em 18 vezes?", 3, null]}"#) == ["Por que parcelar em 18 vezes?"])
     }
 
     @Test func aPorcentagemQueOAutorDeuVolta() {

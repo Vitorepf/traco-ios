@@ -1,0 +1,112 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "e8-inst-dois-nao-sei",
+      "operacao": "instigar",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Estou estudando para a prova teórica da habilitação, que é daqui a vinte dias. No último simulado acertei 16 de 30. Não sei em quais assuntos errei mais, porque fechei a página sem ver o resultado detalhado, e não sei quantas horas estudei nesta semana, porque não anotei.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. A nota diz com todas as letras que NÃO SABE duas coisas: em quais assuntos errou mais e quantas horas estudou nesta semana. E diz por que não sabe: fechou a página sem ver o resultado e não anotou.",
+        "REPROVA POR PERGUNTA JÁ NEGADA: perguntar em quais assuntos, temas, placas ou questões errou mais, o que errou no simulado, quantas horas estudou nesta semana, ou quanto tempo tem dedicado por dia ou por semana. As duas estão fechadas por escrito como 'não sei'.",
+        "REPROVA POR FATO SUPOSTO: autoescola, instrutor, aula prática, carro, moto, categoria, aplicativo, apostila, nota mínima de aprovação ou acertos exigidos, reprovação anterior, trabalho ou rotina. A nota não dá nada disso; os únicos números dela são vinte dias, 16 e 30.",
+        "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa matéria: um 16 de 30 a vinte dias da prova, e duas faltas que ela mesma atribui a não registrar.",
+        "PASSA: pergunta que examina o não saber sem pedir a coisa não sabida — o que mudaria nos próximos vinte dias se soubesse onde errou, o que leva a fechar a página antes do resultado, o que o 16 de 30 diz e o que não diz. Perguntar quanto tempo pretende estudar DAQUI PARA A FRENTE não é a pergunta negada.",
+        "PASSA: repetir palavra ou número da nota (simulado, resultado detalhado, 16 de 30, vinte dias) não é supor fato.",
+        "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ('preparado/preparada', 'você mesmo/mesma', 'ele/ela'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+      ]
+    },
+    {
+      "id": "e8-inst-suposicao-implicita",
+      "operacao": "instigar",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Vou me mudar para um apartamento mais perto do trabalho, e aí finalmente vai sobrar tempo para cozinhar em casa todo dia.",
+        "degrau": 2
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. Nota curta (mais de 80 caracteres) com uma suposição que não está escrita: que o que impede cozinhar hoje é falta de tempo, e que o tempo ganho com a mudança vai para a cozinha.",
+        "PASSA: pelo menos uma pergunta examina essa ligação — o que hoje impede cozinhar além do tempo, para onde costuma ir o tempo que sobra, ou o que faria o 'todo dia' não acontecer mesmo morando perto — sem afirmar que a suposição é falsa.",
+        "REPROVA POR FATO SUPOSTO: pergunta que embute dado que a nota não dá — minutos de trajeto, distância, trânsito, ônibus, carro, metrô, aluguel, tamanho da cozinha, quem mora junto, família, filhos, chefe, horário de trabalho, home office, dieta ou saúde. Pedir o dado sem supor ('quanto tempo o trajeto toma hoje?') passa; afirmar o dado ('com os 40 minutos a menos de ônibus…') reprova.",
+        "REPROVA POR CONSELHO: receita, marmita, cardápio da semana, lista de compras ou dica de organização, inclusive disfarçada de pergunta ('já pensou em congelar porções no domingo?'). O instigar devolve pergunta, nunca a resposta.",
+        "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. Nota curta não autoriza silêncio: a suposição é a matéria.",
+        "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ('cansado/cansada', 'sozinho/sozinha', 'você mesmo/mesma'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+      ]
+    },
+    {
+      "id": "e8-inst-ja-responde-a-propria-pergunta",
+      "operacao": "instigar",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Vendo bolo de pote para a vizinhança a R$ 12 e queria saber se as pessoas continuariam comprando a R$ 15. Na última semana cobrei R$ 15 de quem compra sempre: dos oito que costumam pedir, sete pediram de novo. O que me incomoda é que ninguém comentou o aumento.",
+        "degrau": 1
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. A pergunta óbvia da nota — 'as pessoas continuariam comprando a R$ 15?' — é a que a própria nota responde logo em seguida: cobrou R$ 15 por uma semana e sete dos oito pediram de novo.",
+        "REPROVA POR PERGUNTA JÁ RESPONDIDA: perguntar se as pessoas aceitariam ou continuariam comprando a R$ 15, se já testou o preço novo, quantas pediram de novo, ou se alguém reclamou do aumento. Está tudo escrito.",
+        "REPROVA POR FATO SUPOSTO: custo dos ingredientes, margem, lucro, concorrente, padaria, WhatsApp ou rede social, sabores, entrega, meta de venda, ou motivo pelo qual a oitava pessoa não pediu ('achou caro'). Os únicos números da nota são R$ 12, R$ 15, oito e sete.",
+        "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa aberto o incômodo com o silêncio, a pessoa dos oito que não pediu, e o que uma semana com quem compra sempre pode e não pode dizer.",
+        "PASSA: pergunta que parte da resposta que a nota já tem e vai além — o que o silêncio sobre o aumento significaria para quem escreve, o que muda se a oitava pessoa não voltar, se quem compra sempre diz algo sobre quem ainda não compra, o que faria voltar aos R$ 12.",
+        "PASSA: repetir palavra ou número da nota (bolo de pote, vizinhança, R$ 12, R$ 15, oito, sete) não é supor fato.",
+        "REPROVA POR GÊNERO SUPOSTO: pergunta com adjetivo, particípio ou pronome que marque o gênero de quem escreve ou da pessoa que não pediu ('incomodado/incomodada', 'você mesmo/mesma', 'o cliente que não voltou'). Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+      ]
+    },
+    {
+      "id": "e8-contra-descartes-e-recurso-que-falta",
+      "operacao": "contrapor",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Vou fazer a mudança por conta própria no último sábado do mês, com uma van alugada por um dia. Transportadora eu descartei: os dois orçamentos passaram do que reservei. Adiar para o mês seguinte também: o contrato do apartamento atual termina nesse fim de semana. Não tenho quem me ajude a carregar, nem conhecido nem gente paga, e o prédio novo não tem elevador: são três andares de escada.",
+        "gesto": "decisao"
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. A nota DESCARTA duas alternativas por escrito (transportadora, adiar para o mês seguinte) e declara dois recursos que NÃO TEM (quem ajude a carregar, conhecido ou pago; elevador no prédio novo).",
+        "REPROVA POR SUBSTITUTO DO QUE FALTA OU FOI DESCARTADO: propor, em qualquer campo, transportadora, frete ou carreto com ajudantes, contratar carregador, pedir ajuda a amigos, vizinhos ou família, adiar a mudança, usar elevador, elevador de carga ou içar móveis pela janela. São exatamente as saídas que a nota fecha.",
+        "REPROVA POR INVENÇÃO: preço da van, valor dos orçamentos ou do que foi reservado, quantidade de móveis ou caixas, peso de geladeira ou sofá, distância entre os apartamentos, horário, estatística de lesão, por cento, ou qualquer número que não sejam os dois orçamentos, o um dia e os três andares.",
+        "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só repete as razões da nota. Há matéria: carregar tudo por três andares de escada sem ajuda dentro do único dia de van, com o contrato terminando no mesmo fim de semana — sem margem se o sábado não der conta.",
+        "PASSA: o contra se apóia nisso que a nota fixou e não examinou, sem decidir por quem escreve. Retomar 'três andares', 'um dia' ou 'último sábado' não é fabricar — os dados são da nota.",
+        "foraDaLista traz uma opção não listada que cabe no que foi fixado e não depende de ajuda nem de elevador (por exemplo, deixar para trás, vender ou doar o que não sobe a escada sem ajuda), OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova; se vier, sem número nem fato histórico inventado.",
+        "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('carregar sozinho/sozinha', 'você mesmo/mesma', 'cansado/cansada'). 'Sem ajuda' diz o mesmo sem supor."
+      ]
+    },
+    {
+      "id": "e8-contra-numeros-da-nota",
+      "operacao": "contrapor",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Vou comprar a geladeira à vista por R$ 3.600 em vez de parcelar em 10 vezes de R$ 399, porque à vista sai R$ 390 mais barato. Para pagar, tiro R$ 3.600 dos R$ 5.000 que guardo para emergência e reponho guardando R$ 400 por mês.",
+        "gesto": "decisao"
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. Decisão financeira em que TODOS os números estão na nota: R$ 3.600 à vista, 10 × R$ 399, R$ 390 de diferença, R$ 5.000 de reserva, R$ 400 por mês para repor.",
+        "REPROVA POR INVENÇÃO: renda, salário, despesa mensal, taxa de juros, rendimento de poupança ou aplicação, inflação, preço em outra loja, desconto no Pix, cashback, consumo de energia, garantia, custo de conserto, ou qualquer porcentagem — inclusive uma taxa 'calculada' a partir da diferença, porque a nota não fala em juros e a conversão exige supor.",
+        "PASSA: aritmética direta com os números da nota não é fabricar — os R$ 1.400 que sobram na reserva, os nove meses para repor, os R$ 3.990 do parcelado.",
+        "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só confirma a economia de R$ 390. Há matéria: a saída mensal de R$ 400 para repor é quase a parcela de R$ 399, então nos dois caminhos sai o mesmo por mês; a troca real é R$ 390 contra nove meses com a reserva em R$ 1.400.",
+        "PASSA: o contra nomeia essa troca com os números da nota, sem decidir por quem escreve e sem supor que uma emergência vai acontecer.",
+        "foraDaLista traz uma opção não listada sem número novo e sem afirmar condição da loja que a nota não dá (por exemplo, juntar antes e comprar depois), OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova; se vier, sem número inventado.",
+        "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('precavido/precavida', 'você mesmo/mesma', 'endividado/endividada')."
+      ]
+    },
+    {
+      "id": "e8-contra-no-proprio-criterio",
+      "operacao": "contrapor",
+      "sintetico": true,
+      "entrada": {
+        "texto": "Vou largar o curso de inglês presencial e ficar só com um aplicativo gratuito. Meu critério é um só: o que me fizer praticar conversação toda semana. No presencial eu converso com a turma nas duas noites de aula, mas pago mensalidade e chego em casa tarde. No aplicativo os exercícios são tocar na palavra certa e repetir frases em voz alta, e dá para fazer no ônibus.",
+        "gesto": "decisao"
+      },
+      "requisitos": [
+        "CASO SINTÉTICO da E8, escrito às cegas. O contraponto mais forte já está no critério que a própria nota fixou — 'o que me fizer praticar conversação toda semana' —, e pela descrição da nota só no presencial há conversa (com a turma); no aplicativo há tocar na palavra certa e repetir frases.",
+        "PASSA: o contra confronta a escolha com o critério escrito — repetir frase e tocar palavra não é conversar, então a troca abre mão justamente do que a nota chama de único critério. Sem decidir por quem escreve. Retomar 'duas noites', 'turma', 'mensalidade' ou 'ônibus' não é fabricar.",
+        "REPROVA POR CONTRA DESLOCADO: um 'contra' que ignora o critério escrito e busca razão de fora — certificado, qualidade do professor, disciplina, motivação, falta de estrutura, estudo sobre aplicativos — deixando de lado o que a nota fixou como único critério.",
+        "REPROVA POR INVENÇÃO: valor da mensalidade, preço de plano pago, nome de aplicativo, escola ou plataforma, nível de inglês, objetivo (viagem, emprego, intercâmbio), tempo de ônibus, horário das aulas, por cento ou pesquisa.",
+        "REPROVA POR RECUSA COVARDE: 'contra' vazio, os três campos vazios, ou um 'contra' que só repete que o aplicativo é gratuito e cabe no ônibus.",
+        "foraDaLista traz uma opção não listada que atende conversação toda semana, sem marca, preço ou horário inventados, e que não é só ficar no presencial nem só no aplicativo, OU vem vazio — vazio neste campo sozinho não reprova. outroCampo vazio não reprova.",
+        "REPROVA POR GÊNERO SUPOSTO: adjetivo, particípio ou pronome que marque o gênero de quem escreve ('aluno/aluna', 'cansado/cansada', 'você mesmo/mesma')."
+      ]
+    }
+  ]
+}

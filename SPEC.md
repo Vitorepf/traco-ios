@@ -10596,3 +10596,13 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Não passou (régua 2).** Nas perguntas AMPLAS a leitura cega reprova: (a)+(b) 2 violações em 18; (c)+(d) 3 de 6 casos. Causa, lida no código e nossa: as regras da ampla entraram só no pedido da geração; o texto publicado é o da CONFERÊNCIA, cujo pedido ainda manda "diga o que ESTA consulta contém" — a mecânica ("linhas desta consulta", "nesta seleção") volta ali, com o rótulo das partes e o aviso do pacote. Conserto nomeado, volta 4 autorizada pelo líder: as regras da ampla e da mecânica no pedido da conferência; com leitura guardada, sem o "diga o que esta consulta contém"; o rótulo das partes sem falar do que não veio.
 
 **Dívida.** Gênero por adjetivo ("sentado… destro", 1 em 141) mesmo com o `semGenero` novo — se voltar nas medidas de instigar/contrapor, guarda local com a lista medida (líder). A leitura de nota acima de 400 mil caracteres lê só o começo. `partes` e o ranking rodam no MainActor a cada pergunta, sem cache. BM25 não pesa a data da parte.
+
+## ADR 2026-09-17d — Instigar e contrapor remedidos pelo princípio (E8, volta 1): as guardas deixam de calar; os pedidos ensinavam o gênero
+
+**Causa.** E8: as rotas `instigar` e `contrapor` cortadas por qualidade em 10/09. A varredura das guardas que calam achou duas aqui: `Sabia.parsePerguntas` virava nil com um item que não é texto; `Sabia.parseContraparte` virava nil com uma chave extra e esvaziava o campo inteiro por uma frase com fato ou número que a pessoa não deu.
+
+**Decisão.** `parsePerguntas`: o item que não é texto sai sozinho. `parseContraparte`: chave fora das cinco é ignorada; em cada campo sai só a FRASE com fato ou número alheio. A sonda passa o texto como a produção (`Caderno.prosa`) — em 10/09 ia cru.
+
+**Prova (volta 1).** Air, `grok-4.5` (decisão do líder), `prova/e8-instigar-contrapor/`, régua pré-registrada: a MESMA matriz de cada linha (8 + 8), os 6 + 6 de q-qualidade e 3 + 3 sintéticos, × 3, dois leitores cegos. instigar: cegos 1 de 2, matriz 6 de 8, novos 2 de 3, q-qualidade 5 de 6 (08/09: 1 de 6), gênero 3, 44 de 51. contrapor: cegos 0 de 2, matriz 2 de 8, novos 2 de 3, q-qualidade 0 de 6, gênero 11, 28 de 51. Não passam. Testes: `ContraparteTests` (chave extra ignorada; a frase alheia sai e a do autor fica; item não-texto sai da lista de perguntas).
+
+**Causa nova, nossa.** Os pedidos tratam quem escreve no feminino ("o que ELA escreveu", "que ela fixou") e não levam o `semGenero`; o `outroCampo` pede "um caso de outro campo (… época)" e o modelo afirma fato histórico. Volta 2 autorizada pelo líder: gênero pela raiz em todos os pedidos do app, analogia só marcada, "passo básico" no andaime.

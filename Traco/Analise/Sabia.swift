@@ -1100,16 +1100,25 @@ enum Sabia {
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
         else { return nil }
-        guard Set(j.keys).isSubset(of: ["fechadas", "contra", "foraDaLista", "dependeDe", "outroCampo"])
-        else { return nil }
+        // varredura das guardas que calam (17/09): chave fora das cinco é ignorada, não derruba tudo
         func limpo(_ chave: String) -> String {
-            let t = ((j[chave] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !t.isEmpty else { return "" } // o modelo calou; não é guarda nossa
+            let bruto = ((j[chave] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !bruto.isEmpty else { return "" } // o modelo calou; não é guarda nossa
+            // sai só a FRASE com o fato ou o número que ele não deu; o resto do campo fica
+            var frases: [String] = [], inicio = bruto.startIndex
+            for m in bruto.matches(of: /[.!?…]\s+/) {
+                frases.append(String(bruto[inicio..<m.range.upperBound]))
+                inicio = m.range.upperBound
+            }
+            if inicio < bruto.endIndex { frases.append(String(bruto[inicio...])) }
+            let fato = frases.contains { vazaAlheio($0, termos: fatoQueEleNaoDeu, texto: texto) }
+            let t = frases.filter { !vazaAlheio($0, termos: fatoQueEleNaoDeu, texto: texto) && !numeroAlheio($0, texto: texto) }
+                .joined().trimmingCharacters(in: .whitespacesAndNewlines)
+            // o nome da guarda é o que a sonda conta (`guardasQueApagaram`)
+            guard !t.isEmpty else { return apagou(chave, fato ? "fato que ele não deu" : "número que ele não deu") }
             guard t.count >= 12, t.count <= 320 else { return apagou(chave, "tamanho") }
             let baixo = t.lowercased()
             if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return apagou(chave, "imperativo") }
-            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return apagou(chave, "fato que ele não deu") }
-            if numeroAlheio(t, texto: texto) { return apagou(chave, "número que ele não deu") }
             return AnaliseRemota.umaFrase(t, teto: 280)
         }
         // ADR 2026-09-10d — `fechadas` e `dependeDe` são lidos, conferidos pelo
@@ -1531,8 +1540,10 @@ enum Sabia {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}") else { return nil }
         guard let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
-              let lista = j["perguntas"] as? [String]
+              let bruta = j["perguntas"] as? [Any]
         else { return nil }
+        // varredura das guardas que calam (17/09): um item que não é texto sai; o resto fica
+        let lista = bruta.compactMap { $0 as? String }
         let limpas = lista
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.hasSuffix("?") && $0.count > 8 && $0.count <= 240 }
