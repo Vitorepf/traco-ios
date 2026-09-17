@@ -21,6 +21,8 @@ struct RedeView: View {
     @State private var escolhendo = false
     /// E6 (captura no Air, 17/09): a busca leva 5 a 7 s de rede; calada, a folha parecia pronta.
     @State private var procurandoDesde: Date?
+    /// Captura no Air: a busca vazia sumia sem dizer que procurou. nil = ainda não voltou ou achou.
+    @State private var semEco: (texto: String, estado: LinhaDeEstado.Estado)?
 
     /// Quem pode ser eco: nota de verdade, não esta, não selada, e AINDA NÃO
     /// ligada — o valor está justamente no que a rede não sabe.
@@ -38,7 +40,7 @@ struct RedeView: View {
     }
 
     private func procurarEcos() async {
-        guard Politica.provedor(.ecos) != nil, ecos.isEmpty else { return }
+        guard Politica.provedor(.ecos) != nil, nota.gesto != .expressiva, ecos.isEmpty else { return }
         let jaLigadas = Set(ligacoes.filter { $0.de == nota.uuid || $0.para == nota.uuid }
             .flatMap { [$0.de, $0.para] })
         let cs = montarCandidatas(jaLigadas)
@@ -48,7 +50,10 @@ struct RedeView: View {
         defer { procurandoDesde = nil }
         let achados = await Sabia.ecos(nota: Caderno.prosa(de: nota.texto),
                                        candidatas: cs.map(linha), gesto: nota.gesto)
-        withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { ecos = achados ?? [] }
+        withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { ecos = achados ?? []
+            if achados == nil { semEco = ("a Sábia não conseguiu procurar agora.", .falhou) }
+            else if achados?.isEmpty == true { semEco = ("a Sábia não achou outra nota que se ligue a esta.", .lendo) }
+        }
     }
 
     /// Liga pelo caminho que o autor vê: a nota abre na página com o título da
@@ -211,6 +216,10 @@ struct RedeView: View {
         } else if let desde = procurandoDesde {
             Espera(frase: "a Sábia procura notas que se ligam", desde: desde, identificador: "rede-procurando")
                 .padding(.leading, 4)
+        } else if let semEco {
+            LinhaDeEstado(semEco.texto, semEco.estado)
+                .padding(.leading, 4)
+                .accessibilityIdentifier("rede-sem-eco")
         } else if Politica.provedor(.ecos) == nil, temLigacoes {
             // auditoria 17/09: na folha vazia, a razão da engenharia era ruído;
             // o aviso só aparece onde as sugestões apareceriam, ao lado de ligações
