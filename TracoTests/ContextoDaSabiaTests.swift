@@ -126,7 +126,7 @@ struct ContextoDaSabiaTests {
         let soRetrato = try #require(RespostaNotas.montar(pergunta: "qual o prazo?", fontes: [curta], conversa: [], catalogo: "",
                                                           retrato: String(repeating: "r", count: 15_900), teto: 16_000))
         #expect(soRetrato.fora.contains("retrato: não coube") && soRetrato.notasDoAutorForaInteiras.isEmpty)
-        let cru = #"{"base":"notas","texto":"O prazo é 12/09.","trechoIDs":["№1.1"]}"#
+        let cru = #"{"base":"notas","texto":"O prazo é 12/09.","trechoIDs":["N1T1"]}"#
         let r1 = try #require(RespostaNotas.interpretar(cru, pacote: soRetrato))
         #expect(!r1.texto.contains("não coube") && !r1.texto.contains("Contexto parcial"))
         let enorme = String(repeating: "linha do diário\n", count: 1_100)

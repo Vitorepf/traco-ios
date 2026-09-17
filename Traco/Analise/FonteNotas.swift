@@ -104,6 +104,11 @@ nonisolated enum RespostaNotas {
         var omitidas: Int
         var respostasOmitidas: Int = 0
         var mensagensDaPessoa: Int = 0
+        /// Auditoria 17/09: a pergunta e as falas anteriores, cruas, para
+        /// `semRotulos` saber se «N1» é palavra DELA antes de tratá-lo como
+        /// endereço nosso. A `mensagem` não serve de material: o `fonteID`
+        /// planta «N1» nela em toda pergunta.
+        var palavrasDaPessoa: String = ""
         /// ADR 2026-09-16i: obras que chegaram e não eram assunto (o modelo não
         /// escolheu seção, ou as palavras não admitiram). Não são "omitidas":
         /// a recusa «não coube nesta consulta» não pode nascer delas.
@@ -121,7 +126,7 @@ nonisolated enum RespostaNotas {
         var trechos: [(id: String, fonte: FonteNotas, texto: String)] {
             fontes.enumerated().flatMap { i, fonte in
                 fonte.texto.components(separatedBy: "\n").enumerated().map {
-                    (RespostaNotas.rotulo(i + 1, linha: $0.offset + 1), fonte, $0.element)
+                    ("N\(i + 1)T\($0.offset + 1)", fonte, $0.element)
                 }
             }
         }
@@ -170,18 +175,19 @@ nonisolated enum RespostaNotas {
             }
         }
         var pacote = Pacote(mensagem: carga(historico), fontes: [], omitidas: 0,
-                             respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count)
+                             respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count,
+                             palavrasDaPessoa: ([pergunta] + conversa.map(\.pergunta)).joined(separator: "\n"))
         var partesDaNota: [UUID: String] = [:]
         func bloco(_ fonte: FonteNotas, indice: Int) -> String {
             var campos: [String: Any] = [
-                "fonteID": rotulo(indice), "titulo": fonte.titulo,
+                "fonteID": "N\(indice)", "titulo": fonte.titulo,
                 "editadaEm": fonte.editadaEm.ISO8601Format(), "linhas": fonte.texto.components(separatedBy: "\n"),
             ]
             // a suposta pode ser texto da própria pessoa (16a/16b): não se diz "de um mestre" (revisão da V)
             if fonte.obra { campos["origem"] = fonte.obraConferida ? Obra.origemNoPedido : Obra.origemSupostaNoPedido }
             if let partes = partesDaNota[fonte.id] { campos["partes"] = partes }
             if let sintese = fonte.sintese { campos["leituraDaSabia"] = SinteseDeNota.rotuloNoPedido + sintese }
-            return "\n\nNOTA (JSON; ID do trecho = o fonteID com «.» e a posição da linha dentro dele, começando em 1: a linha 2 da nota №1 é №1.2):\n" + json(campos)
+            return "\n\nNOTA (JSON; ID do trecho = fonteID + T + posição da linha, começando em 1):\n" + json(campos)
         }
         func caber(_ fonte: FonteNotas) -> Bool {
             let b = bloco(fonte, indice: pacote.fontes.count + 1)
@@ -277,25 +283,7 @@ nonisolated enum RespostaNotas {
     static let bases = ["notas", "conversa", "geral", "insuficiente"]
     static let limiteSemBase = "Não tenho informação disponível nesta consulta para confirmar isso. Informe os dados necessários ou abra a nota que os contém para retomarmos a pergunta."
 
-    /// A MARCA do endereço interno: `№1` endereça a nota, `№1.2` a linha 2
-    /// dela. O sinal de número (U+2116) não é escrita de ninguém numa nota em
-    /// português — é isso que se pede da marca, e é o que `N1` não era (ver
-    /// `semRotulos`). E tem o MESMO tamanho do endereço antigo: com colchetes
-    /// brancos (`⟦1.700⟧`) o pedido crescia um caractere por linha e a nota de
-    /// 700 linhas deixava de caber no teto — o teste
-    /// `muitasLinhasCurtasNaoInflamObjetosDeIDPorLinha` é a régua disso.
-    static func rotulo(_ nota: Int, linha: Int? = nil) -> String {
-        "№\(nota)" + (linha.map { ".\($0)" } ?? "")
-    }
-
-    /// A posição da linha dentro do endereço (`№1.2` → 2). `nil` no endereço
-    /// da nota inteira e em rótulo que não é nosso.
-    static func linhaDoRotulo(_ id: String) -> Int? {
-        guard let ponto = id.lastIndex(of: ".") else { return nil }
-        return Int(id[id.index(after: ponto)...])
-    }
-
-    /// ADR 2026-09-09h — o rótulo é ENDEREÇO INTERNO: o app numera as fontes
+    /// ADR 2026-09-09h — `N1T1` é ENDEREÇO INTERNO: o app numera as fontes
     /// para o modelo poder apontá-las em `trechoIDs`, e a medida de 08/09
     /// pegou o provedor escrevendo "conforme a correção explícita da nota
     /// N1T1" dentro do texto do autor (2 de 6 execuções tipadas,
@@ -306,22 +294,23 @@ nonisolated enum RespostaNotas {
     /// Recusar a resposta inteira por causa do rótulo seria trocar um defeito
     /// pelo outro que esta ADR conserta (a recusa covarde). Aqui o autor lê a
     /// resposta, com o nome da nota no lugar do endereço.
-    ///
-    /// Dívida 4 da ADR 17p, fechada: a marca deixou de ser LETRA. Com `N1`, o
-    /// endereço era palavra corrente de português — níveis de atendimento («o
-    /// N1 resolve reinício, o N2 assume o resto») —, e a troca punha o título
-    /// de uma nota no lugar da palavra da pessoa, às vezes dentro das aspas
-    /// que prometem literal. A 17p remendou estreitando a troca do rótulo
-    /// curto e NOMEOU o preço: endereço cru na tela quando o modelo usasse
-    /// «N2» numa nota em que o autor também escreveu «N2». Com `№1`/`№1.2`
-    /// não há colisão possível: a troca volta a ser SEMPRE, sem consultar o
-    /// material, e a palavra do autor fica intocada porque nunca casa.
     static func semRotulos(_ texto: String, pacote: Pacote) -> String {
-        // Rótulo sem fonte no pacote (`№9.9`, inventado) fica como está — não
-        // é endereço nosso. O da nota inteira (`№1`) não está em `trechos`.
+        // Do mais longo ao mais curto: `N1T1` antes de `N1`, e o `\b` impede
+        // que `N1` case dentro de `N12`. Rótulo sem fonte no pacote (`N9T9`,
+        // inventado) fica como está — não é endereço nosso.
         var porRotulo = Dictionary(pacote.trechos.map { ($0.id, $0.fonte) }, uniquingKeysWith: { a, _ in a })
-        for (i, fonte) in pacote.fontes.enumerated() { porRotulo[rotulo(i + 1)] = fonte }
-        return texto.replacing(/№[0-9]+(?:\.[0-9]+)?/) { casamento in
+        // Auditoria 17/09: o rótulo CURTO, sem `T`, também é palavra corrente em
+        // português — níveis de atendimento («o N1 resolve reinício, o N2 assume o
+        // resto») —, e a regex não distingue o endereço que o app criou da palavra
+        // que a pessoa escreveu: a tela mostrava o título de uma nota no lugar dela,
+        // às vezes dentro das aspas que prometem literal. Quando o token já está no
+        // material — nota, título ou fala dela —, é a palavra dela ecoada e fica
+        // como está; ler «N1» em vez do título é o preço honesto. Os endereços de
+        // verdade, os `N1T1` que a 09h mediu vazando, continuam todos trocados.
+        let material = ([pacote.palavrasDaPessoa] + pacote.fontes.flatMap { [$0.texto, $0.titulo] }).joined(separator: "\n")
+        let dela = Set(material.matches(of: /\bN[0-9]+\b/).map { String($0.output) })
+        for (i, fonte) in pacote.fontes.enumerated() where !dela.contains("N\(i + 1)") { porRotulo["N\(i + 1)"] = fonte }
+        return texto.replacing(/\bN[0-9]+(?:T[0-9]+)?\b/) { casamento in
             porRotulo[String(casamento.output)].map { "\u{201C}\($0.titulo)\u{201D}" } ?? String(casamento.output)
         }
     }
@@ -524,7 +513,7 @@ nonisolated enum RespostaNotas {
                 let titulos = citadas.flatMap { fonte -> [String] in
                     if fonte.obra {
                         let posicoes = ids.filter { trechos[$0]?.fonte.id == fonte.id }
-                            .compactMap(linhaDoRotulo)
+                            .compactMap { Int($0.split(separator: "T").last ?? "") }
                         let refs = Obra.referencias(de: fonte.texto, posicoes: posicoes,
                                                     conferida: fonte.obraConferida, tituloDaFonte: fonte.titulo)
                         if !refs.isEmpty { return refs }

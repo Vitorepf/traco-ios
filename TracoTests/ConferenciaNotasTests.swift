@@ -9,7 +9,7 @@ import Testing
 struct ConferenciaNotasTests {
     private let perguntaTese = "Qual tese Duna defende e como uso isso na minha escolha?"
     private let teseInventada =
-        #"{"base":"notas","texto":"Duna defende que devemos confiar sem reservas em líderes carismáticos. Faça isso na sua escolha.","trechoIDs":["№1.1"]}"#
+        #"{"base":"notas","texto":"Duna defende que devemos confiar sem reservas em líderes carismáticos. Faça isso na sua escolha.","trechoIDs":["N1T1"]}"#
 
     private func fonte(_ titulo: String, _ texto: String) -> FonteNotas {
         .init(id: UUID(), titulo: titulo, texto: texto,
@@ -36,7 +36,7 @@ struct ConferenciaNotasTests {
         default:
             texto = "Nesta consulta o material não sustenta a tese da obra. Não invento o que ela diz."
         }
-        return try json(base: "notas", texto: texto, ids: ["№1.1"])
+        return try json(base: "notas", texto: texto, ids: ["N1T1"])
     }
 
     @Test func parserLiteralAindaAceitaTeseInventadaNasTresFontes() throws {
@@ -90,7 +90,7 @@ struct ConferenciaNotasTests {
                       "Quero comprar Duna. Tenho 80 reais reservados; ainda não anotei o preço.")
         let boa = try json(base: "notas",
                            texto: "Você quer comprar Duna e reservou R$ 80. O preço ainda não está na nota; confirme o valor e compare com os 80 antes de decidir.",
-                           ids: ["№1.1"])
+                           ids: ["N1T1"])
         let r = await Sabia.responderNasNotas(
             pergunta: "Explique minha anotação e me ajude a decidir o próximo passo, sem resumir o livro.",
             fontes: [f], gerarRemoto: { _ in boa }, conferirRemoto: eco)
@@ -107,7 +107,7 @@ struct ConferenciaNotasTests {
                       "Uma ponte só serve se liga as duas margens. No argumento, a premissa é uma margem e a conclusão é a outra; falta justificar a passagem quando só repetimos a conclusão.")
         let boa = try json(base: "notas",
                            texto: "O trecho diz que repetir a conclusão não justifica a passagem. Em «meu serviço é bom porque é excelente» falta a evidência da passagem. Pergunta concreta: que resultado observável mostra que o serviço melhorou para alguém?",
-                           ids: ["№1.1"])
+                           ids: ["N1T1"])
         let r = await Sabia.responderNasNotas(
             pergunta: "Segundo este trecho, o que falta no argumento Meu serviço é bom porque é excelente, e qual pergunta concreta me ajuda a melhorar?",
             fontes: [f], gerarRemoto: { _ in boa }, conferirRemoto: eco)
@@ -123,10 +123,10 @@ struct ConferenciaNotasTests {
         let b = fonte("Ensaio B", "Decisão boa admite dúvida residual e exige experiência pequena reversível.")
         let esconde = try json(base: "notas",
                                texto: "O ensaio recomenda esperar toda dúvida desaparecer antes de agir amanhã.",
-                               ids: ["№1.1"])
+                               ids: ["N1T1"])
         let expoe = try json(base: "notas",
                              texto: "Há conflito: uma anotação pede esperar a dúvida sumir; a outra admite dúvida residual e pede uma experiência pequena reversível. Sem correção sua, as duas ficam de pé. Amanhã você escolhe conferindo qual regra ainda vale, ou testa o passo reversível só se aceitar a segunda.",
-                             ids: ["№1.1", "№2.1"])
+                             ids: ["N1T1", "N2T1"])
         let r = await Sabia.responderNasNotas(
             pergunta: "Há duas anotações sobre decidir com dúvida. Qual regra fica e como ajo amanhã?",
             fontes: [a, b],
@@ -178,7 +178,7 @@ struct ConferenciaNotasTests {
         var gerou = 0, conferiu = 0
         let ajuda = try json(base: "notas",
                              texto: "A obra longa não coube nesta consulta; não invento a tese. Coube a lista: leite e pão.",
-                             ids: ["№1.1"])
+                             ids: ["N1T1"])
         let r = await Sabia.responderNasNotas(
             pergunta: "O que defende o Tratado das Nuvens Invertidas de Mélanie Voss?",
             fontes: [enorme, lista],
@@ -233,7 +233,7 @@ struct ConferenciaNotasTests {
                              ids: [])
         let usaCorrecao = try json(base: "notas",
                                    texto: "Você corrigiu: só anotou que quer comprar. A fala anterior da IA não prova tese. Sem trecho da obra nesta consulta, o próximo passo é o preço, não a doutrina.",
-                                   ids: ["№1.1"])
+                                   ids: ["N1T1"])
         var pedidoConferencia: String?
         let r = await Sabia.responderNasNotas(
             pergunta: "Como aplico a tese na minha escolha?",
@@ -283,7 +283,7 @@ struct ConferenciaNotasTests {
             pergunta: perguntaTese, fontes: [f],
             gerarRemoto: { _ in teseInventada },
             conferirRemoto: { _, _ in
-                #"{"base":"notas","texto":"reparo com id inventado.","trechoIDs":["№9.9"]}"#
+                #"{"base":"notas","texto":"reparo com id inventado.","trechoIDs":["N9T9"]}"#
             })
         #expect(idInventado == nil)
     }
@@ -292,7 +292,7 @@ struct ConferenciaNotasTests {
         let f = fonte("Duna", "Quero comprar Duna. Tenho 80 reais reservados.")
         let boa = try json(base: "notas",
                            texto: "Você quer comprar Duna e reservou R$ 80. Confirme o preço e compare com os 80.",
-                           ids: ["№1.1"])
+                           ids: ["N1T1"])
         var geracoes = 0, conferencias = 0
         let r = await Sabia.responderNasNotas(
             pergunta: "Explique minha anotação de compra.",
@@ -317,10 +317,10 @@ struct ConferenciaNotasTests {
         let errada = fonte("Lista do mercado", "leite e pão")
         let citaErrada = try json(base: "notas",
                                   texto: "Sua lista do mercado indica a tese de Duna.",
-                                  ids: ["№2.1"])
+                                  ids: ["N2T1"])
         let citaCerta = try json(base: "notas",
                                  texto: "A lista do mercado não fala de Duna. Você anotou que quer comprar Duna e reservou 80 reais.",
-                                 ids: ["№1.1"])
+                                 ids: ["N1T1"])
         let r = await Sabia.responderNasNotas(
             pergunta: "O que eu anotei sobre comprar Duna?",
             fontes: [certa, errada],

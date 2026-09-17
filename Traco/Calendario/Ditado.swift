@@ -120,7 +120,12 @@ final class Ditado {
         // `@Sendable` de propósito: tira a isolação do bloco (ver `PermissaoDeFala`).
         // Este corre na thread de tempo real do CoreAudio.
         entrada.installTap(onBus: 0, bufferSize: 1024, format: formato) { @Sendable buffer, _ in
-            linha.receber(buffer)
+            // o `AVAudioPCMBuffer` não é Sendable e o Swift 6 recusa mandá-lo
+            // para fora do bloco (`sending 'buffer' risks causing data races`).
+            // Ele é usado SÍNCRONAMENTE aqui dentro — `receber` só faz
+            // `pedido.append`, na mesma thread do CoreAudio —, e a caixa diz
+            // isso ao compilador sem mentir: nada guarda o buffer depois.
+            linha.receber(CaixaDeAudio(buffer))
         }
         motor.prepare()
         do {
@@ -217,18 +222,30 @@ enum PermissaoDeFala {
 /// 2. `append` depois de `endAudio` é exceção do Speech, e havia janela para
 ///    isso: `parar()` fechava o áudio e só depois tirava o tap, com buffers em
 ///    voo pelo meio. A trava fecha a janela.
-private final class LinhaDeAudio: @unchecked Sendable {
+/// O buffer do CoreAudio atravessando o bloco de tempo real: usado só dentro
+/// da chamada que o recebe, e nunca guardado. A caixa existe porque o buffer
+/// não é Sendable e o bloco do `installTap` é — sem ela o app não compila no
+/// Swift 6 (o galho `claude/microfone-calendario` chegou assim, da nuvem).
+// `nonisolated`: o módulo é MainActor por omissão, e esta caixa nasce na
+// thread do CoreAudio — sem isto o init seria isolado e o compilador
+// recusaria o buffer atravessando.
+private nonisolated struct CaixaDeAudio: @unchecked Sendable {
+    let buffer: AVAudioPCMBuffer
+    init(_ buffer: AVAudioPCMBuffer) { self.buffer = buffer }
+}
+
+private nonisolated final class LinhaDeAudio: @unchecked Sendable {
     private let pedido: SFSpeechAudioBufferRecognitionRequest
     private let trava = NSLock()
     private var aberta = true
 
     init(_ pedido: SFSpeechAudioBufferRecognitionRequest) { self.pedido = pedido }
 
-    func receber(_ buffer: AVAudioPCMBuffer) {
+    func receber(_ caixa: CaixaDeAudio) {
         trava.lock()
         defer { trava.unlock() }
         guard aberta else { return }
-        pedido.append(buffer)
+        pedido.append(caixa.buffer)
     }
 
     func fechar() {
