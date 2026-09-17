@@ -27,16 +27,47 @@ struct VistoDaTarefa: View {
     let feito: Bool
     let alternar: (() -> Void)?
     @State private var pressionado = false
+    /// Conta os toques que MARCAM: a onda nasce de um número novo, nunca de a
+    /// bolinha aparecer.
+    @State private var toques = 0
 
+    /// Marcar e desmarcar são o mesmo caminho, ao contrário: ao MARCAR o verde
+    /// nasce primeiro e o traço corre depois; ao DESMARCAR o traço recolhe
+    /// primeiro, ainda sobre o verde, e só então o verde sai. Sem isto o visto
+    /// branco desenhava-se de volta sobre papel branco, invisível (auditoria 17/09).
     private var molaDoVerde: Animation? {
-        Tema.movimento(.escala, Tema.Mola.toque, reduzido: reduceMotion)
+        Tema.movimento(.escala, feito ? Tema.Mola.toque : Tema.Mola.toque.delay(Tema.Duracao.passo),
+                       reduzido: reduceMotion)
+    }
+
+    private var curvaDoTraco: Animation? {
+        // a curva vai DENTRO da chamada ao Tema: curva solta na view é o que o
+        // portão do movimento recusa (e com razão — a lei mora no Tema)
+        Tema.movimento(.escala,
+                       feito ? .easeOut(duration: Tema.Duracao.media).delay(Tema.Duracao.passo)
+                             : .easeOut(duration: Tema.Duracao.media),
+                       reduzido: reduceMotion)
     }
 
     var body: some View {
+        if alternar == nil {
+            // a linha fantasma (a que nasce quando o autor escrever) mostra o
+            // aro, não um botão: 44 pt de alvo que não respondiam ao dedo
+            glifo.accessibilityHidden(true)
+        } else {
+            botao
+        }
+    }
+
+    private var botao: some View {
         Button {
             guard let alternar else { return }
             // o dedo confirma antes da tinta: feito é um toque com corpo
             feito ? Toque.selecao() : Toque.leve()
+            // a onda é do TOQUE que marca, não da chegada do item na tela: com
+            // `onAppear` ela saía sozinha de cada item já feito ao abrir a nota
+            // (auditoria 17/09)
+            if !feito { toques += 1 }
             alternar()
         } label: {
             glifo
@@ -70,10 +101,8 @@ struct VistoDaTarefa: View {
                 .trim(from: 0, to: feito ? 1 : 0)
                 .stroke(Color.white, style: StrokeStyle(lineWidth: 2.1, lineCap: .round, lineJoin: .round))
                 .padding(5.5)
-                // o traço corre depois do verde nascer; sob reduzido, corte
-                .animation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media).delay(Tema.Duracao.passo), reduzido: reduceMotion),
-                           value: feito)
-            if feito, !reduceMotion { onda }
+                .animation(curvaDoTraco, value: feito)
+            if feito, toques > 0, !reduceMotion { onda.id(toques) }
         }
         .frame(width: 22, height: 22)
         .scaleEffect(pressionado ? 0.84 : 1)
@@ -185,8 +214,11 @@ struct ProsaView: View {
         case .tarefas(let xs):
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(Array(xs.enumerated()), id: \.offset) { i, item in
-                    HStack(alignment: .center, spacing: 8) {
+                    // `firstTextBaseline`: no item que quebra em duas linhas a
+                    // bolinha centrada parava ao lado da SEGUNDA (auditoria 17/09)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
                         VistoDaTarefa(feito: item.feito, alternar: aoAlternarTarefa.map { f in { f(i) } })
+                            .alignmentGuide(.firstTextBaseline) { d in d[VerticalAlignment.center] + 6 }
                         TextoRiscavel(texto: atributos(item.texto), feito: item.feito)
                             .font(Tema.corpo)
                     }

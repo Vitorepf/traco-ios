@@ -161,3 +161,4 @@ ninguém confere por inteiro apodrece em silêncio — quem escreve uma linha no
 |---|---|---|
 | 17m | Auditoria de produção: integridade de anexos e cópia, selo, IA e portão | branch `producao-17-09` |
 | 17n | Lista de compras é toggle list: tarefa debaixo de «Comprar», visto verde desenhado, nenhum método | branch `formatacao-lista-tarefas` |
+| 17o | Auditoria da auditoria: 18 achados na lista de compras, o visto que não se apaga e a nota velha que se conserta | branch `formatacao-lista-tarefas` |

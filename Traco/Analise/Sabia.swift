@@ -752,9 +752,23 @@ enum Sabia {
         let cabecaDeVariasLinhas = refinado?.contains {
             ($0.forma == .titulo || $0.forma == .secao) && blocos[pendentes[$0.i]].contains(where: \.isNewline)
         } == true
-        guard let refinado, refinado.count == pendentes.count, !cabecaDeVariasLinhas else {
+        // Dono, 17/09, no iPhone: o modelo chamou «Leite , farinha , ovo ,
+        // macarrão , queijo» de SEÇÃO — o sistema pede o contrário em duas
+        // frases, e ele mandou a linha de compras para o cabeçalho. Uma linha
+        // de itens não é cabeça de nada: o mapa sai do contrato e quem chama
+        // veste pela regra local, que faz dela uma lista de tarefas.
+        let cabecaQueEItens = refinado?.contains { rotulo -> Bool in
+            guard rotulo.forma == .titulo || rotulo.forma == .secao else { return false }
+            let bloco = blocos[pendentes[rotulo.i]]
+            let anterior = rotulo.i > 0 ? blocos[pendentes[rotulo.i - 1]] : ""
+            let cabecaDeCima = anterior.split(whereSeparator: \.isNewline).last.map(String.init) ?? ""
+            return Caderno.itensDaEnumeracao(bloco, abaixoDe: cabecaDeCima) != nil
+        } == true
+        guard let refinado, refinado.count == pendentes.count, !cabecaDeVariasLinhas, !cabecaQueEItens else {
             apagou("vestir", refinado == nil ? "mapa fora do contrato"
-                   : cabecaDeVariasLinhas ? "título ou seção num bloco de várias linhas" : "mapa menor que os blocos pendentes")
+                   : cabecaDeVariasLinhas ? "título ou seção num bloco de várias linhas"
+                   : cabecaQueEItens ? "título ou seção numa linha de itens"
+                   : "mapa menor que os blocos pendentes")
             return []
         }
         for rotulo in refinado {
@@ -1763,16 +1777,53 @@ enum Sabia {
         return nil
     }
 
-    /// A linha sem as marcas de bloco do começo (lista, tarefa, numerada, citação
-    /// e, para título, os `#`), repetidas ou não: "- - pão" → "pão".
+    /// A linha sem a marca de bloco do começo (lista, tarefa, numerada, citação
+    /// e, para título, os `#`). A marca de lista repetida por Enter em cima do
+    /// marcador do autor também sai («- - pão» → «pão»), mas UMA quantidade
+    /// nunca: «- [x] 2. caixas de leite» ficava «caixas de leite» e o dono
+    /// comprava uma caixa em vez de duas (auditoria 17/09). O laço só engole
+    /// marca da MESMA família — nunca uma numerada depois de um visto.
     nonisolated static func semMarcador(_ linha: String, titulo: Bool = false) -> String {
         var l = linha.trimmingCharacters(in: .whitespaces)
-        let marca = titulo ? /^(?:#{1,6}\s+)/ : /^(?:[-*•]\s+\[[ xX]?\]\s*|[-*•]\s+|\d+[.)]\s+|>\s*)/
-        while let m = l.firstMatch(of: marca), !m.output.isEmpty {
+        if titulo {
+            while let m = l.firstMatch(of: /^(?:#{1,6}\s+)/), !m.output.isEmpty {
+                l.removeSubrange(m.range)
+                l = l.trimmingCharacters(in: .whitespaces)
+            }
+            return l
+        }
+        let tarefa = /^(?:[-*•]\s+\[[ xX]?\]\s*)/
+        let lista = /^(?:[-*•]\s+)/
+        let numerada = /^(?:\d+[.)]\s+)/
+        let citacao = /^(?:>\s*)/
+        // a marca de tarefa sai uma vez; depois dela, só a de lista repetida
+        if let m = l.firstMatch(of: tarefa), !m.output.isEmpty {
+            l.removeSubrange(m.range)
+            l = l.trimmingCharacters(in: .whitespaces)
+            while let d = l.firstMatch(of: lista), !d.output.isEmpty {
+                l.removeSubrange(d.range)
+                l = l.trimmingCharacters(in: .whitespaces)
+            }
+            return l
+        }
+        for marca in [citacao, numerada] {
+            if let m = l.firstMatch(of: marca), !m.output.isEmpty {
+                l.removeSubrange(m.range)
+                return l.trimmingCharacters(in: .whitespaces)
+            }
+        }
+        while let m = l.firstMatch(of: lista), !m.output.isEmpty {
             l.removeSubrange(m.range)
             l = l.trimmingCharacters(in: .whitespaces)
         }
         return l
+    }
+
+    /// O item que o autor JÁ marcou: «- [x] leite» (ou `[X]`). A forma tem de
+    /// devolver o visto onde ele estava — sem isto, tocar Concluir de novo
+    /// desmarcava a compra que o dono já tinha feito (auditoria 17/09).
+    nonisolated static func vistoMarcado(_ linha: String) -> Bool {
+        linha.trimmingCharacters(in: .whitespaces).firstMatch(of: /^[-*•]\s+\[[xX]\]/) != nil
     }
 
     /// Veste cada bloco com a forma do mapa. Bloco já vestido não se toca.
@@ -1794,6 +1845,8 @@ enum Sabia {
             var cabeca: [String] = temCabeca ? ["## " + cruas[0]] : []
             let semCabeca: [String] = temCabeca ? Array(cruas.dropFirst()) : cruas
             var linhas: [String] = semCabeca.map { semMarcador($0) }
+            // o visto que o autor já deu volta no mesmo lugar
+            var feitos: [Bool] = semCabeca.map { vistoMarcado($0) }
             // Dono, 17/09: a lista numa linha («Leite , farinha , ovo») vira um
             // item por elemento, e a linha acima dela — ou a primeira de três ou
             // mais linhas curtas abrindo a nota (14/09) — é a cabeça: a mesma
@@ -1804,10 +1857,26 @@ enum Sabia {
                 let abre = i == 0 && !formas.values.contains(.titulo)
                 let partida = Caderno.cabecaEItens(linhas, abreANota: abre, abaixoDe: linhaDeCima)
                 cabeca = partida.cabeca.map { [(abre ? "# " : "## ") + $0] } ?? []
+                // o estado acompanha: uma linha que se parte em quatro leva o
+                // seu visto para os quatro (e a cabeça sai da conta)
+                let base = partida.cabeca == nil ? feitos : Array(feitos.dropFirst())
+                var novos: [Bool] = []
+                for (k, linha) in (partida.cabeca == nil ? linhas : Array(linhas.dropFirst())).enumerated() {
+                    let quantos = Caderno.itensDaEnumeracao(linha, abaixoDe: linhaDeCima)?.count ?? 1
+                    novos.append(contentsOf: Array(repeating: k < base.count ? base[k] : false, count: quantos))
+                }
+                feitos = novos
                 linhas = partida.itens
             }
+            let itensNaCabeca: [String]? = linhas.count == 1
+                ? Caderno.itensDaEnumeracao(linhas[0], abaixoDe: linhaDeCima) : nil
             func comCabeca(_ corpo: [String]) -> String { (cabeca + corpo).joined(separator: "\n") }
             switch forma {
+            // uma linha de itens não vira cabeça nem quando o rótulo diz título
+            // ou seção (dono, 17/09: «## Leite , farinha , ovo , macarrão»)
+            case .titulo where itensNaCabeca != nil, .secao where itensNaCabeca != nil:
+                let marca = Caderno.marcaDoItem(cabeca: linhaDeCima)
+                saida.append((itensNaCabeca ?? []).map { marca + $0 }.joined(separator: "\n"))
             case .titulo where cruas.count == 1: saida.append("# " + semMarcador(cruas[0], titulo: true))
             case .secao where cruas.count == 1: saida.append("## " + semMarcador(cruas[0], titulo: true))
             // revisão, 17/09: título ou seção num bloco de várias linhas juntava
@@ -1817,9 +1886,20 @@ enum Sabia {
             // disse «lista»: a mesma marca da regra local (dono, 17/09)
             case .lista:
                 let marca = Caderno.marcaDoItem(cabeca: cabeca.first ?? linhaDeCima)
-                saida.append(comCabeca(linhas.map { marca + $0 }))
+                saida.append(comCabeca(linhas.enumerated().map { k, linha in
+                    marca == "- " ? marca + linha : (k < feitos.count && feitos[k] ? "- [x] " : "- [ ] ") + linha
+                }))
+            case .numerada where Caderno.marcaDoItem(cabeca: cabeca.first ?? linhaDeCima) == "- [ ] ":
+                // debaixo de «Comprar» a ordem não carrega informação: o item é
+                // para riscar, não para numerar (auditoria 17/09)
+                saida.append(comCabeca(linhas.enumerated().map { k, linha in
+                    (k < feitos.count && feitos[k] ? "- [x] " : "- [ ] ") + linha
+                }))
             case .numerada: saida.append(comCabeca(linhas.enumerated().map { "\($0.offset + 1). " + $0.element }))
-            case .tarefas: saida.append(comCabeca(linhas.map { "- [ ] " + $0 }))
+            case .tarefas:
+                saida.append(comCabeca(linhas.enumerated().map { k, linha in
+                    (k < feitos.count && feitos[k] ? "- [x] " : "- [ ] ") + linha
+                }))
             case .citacao: saida.append(linhas.map { "> " + $0 }.joined(separator: "\n"))
             case .codigo: saida.append("```\n" + bloco + "\n```")
             case .tabela:

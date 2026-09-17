@@ -57,6 +57,7 @@ struct PaginaView: View {
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
             sessao.rearmarSeries(no: context)
+            sessao.consertarFormaVelha(no: context)
             // o Trabalho recebe as notas da pessoa que falam da intenção como
             // material (a mesma régua de palavras da busca; até seis, 600 letras)
             MotorTrabalho.materialDoAutor = { intencao in
@@ -523,7 +524,10 @@ struct PaginaView: View {
             abrirArquivo: $abrirArquivo,
             abrirDesenho: $abrirDesenho,
             aoTocarRegua: { sessao.tocarRegua($0) },
-            titulosParaLigar: titulosParaLigar
+            titulosParaLigar: titulosParaLigar,
+            // o visto vai ao disco no toque: a lista de compras é usada de pé no
+            // mercado, e o app pode morrer entre um item e outro
+            aoMarcarTarefa: { _ = sessao.salvar(no: context) }
         ) {
             var t = Transaction()
             t.disablesAnimations = true

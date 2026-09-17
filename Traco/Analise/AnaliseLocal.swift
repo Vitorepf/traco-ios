@@ -88,7 +88,7 @@ enum AnaliseLocal: Sendable {
            let leitura = Gesto(rawValue: "leitura"), leitura.conhecido {
             return .gesto(leitura, pergunta: pergunta(leitura))
         }
-        if let gesto = detectarGesto(voz, lower, estrito: false) {
+        if let gesto = detectarGesto(voz, lower, estrito: false, cru: texto) {
             if gesto == .expressiva { return .expressiva }
             return .gesto(gesto, pergunta: pergunta(gesto))
         }
@@ -277,7 +277,7 @@ enum AnaliseLocal: Sendable {
     /// linhas curtas sem palavra nenhuma, e a escrita pessoal não é matéria de
     /// exercício (ADR 06h) — nenhum método leva um texto em que o autor está
     /// falando do que sentiu, do que ele é, ou do que fez e lamenta.
-    private static func detectarGesto(_ x: String, _ lower: String, estrito: Bool) -> Gesto? {
+    private static func detectarGesto(_ x: String, _ lower: String, estrito: Bool, cru: String = "") -> Gesto? {
         let pessoal = eEscritaPessoal(x, lower)
         for m in Catalogo.todos where !m.roteamento.isEmpty {
             guard let g = Gesto(rawValue: m.id) else { continue }
@@ -295,7 +295,7 @@ enum AnaliseLocal: Sendable {
         // `whereSeparator`: em CRLF isto contava UMA linha e o `>= 3` nunca era
         // verdade, então o Destaque não pegava nota vinda de fora.
         let linhas = x.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        if linhas.count >= 3 && linhas.allSatisfy({ $0.count < 60 }) && !listaSemDia(x) {
+        if linhas.count >= 3 && linhas.allSatisfy({ $0.count < 60 }) && !listaSemDia(x, cru: cru) {
             return .destaque
         }
         return nil
@@ -310,12 +310,45 @@ enum AnaliseLocal: Sendable {
     /// «dia», «única», «primeiro») continua sendo.
     /// ponytail: palavras fixas; «arroz / feijão / café» sem cabeça ainda veste
     /// Destaque — separar substantivo de afazer pede o modelo, não mais regex.
-    nonisolated static func listaSemDia(_ voz: String) -> Bool {
+    nonisolated static func listaSemDia(_ voz: String, cru: String = "") -> Bool {
+        // a nota JÁ vestida (título + itens) continua sendo lista, mesmo sem
+        // vírgula nenhuma: é o que sobra depois de a forma partir a linha
+        if !cru.isEmpty, Caderno.soCabecaEItens(cru),
+           !cru.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+               .contains(regex: #"\b(hoje|amanha|dia|unica|primeir[oa])\b"#) {
+            return true
+        }
         let dobrada = voz.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-        if dobrada.contains(regex: #"\b(hoje|amanha|dia|unica|primeir[oa])\b"#) { return false }
         let linhas = dobrada.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         guard let cabeca = linhas.first else { return false }
-        return Caderno.cabecaDeLista(cabeca) || linhas.contains { Caderno.itensDaEnumeracao($0) != nil }
+        // A cabeça de compras vence a palavra de dia: «Compras de hoje» é lista
+        // de compras, não o Destaque do dia (auditoria de 17/09 — a nota do dono
+        // com «hoje» na cabeça escapava do veto e abria «A única coisa de hoje»).
+        if Caderno.cabecaDeLista(cabeca) { return true }
+        if dobrada.contains(regex: #"\b(hoje|amanha|dia|unica|primeir[oa])\b"#) { return false }
+        return linhas.contains { Caderno.itensDaEnumeracao($0, abaixoDe: cabeca) != nil }
+    }
+
+    /// A nota de COMPRAS: a primeira linha é a cabeça («Comprar», «Compras do
+    /// mês», «Mercado», «Lista de…»). Aqui não entra método nenhum — foi o que
+    /// o dono viu no iPhone em 17/09, com «Resultado» e «Obstáculo interno»
+    /// vazios numa lista de mercado.
+    ///
+    /// Separada de `listaSemDia` de propósito: o veto do DESTAQUE vale para
+    /// qualquer nota de itens (três linhas curtas não são o dia), e o veto de
+    /// TODO método vale só quando a nota é declaradamente uma lista — senão
+    /// «quero parar de fumar / saúde, dinheiro, cheiro» perdia o WOOP por ter
+    /// uma linha com vírgulas (auditoria de 17/09: 8 de 19 notas de método).
+    nonisolated static func listaDeCompras(_ voz: String, cru: String = "") -> Bool {
+        let linhas = voz.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        guard let cabeca = linhas.first else { return false }
+        if Caderno.cabecaDeLista(cabeca) { return true }
+        // a nota vestida: a cabeça virou título e os itens, tarefas
+        guard !cru.isEmpty, Caderno.soCabecaEItens(cru) else { return false }
+        return Caderno.fatias(cru).contains { fatia in
+            if case .titulo(_, let t) = fatia.bloco { Caderno.cabecaDeLista(t) } else { false }
+        }
     }
 
     /// A pergunta é sempre do template — nunca do modelo (§19.4).

@@ -561,7 +561,10 @@ struct DestaqueNaoEListaDeComprasTests {
                       "leite, pão, café\nsabão\ndetergente",
                       // revisão, 17/09: a cabeça com dois-pontos ou com complemento
                       "Compras:\nleite\npão\novo", "Comprar:\nLeite\nfarinha\novo",
-                      "Mercado:\narroz\nfeijão\ncafé", "Comprar no mercado\nleite\npão\novo"] {
+                      "Mercado:\narroz\nfeijão\ncafé", "Comprar no mercado\nleite\npão\novo",
+                      // auditoria 17/09: a cabeça de compras vence a palavra de
+                      // dia — «Compras de hoje» é lista, não «a única de hoje»
+                      "Compras de hoje\nleite\npão\novo"] {
             #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:]) == .silencio,
                     Comment(rawValue: texto))
         }
@@ -571,7 +574,7 @@ struct DestaqueNaoEListaDeComprasTests {
         let destaque = AnaliseLocal.Veredito.gesto(.destaque, pergunta: AnaliseLocal.pergunta(.destaque))
         for texto in ["Hoje\nligar para o banco\nlevar o carro\nresponder a Ana",
                       "Comprar café\nRenovar o domínio\nMandar a nota fiscal",
-                      "Compras de hoje\nleite\npão\novo"] {
+                      "Amanhã\nligar para o banco\nlevar o carro\nresponder a Ana"] {
             #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:]) == destaque,
                     Comment(rawValue: texto))
         }
@@ -589,12 +592,152 @@ struct DestaqueNaoEListaDeComprasTests {
         #expect(Sessao.escolher(remoto: destaque, local: .silencio, listaSemDia: false) == destaque)
         // nem o Destaque, nem o WOOP, nem pela regra local
         let woop = AnaliseLocal.Veredito.gesto(.woop, pergunta: "p")
-        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: true) == .silencio)
-        #expect(Sessao.escolher(remoto: nil, local: woop, listaSemDia: true) == .silencio)
-        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: false) == woop)
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaDeCompras: true) == .silencio)
+        #expect(Sessao.escolher(remoto: nil, local: woop, listaDeCompras: true) == .silencio)
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaDeCompras: false) == woop)
+        // e o veto de MÉTODO é só da nota de compras: uma linha com vírgulas no
+        // meio da prosa não cala o WOOP (auditoria 17/09)
+        #expect(AnaliseLocal.listaDeCompras("Comprar\nLeite , farinha , ovo"))
+        #expect(AnaliseLocal.listaDeCompras("Compras de hoje\nleite, pão"))
+        #expect(!AnaliseLocal.listaDeCompras("quero parar de fumar\nsaúde, dinheiro, cheiro"))
+        #expect(Sessao.escolher(remoto: woop, local: .silencio, listaSemDia: true, listaDeCompras: false) == woop,
+                "o Destaque é vetado, o WOOP não")
+        // Auditoria de 17/09: o veto é para a nota que É uma lista, não para a
+        // que TEM uma linha de itens — «quero parar de fumar / saúde, dinheiro,
+        // cheiro» é WOOP, e o dono veria «silêncio» no lugar da forma.
+        #expect(!AnaliseLocal.listaDeCompras("quero parar de fumar\nsaúde, dinheiro, cheiro"))
+        #expect(AnaliseLocal.classificar(texto: "quero parar de fumar\nsaúde, dinheiro, cheiro",
+                                        gestoAtual: nil, campos: [:]) == .gesto(.woop, pergunta: AnaliseLocal.pergunta(.woop)),
+                "uma linha com vírgulas no meio da prosa não cala o método")
+        // e «Compras de hoje» não escapa do veto pela palavra «hoje»
+        #expect(AnaliseLocal.listaSemDia("Compras de hoje\nleite, pão, ovo"))
+        #expect(AnaliseLocal.listaSemDia("Comprar no mercado\nleite , pão , ovo , café"))
+        #expect(AnaliseLocal.listaSemDia("leite, pão, café"), "a nota de uma linha de itens é lista")
+        #expect(!AnaliseLocal.listaSemDia("Hoje\nligar para o banco\nlevar o carro\nresponder a Ana"),
+                "o plano do dia continua Destaque")
         // o aviso do algoritmo e a expressiva continuam passando
         let aviso = AnaliseLocal.Veredito.aviso("falta o obstáculo")
-        #expect(Sessao.escolher(remoto: woop, local: aviso, listaSemDia: true) == aviso)
-        #expect(Sessao.escolher(remoto: .expressiva, local: .silencio, listaSemDia: true) == .expressiva)
+        #expect(Sessao.escolher(remoto: woop, local: aviso, listaDeCompras: true) == aviso)
+        #expect(Sessao.escolher(remoto: .expressiva, local: .silencio, listaDeCompras: true) == .expressiva)
+    }
+}
+
+/// Dono, 17/09, 15:33, com captura do iPhone: depois da atualização instalada
+/// às 15:32, a nota «Comprar» que ele editou continuou com a linha de compras
+/// vestida de SEÇÃO, com 43 linhas em branco no meio e com um Destaque de campo
+/// vazio colado nela. «Isso é uma experiência terrível.»
+@MainActor
+struct NotaVelhaSeConsertaTests {
+    static let itens = ["Leite", "farinha", "ovo", "macarrão", "queijo"]
+    static let linhaDeItens = "Leite , farinha , ovo , macarrão , queijo"
+    /// O texto exato que estava no aparelho (43 linhas em branco, contadas no arquivo).
+    static let doIPhone = "# Comprar\n" + String(repeating: "\n", count: 43) + "## " + linhaDeItens
+    static let consertada = "# Comprar\n\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n")
+
+    @Test func aLinhaDeItensVestidaDeSecaoVoltaASerLista() {
+        let depois = Caderno.estruturar(Self.doIPhone)
+        #expect(depois == Self.consertada, Comment(rawValue: depois.debugDescription))
+        #expect(Caderno.estruturar(depois) == depois, "consertar duas vezes é o mesmo que uma")
+        #expect(Sessao.palavrasIguais(Self.doIPhone, depois), "a forma não mexe nas palavras")
+        // o caderno lê cinco tarefas por fazer
+        #expect(Caderno.fatias(depois).flatMap { fatia -> [TarefaCaderno] in
+            if case .tarefas(let xs) = fatia.bloco { xs } else { [] }
+        }.map(\.texto) == Self.itens)
+        // cabeçalho de verdade continua cabeçalho
+        #expect(Caderno.estruturar("# Plano de sábado\n\n## Manhã") == "# Plano de sábado\n\n## Manhã")
+        #expect(Caderno.itensDoCabecalho("## Manhã") == nil)
+        #expect(Caderno.itensDoCabecalho("## " + Self.linhaDeItens, abaixoDe: "# Comprar") == Self.itens)
+    }
+
+    @Test func oVaoDeVariasLinhasEnxugaEParaDeCrescer() {
+        #expect(!Caderno.enxugarVaos(Self.doIPhone).contains("\n\n\n"))
+        #expect(Caderno.enxugarVaos("a\n\nb") == "a\n\nb", "uma linha em branco é o separador e fica")
+        // dentro de código cercado a linha vazia é conteúdo do autor
+        let codigo = "```\nlet a = 1\n\n\n\nlet b = 2\n```"
+        #expect(Caderno.enxugarVaos(codigo) == codigo)
+        // a origem: o campo do título punha "\n\n" mesmo sem resto, e `aplicar`
+        // juntava com outro — duas linhas em branco por Enter. Vinte voltas:
+        #expect(Caderno.tituloComResto(.titulo(1, "Comprar"), resto: "") == "# Comprar")
+        #expect(Caderno.tituloComResto(.titulo(1, "Comprar"), resto: "\n\n") == "# Comprar")
+        #expect(Caderno.tituloComResto(.titulo(1, "Comprar"), resto: "corpo") == "# Comprar\n\ncorpo")
+        var t = "# Comprar\n\n## depois"
+        for _ in 0..<20 {
+            let fatias = Caderno.fatias(t)
+            t = Caderno.aplicar(fatias, id: fatias[0].id,
+                                novo: Caderno.tituloComResto(.titulo(1, "Comprar"), resto: ""))
+        }
+        #expect(!t.contains("\n\n\n"), Comment(rawValue: t.debugDescription))
+        // e a nota que já engordou enxuga no conserto
+        #expect(!Caderno.consertarVestidoErrado(Self.doIPhone).contains("\n\n\n"))
+    }
+
+    @Test func aFormaDaIANaoPodeChamarUmaLinhaDeItensDeSecao() async {
+        // foi isto que o modelo respondeu no iPhone do dono
+        let cru = #"[{"i":0,"forma":"titulo"},{"i":1,"forma":"secao"}]"#
+        let mapa = await Sabia.vestir(blocos: ["Comprar", Self.linhaDeItens], gesto: nil, gerar: { _ in cru })
+        #expect(mapa == [], "mapa fora do contrato: quem chama veste pela regra local")
+        // e o mapa aplicado à mão também não faz seção de uma linha de itens
+        let rotulos = [Sabia.Rotulo(i: 0, forma: .titulo), Sabia.Rotulo(i: 1, forma: .secao)]
+        let vestido = Sabia.aplicar(rotulos, a: "Comprar\n\n" + Self.linhaDeItens)
+        #expect(vestido == Self.consertada, Comment(rawValue: vestido.debugDescription))
+    }
+
+    @Test func oMetodoDeCampoVazioNumaListaSaiEAVersaoFica() throws {
+        let raiz = FileManager.default.temporaryDirectory.appendingPathComponent("conserto-\(UUID())")
+        let versoes = Versoes.diretorio
+        Versoes.diretorio = raiz
+        defer {
+            Versoes.diretorio = versoes
+            try? FileManager.default.removeItem(at: raiz)
+        }
+        let c = try ModelContainer.traco(emMemoria: true)
+        let nota = Nota(texto: Self.doIPhone, gesto: .destaque, campos: ["unica": ""])
+        c.mainContext.insert(nota)
+        try c.mainContext.save()
+
+        let s = Sessao()
+        s.consertarFormaVelha(no: c.mainContext)
+        #expect(nota.texto == Self.consertada)
+        #expect(nota.gesto == nil, "lista de compras não veste método")
+        #expect(nota.campos.isEmpty)
+        #expect(Versoes.listar(nota.uuid).map(\.texto) == [Self.doIPhone], "o texto de antes volta pelo histórico")
+
+        // segunda passada não mexe em nada
+        let editada = nota.editadaEm
+        s.consertarFormaVelha(no: c.mainContext)
+        #expect(nota.editadaEm == editada)
+        #expect(Versoes.listar(nota.uuid).count == 1)
+    }
+
+    @Test func oConsertoNaoDaFormaAoQueEstaEmProsa() {
+        // a varredura do arranque conserta o vestido errado, não veste o cru:
+        // dar forma é trabalho do «Concluir», com «Desfazer»
+        let cru = "quero parar de fumar\n\nmotivos: saúde, dinheiro, cheiro"
+        #expect(Caderno.consertarVestidoErrado(cru) == cru)
+        #expect(Caderno.consertarVestidoErrado("Comprar\n\nLeite , farinha , ovo") == "Comprar\n\nLeite , farinha , ovo")
+        // mas o cabeçalho que esconde itens volta a ser lista, e o vão enxuga
+        #expect(Caderno.consertarVestidoErrado(Self.doIPhone) == Self.consertada)
+        // recipiente com linha em branco no meio fica intacto (o fuzz pegou isto)
+        let verso = ":::verso\nprimeira\n\n\nsegunda\n:::"
+        #expect(Caderno.consertarVestidoErrado(verso) == verso)
+    }
+
+    @Test func oConsertoNaoTocaNotaDeMetodoRespondido() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        // WOOP com resposta: o método fica, mesmo se houver linha de itens
+        let woop = Nota(texto: "quero parar de fumar\n\nmotivos: saúde, dinheiro, cheiro",
+                        gesto: .woop, campos: ["resultado": "respirar melhor"])
+        // expressiva não se toca nunca
+        let expressiva = Nota(texto: "hoje foi pesado\n\nleite , farinha , ovo", gesto: .expressiva, campos: [:])
+        c.mainContext.insert(woop)
+        c.mainContext.insert(expressiva)
+        try c.mainContext.save()
+        let antesWoop = woop.texto
+        let antesExpressiva = expressiva.texto
+        Sessao().consertarFormaVelha(no: c.mainContext)
+        #expect(woop.gesto == .woop)
+        #expect(woop.texto == antesWoop)
+        #expect(expressiva.gesto == .expressiva)
+        #expect(expressiva.texto == antesExpressiva)
     }
 }

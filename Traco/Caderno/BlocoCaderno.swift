@@ -523,14 +523,28 @@ enum Caderno: Sendable {
         for (indice, intervalo) in intervalosParaVestir(texto).enumerated() {
             let bloco = texto[intervalo].split(whereSeparator: \.isNewline).map(String.init)
             defer { anterior = bloco.last ?? "" }
-            // bloco que já carrega forma/marca é escolha do autor — não se toca
+            // bloco que já carrega forma/marca é escolha do autor — não se toca.
+            // A exceção é a linha de ITENS vestida de cabeçalho: «## Leite ,
+            // farinha , ovo , macarrão , queijo» (dono, 17/09, no iPhone) ficava
+            // SEÇÃO para sempre, porque a forma nunca revisita o que já tem
+            // marca. Cabeçalho com três ou mais itens separados por vírgula
+            // nunca foi escolha de ninguém — vira lista, com a marca da cabeça
+            // de cima.
             if bloco.contains(where: jaVestida) {
+                if bloco.count == 1, let itens = itensDoCabecalho(bloco[0], abaixoDe: anterior) {
+                    let marca = marcaDoItem(cabeca: anterior)
+                    mudancas.append((intervalo, itens.map { marca + $0 }.joined(separator: "\n")))
+                    continue
+                }
                 if bloco.count == 1, bloco[0].trimmingCharacters(in: .whitespaces).hasPrefix("#") {
                     temTitulo = true
                 }
                 continue
             }
-            if bloco.count >= 2, bloco.allSatisfy(curtaSemPonto) {
+            // a linha longa de compras também é lista: sem isto o bloco não
+            // passava do portão da linha curta e a nota ficava crua
+            if bloco.count >= 2,
+               bloco.allSatisfy({ curtaSemPonto($0) || itensDaEnumeracao($0, abaixoDe: anterior) != nil }) {
                 // linhas curtas paralelas = lista: cada uma vira item, com a
                 // cabeça que `cabecaEItens` reconhece (título ou seção)
                 let partida = cabecaEItens(bloco, abreANota: indice == 0 && !temTitulo, abaixoDe: anterior)
@@ -540,7 +554,15 @@ enum Caderno: Sendable {
                 mudancas.append((intervalo, (topo + partida.itens.map { marca + $0 }).joined(separator: "\n")))
                 continue
             }
-            if bloco.count == 1, curtaSemPonto(bloco[0]) {
+            // «Comprar: leite, pão, café»: a cabeça fica, os itens nascem
+            if bloco.count == 1, let partida = cabecaEItensNaLinha(bloco[0]) {
+                let topo = (temTitulo ? "## " : "# ") + partida.cabeca
+                temTitulo = true
+                let marca = marcaDoItem(cabeca: partida.cabeca)
+                mudancas.append((intervalo, ([topo] + partida.itens.map { marca + $0 }).joined(separator: "\n")))
+                continue
+            }
+            if bloco.count == 1, curtaSemPonto(bloco[0]) || itensDaEnumeracao(bloco[0], abaixoDe: anterior) != nil {
                 // uma linha de itens («Leite , farinha , ovo») é lista, um item
                 // por linha — nunca título nem seção (dono, 17/09: a linha das
                 // compras virou SEÇÃO)
@@ -558,7 +580,8 @@ enum Caderno: Sendable {
         }
         var saida = texto
         for (intervalo, vestido) in mudancas.reversed() { saida.replaceSubrange(intervalo, with: vestido) }
-        return saida
+        // dar forma também enxuga o vão que cresceu antes desta volta
+        return enxugarVaos(saida)
     }
 
     /// Uma linha de itens («Leite , farinha , ovo»): dois ou mais separadores —
@@ -577,7 +600,16 @@ enum Caderno: Sendable {
     /// ponytail: conta palavras, não lê gramática; «Hoje, amanhã, depois» ainda é lista.
     nonisolated static func itensDaEnumeracao(_ linha: String, abaixoDe anterior: String = "") -> [String]? {
         let t = linha.trimmingCharacters(in: .whitespaces)
-        guard t.count <= 60, !t.contains(":"), let ultimo = t.last, !".!?…".contains(ultimo) else { return nil }
+        // «Comprar: leite, pão, café» numa linha só: a cabeça está aqui dentro
+        // (auditoria 17/09 — a linha inteira virava TÍTULO, sem bolinha nenhuma)
+        if let dois = t.firstIndex(of: ":"), cabecaDeLista(String(t[..<dois])) {
+            let resto = String(t[t.index(after: dois)...])
+            return itensDaEnumeracao(resto, abaixoDe: String(t[..<dois]))
+        }
+        // debaixo de uma cabeça de compras a linha pode ser longa: o teto de 60
+        // é o da linha curta de título, e uma compra de sete itens passa dele
+        let teto = cabecaDeLista(anterior) ? 200 : 60
+        guard t.count <= teto, !t.contains(":"), let ultimo = t.last, !".!?…".contains(ultimo) else { return nil }
         let cs = Array(t)
         var itens = [""]
         var fundo = 0
@@ -590,10 +622,10 @@ enum Caderno: Sendable {
             guard fundo == 0, !aspas else { return nil }
             itens.append("")
         }
-        let teto = cabecaDeLista(anterior) ? 4 : 2
+        let tetoDePalavras = cabecaDeLista(anterior) ? 4 : 2
         let limpos = itens.map { $0.trimmingCharacters(in: .whitespaces) }
         guard limpos.count >= 3,
-              limpos.allSatisfy({ !$0.isEmpty && $0.split(whereSeparator: \.isWhitespace).count <= teto })
+              limpos.allSatisfy({ !$0.isEmpty && $0.split(whereSeparator: \.isWhitespace).count <= tetoDePalavras })
         else { return nil }
         return limpos
     }
@@ -608,6 +640,77 @@ enum Caderno: Sendable {
             .contains(regex: #"^(#+\s*)?(comprar|compras|mercado|supermercado|feira|lista)(\s+(de|do|da|dos|das|no|na|nos|nas|em|pra|para|pro)\b.*)?\s*:?$"#)
     }
 
+    /// O conserto da nota que uma volta anterior vestiu errado: a linha de
+    /// itens que ficou de cabeçalho volta a ser lista e o vão que cresceu
+    /// enxuga. Só isso — dar forma ao que o autor deixou em prosa é trabalho do
+    /// «Concluir», e a varredura do arranque não decide por ele.
+    /// O mesmo texto com todo visto em branco: serve para comparar duas versões
+    /// e saber se a ÚNICA diferença foi marcar itens (marcar não é uma versão
+    /// nova do texto — «Alterações» enchia de linhas iguais, uma por bolinha
+    /// tocada no mercado).
+    nonisolated static func semVistos(_ texto: String) -> String {
+        texto.replacingOccurrences(of: "- [x] ", with: "- [ ] ")
+            .replacingOccurrences(of: "- [X] ", with: "- [ ] ")
+            .replacingOccurrences(of: "* [x] ", with: "* [ ] ")
+            .replacingOccurrences(of: "* [X] ", with: "* [ ] ")
+    }
+
+    /// O que o campo do título una grava quando o Enter desce para o corpo:
+    /// título, e o resto só se houver resto. Era aqui que a nota engordava —
+    /// o campo punha `"\n\n"` e `aplicar` punha outro, duas linhas em branco
+    /// por Enter (dono, 17/09: 43 linhas em branco na nota «Comprar»).
+    nonisolated static func tituloComResto(_ bloco: BlocoCaderno, resto: String) -> String {
+        let limpo = resto.trimmingCharacters(in: .whitespacesAndNewlines)
+        return serializar(bloco) + (limpo.isEmpty ? "" : "\n\n" + resto)
+    }
+
+    nonisolated static func consertarVestidoErrado(_ texto: String) -> String {
+        var anterior = ""
+        var mudancas: [(Range<String.Index>, String)] = []
+        for intervalo in intervalosParaVestir(texto) {
+            let bloco = texto[intervalo].split(whereSeparator: \.isNewline).map(String.init)
+            defer { anterior = bloco.last ?? "" }
+            guard bloco.count == 1, let itens = itensDoCabecalho(bloco[0], abaixoDe: anterior) else { continue }
+            let marca = marcaDoItem(cabeca: anterior)
+            mudancas.append((intervalo, itens.map { marca + $0 }.joined(separator: "\n")))
+        }
+        var saida = texto
+        for (intervalo, novo) in mudancas.reversed() { saida.replaceSubrange(intervalo, with: novo) }
+        return enxugarVaos(saida)
+    }
+
+    /// Os itens escondidos num cabeçalho: «## Leite , farinha , ovo» é uma
+    /// linha de itens que alguém marcou de seção (a forma da IA, 17/09; o
+    /// modelo tem licença de dizer «secao» e disse). `nil` quando o cabeçalho
+    /// é cabeçalho de verdade. Um lugar só: a regra local (`estruturar`) e a
+    /// recusa do mapa da IA (`Sabia.vestir`).
+    nonisolated static func itensDoCabecalho(_ linha: String, abaixoDe anterior: String = "") -> [String]? {
+        let t = linha.trimmingCharacters(in: .whitespaces)
+        guard t.hasPrefix("#") else { return nil }
+        let corpo = t.drop(while: { $0 == "#" }).trimmingCharacters(in: .whitespaces)
+        guard !corpo.isEmpty else { return nil }
+        return itensDaEnumeracao(corpo, abaixoDe: anterior)
+    }
+
+    /// A nota que é só cabeça e itens: título, seção, lista, tarefa e linha em
+    /// branco, nada mais. É o que sobrevive ao vestir — depois de a forma
+    /// partir «leite, pão, café» em três itens, não há mais vírgula para
+    /// reconhecer, e a nota de compras voltava a ganhar «A única coisa de hoje»
+    /// (auditoria 17/09).
+    nonisolated static func soCabecaEItens(_ texto: String) -> Bool {
+        let blocos = fatias(texto).map(\.bloco)
+        var temItens = false
+        for bloco in blocos {
+            switch bloco {
+            case .itens, .tarefas: temItens = true
+            case .titulo: continue
+            case .paragrafo(let t) where t.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty: continue
+            default: return false
+            }
+        }
+        return temItens
+    }
+
     /// A marca com que um item nasce. Debaixo de «Comprar», «Compras»,
     /// «Mercado», «Lista de…» (`cabecaDeLista`), o item é para RISCAR: nasce
     /// tarefa, com a bolinha que vira visto verde ao toque — dono, 17/09: «uma
@@ -616,6 +719,17 @@ enum Caderno: Sendable {
     /// Um lugar só: a regra local (`estruturar`) e a forma da IA (`Sabia.aplicar`).
     nonisolated static func marcaDoItem(cabeca: String?) -> String {
         cabecaDeLista(cabeca ?? "") ? "- [ ] " : "- "
+    }
+
+    /// A cabeça e os itens de UMA linha: «Comprar: leite, pão, café» devolve
+    /// («Comprar», [leite, pão, café]). `nil` quando não há cabeça na linha.
+    nonisolated static func cabecaEItensNaLinha(_ linha: String) -> (cabeca: String, itens: [String])? {
+        let t = linha.trimmingCharacters(in: .whitespaces)
+        guard let dois = t.firstIndex(of: ":") else { return nil }
+        let cabeca = String(t[..<dois]).trimmingCharacters(in: .whitespaces)
+        guard cabecaDeLista(cabeca), let itens = itensDaEnumeracao(String(t[t.index(after: dois)...]), abaixoDe: cabeca)
+        else { return nil }
+        return (cabeca, itens)
     }
 
     /// Cabeça e itens de um bloco de linhas sem marca — a mesma leitura na
@@ -628,10 +742,15 @@ enum Caderno: Sendable {
     nonisolated static func cabecaEItens(_ linhas: [String], abreANota: Bool,
                                          abaixoDe anterior: String) -> (cabeca: String?, itens: [String]) {
         let l = linhas.map { $0.trimmingCharacters(in: .whitespaces) }
-        func itens(_ k: Int) -> [String]? { itensDaEnumeracao(l[k], abaixoDe: k > 0 ? l[k - 1] : anterior) }
-        let temCabeca = l.count >= 2 && itens(0) == nil
-            && (itens(1) != nil || abreANota && l.count >= 3 && l.allSatisfy(curtaSemPonto))
-        return (temCabeca ? l[0] : nil, l.indices.dropFirst(temCabeca ? 1 : 0).flatMap { itens($0) ?? [l[$0]] })
+        func itens(_ k: Int, _ cabeca: String) -> [String]? { itensDaEnumeracao(l[k], abaixoDe: cabeca) }
+        let temCabeca = l.count >= 2 && itens(0, anterior) == nil
+            && (itens(1, l[0]) != nil || abreANota && l.count >= 3 && l.allSatisfy(curtaSemPonto))
+        // com cabeça, ela vale para TODAS as linhas: a segunda linha de compras
+        // («pasta de dente, sabão em pó») não partia porque olhava a linha de
+        // cima em vez da cabeça (auditoria 17/09)
+        let cabeca = temCabeca ? l[0] : anterior
+        return (temCabeca ? l[0] : nil,
+                l.indices.dropFirst(temCabeca ? 1 : 0).flatMap { itens($0, cabeca) ?? [l[$0]] })
     }
 
     /// Linha curta e sem pontuação de fim de frase: candidata a título ou item.
@@ -678,12 +797,50 @@ enum Caderno: Sendable {
         aplicar(fatias, id: id, novo: serializar(bloco))
     }
 
+    /// Vão de mais de uma linha em branco não existe no caderno: o que separa
+    /// dois blocos é UMA linha em branco. A nota «Comprar» do dono chegou a 43
+    /// linhas em branco entre o título e a lista (17/09, no iPhone): cada Enter
+    /// no título una somava duas — o `"\n\n"` do campo mais o `"\n\n"` com que
+    /// `aplicar` junta as partes. Dentro de código cercado ou de um recipiente
+    /// (`:::`) a linha vazia é conteúdo do autor e fica — o fuzz do caderno
+    /// pegou o verso com linhas em branco no meio.
+    nonisolated static func enxugarVaos(_ texto: String) -> String {
+        guard texto.contains("\n\n\n") else { return texto }
+        var saida: [String] = []
+        var vazias = 0
+        var dentroDeCodigo = false
+        for linha in texto.split(separator: "\n", omittingEmptySubsequences: false).map(String.init) {
+            let t = linha.trimmingCharacters(in: .whitespaces)
+            if t.hasPrefix("```") || t.hasPrefix("~~~") || t == ":::" || t.hasPrefix(":::") {
+                dentroDeCodigo.toggle()
+                vazias = 0
+                saida.append(linha)
+                continue
+            }
+            if dentroDeCodigo {
+                vazias = 0
+                saida.append(linha)
+                continue
+            }
+            if t.isEmpty {
+                vazias += 1
+                if vazias > 1 { continue }
+            } else {
+                vazias = 0
+            }
+            saida.append(linha)
+        }
+        return saida.joined(separator: "\n")
+    }
+
     nonisolated static func aplicar(_ fatias: [FatiaCaderno], id: String, novo: String) -> String {
         var partes = fatias.map { $0.id == id ? novo : $0.fonte }
         while partes.last?.isEmpty == true {
             partes.removeLast()
         }
-        // "\n\n", não "\n": a linha em branco é o que SEPARA dois parágrafos.
+        // "\n\n", não "\n": a linha em branco é o que SEPARA dois parágrafos —
+        // e `enxugarVaos` garante que ela seja UMA, senão o vão cresce a cada
+        // gravação (dono, 17/09: 43 linhas em branco na nota «Comprar»).
         // Com um \n só, trocar uma fatia por ELA MESMA fundia os parágrafos do
         // autor num só — bastava tocar um chip ou editar um bloco para a nota
         // perder a divisão que ele escreveu. Entre blocos a linha em branco é

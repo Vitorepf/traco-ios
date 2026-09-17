@@ -37,6 +37,11 @@ struct CadernoView: View {
     /// Sem isto, ligar duas notas exigia decorar o título — e a lei do dono é
     /// que ele nunca deve ter de lembrar de nada.
     var titulosParaLigar: [String] = []
+    /// Marcar um item não é escrever: grava a nota na hora (senão o visto vivia
+    /// só na tela — o processo morrer devolvia a lista toda por fazer) e NÃO
+    /// chama a análise automática, que vestia método por causa de um toque
+    /// (auditoria 17/09). Sem quem ouça, cai no `aoMudar`.
+    var aoMarcarTarefa: (() -> Void)?
     var aoMudar: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -464,6 +469,14 @@ struct CadernoView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .onTapGesture { foco.wrappedValue = true }
+            } else if eTarefa, !foco.wrappedValue,
+                      !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                // fora de foco, a tarefa também é desenhada pelo PAPEL: um campo
+                // de texto não sabe riscar a si mesmo, e a nota de um item só
+                // ficava com o visto verde e o texto inteiro (auditoria 17/09)
+                ProsaView(bloco: fatia.bloco, aoAlternarTarefa: { i in alternarTarefa(fatia, i) })
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onTapGesture { foco.wrappedValue = true }
             } else {
                 linhaEditor(fatia)
             }
@@ -497,7 +510,7 @@ struct CadernoView: View {
                         var next = xs.isEmpty ? [TarefaCaderno(feito: false, texto: "")] : xs
                         next[0].feito.toggle()
                         texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(next))
-                        aoMudar()
+                        (aoMarcarTarefa ?? aoMudar)()
                     })
                     .opacity(eTarefa ? 1 : 0)
                     .allowsHitTesting(eTarefa)
@@ -538,9 +551,12 @@ struct CadernoView: View {
                     if case .titulo(let n, _) = fatia.bloco, let corte = novo.firstIndex(of: "\n") {
                         let cabeca = String(novo[..<corte])
                         let resto = String(novo[novo.index(after: corte)...])
+                        // sem `resto`, NADA de "\n\n": o campo punha o separador
+                        // e `aplicar` punha outro — cada Enter no título somava
+                        // duas linhas em branco, e a nota do dono chegou a 43
                         texto = Caderno.aplicar(
                             fatias, id: fatia.id,
-                            novo: Caderno.serializar(.titulo(n, cabeca)) + "\n\n" + resto
+                            novo: Caderno.tituloComResto(.titulo(n, cabeca), resto: resto)
                         )
                         editando = Caderno.fatias(texto).first {
                             if case .paragrafo = $0.bloco { true } else { false }
@@ -823,7 +839,7 @@ struct CadernoView: View {
         var next = xs
         next[indice].feito.toggle()
         texto = Caderno.aplicar(fatias, id: fatia.id, bloco: .tarefas(next))
-        aoMudar()
+        (aoMarcarTarefa ?? aoMudar)()
     }
 
     private func importarFoto(_ item: PhotosPickerItem?) async {

@@ -237,8 +237,10 @@ final class Sessao {
             // ou Apple Intelligence a proteção era NULA, no caso exato que ela
             // existe para impedir. Quem reconhece a escrita pessoal é o
             // algoritmo, e o algoritmo cala o modelo.
+            let prosaAtual = Caderno.prosa(de: textoAtual)
             let veredito = Self.escolher(remoto: remoto, local: local, pessoal: pessoal,
-                                         listaSemDia: AnaliseLocal.listaSemDia(Caderno.prosa(de: textoAtual)))
+                                         listaSemDia: AnaliseLocal.listaSemDia(prosaAtual, cru: textoAtual),
+                                         listaDeCompras: AnaliseLocal.listaDeCompras(prosaAtual, cru: textoAtual))
             self.aplicar(veredito, automatica: automatica)
         }
     }
@@ -252,7 +254,8 @@ final class Sessao {
     nonisolated static func escolher(remoto: AnaliseLocal.Veredito?,
                                      local: AnaliseLocal.Veredito,
                                      pessoal: Bool = false,
-                                     listaSemDia: Bool = false) -> AnaliseLocal.Veredito {
+                                     listaSemDia: Bool = false,
+                                     listaDeCompras: Bool = false) -> AnaliseLocal.Veredito {
         // ADR 04r: aviso local vence gesto remoto — o aviso é do algoritmo, sempre
         if case .aviso = local { return local }
         // ADR 06h: desabafo protegido pelo algoritmo não pode ser vestido pelo
@@ -263,13 +266,13 @@ final class Sessao {
         case .none, .some(.silencio): local
         case .some(let v): v
         }
-        // Dono, 17/09: a lista de compras não é matéria de MÉTODO nenhum. Era só
-        // o Destaque do dia que ela recusava; no 17e o modelo classificou
-        // «Comprar / Leite , farinha , ovo» como WOOP e a nota de compras ganhou
-        // «Resultado» e «Obstáculo interno» vazios. Lista é título, itens e o
-        // visto — e isto vale para o modelo E para a regra local
-        // (`AnaliseLocal.listaSemDia`).
-        if listaSemDia, case .gesto = escolhido { return .silencio }
+        // Dono, 17/09: a nota de COMPRAS não é matéria de método nenhum — no
+        // iPhone dele o modelo a classificou como WOOP e ela abriu «Resultado»
+        // e «Obstáculo interno» vazios. Vale para o modelo E para a regra local.
+        if listaDeCompras, case .gesto = escolhido { return .silencio }
+        // Qualquer nota de itens (sem sinal de dia) recusa o DESTAQUE: três
+        // linhas curtas de compra não são «a única coisa de hoje».
+        if listaSemDia, case .gesto(.destaque, _) = escolhido { return .silencio }
         return escolhido
     }
 
@@ -1242,7 +1245,10 @@ final class Sessao {
             mostrarToast("não consegui desfazer — a forma continua.")
             return
         }
-        if notaUUID == v.uuid, texto == vestido { texto = v.antes }
+        // quem tocou uma bolinha depois da forma mexeu no texto VESTIDO: desfazer
+        // a forma devolve o texto do autor na página também (auditoria 17/09 — o
+        // disco voltava e a página ficava com a forma, que o próximo salvar repunha)
+        if notaUUID == v.uuid { texto = v.antes }
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(nota, entre: todas) }
         if toast == Self.avisoDaNotaVestida { toast = linhaFixa }
         Toque.leve()
@@ -1698,7 +1704,13 @@ final class Sessao {
         var versaoAnterior: (texto: String, campos: [String: String], gesto: Gesto?, fechada: Bool)?
         if let notaUUID, let existente = Self.buscar(uuid: notaUUID, no: context) {
             if existente.texto != texto || existente.campos != campos {
-                versaoAnterior = (existente.texto, existente.campos, existente.gesto, existente.fechada)
+                // marcar um item não é versão nova: no mercado, cada bolinha
+                // tocada gerava uma linha igual em «Alterações» (auditoria 17/09)
+                let soOVisto = existente.campos == campos
+                    && Caderno.semVistos(existente.texto) == Caderno.semVistos(texto)
+                if !soOVisto {
+                    versaoAnterior = (existente.texto, existente.campos, existente.gesto, existente.fechada)
+                }
             }
             // Gravar sem mudança não é edição (auditoria 16/09): trocar de aba ou o
             // app perder o foco mudava a data e reescrevia os campos, e a resposta
@@ -1770,6 +1782,14 @@ final class Sessao {
             let g = Geracao.proxima()
             Task.detached(priority: .utility) { Indice.atualizar(lida, geracao: g) }
             classificarDominioNoAparelho(da: nota, no: context) // ADR 05d
+            // regra de ferro 2, a valer também aqui: o espelho em Arquivos e o
+            // Spotlight seguem o texto gravado. Sem isto, marcar um item deixava
+            // a cópia .md e a busca do sistema com a lista de antes (auditoria
+            // 17/09; era a dívida «o espelho não é reescrito a cada toque»).
+            if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+                Corpus.backupDeUma(nota, entre: todas)
+                Holofote.indexar(notas: todas)
+            }
         }
         return true
     }
@@ -2098,6 +2118,55 @@ final class Sessao {
         let lidas = todas.map(Self.paraIndice)
         let g = Geracao.proxima()
         Task.detached(priority: .utility) { Indice.sincronizar(lidas, geracao: g) }
+    }
+
+    /// No arranque, a nota que ficou com a forma errada de uma volta anterior se
+    /// conserta sozinha — o autor não tem de descobrir que precisa tocar em
+    /// «Concluir» de novo. Dono, 17/09, no iPhone: a nota «Comprar» abriu com a
+    /// linha de compras vestida de SEÇÃO, 43 linhas em branco no meio e um
+    /// Destaque de campo vazio colado nela.
+    ///
+    /// Três consertos, e só eles: a linha de itens que virou cabeçalho volta a
+    /// ser lista (`Caderno.consertarVestidoErrado`), o vão de várias linhas em
+    /// branco enxuga (`Caderno.enxugarVaos`) e o método com TODOS os campos
+    /// vazios numa lista de compras sai de cena. A guarda é dura: se as
+    /// PALAVRAS mudarem, a nota não é tocada — forma é da IA, palavra é do
+    /// autor (ADR o). A versão anterior fica em `Versoes`, e o rótulo do método
+    /// removido vai para o histórico junto.
+    func consertarFormaVelha(no context: ModelContext) {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        var mexidas = 0
+        // expressiva não se toca NUNCA: é desabafo, não matéria de forma
+        for nota in notas where !nota.queimada && !nota.trancada
+            && nota.gesto != .expressiva && nota.origem == .autor {
+            let antes = nota.texto
+            let depois = Caderno.consertarVestidoErrado(antes)
+            let soltarMetodo = nota.gesto != nil
+                && nota.gesto != .expressiva
+                && nota.campos.values.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                && AnaliseLocal.listaDeCompras(Caderno.prosa(de: depois), cru: depois)
+            guard depois != antes || soltarMetodo else { continue }
+            guard Self.palavrasIguais(antes, depois) else { continue }
+            Versoes.registrar(nota.uuid, texto: antes, campos: nota.campos,
+                              gesto: nota.gesto, fechada: nota.fechada)
+            nota.texto = depois
+            if soltarMetodo {
+                nota.gesto = nil
+                nota.campos = [:]
+            }
+            mexidas += 1
+        }
+        guard mexidas > 0, persistir(context) else { return }
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
+    }
+
+    /// As palavras, na ordem, sem marca nem pontuação de sintaxe: a régua de que
+    /// a forma não mexeu no que o autor escreveu.
+    nonisolated static func palavrasIguais(_ a: String, _ b: String) -> Bool {
+        func palavras(_ s: String) -> [String] {
+            s.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map { $0.lowercased() }
+        }
+        return palavras(a) == palavras(b)
     }
 
     /// V3: no arranque, série viva que perdeu o aviso volta a ter um.
