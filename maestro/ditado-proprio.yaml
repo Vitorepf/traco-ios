@@ -14,6 +14,9 @@ appId: app.traco
 
 # 1. gravando → transcrevendo → transcrito
 - openLink: "traco://ditar?ensaio=transcrito"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
 - assertVisible: {id: ditado-relogio}
 - tapOn: {id: ditado-pronto}
@@ -27,6 +30,9 @@ appId: app.traco
 
 # 2. a nota existe, com a transcrição e o ÁUDIO dentro
 - openLink: "traco://notas"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil: {visible: "comprar pão e ligar para a Ana amanhã cedo", timeout: 10000}
 - tapOn: "comprar pão e ligar para a Ana amanhã cedo"
 - extendedWaitUntil: {visible: "ÁUDIO", timeout: 10000}
@@ -35,6 +41,9 @@ appId: app.traco
 # 3. caminho real: no simulador não há modelo de fala no aparelho, então a
 #    transcrição FALHA de verdade — e o áudio fica
 - openLink: "traco://ditar"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
 - tapOn: {id: ditado-pronto}
 - extendedWaitUntil: {visible: "O áudio ficou.", timeout: 20000}
@@ -45,6 +54,9 @@ appId: app.traco
 #     no disco — a tela dizia "Sem microfone. / Nada foi gravado", e agora diz
 #     o que existe, o que falhou e o que dá para fazer.
 - openLink: "traco://ditar?ensaio=disco-recusa"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
 - tapOn: {id: ditado-pronto}
 - extendedWaitUntil: {visible: "O áudio ficou no aparelho.", timeout: 10000}
@@ -59,6 +71,9 @@ appId: app.traco
     permissions: {microphone: deny}
 - extendedWaitUntil: {visible: {id: pagina}, timeout: 15000}
 - openLink: "traco://ditar"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil: {visible: "Sem microfone.", timeout: 10000}
 - assertVisible: ".*Nada foi gravado.*"
 - tapOn: {id: ditado-escrever}

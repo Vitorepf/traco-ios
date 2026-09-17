@@ -12,6 +12,9 @@ appId: app.traco
     id: "concluir"
 # traco://recordar → recordarMaisRecente → o Recordar da nota mais recente
 - openLink: traco://recordar
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: "Recordar"
     timeout: 8000
@@ -20,6 +23,9 @@ appId: app.traco
 - tapOn: "Voltar"
 # traco://nova → página em branco (o texto de antes não está mais na página)
 - openLink: traco://nova
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible:
       id: pagina

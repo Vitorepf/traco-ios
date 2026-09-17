@@ -36,7 +36,7 @@ xcrun simctl install booted "$APP" || exit 2
 # idêntico), e UserDefaults morre no `clearState`. O ambiente não vive no
 # contêiner do app, então sobrevive.
 VIVOS="maestro/pergunta-sabia.yaml maestro/lente-instigar.yaml"
-FLUXOS=${@:-$(ls maestro/*.yaml maestro/cenarios/*.yaml)}
+FLUXOS=${@:-$(ls maestro/*.yaml maestro/cenarios/*.yaml 2>/dev/null)}
 FALHAS=""
 
 xcrun simctl spawn booted launchctl setenv TRACO_SEM_MODELO 1

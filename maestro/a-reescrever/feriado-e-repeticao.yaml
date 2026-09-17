@@ -14,6 +14,9 @@ appId: app.traco
     text: "Permitir"
     optional: true
 - openLink: traco://calendario/dia
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: {id: "calendario-titulo"}
     timeout: 6000
@@ -42,6 +45,9 @@ appId: app.traco
 
 # o feriado: 7 de setembro tem nome no cabeçalho quando é a âncora
 - openLink: traco://calendario/dia
+- tapOn:
+    text: "Abrir"
+    optional: true
 - waitForAnimationToEnd: {timeout: 2000}
 - tapOn: {id: "calendario-prosa"}
 - waitForAnimationToEnd: {timeout: 1500}

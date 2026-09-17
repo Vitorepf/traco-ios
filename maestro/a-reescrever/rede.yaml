@@ -23,6 +23,9 @@ appId: app.traco
 - tapOn: "Concluir"
 - waitForAnimationToEnd: {timeout: 2000}
 - openLink: traco://notas
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: "atencao é um musculo"
     timeout: 6000

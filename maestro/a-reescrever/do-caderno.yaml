@@ -24,6 +24,9 @@ appId: app.traco
     optional: true
 - waitForAnimationToEnd: {timeout: 1500}
 - openLink: traco://calendario/dia
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: {id: "calendario-titulo"}
     timeout: 6000

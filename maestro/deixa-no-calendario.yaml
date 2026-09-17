@@ -27,9 +27,18 @@ appId: app.traco
 - tapOn: "Concluir"
 - waitForAnimationToEnd: {timeout: 2500}
 - openLink: traco://calendario/semana
+- tapOn:
+    text: "Abrir"
+    optional: true
 - waitForAnimationToEnd: {timeout: 2000}
 - openLink: traco://calendario/dia
+- tapOn:
+    text: "Abrir"
+    optional: true
 - openLink: traco://calendario/semana
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: "chegar em casa.*"
     timeout: 15000

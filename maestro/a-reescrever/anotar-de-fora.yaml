@@ -15,6 +15,9 @@ appId: app.traco
     visible: {id: pagina}
     timeout: 8000
 - openLink: "traco://anotar?texto=ligar%20para%20o%20dentista%20antes%20de%20sexta"
+- tapOn:
+    text: "Abrir"
+    optional: true
 - extendedWaitUntil:
     visible: "1 nota veio de fora."
     timeout: 10000
