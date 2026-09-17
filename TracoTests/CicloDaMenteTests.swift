@@ -661,6 +661,11 @@ private func temp(_ nome: String) -> URL {
         #expect(Trajetoria.contagem(2, "WOOP") == "2 WOOP")
         #expect(Trajetoria.contagem(1, nil) == "1 solta")
         #expect(Trajetoria.contagem(5, nil) == "5 soltas")
+        // o Retrato no Perfil, em língua de gente (auditoria 17/09)
+        #expect(PerfilView.retratoParaTela("Formas nos últimos 30 dias (contagem): 12 sem forma · 5 Decisão.")
+                == "Nos últimos 30 dias: 12 soltas · 5 decisões.")
+        #expect(PerfilView.retratoParaTela("Próximas que já escreveu (citações): “ligar” (02/09).")
+                == "Próximos passos que você escreveu: “ligar” (02/09).")
     }
 }
 

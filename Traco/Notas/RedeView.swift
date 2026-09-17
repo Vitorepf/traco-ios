@@ -59,6 +59,9 @@ struct RedeView: View {
         sessao.abrir(nota)
         let fim = sessao.texto.hasSuffix("\n") || sessao.texto.isEmpty ? "" : "\n\n"
         sessao.texto += fim + "[[\(alvo.tituloNaLista)]]"
+        // guarda já: a ligação não pode depender de o autor concluir (visto no
+        // 17e: o app fechado antes do Concluir perdia a ligação)
+        _ = sessao.salvar(no: context)
         sessao.irPara(.escrever, no: context)
         dismiss()
     }

@@ -516,6 +516,8 @@ struct PaginaView: View {
         versoesDaPagina = membros.contains(where: { $0.uuid == uuid }) ? membros : []
     }
 
+    private var mostraConcluir: Bool { sessao.temVoz && sessao.mudouDesdeAbrir }
+
     private var topbar: some View {
         HStack {
             // "Notas" solto lia como título da página (auditoria 13/09,
@@ -545,10 +547,11 @@ struct PaginaView: View {
                 // uma cor só (auditoria 17/09: preto na nota, âmbar na Decisão)
                 .foregroundStyle(Tema.tinta)
                 .fontWeight(.semibold)
-                .opacity(sessao.temVoz ? 1 : 0)
-                .allowsHitTesting(sessao.temVoz)
+                // só depois de uma edição (auditoria 17/09, #42): abrir para ler não pede «Concluir»
+                .opacity(mostraConcluir ? 1 : 0)
+                .allowsHitTesting(mostraConcluir)
                 .alvo()
-                .accessibilityHidden(!sessao.temVoz)
+                .accessibilityHidden(!mostraConcluir)
                 .accessibilityIdentifier("concluir")
                 .accessibilityLabel("Concluir")
                 .accessibilityHint("Guarda e abre uma página nova")

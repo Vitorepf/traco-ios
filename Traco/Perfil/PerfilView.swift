@@ -193,6 +193,36 @@ struct PerfilView: View {
         }
     }
 
+    /// O Retrato na língua de quem lê (auditoria 17/09: «Formas nos últimos 30
+    /// dias (contagem): 12 sem forma · 5 Decisão»). O conteúdo é o mesmo que
+    /// viaja; só os rótulos do pedido viram frase de gente.
+    static func retratoParaTela(_ texto: String) -> String {
+        texto.split(separator: "\n", omittingEmptySubsequences: true).map { linha -> String in
+            var l = String(linha)
+            let trocas: [(String, String)] = [
+                ("Obstáculos internos já nomeados (citações, com a data da nota): ", "Obstáculos que você nomeou: "),
+                ("Próximas que já escreveu (citações): ", "Próximos passos que você escreveu: "),
+                ("Juízos que já cortou numa frase (citações): ", "Ideias que você destilou numa frase: "),
+                ("Resultados informados no Trabalho (citações): ", "Resultados que você trouxe do Trabalho: "),
+                ("Palavras conquistadas, nas palavras de quem escreve (citações): ", "Palavras que você fez suas: "),
+                ("Decisões conferidas (contagem): ", "Decisões conferidas: "),
+                (" provas do Recordar (contagem),", " vezes no Recordar,"),
+            ]
+            for (de, para) in trocas { l = l.replacingOccurrences(of: de, with: para) }
+            let prefixo = "Formas nos últimos 30 dias (contagem): "
+            if l.hasPrefix(prefixo) {
+                let itens = l.dropFirst(prefixo.count).trimmingCharacters(in: CharacterSet(charactersIn: ".")).components(separatedBy: " · ")
+                let lidos = itens.compactMap { item -> String? in
+                    let partes = item.split(separator: " ", maxSplits: 1).map(String.init)
+                    guard partes.count == 2, let n = Int(partes[0]) else { return item }
+                    return Trajetoria.contagem(n, partes[1] == "sem forma" ? nil : partes[1])
+                }
+                l = "Nos últimos 30 dias: " + lidos.joined(separator: " · ") + "."
+            }
+            return l
+        }.joined(separator: "\n")
+    }
+
     private var sabiaEVoce: some View {
         recolhidas.secao("A Sábia e você", id: "sabia") {
             chave("person.text.rectangle", "A Sábia conhece você",
@@ -207,7 +237,7 @@ struct PerfilView: View {
                     }))
             if retratoLigado {
                 // o retrato é CONTEÚDO (é o que viaja), não subtítulo: inteiro
-                prosa(retratoTexto.isEmpty ? "Ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto,
+                prosa(retratoTexto.isEmpty ? "Ainda não há retrato — ele nasce das suas notas e dos registros." : Self.retratoParaTela(retratoTexto),
                       cor: retratoTexto.isEmpty ? Tema.tintaFraca : Tema.tintaSuave)
                     .accessibilityIdentifier("retrato")
                     .accessibilityLabel("O retrato que pode viajar")
