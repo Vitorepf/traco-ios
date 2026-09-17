@@ -6,7 +6,8 @@ import Testing
 @MainActor @Suite(.serialized)
 struct RevisaoConferenciaNotasTests {
     @Test func obraOmitidaNaoCalaParteApoiadaPorOutraNota() async throws {
-        let obra = FonteNotas(id: UUID(), titulo: "Duna", texto: "Duna\n" + String(repeating: "material longo ", count: 2000), editadaEm: .now)
+        // E9: nota do AUTOR enorme entra por partes; o que se omite inteiro é a obra que não cabe
+        let obra = FonteNotas(id: UUID(), titulo: "Duna", texto: "Duna\n" + String(repeating: "material longo ", count: 2000), editadaEm: .now, obra: true)
         let escolha = FonteNotas(id: UUID(), titulo: "Minha escolha", texto: "Tenho 80 reais reservados. Ainda não anotei o preço.", editadaEm: .now)
         let pergunta = "Resuma o livro Duna sobre liderança e diga o que falta na minha anotação para decidir a compra."
         let cru = #"{"base":"notas","texto":"Esta consulta não trouxe o trecho da obra sobre liderança. Sua anotação reserva 80 reais; falta consultar o preço para comparar ao valor reservado.","trechoIDs":["N1T1"]}"#

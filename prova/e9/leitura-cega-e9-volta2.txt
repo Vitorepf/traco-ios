@@ -1,0 +1,28 @@
+# Volta 2 (corrida CB6046FE): leitura cega. Leitor 1 — os 6 casos da nota enorme × 3 (a não inventa, b não contradiz, c concisão, d utilidade). Leitor 2 — voz, gênero e casos da V nas 141.
+
+## Leitor 1 — casos da nota enorme
+e9-a-especifica rep 1 — SIM SIM SIM SIM — CUMPRE (R$ 410 vigente; 440 e 380 como histórico)
+e9-a-especifica rep 2 — SIM SIM SIM SIM — CUMPRE
+e9-a-especifica rep 3 — SIM SIM SIM SIM — CUMPRE
+e9-a-ampla rep 1 — SIM SIM NÃO NÃO — NÃO (rotina toma metade; a mudança da Débora fica fora)
+e9-a-ampla rep 2 — SIM SIM NÃO NÃO — NÃO (longa, lista rotina, fala da mecânica «4 de 45 partes», omite a Débora)
+e9-a-ampla rep 3 — SIM NÃO NÃO NÃO — NÃO (nega mudanças registradas: «nada é marcado como mudança estrutural»)
+e9-b-especifica rep 1 — SIM SIM SIM SIM — CUMPRE
+e9-b-especifica rep 2 — SIM SIM SIM SIM — CUMPRE
+e9-b-especifica rep 3 — SIM SIM SIM SIM — CUMPRE
+e9-b-ampla rep 1 — SIM SIM NÃO NÃO — NÃO (uma conclusão das três; despeja conceitos do material)
+e9-b-ampla rep 2 — SIM SIM NÃO NÃO — NÃO (uma conclusão; mistura conclusão com o texto lido; longa)
+e9-b-ampla rep 3 — SIM SIM SIM SIM — CUMPRE (as três conclusões)
+e9-c-especifica rep 1 — SIM SIM SIM SIM — CUMPRE (peroba, 1,80 × 70, MDF descartado)
+e9-c-especifica rep 2 — SIM SIM SIM SIM — CUMPRE
+e9-c-especifica rep 3 — SIM SIM SIM SIM — CUMPRE
+e9-c-ampla rep 1 — SIM SIM NÃO SIM — NÃO (completa, mas traz lembretes de outras notas e a mecânica)
+e9-c-ampla rep 2 — SIM SIM NÃO SIM — NÃO (longa; «não está nas linhas enviadas desta parte»)
+e9-c-ampla rep 3 — SIM SIM NÃO SIM — NÃO (longa; ressalva confusa «só na leitura da nota inteira»)
+Totais: (a)+(b) 1 violação em 18. (c)+(d) nas 3 repetições: específicas 3/3; amplas 0/3. Gênero 0.
+
+## Leitor 2 — voz, gênero e casos da V (141 respostas)
+VOZ: 0. GÊNERO: 1 — p-16 rep 2: «depois de mais longo, seja mais rígido e zere» (ordem ao dono no masculino).
+Casos × repetições: prec-01 SIM SIM SIM · prec-02 SIM SIM SIM · prec-03 SIM SIM SIM · prec-04 SIM SIM SIM · prec-05 SIM SIM SIM · prec-06 SIM SIM SIM · real-01 SIM SIM SIM.
+INVENÇÃO/CONTRADIÇÃO (casos com caderno): 0.
+Ressalvas não contadas: prec-01 «trocar agora vale mais que o inglês» ambíguo e «Colégio Aurora» (nome fora do caderno) em reps 1–2; jargão interno vazando (prec-06 rep 2 «contagem auxiliar de formas recentes»; p-14 rep 3 «vídeo citado na nota»; p-13 rep 1 «SDR»); p-17 rep 1 alarga a regra do Hormozi («ou ganhar tração»).

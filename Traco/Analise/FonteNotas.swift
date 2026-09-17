@@ -28,6 +28,9 @@ nonisolated struct FonteNotas: Codable, Equatable, Sendable {
     /// E7: nota escrita pelo autor (não do bot, não obra). Só ela a tela nomeia
     /// quando fica fora do pacote.
     var doAutor: Bool = true
+    /// E9: a leitura guardada da nota inteira, feita pela Sábia (`SinteseDeNota`).
+    /// Vai ao pedido rotulada como leitura da IA, nunca como linha da nota.
+    var sintese: String? = nil
 
     /// Grafemas. Cabe em duas linhas de `meta` em `large`; acima disso a
     /// citação deixa de nomear e passa a repetir.
@@ -85,6 +88,8 @@ nonisolated enum RespostaNotas {
         /// E7: o tamanho do pacote que foi ao modelo e o que ficou fora. A sonda lê.
         var tamanhoDoPacote: Int = 0
         var fora: [String] = []
+        /// E9: as notas do autor que foram por partes — a sessão faz a leitura delas.
+        var notasPorPartes: [UUID] = []
         /// ADR 2026-09-16i: quem escolheu as seções da obra — "modelo" ou
         /// "palavras"; nil sem obra conferida. A sonda lê; a tela não.
         var viaObra: String? = nil
@@ -103,6 +108,9 @@ nonisolated enum RespostaNotas {
         /// E7 (ADR 2026-09-16l): o que ficou fora ou cortado, e por quê —
         /// "nota «título»: não coube", "retrato: não coube"… A sonda grava.
         var fora: [String] = []
+        /// E9: quantas notas longas foram por partes (o pacote avisa que é parcial), e quais.
+        var porPartes: Int { idsPorPartes.count }
+        var idsPorPartes: [UUID] = []
         /// As notas DO AUTOR que ficaram fora do pacote, pelo título: só elas a
         /// tela nomeia; nota do bot, obra, catálogo e retrato, nunca.
         var notasDoAutorForaInteiras: [String] = []
@@ -160,6 +168,7 @@ nonisolated enum RespostaNotas {
         }
         var pacote = Pacote(mensagem: carga(historico), fontes: [], omitidas: 0,
                              respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count)
+        var partesDaNota: [UUID: String] = [:]
         func bloco(_ fonte: FonteNotas, indice: Int) -> String {
             var campos: [String: Any] = [
                 "fonteID": "N\(indice)", "titulo": fonte.titulo,
@@ -167,6 +176,8 @@ nonisolated enum RespostaNotas {
             ]
             // a suposta pode ser texto da própria pessoa (16a/16b): não se diz "de um mestre" (revisão da V)
             if fonte.obra { campos["origem"] = fonte.obraConferida ? Obra.origemNoPedido : Obra.origemSupostaNoPedido }
+            if let partes = partesDaNota[fonte.id] { campos["partes"] = partes }
+            if let sintese = fonte.sintese { campos["leituraDaSabia"] = SinteseDeNota.rotuloNoPedido + sintese }
             return "\n\nNOTA (JSON; ID do trecho = fonteID + T + posição da linha, começando em 1):\n" + json(campos)
         }
         func caber(_ fonte: FonteNotas) -> Bool {
@@ -176,11 +187,35 @@ nonisolated enum RespostaNotas {
             pacote.fontes.append(fonte)
             return true
         }
-        // E7: sem teto por nota — o recorte por linha deixava só o título de uma nota
-        // de parágrafo longo, e o corte por caractere manda como citável linha que
-        // não foi escrita assim (revisão da E7). Nota que não cabe fica fora, nomeada.
-        for fonte in fontes where !fonte.obra {
-            if !caber(fonte) {
+        // E9 (PRINCÍPIO DA SÁBIA): a nota vai inteira quando cabe, como antes; a do
+        // AUTOR que não cabe nunca fica fora por tamanho — vão as partes que a pergunta
+        // pede, inteiras e na ordem da nota (cada linha é pedaço literal do que foi
+        // escrito), menos partes enquanto não couber. Sem palavra em comum, o começo e o fim.
+        // ponytail: BM25 não pesa a data; a correção mais nova vale pelo pedido, não pela escolha.
+        for original in fontes where !original.obra {
+            var fonte = original
+            var cabe = caber(fonte)
+            if !cabe, original.doAutor {
+                let todas = partes(original.texto)
+                let secoes = todas.enumerated().map { Obra.Secao(titulo: "", texto: $1, chave: String($0), mestre: nil) }
+                var escolhidas = Obra.ranquear(pergunta: pergunta, secoes: secoes).prefix(partesPorNota).compactMap { Int($0.secao.chave) }
+                let pelaPergunta = !escolhidas.isEmpty
+                if !pelaPergunta { escolhidas = Array(Set([0, todas.count - 1])).filter { $0 >= 0 } }
+                while !escolhidas.isEmpty, !cabe {
+                    // sem linha em branco entre as partes: a posição que o modelo conta é a que ele cita
+                    fonte.texto = escolhidas.sorted().map { todas[$0] }.joined(separator: "\n")
+                    partesDaNota[fonte.id] = "\(escolhidas.count) de \(todas.count) partes da nota, "
+                        + (pelaPergunta ? "as que tocam a pergunta" : "o começo e o fim")
+                        + "; as outras partes não vieram (a nota tem \(original.texto.count) caracteres)"
+                    cabe = caber(fonte)
+                    if !cabe { escolhidas.removeLast() }
+                }
+                if cabe {
+                    pacote.idsPorPartes.append(fonte.id)
+                    pacote.fora.append("nota «\(fonte.titulo)»: por partes (\(escolhidas.count) de \(todas.count))")
+                } else { partesDaNota[fonte.id] = nil }
+            }
+            if !cabe {
                 pacote.omitidas += 1
                 pacote.fora.append("nota «\(fonte.titulo)»: não coube")
                 if fonte.doAutor { pacote.notasDoAutorForaInteiras.append(fonte.titulo) }
@@ -230,7 +265,7 @@ nonisolated enum RespostaNotas {
             recortada.texto = cabem.joined(separator: "\n\n")
             if cabem.isEmpty || !caber(recortada) { pacote.omitidas += 1; pacote.fora.append("obra «\(original.titulo)»: não coube") }
         }
-        if pacote.omitidas > 0 { pacote.mensagem += aviso }
+        if pacote.omitidas > 0 || pacote.porPartes > 0 { pacote.mensagem += aviso }
         if pacote.respostasOmitidas > 0 { pacote.mensagem += avisoHistorico }
         return pacote
     }
@@ -295,6 +330,62 @@ nonisolated enum RespostaNotas {
     /// Conferência reusa este parser; reparo aceito aqui não tem terceira chamada.
     static let tetoDoTexto = 900
 
+    /// E9: acima disto a nota vai por partes — até `partesPorNota` de até `tamanhoDaParte`.
+    static let tetoInteira = 6_000
+    static let tamanhoDaParte = 1_500
+    static let partesPorNota = 4
+    static let cabecaCurta = 200
+
+    /// E9: a nota em partes endereçadas, na ordem. Um título (`#`) abre parte quando a
+    /// atual já passou da metade; as linhas se juntam até `tamanho` (a cabeça curta,
+    /// até `cabecaCurta`, vai junto do que vem embaixo e pode passar do tamanho); a linha maior quebra nas frases, e a frase
+    /// maior, na última palavra que cabe — toda linha que vai ao modelo é pedaço
+    /// literal do que foi escrito. Linha em branco não é conteúdo.
+    /// ponytail: continuação de uma seção longa perde o título dela (a data do diário).
+    nonisolated static func partes(_ bruto: String, tamanho: Int = tamanhoDaParte) -> [String] {
+        let texto = bruto.replacingOccurrences(of: "\r\n", with: "\n")
+        // as frases guardam o espaço que as separa: juntá-las devolve o texto como foi escrito
+        func pedacos(_ linha: String) -> [String] {
+            guard linha.count > tamanho else { return [linha] }
+            var saida: [String] = [], atual = ""
+            func fecha() { let t = atual.trimmingCharacters(in: .whitespaces); if !t.isEmpty { saida.append(t) }; atual = "" }
+            var frases: [String] = [], inicio = linha.startIndex
+            for m in linha.matches(of: /[.!?…]\s+/) {
+                frases.append(String(linha[inicio..<m.range.upperBound]))
+                inicio = m.range.upperBound
+            }
+            if inicio < linha.endIndex { frases.append(String(linha[inicio...])) }
+            for frase in frases {
+                var resto = frase
+                while resto.count > tamanho {
+                    let corte = resto.prefix(tamanho).lastIndex(of: " ") ?? resto.index(resto.startIndex, offsetBy: tamanho)
+                    fecha()
+                    atual = String(resto[..<corte]); fecha()
+                    resto = String(resto[corte...])
+                }
+                if atual.count + resto.count > tamanho { fecha() }
+                atual += resto
+            }
+            fecha()
+            return saida
+        }
+        var partes: [String] = [], atual: [String] = [], tam = 0
+        func fecha() { if !atual.isEmpty { partes.append(atual.joined(separator: "\n")) }; atual = []; tam = 0 }
+        for linha in texto.components(separatedBy: "\n") {
+            let limpa = linha.trimmingCharacters(in: .whitespaces)
+            guard !limpa.isEmpty else { continue }
+            // o título abre parte quando a atual já tem corpo; seções curtas (o dia do diário) vão juntas
+            if limpa.hasPrefix("#"), tam >= tamanho / 2 { fecha() }
+            for pedaco in pedacos(limpa) {
+                // título ou cabeça curta não fica sozinho numa parte: vai com o que vem embaixo
+                if tam >= cabecaCurta, tam + 1 + pedaco.count > tamanho { fecha() }
+                atual.append(pedaco); tam += (tam > 0 ? 1 : 0) + pedaco.count
+            }
+        }
+        fecha()
+        return partes
+    }
+
     /// Acima do teto: o último fim de parágrafo, ou de frase, que deixa ao
     /// menos metade do texto; sem nenhum, a última palavra inteira. Em
     /// silêncio no texto — frase de sistema na voz da resposta é o que o dono
@@ -317,7 +408,10 @@ nonisolated enum RespostaNotas {
               Set(raiz.keys) == ["base", "texto", "trechoIDs"],
               let base = raiz["base"] as? String, bases.contains(base),
               let bruto = raiz["texto"] as? String,
-              let ids = raiz["trechoIDs"] as? [String], Set(ids).count == ids.count else { return nil }
+              let repetidos = raiz["trechoIDs"] as? [String] else { return nil }
+        // revisão da E9 (guardas que calam): ID repetido não cala a resposta — conta uma vez
+        var vistos = Set<String>()
+        let ids = repetidos.filter { vistos.insert($0).inserted }
         // O teto é contrato com o MODELO: mede o que ele escreveu, antes de o
         // app trocar endereço por título (que só faz o texto crescer).
         // ADR 2026-09-16k: passar do teto não esvazia a resposta — ela é
@@ -343,7 +437,9 @@ nonisolated enum RespostaNotas {
             // 3 de 3 na cotação do euro, com duas notas úteis no pedido. A
             // frase fixa continua sendo o piso honesto de quem não escreveu
             // nada — e só dele.
-            guard ids.isEmpty else { return nil }
+            // revisão da E9: ID junto de "insuficiente" não cala o texto — o ID é ignorado
+            // (a conferência devolveu isso em prec-06 e a resposta inteira sumia)
+            citadas = []
             resposta = texto.isEmpty ? limiteSemBase : texto
         case "notas":
             if pacote.fontes.isEmpty { resposta = limiteSemBase }
@@ -363,10 +459,13 @@ nonisolated enum RespostaNotas {
                 resposta = texto + "\nReferência: " + titulos
             }
         case "conversa":
-            guard ids.isEmpty, !texto.isEmpty else { return nil }
+            // revisão da E9: ID junto de "conversa" ou "geral" é ignorado, como no insuficiente
+            citadas = []
+            guard !texto.isEmpty else { return nil }
             resposta = pacote.mensagensDaPessoa > 0 ? texto + "\nReferência: suas mensagens nesta conversa." : limiteSemBase
         default:
-            guard ids.isEmpty, !texto.isEmpty else { return nil }
+            citadas = []
+            guard !texto.isEmpty else { return nil }
             resposta = texto
         }
         if let aviso = Self.avisoDasNotasFora(pacote.notasDoAutorForaInteiras) {

@@ -359,17 +359,20 @@ struct ConsultarObrasTests {
         #expect(fontes.map(\.id) == [longa.id, outra.id, obra.id])
         #expect(fontes.first?.texto.contains("FIM-SECRETO-DA-NOTA") == true, "a escolhida vai inteira")
         #expect(!pedido.contains("FIM-SECRETO-DA-NOTA"), "na escolha só o começo viaja")
-        // sem conta, ilegível ou repetida: a seleção de antes
-        for cru in [nil, "não sei", #"{"notas":[1,2,1]}"#] as [String?] {
+        // sem conta ou ilegível: a seleção de antes
+        for cru in [nil, "não sei"] as [String?] {
             let igual = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [outra], candidatas: [outra, longa]) { _, _, _ in cru }
             #expect(igual.map(\.id) == [outra.id])
         }
-        // até 5 valem; 6 é resposta ilegível (com 7 candidatas, não por sair da lista)
+        // varredura das guardas que calam (E9, líder 17/09): o número repetido conta uma vez, o resto fica
+        let repetida = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [outra], candidatas: [outra, longa]) { _, _, _ in #"{"notas":[1,2,1]}"# }
+        #expect(repetida.map(\.id) == [outra.id, longa.id])
+        // até 5 valem; o sexto sai e os cinco ficam (antes a escolha inteira virava ilegível)
         let sete = (1...7).map { FonteNotas(id: UUID(), titulo: "nota \($0)", texto: "texto \($0)", editadaEm: .now) }
         let cinco = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [], candidatas: sete) { _, _, _ in #"{"notas":[1,2,3,4,5]}"# }
         #expect(cinco.map(\.id) == Array(sete.prefix(5)).map(\.id))
         let seis = await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [], candidatas: sete) { _, _, _ in #"{"notas":[1,2,3,4,5,6]}"# }
-        #expect(seis.isEmpty)
+        #expect(seis.map(\.id) == Array(sete.prefix(5)).map(\.id))
         #expect(await Sessao.comNotasPeloSentido(pergunta: "x", fontes: [outra], candidatas: [longa], perguntar: nil).map(\.id) == [outra.id])
     }
 

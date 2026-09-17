@@ -131,12 +131,13 @@ struct ContextoDaSabiaTests {
         #expect(!r1.texto.contains("não coube") && !r1.texto.contains("Contexto parcial"))
         let enorme = String(repeating: "linha do diário\n", count: 1_100)
         let longa = FonteNotas(id: UUID(), titulo: "Diário longo", texto: enorme, editadaEm: .now)
-        let comLonga = try #require(RespostaNotas.montar(pergunta: "qual o prazo?", fontes: [curta, longa], conversa: [], catalogo: "", retrato: "", teto: 16_000))
+        // E9: a nota longa vai por partes; a tela só a nomeia quando nem uma parte cabe (pacote pequeno)
+        let comLonga = try #require(RespostaNotas.montar(pergunta: "qual o prazo?", fontes: [curta, longa], conversa: [], catalogo: "", retrato: "", teto: 1_600))
         let r2 = try #require(RespostaNotas.interpretar(cru, pacote: comLonga))
         #expect(r2.texto.hasSuffix("«Diário longo» não coube inteira nesta resposta."))
         var doBot = FonteNotas(id: UUID(), titulo: "Resumo · pesquisa do bot", texto: enorme, editadaEm: .now)
         doBot.doAutor = false
-        let comBot = try #require(RespostaNotas.montar(pergunta: "qual o prazo?", fontes: [curta, doBot], conversa: [], catalogo: "", retrato: "", teto: 16_000))
+        let comBot = try #require(RespostaNotas.montar(pergunta: "qual o prazo?", fontes: [curta, doBot], conversa: [], catalogo: "", retrato: "", teto: 1_600))
         #expect(comBot.fora == ["nota «Resumo · pesquisa do bot»: não coube"] && comBot.notasDoAutorForaInteiras.isEmpty)
         let bot = Nota(texto: "Resumo da pesquisa"); bot.origem = .pesquisa
         #expect(Sessao.fonteParaPergunta(bot)?.doAutor == false && Sessao.fonteParaPergunta(Nota(texto: "Minha nota"))?.doAutor == true)

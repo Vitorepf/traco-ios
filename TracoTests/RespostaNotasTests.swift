@@ -64,9 +64,15 @@ struct RespostaNotasTests {
 
     @Test func IDsInventadosDuplicadosOuDeTrechoVazioNaoProduzemFonte() throws {
         let p = try pacote([fonte(texto: "Prazo 12/09.\n\nTeto R$ 800.")])
-        for ids in [["N999T1"], ["N1T99"], ["N1T1", "N1T1"], ["N1T2"]] {
+        for ids in [["N999T1"], ["N1T99"], ["N1T2"]] {
             #expect(RespostaNotas.interpretar(try resposta(ids), pacote: p) == nil)
         }
+        // revisão da E9 (guardas que calam): o ID repetido conta uma vez e não cala a resposta
+        let repetido = try #require(RespostaNotas.interpretar(try resposta(["N1T1", "N1T1"]), pacote: p))
+        #expect(repetido.citadas.count == 1)
+        // e o ID junto de "geral" é ignorado, sem calar o texto
+        let geral = try #require(RespostaNotas.interpretar(try resposta(["N1T1"], texto: "Método geral de prazos.", base: "geral"), pacote: p))
+        #expect(geral.citadas.isEmpty && geral.texto == "Método geral de prazos.")
         #expect(RespostaNotas.interpretar(#"{"base":"notas","texto":"x","trechoIDs":["N1T1"],"titulo":"Inventado"}"#, pacote: p) == nil)
     }
 
@@ -165,8 +171,9 @@ struct RespostaNotasTests {
         // o piso honesto continua: quem não escreveu nada recebe a frase fixa
         let mudo = try #require(RespostaNotas.interpretar(resposta([], texto: "", base: "insuficiente"), pacote: p))
         #expect(mudo.texto == RespostaNotas.limiteSemBase)
-        // e `insuficiente` continua sem poder citar trecho nenhum
-        #expect(RespostaNotas.interpretar(try resposta(["N1T1"], base: "insuficiente"), pacote: p) == nil)
+        // `insuficiente` continua sem citar trecho — revisão da E9: o ID que vier junto é ignorado, não cala o texto
+        let comID = try #require(RespostaNotas.interpretar(try resposta(["N1T1"], texto: ajuda, base: "insuficiente"), pacote: p))
+        #expect(comID.texto == ajuda && comID.citadas.isEmpty)
     }
 
     /// ADR 2026-09-09h, metade 2: VERMELHO antes do conserto — `N1T1` é

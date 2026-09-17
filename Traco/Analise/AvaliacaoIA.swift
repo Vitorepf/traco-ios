@@ -391,6 +391,16 @@ enum AvaliacaoIA {
                                                                  perguntar: Sessao.escolherNotasPelaConta)
                 obras = []  // as do caderno já vieram pela seleção da sessão
             }
+            // E9: a nota longa leva a leitura como se ela já estivesse guardada (na sessão, a
+            // leitura é feita depois da primeira pergunta que a manda por partes). Gerada
+            // aqui e NÃO gravada: a sonda não suja o `sinteses.json` do aparelho da conta.
+            let antesDaLeitura = Date()
+            if let perguntar = Sessao.sintetizarPelaConta {
+                for i in fontesDoCaso.indices where fontesDoCaso[i].doAutor && fontesDoCaso[i].texto.count > RespostaNotas.tetoInteira {
+                    fontesDoCaso[i].sintese = await SinteseDeNota.gerar(titulo: fontesDoCaso[i].titulo, texto: fontesDoCaso[i].texto, perguntar: perguntar)
+                }
+            }
+            let segundosDaLeitura = Date().timeIntervalSince(antesDaLeitura)
             // E7: o catálogo e o retrato como a sessão manda (pela pergunta); o tamanho
             // do pacote antes (catálogo e retrato inteiros) e depois, sobre as MESMAS fontes
             let catalogo = Sessao.catalogoParaPergunta(pergunta)
@@ -405,6 +415,8 @@ enum AvaliacaoIA {
                 catalogo: catalogo, retrato: retrato))
             var saida: [String: Any] = [
                 "pacoteChars": r.tamanhoDoPacote, "foraDoPacote": r.fora,
+                "leiturasGuardadas": fontesDoCaso.compactMap(\.sintese).map(\.count), "leituraSegundos": segundosDaLeitura,
+                "notasPorPartes": r.notasPorPartes.count,
                 "pacoteCharsInteiros": antes?.mensagem.count ?? -1, "pacoteCharsPelaPergunta": depois?.mensagem.count ?? -1,
                 "catalogoFoi": !catalogo.isEmpty, "retratoChars": retrato.count, "retratoCompletoChars": retratoCompleto.count, "retratoCortados": retratoCortados,
                 "texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),

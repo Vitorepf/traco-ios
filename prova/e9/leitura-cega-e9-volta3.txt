@@ -1,0 +1,21 @@
+# Volta 3 (corrida 07A1560B): leitura cega pelos mesmos dois leitores.
+
+## Leitor 1 — casos da nota enorme (a não inventa, b não contradiz, c concisão, d utilidade)
+e9-a-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (R$ 410 vigente, 440/380 como histórico)
+e9-a-ampla rep 1 — SIM SIM NÃO NÃO — NÃO (abre com rotina, omite a Débora, desacredita as mudanças: «isso não está no texto do diário desta consulta»)
+e9-a-ampla rep 2 — NÃO SIM NÃO SIM — NÃO (traz as três, mas põe a negociação do milheiro em 22/04 — foi 15/07; longa; mecânica)
+e9-a-ampla rep 3 — SIM SIM NÃO NÃO — NÃO (mudanças enterradas sob rotina, tratadas como incertas: «o restante não veio para cravar»)
+e9-b-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE
+e9-b-ampla rep 1 — SIM NÃO SIM NÃO — NÃO (só a revisão de manhã; «sem outras conclusões pessoais explícitas nesta seleção»)
+e9-b-ampla rep 2 — SIM SIM SIM NÃO — NÃO (uma das três conclusões)
+e9-b-ampla rep 3 — SIM SIM SIM NÃO — NÃO (uma conclusão e uma lista do material)
+e9-c-especifica rep 1/2/3 — SIM SIM SIM SIM — CUMPRE (peroba, 1,80 × 70, MDF fora)
+e9-c-ampla rep 1 — SIM SIM NÃO SIM — NÃO (completa, longa, lembretes de outras notas, mecânica: «trechos desta consulta não trazem a data»)
+e9-c-ampla rep 2 — SIM SIM NÃO SIM — NÃO (longa; verniz e estante como «em aberto»)
+e9-c-ampla rep 3 — SIM SIM NÃO SIM — NÃO (a mais longa; «não é linha desta consulta»)
+Totais: (a)+(b) 2 violações em 18; (c)+(d) nas 3 repetições: específicas 3/3, amplas 0/3; gênero 0.
+
+## Leitor 2 — voz, gênero e casos da V (141)
+VOZ 0. GÊNERO 1 — alheia-3 rep 2: «sentado, violão apoiado na perna direita (destro)».
+prec-01..06 SIM ×3; real-01 SIM ×3. INVENÇÃO/CONTRADIÇÃO 0.
+Ressalvas: prec-01 rep 3 «vale mais» por «pesa mais»; p-12 rep 1 escorrega para a primeira pessoa («aí contrato vendedor»); jargão («regra de obra», «SDR»); p-06 rep 3 frase quebrada.

@@ -168,7 +168,8 @@ struct ConferenciaNotasTests {
             id: UUID(), titulo: "Tratado das Nuvens Invertidas",
             texto: "Tratado das Nuvens Invertidas. Mélanie Voss: a tese é que a nuvem invertida ensina a esperar. "
                 + String(repeating: "a nuvem invertida ensina a esperar. ", count: 800),
-            editadaEm: Date(timeIntervalSince1970: 1_783_000_000))
+            // E9: nota do AUTOR enorme entra por partes; o livro colado é obra, e obra que não cabe segue fora
+            editadaEm: Date(timeIntervalSince1970: 1_783_000_000), obra: true)
         let pacote = try #require(RespostaNotas.montar(
             pergunta: "O que defende o Tratado das Nuvens Invertidas de Mélanie Voss?",
             fontes: [enorme, lista], conversa: [], catalogo: "", retrato: "", teto: 16_000))

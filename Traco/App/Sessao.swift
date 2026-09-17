@@ -856,17 +856,46 @@ final class Sessao {
     /// sem resposta legível: `fontes` como veio — a seleção de antes.
     static func comNotasPeloSentido(pergunta: String, fontes: [FonteNotas], candidatas: [FonteNotas],
                                     perguntar: ((String, String, String) async -> String?)?) async -> [FonteNotas] {
-        guard let perguntar, !candidatas.isEmpty else { return fontes }
+        // revisão da E9: a nota que a pergunta NOMEIA pelo título entra, com ou sem a escolha do Grok
+        let nomeadas = candidatas.filter { tituloNomeado($0.titulo, na: pergunta) }
+        func primeiro(_ escolhidas: [FonteNotas]) -> [FonteNotas] {
+            let juntas = semRepetida(nomeadas + escolhidas)
+            let ids = Set(juntas.map(\.id))
+            return semRepetida(juntas + fontes.filter { !ids.contains($0.id) })
+        }
+        guard let perguntar, !candidatas.isEmpty else { return primeiro([]) }
         let lista: [[String: Any]] = candidatas.enumerated().map { i, fonte in
             ["n": i + 1, "titulo": fonte.titulo, "comeco": String(fonte.texto.prefix(200))]
         }
         let pedido = RespostaNotas.json(["pergunta": String(pergunta.prefix(1000)), "notas": lista])
         // queda própria (a seleção de antes): a falha desta chamada não é o aviso da resposta
         guard let cru = await Grok.$semAviso.withValue(true, operation: { await perguntar(sistemaEscolherNotas, pedido, esquemaEscolherNotas) }),
-              let numeros = Conselho.ler(cru, chave: "notas", total: candidatas.count, maximo: 5)?.escolhidas else { return fontes }
-        let escolhidas = numeros.map { candidatas[$0 - 1] }
-        let ids = Set(escolhidas.map(\.id))
-        return semRepetida(escolhidas + fontes.filter { !ids.contains($0.id) })
+              let numeros = numerosDaEscolha(cru, total: candidatas.count, maximo: 5) else { return primeiro([]) }
+        return primeiro(numeros.map { candidatas[$0 - 1] })
+    }
+
+    /// Revisão da E9 (guardas que calam), SÓ nas notas do autor: número fora da lista ou
+    /// repetido sai e o resto da escolha fica. A escolha de regra e de obra continua
+    /// rígida (`Conselho.ler`, 16j: lá o número estranho é sinal de injeção).
+    nonisolated static func numerosDaEscolha(_ cru: String, total: Int, maximo: Int) -> [Int]? {
+        guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
+              let j = try? JSONSerialization.jsonObject(with: Data(cru[ini...fim].utf8)) as? [String: Any],
+              let lista = j["notas"] as? [Any] else { return nil }
+        var vistos = Set<Int>()
+        return Array(lista.compactMap { $0 as? Int }.filter { (1...max(1, total)).contains($0) && vistos.insert($0).inserted }.prefix(maximo))
+    }
+
+    /// A pergunta nomeia a nota quando tem todas as palavras de 4+ letras do título que
+    /// não são número nem ano (sem acento e sem caixa); título de uma palavra só precisa
+    /// de 6+ letras — "Notas", "Ideia" e "Compras" não puxam tudo (líder, 17/09).
+    nonisolated static func tituloNomeado(_ titulo: String, na pergunta: String) -> Bool {
+        func palavras(_ s: String) -> [String] {
+            s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "pt_BR"))
+                .split { !$0.isLetter && !$0.isNumber }.map(String.init)
+        }
+        let doTitulo = Set(palavras(titulo).filter { $0.count >= 4 && !$0.allSatisfy(\.isNumber) })
+        guard let uma = doTitulo.first, doTitulo.count > 1 || uma.count >= 6 else { return false }
+        return doTitulo.isSubset(of: Set(palavras(pergunta)))
     }
 
     /// A pessoa espera a resposta: a escolha (notas ou obra) desiste em 20 s e
@@ -882,6 +911,52 @@ final class Sessao {
 
     /// Injeção só da escolha das notas; nil = a conta, lida na hora.
     var escolherNotas: ((String, String, String) async -> String?)?
+
+    // MARK: E9 — a nota longa leva a leitura guardada da Sábia
+
+    static var sintetizarPelaConta: (@Sendable (String, String, String) async -> String?)? {
+        Politica.provedor(.responderNasNotas) == nil ? nil : { @Sendable s, u, e in
+            await Sabia.chamar(.responderNasNotas, sistema: s, usuario: u, temperatura: 0, timeout: 120, esquema: e)
+        }
+    }
+
+    /// Injeção só da leitura guardada; nil = a conta, lida na hora.
+    var sintetizar: (@Sendable (String, String, String) async -> String?)?
+
+    /// A leitura guardada da MESMA assinatura vai junto da nota longa. A pergunta não
+    /// espera leitura nova: ela é feita depois, só da nota que foi por partes.
+    static func comLeiturasGuardadas(_ fontes: [FonteNotas]) -> [FonteNotas] {
+        fontes.map { fonte in
+            var f = fonte
+            if f.doAutor, f.texto.count > RespostaNotas.tetoInteira, let a = f.assinatura { f.sintese = SinteseDeNota.ler(f.id, assinatura: a) }
+            return f
+        }
+    }
+
+    /// Uma tentativa por nota e assinatura nesta execução: leitura que falhou não
+    /// reenvia 200 mil caracteres a cada pergunta.
+    static var leiturasTentadas: Set<String> = []
+
+    /// A nota do autor que foi por partes ganha a leitura, em segundo plano. A nota é
+    /// relida antes de enviar e antes de gravar: selada, apagada ou editada no meio,
+    /// nada vai à rede e nada fica no disco (revisão da E9).
+    static func lerEmSegundoPlano(_ ids: [UUID], no context: ModelContext,
+                                  perguntar: (@Sendable (String, String, String) async -> String?)?) {
+        guard let perguntar else { return }
+        for id in ids {
+            guard let fonte = buscar(uuid: id, no: context).flatMap(fonteParaPergunta), fonte.doAutor,
+                  let assinatura = fonte.assinatura, SinteseDeNota.ler(id, assinatura: assinatura) == nil,
+                  leiturasTentadas.insert(id.uuidString + assinatura).inserted else { continue }
+            let (titulo, texto) = (fonte.titulo, fonte.texto)
+            Task {
+                guard let leitura = await Grok.$semAviso.withValue(true, operation: {
+                    await SinteseDeNota.gerar(titulo: titulo, texto: texto, perguntar: perguntar)
+                }), buscar(uuid: id, no: context).flatMap(fonteParaPergunta)?.assinatura == assinatura
+                else { return }
+                SinteseDeNota.gravar(id, assinatura: assinatura, texto: leitura)
+            }
+        }
+    }
 
     /// ADR 2026-09-16i: a obra CONFERIDA chega à rota se a pergunta toca
     /// qualquer seção dela — quem escolhe o que viaja é o modelo, pelo sentido,
@@ -918,9 +993,11 @@ final class Sessao {
                            no context: ModelContext) async -> ConversaNotas.Resultado {
         let validas = Self.conversaValida(conversa, no: context)
         // ADR 2026-09-16k: as notas do autor que respondem pelo sentido vão antes
-        let fontes = await Self.comNotasPeloSentido(pergunta: pergunta, fontes: contextoDasNotas(pergunta: pergunta, no: context),
-                                                    candidatas: Self.candidatasDoAutor(pergunta: pergunta, no: context),
-                                                    perguntar: escolherNotas ?? Self.escolherNotasPelaConta)
+        let escolhidas = await Self.comNotasPeloSentido(pergunta: pergunta, fontes: contextoDasNotas(pergunta: pergunta, no: context),
+                                                        candidatas: Self.candidatasDoAutor(pergunta: pergunta, no: context),
+                                                        perguntar: escolherNotas ?? Self.escolherNotasPelaConta)
+        // E9: a nota longa vai por partes (no pacote) e leva a leitura guardada da Sábia
+        let fontes = Self.comLeiturasGuardadas(escolhidas)
         // Retrato também deriva das notas: monte do estado autorizado atual e
         // guarde suas dependências, inclusive quando não são fontes citadas.
         let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
@@ -945,6 +1022,7 @@ final class Sessao {
         guard !Task.isCancelled, let retorno, fontesValidas else {
             return .init(resposta: nil, conversaValida: aindaValidas, fontesMudaram: !fontesValidas)
         }
+        Self.lerEmSegundoPlano(retorno.notasPorPartes, no: context, perguntar: sintetizar ?? Self.sintetizarPelaConta)
         let avisoHistorico = validas.count == conversa.count ? ""
             : "\n\nParte da conversa anterior ficou fora desta consulta porque suas fontes mudaram ou deixaram de estar acessíveis."
         return .init(resposta: retorno.texto + avisoHistorico, fontes: retorno.enviadas,
@@ -1533,6 +1611,7 @@ final class Sessao {
             Versoes.apagar(nota.uuid)
             Apontar.apagar(nota.uuid)
             Indice.remover(nota.uuid, geracao: Geracao.proxima())
+            SinteseDeNota.remover(nota.uuid)
             calarAcoesDerivadas(de: nota.uuid, no: context)
         } else {
             let lida = Self.paraIndice(nota)
@@ -1748,6 +1827,7 @@ final class Sessao {
                 Versoes.apagar(uuid)
                 Apontar.apagar(uuid)
                 Indice.remover(uuid, geracao: Geracao.proxima())
+                SinteseDeNota.remover(uuid)
             }
             // a recém-selada sai do Spotlight e vira só metadado no espelho
             Corpus.backupAutomatico(notas: notas)
@@ -2271,6 +2351,7 @@ final class Sessao {
         Versoes.apagar(nota.uuid)
         Apontar.apagar(nota.uuid)
         Indice.remover(nota.uuid, geracao: Geracao.proxima())
+        SinteseDeNota.remover(nota.uuid)
         Revisoes.cancelar(uuid: nota.uuid)
         calarAcoesDerivadas(de: nota.uuid, no: context)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
@@ -2399,6 +2480,7 @@ final class Sessao {
         Versoes.apagar(uuid)
         Apontar.apagar(uuid)
         Indice.remover(uuid, geracao: Geracao.proxima())
+        SinteseDeNota.remover(uuid)
         // regra de ferro 2: apagar tira a nota do espelho em Arquivos e do Spotlight AGORA
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
