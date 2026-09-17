@@ -7,6 +7,13 @@
 [`conferir-leva-3.py`](conferir-leva-3.py) — roda em segundos, sem build e sem
 simulador, e é a mesma prova que o pacote diz ter rodado em 06/09.
 
+> **Contra qual `main`.** Esta conferência rodou contra `59e3a4c` (15/09), que é
+> o topo do repositório no GitHub. Se houver trabalho ainda não empurrado na
+> máquina do dono — e em 17/09 havia —, os números de linha daqui já andaram de
+> novo. É o motivo de a prova ser um script e não uma tabela: rode
+> `python3 ferramentas/orca/metodos/conferir-leva-3.py` no seu `main` e a tabela
+> se refaz.
+
 > **O que a sonda é e não é.** Ela imita `AnaliseLocal.detectarGesto` (ordem do
 > array, primeira regex que casa vence, Expressiva só acima de 120 caracteres) e
 > **lê os léxicos da guarda direto do Swift**, em vez de copiá-los, para não
