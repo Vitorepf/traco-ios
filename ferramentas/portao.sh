@@ -67,7 +67,8 @@ EOF
       sleep 5
     done
     wait "$corrida" 2>/dev/null || true
-    grep -E '\.swift:[0-9]+:[0-9]+: error' "$log" | sort -u | head -20 >&2 || true
+    # erro de macro (#expect, #require) não traz .swift:N:N (memória: filtro-de-erro-esconde-macro)
+    grep -E ': error: ' "$log" | grep -v patternForKey | sort -u | head -20 >&2 || true
     # a linha "Test run with N tests" do Swift Testing conta errado quando há
     # teste pulado (711 com 1323 passando, 17/09): a conta vem das linhas
     ok=$(grep -c '✔ Test ' "$log" || true)

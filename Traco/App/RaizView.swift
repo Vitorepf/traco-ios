@@ -83,7 +83,7 @@ struct RaizView: View {
                             .padding(.bottom, 56)
                             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
                             .accessibilityIdentifier("toast-arquivo")
-                            .allowsHitTesting(sessao.apagadaRecuperavel != nil)
+                            .allowsHitTesting(sessao.apagadaRecuperavel != nil || sessao.vestidaRecuperavel != nil)
                     }
                 }
                 .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)

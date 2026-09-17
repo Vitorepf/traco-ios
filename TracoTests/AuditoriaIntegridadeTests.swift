@@ -221,3 +221,61 @@ struct AspasHonestasTests {
         #expect(RespostaNotas.aspasHonestas("«DECIDI  SUBIR o preco»", pacote: p) == "«DECIDI  SUBIR o preco»")
     }
 }
+
+/// Dono, 17/09: ao concluir, a IA dá forma à nota sozinha, com «Desfazer».
+@MainActor
+struct VestirAoConcluirTests {
+    private func nota(_ texto: String, _ c: ModelContainer) throws -> UUID {
+        let n = Nota(texto: texto)
+        c.mainContext.insert(n)
+        try c.mainContext.save()
+        return n.uuid
+    }
+
+    @Test func aSabiaVesteANotaConcluidaEDesfazerDevolve() async throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let antes = "Mercado\n\npão, leite e café para a semana toda"
+        let id = try nota(antes, c)
+        let s = Sessao()
+        let emVoo = s.vestirAoConcluir(id, no: c.mainContext, vestir: { blocos, _ in
+            blocos.indices.map { Sabia.Rotulo(i: $0, forma: $0 == 0 ? .titulo : .citacao) }
+        })
+        #expect(emVoo != nil)
+        await emVoo?.value
+        let vestida = try #require(Sessao.buscar(uuid: id, no: c.mainContext))
+        #expect(vestida.texto != antes)
+        #expect(vestida.texto.contains("pão, leite e café"), "nenhuma palavra muda")
+        #expect(s.toast == Sessao.avisoDaNotaVestida)
+        s.desfazerVestirAoConcluir(no: c.mainContext)
+        #expect(try #require(Sessao.buscar(uuid: id, no: c.mainContext)).texto == antes)
+        #expect(s.vestidaRecuperavel == nil)
+    }
+
+    @Test func escritaPessoalEExpressivaNaoViajam() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let pessoal = try nota("hoje senti um peso no peito quando acordei e o medo de não dar conta voltou. chorei no chuveiro e não disse a ninguém como estou cansado de tudo isso.", c)
+        let s = Sessao()
+        #expect(s.vestirAoConcluir(pessoal, no: c.mainContext, vestir: { _, _ in Issue.record("viajou"); return nil }) == nil)
+        let n = Nota(texto: "desabafo", gesto: .expressiva)
+        c.mainContext.insert(n)
+        try c.mainContext.save()
+        #expect(s.vestirAoConcluir(n.uuid, no: c.mainContext, vestir: { _, _ in Issue.record("viajou"); return nil }) == nil)
+    }
+
+    @Test func oAutorQueMexeuVenceASabia() async throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let id = try nota("lista curta\n\numa frase qualquer sobre o dia", c)
+        let s = Sessao()
+        let emVoo = s.vestirAoConcluir(id, no: c.mainContext, vestir: { blocos, _ in
+            // enquanto a Sábia pensa, o autor edita a nota
+            if let n = Sessao.buscar(uuid: id, no: c.mainContext) {
+                n.texto = "o autor mudou"
+                try? c.mainContext.save()
+            }
+            return blocos.indices.map { Sabia.Rotulo(i: $0, forma: .citacao) }
+        })
+        #expect(emVoo != nil)
+        await emVoo?.value
+        #expect(try #require(Sessao.buscar(uuid: id, no: c.mainContext)).texto == "o autor mudou")
+    }
+}

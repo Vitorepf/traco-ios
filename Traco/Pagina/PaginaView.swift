@@ -886,13 +886,19 @@ private struct LinhaDaVolta: View {
     }
 }
 
-/// O "Desfazer" do aviso de nota apagada: só existe enquanto a janela está aberta.
+/// O "Desfazer" do aviso de nota apagada ou vestida pela Sábia: só existe
+/// enquanto a janela está aberta.
 struct BotaoDesfazerApagar: View {
     let sessao: Sessao
     @Environment(\.modelContext) private var context
 
     var body: some View {
-        if sessao.apagadaRecuperavel != nil {
+        if sessao.vestidaRecuperavel != nil && sessao.toast == Sessao.avisoDaNotaVestida {
+            Button("Desfazer") { sessao.desfazerVestirAoConcluir(no: context) }
+                .foregroundStyle(Tema.tinta)
+                .buttonStyle(.compacto)
+                .accessibilityIdentifier("desfazer-vestir")
+        } else if sessao.apagadaRecuperavel != nil {
             Button("Desfazer") { sessao.desfazerApagar(no: context) }
                 .foregroundStyle(Tema.tinta)
                 .buttonStyle(.compacto)

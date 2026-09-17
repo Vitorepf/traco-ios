@@ -1163,6 +1163,69 @@ final class Sessao {
         }
     }
 
+    /// Dono, 17/09: «seria trabalho da IA fazer de forma automática». Ao concluir,
+    /// a Sábia veste a forma dos blocos que ficaram em prosa — lista, numerada,
+    /// tarefas, citação, tabela, código — sem mudar uma palavra, e o aviso traz
+    /// «Desfazer». Título, seção e lista curta já nasceram antes, pelo motor
+    /// local. Falha, recusa ou nada a vestir: silêncio (é automático). Escrita
+    /// pessoal, expressiva, selada e texto que não é do autor não viajam.
+    var vestidaRecuperavel: (uuid: UUID, antes: String)?
+    private var vestidaTask: Task<Void, Never>?
+
+    @discardableResult
+    func vestirAoConcluir(_ uuid: UUID, no context: ModelContext,
+                          vestir: @escaping @MainActor ([String], Gesto?) async -> [Sabia.Rotulo]? = {
+                              await Sabia.vestir(blocos: $0, gesto: $1)
+                          }) -> Task<Void, Never>? {
+        guard let nota = Self.buscar(uuid: uuid, no: context), nota.gesto != .expressiva, !nota.fechada,
+              nota.origem == .autor,
+              !nota.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !AnaliseLocal.escritaPessoal(texto: nota.texto, campos: nota.campos)
+        else { return nil }
+        let antes = nota.texto
+        let g = nota.gesto
+        return Task { [weak self] in
+            guard let mapa = await Grok.$semAviso.withValue(true, operation: { await vestir(Sabia.blocos(antes), g) }),
+                  !mapa.isEmpty else { return }
+            let vestido = Sabia.aplicar(mapa, a: antes)
+            // o autor mexeu na nota enquanto a Sábia pensava: a escrita dele vence
+            guard let self, vestido != antes,
+                  let atual = Self.buscar(uuid: uuid, no: context), atual.texto == antes,
+                  self.notaUUID != uuid || self.texto == antes else { return }
+            atual.texto = vestido
+            guard self.persistir(context) else { return }
+            if self.notaUUID == uuid { self.texto = vestido }
+            Versoes.registrar(uuid, texto: antes, campos: atual.campos, gesto: atual.gesto, fechada: atual.fechada)
+            if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(atual, entre: todas) }
+            self.vestidaRecuperavel = (uuid, antes)
+            self.mostrarToast(Self.avisoDaNotaVestida, duracao: .seconds(6))
+            self.vestidaTask?.cancel()
+            self.vestidaTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(6))
+                if !Task.isCancelled { self?.vestidaRecuperavel = nil }
+            }
+        }
+    }
+
+    static let avisoDaNotaVestida = "a Sábia deu forma à nota."
+
+    func desfazerVestirAoConcluir(no context: ModelContext) {
+        guard let v = vestidaRecuperavel else { return }
+        vestidaRecuperavel = nil
+        vestidaTask?.cancel()
+        guard let nota = Self.buscar(uuid: v.uuid, no: context) else { return }
+        let vestido = nota.texto
+        nota.texto = v.antes
+        guard persistir(context) else {
+            mostrarToast("não consegui desfazer — a forma continua.")
+            return
+        }
+        if notaUUID == v.uuid, texto == vestido { texto = v.antes }
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(nota, entre: todas) }
+        if toast == Self.avisoDaNotaVestida { toast = linhaFixa }
+        Toque.leve()
+    }
+
     func desfazerVestir(_ antes: String) {
         texto = antes
         cartao = nil
@@ -2204,6 +2267,7 @@ final class Sessao {
         }
         novaPagina()
         if let concluida {
+            vestirAoConcluir(concluida, no: context)
             conselhoDaConclusao = (concluida, .now.addingTimeInterval(8), camposConcluidos)
             oferecerConselho(concluida)
         }
