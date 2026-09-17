@@ -135,7 +135,7 @@ struct PadroesView: View {
         // E7: ao modelo, a voz com os campos rotulados; as locais seguem lendo sem rótulo
         let remotas = await PadroesRemoto.perguntas(vozes: Self.vozesParaAIA(abertas), conferirContra: vozes,
                                                     titulos: abertas.map(\.tituloNaLista))
-        let escolhidas = PadroesRemoto.ineditas(remotas ?? locais)
+        let escolhidas = PadroesRemoto.ineditas(PadroesRemoto.comQueda(remotas, locais: locais))
         PadroesRemoto.registrarVistas(escolhidas)
         perguntas = escolhidas
         carregou = true

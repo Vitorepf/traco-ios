@@ -38,8 +38,16 @@ enum PadroesRemoto {
         let assinatura = vozes.joined(separator: "\u{1}")
         if let m = memo, m.chave == assinatura { return m.perguntas }
         let saida = await pedir(vozes: vozes, conferirContra: conferirContra ?? vozes, titulos: titulos)
-        memo = (assinatura, saida)
+        if deveGuardar(saida) { memo = (assinatura, saida) }
         return saida
+    }
+
+    /// Guardas que calam (líder, 17/09): a lista que os filtros esvaziaram não fica no memo —
+    /// a próxima visita pergunta de novo — e a tela cai nas perguntas locais.
+    nonisolated static func deveGuardar(_ saida: [String]?) -> Bool { saida != [] }
+
+    nonisolated static func comQueda(_ remotas: [String]?, locais: [String]) -> [String] {
+        remotas.flatMap { $0.isEmpty ? nil : $0 } ?? locais
     }
 
     /// Auditoria do líder (16/09): o modelo citava "Na NOTA 3 você escreveu…" — o

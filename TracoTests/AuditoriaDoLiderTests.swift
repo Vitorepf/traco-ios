@@ -53,6 +53,15 @@ struct PadroesSemEnderecoTests {
         #expect(PadroesRemoto.parsePerguntas(comTitulo, vozes: vozes)?.count == 1)
         #expect(PadroesRemoto.citaEndereco("o que diz a nota 12?") && !PadroesRemoto.citaEndereco("o que dizem as notas?"))
     }
+
+    /// Guardas que calam: a remota que os filtros esvaziaram cai nas locais e não fica no memo.
+    @Test func aRemotaVaziaCaiNasLocaisENaoFicaNoMemo() {
+        let locais = ["O que se repete em «Compras»?"]
+        #expect(PadroesRemoto.comQueda([], locais: locais) == locais)
+        #expect(PadroesRemoto.comQueda(nil, locais: locais) == locais)
+        #expect(PadroesRemoto.comQueda(["Por que “x” voltou?"], locais: locais) == ["Por que “x” voltou?"])
+        #expect(!PadroesRemoto.deveGuardar([]) && PadroesRemoto.deveGuardar(["a?"]) && PadroesRemoto.deveGuardar(nil))
+    }
 }
 
 /// Concluir uma nota com dia e hora marcava o compromisso em silêncio: o aviso
