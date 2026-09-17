@@ -59,13 +59,13 @@ nonisolated enum PastaEspelho {
             let notas = raiz.appendingPathComponent("notas", isDirectory: true)
             for nome in meus { try? fm.removeItem(at: notas.appendingPathComponent(nome)) }
             try? fm.removeItem(at: manifesto)
-            // `calendario.json` está nesta lista porque `Corpus.escrever`
-            // também o grava na raiz do espelho (decisão A4: "os compromissos
-            // vão junto"). Sem ele, «Parar de espelhar» deixava a agenda do
-            // autor — título, data e o campo livre de cada compromisso — na
-            // pasta do iCloud, e a raiz nunca ficava vazia, então a pasta
-            // `Traço/` também ficava à vista (auditoria 17/09).
-            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md", "agenda.md", "calendario.json"] {
+            // A lista é a de quem GRAVA (`Corpus.arquivosSoltos`), e não uma
+            // cópia dela: esta varredura tinha quatro dos cinco nomes e o
+            // `calendario.json` — a agenda do autor, que `Corpus.escrever`
+            // grava na raiz (decisão A4) — ficava na pasta do iCloud, com a
+            // raiz nunca vazia e a pasta `Traço/` à vista (auditoria 17/09).
+            // Um arquivo solto novo entra numa lista só (ADR 17p).
+            for solto in Corpus.arquivosSoltos {
                 try? fm.removeItem(at: raiz.appendingPathComponent(solto))
             }
             if let resto = try? fm.contentsOfDirectory(atPath: notas.path), resto.isEmpty { try? fm.removeItem(at: notas) }

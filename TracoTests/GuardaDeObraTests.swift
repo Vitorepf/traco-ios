@@ -16,7 +16,7 @@ struct GuardaDeObraTests {
     /// leem o material enviado; a conferência aqui é dublê de reparo.
     private func semTeseInventadaNaRotaDasNotas(pergunta: String, inventado: String) async throws -> RespostaNotas.Retorno {
         var gerou = 0, conferiu = 0
-        let ajuda = #"{"base":"notas","texto":"Nesta consulta o material é o orçamento da viagem. Não invento tese de obra que o trecho não traz.","trechoIDs":["N1T1"]}"#
+        let ajuda = #"{"base":"notas","texto":"Nesta consulta o material é o orçamento da viagem. Não invento tese de obra que o trecho não traz.","trechoIDs":["№1.1"]}"#
         let r = try #require(await Sabia.responderNasNotas(
             pergunta: pergunta, fontes: [fonteViagem()],
             gerarRemoto: { _ in gerou += 1; return inventado },
@@ -155,7 +155,7 @@ struct GuardaDeObraTests {
 
     @Test func obraPlantadaDeixaOModeloResponder() async {
         var chamou = false
-        let sustentado = #"{"base":"notas","texto":"A tese plantada é esperar.","trechoIDs":["N1T1"]}"#
+        let sustentado = #"{"base":"notas","texto":"A tese plantada é esperar.","trechoIDs":["№1.1"]}"#
         let r = await Sabia.responderNasNotas(
             pergunta: fantasma, fontes: [fonteDaObra()],
             gerarRemoto: { _ in

@@ -115,6 +115,25 @@ final class CalendarioSistema {
         if podeLer { await recarregar() }
     }
 
+    /// O arranque enche o espelho da Superfície quando a permissão JÁ foi
+    /// dada — e SÓ então. Quem lia o EventKit era a aba Calendário ou o
+    /// Perfil: no arranque a frio, sem o dono ter aberto nenhuma das duas, a
+    /// tela bloqueada publicava só o que é do Traço e a reunião de amanhã do
+    /// iPhone não existia para a face (achado de contrato da ADR 17p).
+    /// Nunca PEDE: o pedido é um toque dele, na tela em que se explica
+    /// (§3 — o app abre na página em branco, sem cerimônia).
+    /// Devolve se leu, para quem publica a face só repetir quando houve leitura.
+    /// `lendo` é a leitura injetada pelos testes; produção deixa nil.
+    @discardableResult
+    static func encherEspelho(agora: Date = .now, _ cal: Calendar = Calendario.gregoriano(),
+                              lendo: ((Date, Date) -> [CompromissoDoSistema])? = nil) async -> Bool {
+        guard lendo != nil || EKEventStore.authorizationStatus(for: .event) == .fullAccess else { return false }
+        let leitor = CalendarioSistema()
+        leitor.lerDoSistema = lendo
+        await leitor.recarregar(agora: agora, cal)
+        return true
+    }
+
     func recarregar(agora: Date = .now, _ cal: Calendar = Calendario.gregoriano()) async {
         let fim = cal.date(byAdding: .day, value: Self.janelaDias, to: agora) ?? agora
         proximos = ler(de: agora, a: fim)

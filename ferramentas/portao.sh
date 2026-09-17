@@ -37,6 +37,19 @@ case "${1:-}" in
     cat >"$HOOK" <<'EOF'
 #!/bin/bash
 [ "${TRACO_SEM_PORTAO:-}" = 1 ] && exit 0
+# Decisão do dono (17/09): mídia nova NÃO entra no git — o .git já tem 1,1 GB de
+# prova antiga e reescrever a história é decisão dele. O catálogo de assets do
+# app é o único lugar onde imagem versionada faz sentido.
+midia=$(git diff --cached --diff-filter=A --name-only \
+  | grep -iE '\.(png|jpg|jpeg|gif|mp4|mov|m4a|heic|ktx|pdf)$' \
+  | grep -v 'Assets.xcassets/' || true)
+if [ -n "$midia" ]; then
+  echo "portão: MÍDIA NOVA no commit (decisão do dono: fica fora do git)" >&2
+  echo "$midia" | sed 's/^/  /' >&2
+  echo "  → mova para prova/ (ignorada) ou, se for asset do app, para Assets.xcassets/" >&2
+  echo "  → TRACO_SEM_PORTAO=1 git commit … passa por cima, se for mesmo asset" >&2
+  exit 1
+fi
 git diff --cached --name-only | grep -qE '\.swift$|^project\.yml$' || exit 0
 exec "$(git rev-parse --show-toplevel)/ferramentas/portao.sh" --compilar
 EOF

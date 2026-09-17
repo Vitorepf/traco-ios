@@ -418,6 +418,24 @@ nonisolated enum Calendario {
         return saida
     }
 
+    /// A ORDEM DO DIA, declarada: o de dia inteiro vem primeiro e, entre dois
+    /// deles, o MAIS LONGO na frente (a viagem de uma semana antes do
+    /// aniversário), desempatando pelo título. A semana desenha só a pílula
+    /// de cima (`prefix(1)`) e `sorted` não é estável: com «Aniversário da
+    /// Ana» e «Viagem a Lisboa» no mesmo dia — os dois começando à
+    /// meia-noite — qual das duas aparecia era sorteio, e mudava entre
+    /// renders (achado de contrato da ADR 17p; quem esconde já conta no
+    /// «+n» de `CalendarioSemanaView.escondidos`).
+    nonisolated static func antesNoDia(_ a: EventoCalendario, _ b: EventoCalendario) -> Bool {
+        if a.diaInteiro != b.diaInteiro { return a.diaInteiro }
+        // a hora de começo de um dia inteiro é sempre meia-noite: não ordena nada
+        if !a.diaInteiro, a.inicio != b.inicio { return a.inicio < b.inicio }
+        let duracaoA = a.fim.timeIntervalSince(a.inicio)
+        let duracaoB = b.fim.timeIntervalSince(b.inicio)
+        if duracaoA != duracaoB { return duracaoA > duracaoB }
+        return a.titulo.localizedStandardCompare(b.titulo) == .orderedAscending
+    }
+
     nonisolated static func eventos(
         _ todos: [EventoCalendario],
         noDia dia: Date,
@@ -425,7 +443,7 @@ nonisolated enum Calendario {
     ) -> [EventoCalendario] {
         todos
             .filter { mesmoDia($0.inicio, dia, cal) }
-            .sorted { ($0.diaInteiro ? 0 : 1, $0.inicio) < ($1.diaInteiro ? 0 : 1, $1.inicio) }
+            .sorted(by: antesNoDia)
     }
 
     nonisolated static func eventos(
@@ -455,7 +473,7 @@ nonisolated enum Calendario {
         var mapa: [Date: [EventoCalendario]] = [:]
         for e in todos { mapa[inicioDoDia(e.inicio, cal), default: []].append(e) }
         for chave in mapa.keys {
-            mapa[chave]?.sort { ($0.diaInteiro ? 0 : 1, $0.inicio) < ($1.diaInteiro ? 0 : 1, $1.inicio) }
+            mapa[chave]?.sort(by: antesNoDia)
         }
         return mapa
     }

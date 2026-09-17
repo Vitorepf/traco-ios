@@ -1,4 +1,7 @@
 #!/bin/bash
+# O aparelho pode ser DITO (TRACO_SIM): a máquina tem o Air da conta e o
+# simulador da suíte ligados ao lado (17/09).
+ALVO=${TRACO_SIM:-booted}
 # ADR 2026-09-06h (volta A-B) — a escrita pessoal CALA o modelo, provado na
 # tela com o degrau de cima LIGADO. O simulador não tem conta xAI nem Apple
 # Intelligence, então `TRACO_MODELO_FALSO` (só em DEBUG) põe um modelo de

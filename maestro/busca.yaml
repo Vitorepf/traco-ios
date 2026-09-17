@@ -42,8 +42,13 @@ appId: app.traco
     id: "notas-da-pagina"
 - tapOn:
     id: "aba-notas"
+# o alerta de avisos que o clearState traz de volta pode subir a qualquer passo
+# depois do Concluir, e come o toque no campo (17/09)
+- extendedWaitUntil: {visible: "Permitir", timeout: 1200, optional: true}
+- tapOn: {text: "Permitir", optional: true}
 - tapOn:
     id: "busca-notas"
+- waitForAnimationToEnd: {timeout: 1500}
 - inputText: "celular"
 - extendedWaitUntil:
     visible:

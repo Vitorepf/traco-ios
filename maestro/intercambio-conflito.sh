@@ -1,4 +1,7 @@
 #!/bin/bash
+# O aparelho pode ser DITO (TRACO_SIM): a máquina tem o Air da conta e o
+# simulador da suíte ligados ao lado (17/09).
+ALVO=${TRACO_SIM:-booted}
 # ADR 2026-09-06a — o conflito na tela, de ponta a ponta e SEM mão no meio.
 #
 # Um conflito de verdade precisa das duas pontas: a versão que andou no Traço
@@ -15,7 +18,7 @@
 #   ./maestro/intercambio-conflito.sh [UDID]
 set -u
 cd "$(dirname "$0")/.."
-M=~/bin/maestro
+M="$HOME/bin/maestro ${TRACO_SIM:+--udid $TRACO_SIM}"
 UDID=${1:-$(xcrun simctl list devices booted | sed -n 's/.*(\([0-9A-Fa-f-]\{36\}\)) (Booted).*/\1/p' | head -1)}
 [ -n "$UDID" ] || { echo "intercambio conflito: nenhum simulador booted"; exit 2; }
 ARQUIVOS="$HOME/Library/Developer/CoreSimulator/Devices/$UDID/data/Containers/Shared/AppGroup"

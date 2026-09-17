@@ -12,20 +12,33 @@
 set -u
 cd "$(dirname "$0")/.."
 
-BOOTED=$(xcrun simctl list devices booted | grep -c "(Booted)")
-if [ "$BOOTED" -ne 1 ]; then
-    echo "PARADO: $BOOTED simuladores booted — o maestro escolhe um e o install vai para outro."
-    xcrun simctl list devices booted
-    echo "Desligue os extras: xcrun simctl shutdown <UDID>"
-    exit 2
+# O aparelho pode ser DITO, e a lei de 01/set deixa de exigir exclusividade:
+# `maestro --udid` e `simctl spawn <udid>` endereçam o simulador certo, e a
+# varredura corre com o Air da conta e o simulador da suíte ligados ao lado
+# (17/09 — sem isto a varredura era impossível nesta máquina compartilhada).
+SIM=${TRACO_SIM:-}
+if [ -n "$SIM" ]; then
+    xcrun simctl list devices | grep -q "$SIM.*Booted" || { echo "PARADO: $SIM não está booted"; exit 2; }
+    ALVO="$SIM"
+    MAESTRO_ALVO="--udid $SIM"
+else
+    BOOTED=$(xcrun simctl list devices booted | grep -c "(Booted)")
+    if [ "$BOOTED" -ne 1 ]; then
+        echo "PARADO: $BOOTED simuladores booted — o maestro escolhe um e o install vai para outro."
+        echo "Diga qual: TRACO_SIM=<UDID> ./maestro/varrer.sh"
+        xcrun simctl list devices booted
+        exit 2
+    fi
+    ALVO=booted
+    MAESTRO_ALVO=""
 fi
 
-APP=build/Build/Products/Debug-iphonesimulator/Traco.app
+APP=${TRACO_APP:-build/Build/Products/Debug-iphonesimulator/Traco.app}
 if [ ! -d "$APP" ]; then
     echo "PARADO: não há build em $APP"
     exit 2
 fi
-xcrun simctl install booted "$APP" || exit 2
+xcrun simctl install "$ALVO" "$APP" || exit 2
 
 # ADR 2026-09-03p: a varredura roda com os MODELOS DESLIGADOS. Sem isto ela é
 # não-determinística (o modelo responde diferente do motor local que os fluxos
@@ -39,7 +52,7 @@ VIVOS="maestro/pergunta-sabia.yaml maestro/lente-instigar.yaml"
 FLUXOS=${@:-$(ls maestro/*.yaml maestro/cenarios/*.yaml 2>/dev/null)}
 FALHAS=""
 
-xcrun simctl spawn booted launchctl setenv TRACO_SEM_MODELO 1
+xcrun simctl spawn "$ALVO" launchctl setenv TRACO_SEM_MODELO 1
 for f in $FLUXOS; do
     case " $VIVOS " in *" $f "*) continue ;; esac
     # fluxo com .sh irmão precisa do que o .sh planta antes do arranque
@@ -48,16 +61,16 @@ for f in $FLUXOS; do
     if [ -x "$sh" ]; then
         "$sh" >/dev/null 2>&1 || FALHAS="$FALHAS $(basename $f .yaml)"
     else
-        ~/bin/maestro test "$f" >/dev/null 2>&1 || FALHAS="$FALHAS $(basename $f .yaml)"
+        ~/bin/maestro $MAESTRO_ALVO test "$f" >/dev/null 2>&1 || FALHAS="$FALHAS $(basename $f .yaml)"
     fi
 done
 
 # e os dois testes de INTEGRAÇÃO VIVA, com o modelo ligado: são o único lugar
 # que prova a ADR o ponta a ponta contra um modelo de verdade
-xcrun simctl spawn booted launchctl unsetenv TRACO_SEM_MODELO
+xcrun simctl spawn "$ALVO" launchctl unsetenv TRACO_SEM_MODELO
 for f in $VIVOS; do
     case " $FLUXOS " in *" $f "*) ;; *) continue ;; esac
-    ~/bin/maestro test "$f" >/dev/null 2>&1 || FALHAS="$FALHAS $(basename $f .yaml)"
+    ~/bin/maestro $MAESTRO_ALVO test "$f" >/dev/null 2>&1 || FALHAS="$FALHAS $(basename $f .yaml)"
 done
 
 echo "--- varredura ---"

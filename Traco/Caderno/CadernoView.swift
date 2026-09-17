@@ -544,20 +544,18 @@ struct CadernoView: View {
                 // o documento é descartado
                 let vivo = Caderno.paginaUna(texto)
                 if projeta {
-                    guard vivo?.id == fatia.id else { return }
                     // Enter no título una desce para o corpo: a cabeça fica
                     // título, o cursor nasce no parágrafo da cauda (mesma
-                    // receita do multi: editando + flag de rearme do foco)
-                    if case .titulo(let n, _) = fatia.bloco, let corte = novo.firstIndex(of: "\n") {
-                        let cabeca = String(novo[..<corte])
-                        let resto = String(novo[novo.index(after: corte)...])
-                        // sem `resto`, NADA de "\n\n": o campo punha o separador
-                        // e `aplicar` punha outro — cada Enter no título somava
-                        // duas linhas em branco, e a nota do dono chegou a 43
-                        texto = Caderno.aplicar(
-                            fatias, id: fatia.id,
-                            novo: Caderno.tituloComResto(.titulo(n, cabeca), resto: resto)
-                        )
+                    // receita do multi: editando + flag de rearme do foco).
+                    // ANTES do guard do una, e é esta a ordem que importa: com
+                    // a quebra o documento já é multi-bloco e `paginaUna` dá
+                    // nil, então as teclas da RAJADA que ainda chegam por este
+                    // campo (o editor do corpo nasce um ciclo antes de assumir
+                    // o foco) morriam no guard — dono, 17/09 no 17e. Quem julga
+                    // se o escrito ainda vale é `descerDoTitulo`, pela cauda.
+                    if case .titulo(let n, _) = fatia.bloco,
+                       let descido = Caderno.descerDoTitulo(texto, nivel: n, campo: novo) {
+                        texto = descido
                         editando = Caderno.fatias(texto).first {
                             if case .paragrafo = $0.bloco { true } else { false }
                         }?.id
@@ -565,6 +563,7 @@ struct CadernoView: View {
                         aoMudar()
                         return
                     }
+                    guard vivo?.id == fatia.id else { return }
                     texto = Caderno.aplicar(fatias, id: fatia.id, bloco: Caderno.comTexto(fatia.bloco, novo))
                 } else {
                     guard vivo != nil || (foco.wrappedValue && Caderno.soProsaELista(texto)) else { return }

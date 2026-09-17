@@ -8,11 +8,18 @@ appId: app.traco
 - inputText: "coração partido"
 - tapOn:
     id: concluir
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- extendedWaitUntil: {visible: "Permitir", timeout: 2500, optional: true}
+- tapOn: {text: "Permitir", optional: true}
+# o gesto da borda é do sistema desde o iOS 26 (17/09: a sonda achou o
+# alternador de apps no meio do fluxo) — a rota é o botão
+- tapOn:
+    id: notas-da-pagina
+- waitForAnimationToEnd: {timeout: 2500}
+- extendedWaitUntil: {visible: "Permitir", timeout: 1200, optional: true}
+- tapOn: {text: "Permitir", optional: true}
 - tapOn:
     id: busca-notas
+- waitForAnimationToEnd: {timeout: 1500}
 - inputText: "coracao"
 - extendedWaitUntil:
     visible: "coração partido"

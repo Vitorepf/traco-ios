@@ -6,7 +6,10 @@
 #   ./maestro/condicoes.sh [fluxo ...]
 set -u
 cd "$(dirname "$0")/.."
-M=~/bin/maestro
+# O aparelho pode ser DITO (TRACO_SIM): a máquina tem o Air da conta e o
+# simulador da suíte ligados ao lado (17/09).
+ALVO=${TRACO_SIM:-booted}
+M="$HOME/bin/maestro ${TRACO_SIM:+--udid $TRACO_SIM}"
 FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml"}
 
 restaurar() {

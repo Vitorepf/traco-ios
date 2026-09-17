@@ -360,6 +360,25 @@ struct CadernoTests {
         #expect(f.contains { if case .paragrafo("o rato") = $0.bloco { true } else { false } })
     }
 
+    // RAJADA logo após o título (dono, 17/09 no 17e: «# Titulo», Enter, digitar
+    // rápido — alguns caracteres não chegavam ao texto). Dois `set` seguidos do
+    // MESMO campo do título una: o primeiro parte o documento, o segundo já o
+    // encontra multi-bloco. É onde o guard do `paginaUna` descartava a tecla.
+    @Test func rajadaLogoAposOTituloNaoPerdeLetra() throws {
+        var doc = "# Titulo"
+        doc = try #require(Caderno.descerDoTitulo(doc, nivel: 1, campo: "Titulo\na"))
+        #expect(doc == "# Titulo\n\na")
+        // o campo velho manda o texto do primeiro mais uma letra
+        doc = try #require(Caderno.descerDoTitulo(doc, nivel: 1, campo: "Titulo\nab"))
+        #expect(doc == "# Titulo\n\nab")
+        #expect(Caderno.fatias(doc).contains { if case .paragrafo("ab") = $0.bloco { true } else { false } })
+        // partir o título ao meio continua a valer (a cauda do documento é vazia)
+        #expect(Caderno.descerDoTitulo("# Titulo", nivel: 1, campo: "Tit\nulo") == "# Tit\n\nulo")
+        // e o clobber de teardown segue recusado: a forma vestiu blocos novos
+        // depois do título, a cauda não bate, o escrito do campo morto vai fora
+        #expect(Caderno.descerDoTitulo("# Titulo\n\n:::verso\nx\n:::", nivel: 1, campo: "Titulo\nab") == nil)
+    }
+
     @Test func reguaEnxutaCatalogoVasto() {
         // SPEC §12: a RÉGUA é enxuta (≤12 — menu grande é template em menu).
         #expect(PapelForma.regua.count == 12)

@@ -1973,6 +1973,10 @@ final class Sessao {
             dominio = nota.dominio
             dominioTravado = false
         }
+        // o rótulo viaja no cabeçalho do `.md` (`dominio:` em `Corpus`): sem esta
+        // projeção o espelho em Arquivos ficava com o rótulo anterior até a
+        // gravação seguinte — a dívida 2 da ADR 17m, medida pelo portão das projeções
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(nota, entre: todas) }
         Toque.leve()
         return true
     }
@@ -1998,6 +2002,8 @@ final class Sessao {
             dominio = d
             dominioTravado = true
         }
+        // mesmo cabeçalho, mesma regra de `devolverDominio`
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(nota, entre: todas) }
         Toque.leve()
         return true
     }
@@ -2023,7 +2029,10 @@ final class Sessao {
             guard let viva = Self.buscar(uuid: uuid, no: context), !viva.dominioTravado,
                   viva.vozDoAutor == voz, viva.dominio != r else { return }
             viva.dominio = r
-            _ = self.persistir(context)
+            // ADR 05s: a projeção só depois do commit — e com o disco recusando, o
+            // rollback devolve o rótulo antigo, então a página também não muda
+            guard self.persistir(context) else { return }
+            if let todas = try? context.fetch(FetchDescriptor<Nota>()) { Corpus.backupDeUma(viva, entre: todas) }
             if self.notaUUID == uuid, !self.dominioTravado { self.dominio = r }
         }
     }
@@ -2352,6 +2361,10 @@ final class Sessao {
         // ADR 05s: a versão que restaurar substitui só vira histórico depois do commit
         Versoes.registrar(nota.uuid, texto: anterior.texto, campos: anterior.campos,
                           gesto: anterior.gesto, fechada: anterior.fechada)
+        // restaurar troca o TEXTO fora de `salvar`: sem esta projeção o espelho em
+        // Arquivos, o Spotlight e o índice de sentido ficavam com a versão
+        // substituída até a próxima gravação (o espelho velho da dívida 2, ADR 17m)
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
         Toque.suave()
     }
 

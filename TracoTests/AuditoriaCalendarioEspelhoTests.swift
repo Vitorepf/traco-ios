@@ -1,3 +1,4 @@
+import EventKit
 import Foundation
 import Testing
 @testable import Traco
@@ -9,6 +10,11 @@ import Testing
 /// tela bloqueada ao guardar no Trabalho; a faixa da grade que decidia qual
 /// era "o próximo"; o sino desenhado para o alarme que o iOS recusou na rota
 /// da Siri; e o «Parar de espelhar» que deixava o `calendario.json` na nuvem.
+///
+/// Mais três, dos «achados de contrato» que a 17p deixou em dívida: a lista
+/// dos arquivos soltos do espelho escrita à mão em dois lugares; o arranque a
+/// frio que publicava a face sem os compromissos do iPhone; e qual pílula de
+/// dia inteiro a semana mostra quando há duas.
 @Suite("Auditoria do calendário e do espelho", .serialized)
 struct AuditoriaCalendarioEspelhoTests {
     private var cal: Calendar { Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!) }
@@ -264,5 +270,110 @@ struct AuditoriaCalendarioEspelhoTests {
         // o quarto marcado já contava, e agora soma com o dia inteiro que sobrou
         #expect(CalendarioSemanaView.escondidos(pistas: [0, 1, 2, 3], inteiros: 0) == 1)
         #expect(CalendarioSemanaView.escondidos(pistas: [0, 1, 2, 3, 4], inteiros: 3) == 4)
+    }
+
+    // MARK: - Os arquivos soltos do espelho, numa lista só
+
+    /// A lista dos nomes que o espelho grava na raiz estava escrita à mão em
+    /// dois lugares — em `Corpus`, ao gravar, e na varredura de
+    /// `PastaEspelho.limpar()` — e quem acrescentava um nome num deles
+    /// esquecia o outro: foi assim que o `calendario.json` ficou na pasta do
+    /// iCloud depois de «Parar de espelhar». Agora a lista é uma só, e este
+    /// teste fica vermelho quando um arquivo solto NOVO aparece na raiz sem
+    /// entrar nela — antes de o dono descobrir na nuvem.
+    @MainActor @Test("nenhum arquivo solto do espelho fica fora da lista de quem apaga")
+    func todoArquivoSoltoEstaNaLista() throws {
+        let raiz = FileManager.default.temporaryDirectory
+            .appendingPathComponent("soltos-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
+        let antes = PastaEspelho.defaults
+        PastaEspelho.defaults = UserDefaults(suiteName: "teste-soltos-\(UUID().uuidString)")!
+        defer {
+            PastaEspelho.defaults = antes
+            try? FileManager.default.removeItem(at: raiz)
+        }
+        let nota = FatiaCorpus(id: UUID(), texto: "primeira", gesto: nil, campos: [:],
+                               criadaEm: agora, editadaEm: agora, recordada: 0, sentido: "",
+                               minutos: 0, trancada: false, queimada: false,
+                               expressivaEmCurso: false, dominio: nil, serie: nil, dia: 0)
+        Corpus.escrever(fatias: [nota], em: raiz, soOsMeus: true)
+        let naRaiz = try FileManager.default.contentsOfDirectory(atPath: raiz.path)
+            .filter { $0 != "notas" && !$0.hasPrefix(".espelho-") }
+        // sem esta linha uma gravação que não acontecesse deixaria o teste VERDE
+        #expect(naRaiz.count >= 4, "o espelho não gravou os agregados: \(naRaiz)")
+        let forasteiros = Set(naRaiz).subtracting(Corpus.arquivosSoltos).sorted()
+        #expect(forasteiros.isEmpty, Comment(rawValue: """
+            arquivo solto que «Parar de espelhar» vai deixar na pasta do dono:
+            \(forasteiros.joined(separator: ", "))
+
+            O nome tem de entrar em `Corpus.arquivosSoltos` — é a lista que
+            `PastaEspelho.limpar()` varre.
+            """))
+    }
+
+    // MARK: - O arranque a frio enche o espelho do iPhone
+
+    /// Publicar já junta `CalendarioSistema.naSuperficie` de uma fonte só,
+    /// mas no arranque a frio esse espelho estava VAZIO: quem lia o EventKit
+    /// era a aba Calendário ou o Perfil, e sem o dono abrir nenhuma das duas
+    /// a tela bloqueada mostrava só o que é do Traço.
+    ///
+    /// E não pede permissão: sem acesso dado, `encherEspelho` devolve falso
+    /// na primeira linha, sem falar com a loja — o pedido é um toque do dono,
+    /// na tela em que se explica.
+    @MainActor @Test("o arranque enche o espelho do iPhone sem pedir permissão")
+    func oArranqueEncheOEspelhoDoSistema() async throws {
+        try await comSuperficieDeTeste { cal, agora in
+            CalendarioSistema.naSuperficie = []
+            // honesto com o aparelho: neste simulador o acesso é `notDetermined`
+            // e nada é lido; num que já deu acesso, ler é justamente o certo
+            let jaTemAcesso = EKEventStore.authorizationStatus(for: .event) == .fullAccess
+            let semInjecao = await CalendarioSistema.encherEspelho(agora: agora, cal)
+            #expect(semInjecao == jaTemAcesso, "o arranque leu (ou pediu) o que não podia")
+
+            let reuniao = CompromissoDoSistema(titulo: "Reunião com o contador",
+                                               inicio: agora.addingTimeInterval(21 * 3600))
+            let leu = await CalendarioSistema.encherEspelho(agora: agora, cal, lendo: { de, a in
+                [reuniao].filter { $0.inicio >= de && $0.inicio <= a }
+            })
+            #expect(leu)
+            // a face do arranque: a lista do disco, como a RaizView publica
+            ProximoCompromisso.publicar([], cal: cal, agora: agora)
+            #expect(publicados().contains { $0.titulo == "Reunião com o contador" },
+                    "o arranque a frio publicou a face sem os compromissos do iPhone")
+        }
+    }
+
+    // MARK: - Qual pílula de dia inteiro a semana mostra
+
+    /// A barra dá UMA pista aos de dia inteiro, e qual deles aparecia era
+    /// empate arbitrário: `sorted` não é estável, então «Aniversário da Ana»
+    /// e «Viagem a Lisboa» no mesmo dia trocavam de lugar entre renders. A
+    /// ordem agora é declarada em `Calendario.antesNoDia` — o mais longo
+    /// primeiro, e a desempatar pelo título.
+    @MainActor @Test("entre dois de dia inteiro, a semana mostra o mais longo")
+    func aSemanaMostraOMaisLongoDoDia() throws {
+        let dia = Calendario.inicioDoDia(agora, cal)
+        let fimDoDia = Calendario.hora(24, 0, no: dia, cal)
+        let aniversario = EventoCalendario(titulo: "Aniversário da Ana", inicio: dia,
+                                           fim: fimDoDia, diaInteiro: true)
+        let viagem = EventoCalendario(titulo: "Viagem a Lisboa", inicio: dia,
+                                      fim: try #require(cal.date(byAdding: .day, value: 5, to: dia)),
+                                      diaInteiro: true)
+        let almoco = EventoCalendario(titulo: "Almoço", inicio: agora,
+                                      fim: agora.addingTimeInterval(3600))
+        let doDia = Calendario.porDia([aniversario, almoco, viagem], cal)[dia] ?? []
+        #expect(doDia.map(\.titulo) == ["Viagem a Lisboa", "Aniversário da Ana", "Almoço"])
+        // o que a pílula esconde continua contado (o «+n» da barra)
+        #expect(CalendarioSemanaView.escondidos(
+            pistas: [], inteiros: doDia.filter(\.diaInteiro).count) == 1)
+
+        // do mesmo tamanho, o título desempata — e a ordem da ENTRADA não conta
+        let feriado = EventoCalendario(titulo: "Feriado", inicio: dia,
+                                       fim: fimDoDia, diaInteiro: true)
+        for entrada in [[aniversario, feriado], [feriado, aniversario]] {
+            #expect((Calendario.porDia(entrada, cal)[dia] ?? []).map(\.titulo)
+                    == ["Aniversário da Ana", "Feriado"])
+        }
     }
 }

@@ -676,6 +676,46 @@ enum Caderno: Sendable {
         return serializar(bloco) + (limpo.isEmpty ? "" : "\n\n" + resto)
     }
 
+    /// O documento INTEIRO que o campo do título una grava ao descer para o
+    /// corpo — `nil` quando o escrito é de campo morto e se descarta.
+    ///
+    /// O campo do título una edita um documento de UMA LINHA (`paginaUna` só
+    /// devolve título sem `\n`), então o que ele manda É o documento: cabeça
+    /// antes do primeiro `\n`, corpo depois. Por isso se reescreve o texto todo
+    /// em vez de `aplicar` no bloco: em RAJADA este campo continua a escrever
+    /// DEPOIS da quebra — o primeiro Enter parte o documento em título +
+    /// parágrafo, o editor do corpo nasce mas só assume o foco no ciclo
+    /// seguinte, e as teclas desse intervalo chegam ainda por aqui, já com o
+    /// documento multi-bloco (dono, 17/09 no 17e: «# Titulo», Enter, digitar
+    /// rápido, e as letras do intervalo caíam caladas no guard do `paginaUna`,
+    /// que nesse momento já é nil). Com `aplicar` a cauda entrava DUAS vezes.
+    nonisolated static func descerDoTitulo(_ texto: String, nivel: Int, campo: String) -> String? {
+        guard let corte = campo.firstIndex(of: "\n") else { return nil }
+        // a linha em branco da FRENTE sai antes da conta: o campo traz «Titulo\n\na»
+        // (dois Enter, que é como se abre o corpo) e a cauda do documento já vem
+        // sem ela — comparar cru recusava a rajada em silêncio a partir da
+        // segunda letra (revisão adversarial, 17/09)
+        let resto = String(campo[campo.index(after: corte)...].drop(while: { $0.isNewline }))
+        // O portão é a CAUDA: o que o documento já tem depois da primeira linha
+        // não pode encurtar nem trocar — a rajada só acrescenta letras. Se não
+        // bate, o documento mudou por baixo (vestir a forma põe blocos novos
+        // depois do título) e este escrito é o clobber de teardown, que vai
+        // fora como antes.
+        let cauda = texto.drop(while: { !$0.isNewline }).drop(while: { $0.isNewline })
+        guard resto.hasPrefix(cauda) else { return nil }
+        // e a CABEÇA também: o guard que este caminho substitui afirmava «o
+        // documento continua uma página una com título do mesmo nível» (o id da
+        // fatia carrega o nível). Sem isto, uma lista una ou um título de outro
+        // nível eram reescritos calados quando havia um «\n» pendurado no campo.
+        guard texto.hasPrefix("#"),
+              texto.prefix(while: { $0 == "#" }).count == nivel
+        else { return nil }
+        // o rabo em branco fora, a mesma lei de `aplicar`: senão um Enter à
+        // cauda somava linha em branco a cada gravação (a «Comprar» chegou a 43)
+        let limpo = String(resto.reversed().drop(while: { $0.isNewline }).reversed())
+        return tituloComResto(.titulo(nivel, String(campo[..<corte])), resto: limpo)
+    }
+
     nonisolated static func consertarVestidoErrado(_ texto: String) -> String {
         var anterior = ""
         var mudancas: [(Range<String.Index>, String)] = []

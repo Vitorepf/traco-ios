@@ -6,11 +6,14 @@
 #   ./maestro/entrada-do-mac.sh
 set -u
 cd "$(dirname "$0")/.."
-M=~/bin/maestro
-xcrun simctl spawn booted launchctl setenv TRACO_SEM_MODELO 1
+# O aparelho pode ser DITO (TRACO_SIM): a máquina tem o Air da conta e o
+# simulador da suíte ligados ao lado (17/09).
+ALVO=${TRACO_SIM:-booted}
+M="$HOME/bin/maestro ${TRACO_SIM:+--udid $TRACO_SIM}"
+xcrun simctl spawn "$ALVO" launchctl setenv TRACO_SEM_MODELO 1
 # um arranque limpo cria o contêiner
 $M test maestro/launch-vazio.yaml >/dev/null 2>&1
-C=$(xcrun simctl get_app_container booted app.traco data)
+C=$(xcrun simctl get_app_container "$ALVO" app.traco data)
 mkdir -p "$C/Documents/Traço/entrada" "$C/Documents/Traço/metodos"
 cat > "$C/Documents/Traço/entrada/do-mac.md" <<'MD'
 ---

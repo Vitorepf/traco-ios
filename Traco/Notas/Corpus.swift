@@ -71,6 +71,20 @@ enum Corpus {
 
     static var pastaNotas: URL { diretorio.appendingPathComponent("notas", isDirectory: true) }
 
+    /// Os arquivos que o espelho grava SOLTOS na raiz, fora de `notas/`.
+    /// A lista vivia escrita à mão em dois lugares — aqui, ao gravar, e na
+    /// varredura do «Parar de espelhar» — e quem acrescentava um nome num
+    /// deles esquecia o outro: foi assim que o `calendario.json` ficou na
+    /// pasta do iCloud depois de o dono parar de espelhar (achado de contrato
+    /// da ADR 17p). Agora quem grava e quem apaga leem daqui.
+    nonisolated static let arquivoContrato = "LEIA-ME.md"
+    nonisolated static let arquivoIndice = "INDICE.md"
+    nonisolated static let arquivoCorpus = "traco-corpus.md"
+    nonisolated static let arquivoAgenda = "agenda.md"
+    nonisolated static let arquivoCalendario = "calendario.json"
+    nonisolated static let arquivosSoltos = [arquivoContrato, arquivoIndice, arquivoCorpus,
+                                             arquivoAgenda, arquivoCalendario]
+
     /// O contrato da pasta. ADR 09b: os MÉTODOS entram aqui, com os campos e a
     /// PERGUNTA de cada um — o caso 8 ("da ideia solta ao método") manda o bot
     /// buscar a pergunta no contrato, e ela não estava em lugar nenhum da
@@ -581,11 +595,11 @@ enum Corpus {
     }
 
     nonisolated private static func escreverAgregados(_ vivas: [FatiaCorpus], em raiz: URL, geracao g: Int) {
-        let corpus = raiz.appendingPathComponent("traco-corpus.md")
+        let corpus = raiz.appendingPathComponent(arquivoCorpus)
         guard avanca(corpus, g) else { return }
         escreverSeMudou(corpoDoEspelho(fatias: vivas).data(using: .utf8), em: corpus)
         escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
-                        em: raiz.appendingPathComponent("INDICE.md"))
+                        em: raiz.appendingPathComponent(arquivoIndice))
         // ADR 08u: o quarto arquivo solto. Os compromissos vêm do mesmo disco
         // que o `calendario.json` copia — nada de novo a carregar.
         // ponytail: relê o calendario.json a cada gravação de agregado; é um
@@ -594,7 +608,7 @@ enum Corpus {
         let eventos: [EventoCalendario]
         if case .eventos(let e) = CalendarioDisco.carregar() { eventos = e } else { eventos = [] }
         escreverSeMudou(agenda(vivas, eventos: eventos).data(using: .utf8),
-                        em: raiz.appendingPathComponent("agenda.md"))
+                        em: raiz.appendingPathComponent(arquivoAgenda))
     }
 
     static func exportar(notas: [Nota]) -> URL? {
@@ -667,7 +681,7 @@ enum Corpus {
         let fm = FileManager.default
         let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
         try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
-        escreverSeMudou(contrato.data(using: .utf8), em: raiz.appendingPathComponent("LEIA-ME.md"))
+        escreverSeMudou(contrato.data(using: .utf8), em: raiz.appendingPathComponent(arquivoContrato))
         let vivas = fatias.filter { !$0.nuncaSai }
         var ids = Set<String>()
         for f in vivas {
@@ -696,7 +710,7 @@ enum Corpus {
         // noutro computador — e que o MCP lê — não tinha um único compromisso.
         if let calendario = try? Data(contentsOf: CalendarioDisco.urlPadrao()),
            raiz != diretorio {
-            try? calendario.write(to: raiz.appendingPathComponent("calendario.json"), options: .atomic)
+            try? calendario.write(to: raiz.appendingPathComponent(arquivoCalendario), options: .atomic)
         }
         escreverAgregados(vivas, em: raiz, geracao: g)
     }

@@ -189,6 +189,15 @@ struct RaizView: View {
             // o Traço dorme, então quem republica o próximo é o voltar à cena —
             // sem isto, o widget e a Ilha mostravam o de ontem.
             agenda.publicarProximo()
+            // ADR 17p: no arranque a frio ninguém tinha lido o EventKit —
+            // quem o lê é a aba Calendário ou o Perfil, e sem nenhuma das
+            // duas aberta a tela bloqueada mostrava só o que é do Traço.
+            // `encherEspelho` não pede permissão (isso é um toque do dono):
+            // quando ela já existe, enche o espelho e a face republica com
+            // os compromissos do iPhone dentro.
+            Task {
+                if await CalendarioSistema.encherEspelho() { agenda.publicarProximo() }
+            }
             // ADR 06d (revisão G3, A2): a permissão dos avisos muda FORA do
             // app, nos Ajustes. Quem volta à cena relê o estado e republica —
             // sem isto o sino prometido ficava desenhado na casa até alguém
