@@ -89,10 +89,11 @@ import Testing
         // TENTADO, duas vezes, medido contra a base no mesmo binário, e as duas
         // versões saíram piores (base 14 e 15 de 20; candidatos 12 e 12). Manter a frase na
         // tela seria prometer ao autor um conserto que já falhou.
-        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 4)
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
+        // E8 (16/09): `responder` volta ao grupo "em correção" — a medida achou a causa
+        // nossa (a guarda que calava a resposta inteira) e o conserto seguinte está nomeado
         #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
-                == Set([.instigar, .contrapor]))
-        #expect(Politica.linha(.responder).conserto == nil, "o conserto do prompt foi medido e não fecha (ADR 10b)")
+                == Set([.instigar, .contrapor, .responder]))
         // ADR 09i: `instigar` e `contrapor` entram no grupo "em correção" —
         // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
         // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
@@ -227,7 +228,7 @@ import Testing
         #expect(!Politica.desceAoAparelho(.responder))
         #expect(!Politica.pelaConta.contains(.responder))
         #expect(Politica.indisponiveis.contains(.responder))
-        #expect(Politica.linha(.responder).medidaEm == "10/09/2026")
+        #expect(Politica.linha(.responder).medidaEm == "16/09/2026")
         // ADR 2026-09-10b: o conserto do prompt SAIU, porque foi medido. Duas
         // reescritas de `sistemaResponder` correram contra o texto vigente no
         // MESMO binário — 20 casos × 3 cada braço, `TRACO_AVALIAR_PEDIDO` como
@@ -237,19 +238,21 @@ import Testing
         // mandar não inventar faz o modelo parar em "não consta X" sem o
         // próximo ato. Quem escrever um conserto novo aqui precisa de uma
         // corrida que bata os 14 de 20 da base.
-        #expect(Politica.linha(.responder).conserto == nil)
-        #expect(!PerfilView.reprovadas.filter { $0.conserto != nil }.contains { $0.op == .responder })
+        // E8 (16/09): a remedida pelo PRINCÍPIO achou a causa nossa e nomeou o conserto
+        // (texto do líder); a rota segue cortada até a barra da E8 (≥ 14/20 e ≥ 3/4).
+        #expect(Politica.linha(.responder).conserto != nil)
+        #expect(PerfilView.reprovadas.filter { $0.conserto != nil }.contains { $0.op == .responder })
         // A LINHA QUE O AUTOR LÊ no Perfil, montada pelo mesmo caminho da tela
         // — `reprovadas` lê a tabela e `linhaDa` escreve. Sem isto a mudança
         // seria dado sem superfície.
-        let semConserto = PerfilView.reprovadas.filter { $0.conserto == nil }
-        let r = try #require(semConserto.first { $0.op == .responder })
+        let r = try #require(PerfilView.reprovadas.first { $0.op == .responder })
         let linha = String(PerfilView.linhaDa(r).characters)
         // ADR 09z: a língua é a do autor — sem a data e sem o nosso plano de
         // obra. A metade nova ("só diz o que falta") é o que as duas tentativas
         // acharam de pé, e o autor lê as duas metades do defeito.
         #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu,"
-                + " e às vezes só diz o que falta")
+                + " e às vezes só diz o que falta · falta a Sábia não trocar a resposta inteira por uma"
+                + " recusa por causa de uma frase, e não supor o que você anota ou usa")
         // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
         // `"none"` é recusado por modelo que raciocina, e a rota calaria.
         #expect(Grok.esforcoMinimo == "low")

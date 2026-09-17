@@ -1,0 +1,86 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "e8-resp-decisao-desconto-ja-decidido",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Como eu escrevo a mensagem para o café contando o que decidi?",
+        "pagina": "# Pedido mensal do Café da Esquina",
+        "gesto": "decisao",
+        "campos": {
+          "escolha": "Se dou os 15% de desconto que o Café da Esquina pediu no pedido mensal de bolos.",
+          "opcoes": "Dar os 15% de desconto\nManter o preço e entregar sem custo nas terças e sextas\nManter o preço e mandar uma torta a mais por mês",
+          "criterio": "Não mexer no preço de tabela, porque os outros três cafés pagam o mesmo. A torta a mais me toma uma tarde inteira de forno.",
+          "decidido": "Manter o preço de tabela e entregar sem custo nas terças e sextas, de outubro a dezembro.",
+          "espero": "Que renovem o pedido de outubro sem voltar a pedir desconto. Confiro no dia 5 de outubro, quando o pedido fecha."
+        }
+      },
+      "requisitos": [
+        "Trata «Decidi» como já decidido: a mensagem mantém o preço de tabela e oferece entrega sem custo nas terças e sextas, de outubro a dezembro.",
+        "NÃO apresenta os 15% como decisão nem os reabre: nada de desconto menor, meio-termo, «se insistirem, ofereça X%» ou «avalie ainda se vale dar o desconto».",
+        "NÃO acrescenta à oferta a torta a mais por mês, que foi opção descartada.",
+        "Não inventa valor do pedido, preço de tabela, custo da entrega, nome de pessoa ou resposta do café.",
+        "Entrega o próximo passo usável: o texto da mensagem, ou o roteiro dela, pronto para mandar; se falar de quando conferir, usa 5 de outubro.",
+        "Não presume o gênero de quem escreve a nota (nada de «você mesma/mesmo», «decidida/decidido» dirigido a essa pessoa)."
+      ],
+      "sintetico": true
+    },
+    {
+      "id": "e8-resp-compras-precos-faltando",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Dá para comprar tudo com os R$ 250?",
+        "pagina": "# Compras do churrasco de sábado\n\nTenho R$ 250 para isso.\n\n- picanha, 2 kg — R$ 69,90 o kg (encarte do mercado)\n- linguiça, 1 kg — R$ 24,00 o kg\n- pão de alho, 2 pacotes — R$ 12,50 cada\n- carvão, 2 sacos — não vi o preço\n- refrigerante, 4 garrafas de 2 L — não vi o preço\n- gelo — falta ver quanto\n\n? Dá para comprar tudo com os R$ 250?"
+      },
+      "requisitos": [
+        "Soma só o que tem preço na página: picanha R$ 139,80 (2 × 69,90), linguiça R$ 24,00, pão de alho R$ 25,00 (2 × 12,50); subtotal R$ 188,80 e sobra de R$ 61,20 dos R$ 250.",
+        "NÃO inventa preço de carvão, refrigerante ou gelo — nem como média, estimativa, exemplo ou «costuma custar» — e não apresenta total fechado.",
+        "Não afirma que dá nem que não dá; nomeia exatamente o que falta: preço do carvão, do refrigerante e do gelo, e a quantidade do gelo.",
+        "Entrega a continuação útil: carvão, refrigerante e gelo juntos precisam caber em R$ 61,20, e diz como fechar a conta (por exemplo, anotar os três preços no mercado ou no encarte antes de pegar os itens).",
+        "Não troca nenhuma quantidade nem preço que está na página.",
+        "Não presume o gênero de quem escreve a nota (nada de «você mesma/mesmo», «cansada/cansado» dirigido a essa pessoa)."
+      ],
+      "sintetico": true
+    },
+    {
+      "id": "e8-resp-treino-tornozelo-tres-manhas",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Como eu organizo essas três manhãs na semana?",
+        "pagina": "# Voltar a correr\n\nPosso treinar segunda, quarta e sábado de manhã, 40 minutos cada. Torci o tornozelo esquerdo em agosto; o ortopedista liberou caminhada e corrida leve em piso plano, sem subida e sem pular, por mais um mês. Em casa tenho um tapete de ioga e um par de halteres de 2 kg. A praça perto de casa é plana.\n\n? Como eu organizo essas três manhãs na semana?"
+      },
+      "requisitos": [
+        "Monta as três manhãs nos dias da página (segunda, quarta e sábado), cada uma cabendo em 40 minutos.",
+        "Respeita a liberação escrita: só caminhada e corrida leve em piso plano; NÃO propõe subida, ladeira, escada, salto, polichinelo, pular corda nem qualquer exercício com pulo.",
+        "Usa só o que a página diz ter — a praça plana, o tapete de ioga e os halteres de 2 kg; NÃO inventa esteira, bicicleta, elástico, academia, treinador ou grupo de corrida.",
+        "Não inventa fato médico além do escrito: nem diagnóstico, remédio, fisioterapia ou prazo de recuperação, e não afirma que o tornozelo já está bom; se falar de dor, remete ao ortopedista que já está na página, sem prescrever tratamento.",
+        "Não recusa por causa da lesão nem se limita a «procure um profissional»: entrega um plano concreto que dá para seguir já nesta semana.",
+        "Não presume o gênero de quem escreve a nota (nada de «você mesma/mesmo», «cansada/cansado», «machucada/machucado» dirigido a essa pessoa)."
+      ],
+      "sintetico": true
+    },
+    {
+      "id": "e8-resp-vizinha-taxa-antiga-corrigida",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Quanto eu pago do salão, até quando, e cabe todo mundo?",
+        "pagina": "# Festa de 10 anos do meu afilhado\n\nVai ser no salão do prédio, sábado, 3 de outubro. Na reunião de 12/09 a síndica avisou que a taxa subiu para R$ 220 e que agora o pagamento é até 10 dias antes da data. O resto do que anotei em [[Salão do condomínio]] continua igual. Confirmados até hoje: 28 pessoas.\n\n? Quanto eu pago do salão, até quando, e cabe todo mundo?",
+        "vizinhas": [
+          {
+            "titulo": "Salão do condomínio",
+            "prosa": "Salão de festas do condomínio — anotado em 14/07.\n\nTaxa de reserva: R$ 150.\nPagar na administração até 5 dias antes da data.\nCapacidade: 40 pessoas.\nDevolver a chave até as 10h do dia seguinte.\nSom só até as 22h."
+          }
+        ]
+      },
+      "requisitos": [
+        "Usa a correção da página: taxa de R$ 220 e prazo de 10 dias antes; NÃO apresenta R$ 150 nem 5 dias como o que vale (pode citá-los só como o valor antigo substituído) e não pede confirmação extra do aviso da síndica.",
+        "Entrega o passo seguinte com os dados vigentes: pagar R$ 220 na administração até 23 de setembro (dez dias antes de 3 de outubro), ou mostra a conta que chega a essa data.",
+        "Usa a capacidade de 40 pessoas da nota ligada, que a página diz continuar valendo, e conclui que as 28 confirmadas cabem.",
+        "Não inventa taxa de limpeza, caução, forma de pagamento, nome da síndica nem regra que as duas notas não têm.",
+        "Não presume o gênero de quem escreve a nota (nada de «você mesma/mesmo», «padrinho/madrinha» atribuído a essa pessoa)."
+      ],
+      "sintetico": true
+    }
+  ]
+}

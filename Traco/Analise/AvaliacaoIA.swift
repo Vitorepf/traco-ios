@@ -146,7 +146,9 @@ enum AvaliacaoIA {
     /// A montagem do braço escolhido, ou `nil` quando a fixture não traz
     /// `pagina` — aí o caso é dos antigos e usa o `contexto` já pronto.
     private static func montagem(_ e: Entrada) -> (contexto: String, viajaram: [String])? {
-        guard let pagina = e.pagina else { return nil }
+        guard let escrita = e.pagina else { return nil }
+        // E8: a página como a `Sessao.perguntarASabia` a manda desde a E7 — prosa e campos rotulados
+        let pagina = VozDoAutor.rotulada(texto: escrita, campos: e.campos ?? [:], gesto: e.gesto.flatMap(Gesto.init(rawValue:)))
         let vz = (e.vizinhas ?? []).map { (titulo: $0.titulo, prosa: $0.prosa) }
         return bracoDoContexto == "antigo"
             ? Sabia.contextoDaPerguntaComoEraNa10b(pagina: pagina, vizinhas: vz)

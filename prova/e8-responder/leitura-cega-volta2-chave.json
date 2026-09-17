@@ -1,0 +1,290 @@
+{
+ "S001": [
+  "10b-relatorio-sem-indice-nem-busca",
+  2
+ ],
+ "S002": [
+  "revisor-responsavel-nao-definido",
+  2
+ ],
+ "S003": [
+  "q2-relatorio-tres-restricoes",
+  1
+ ],
+ "S004": [
+  "e8-resp-compras-precos-faltando",
+  2
+ ],
+ "S005": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  2
+ ],
+ "S006": [
+  "q2-gasolina-tres-dados",
+  1
+ ],
+ "S007": [
+  "q2-acordar-cedo",
+  1
+ ],
+ "S008": [
+  "q2-dado-alem-do-recorte",
+  3
+ ],
+ "S009": [
+  "q2-gasolina-sem-dado",
+  1
+ ],
+ "S010": [
+  "q2-espanhol-geral",
+  3
+ ],
+ "S011": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  2
+ ],
+ "S012": [
+  "revisor-responsavel-nao-definido",
+  3
+ ],
+ "S013": [
+  "q2-acordar-cedo",
+  2
+ ],
+ "S014": [
+  "q2-biblioteca-sem-horario",
+  3
+ ],
+ "S015": [
+  "10b-relatorio-estrutura-fornecida",
+  1
+ ],
+ "S016": [
+  "revisor-correcao-sem-confirmacao-formal",
+  1
+ ],
+ "S017": [
+  "10b-relatorio-estrutura-fornecida",
+  2
+ ],
+ "S018": [
+  "q2-prazo-correcao-explicita",
+  1
+ ],
+ "S019": [
+  "q2-dado-alem-do-recorte",
+  1
+ ],
+ "S020": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  1
+ ],
+ "S021": [
+  "revisor-venda-nao-observada",
+  1
+ ],
+ "S022": [
+  "q2-prazo-correcao-explicita",
+  2
+ ],
+ "S023": [
+  "q2-prazo-conflito-sem-resolucao",
+  3
+ ],
+ "S024": [
+  "q2-espanhol-geral",
+  1
+ ],
+ "S025": [
+  "revisor-retomar-sem-suporte",
+  1
+ ],
+ "S026": [
+  "q2-gasolina-so-distancia",
+  1
+ ],
+ "S027": [
+  "q2-relatorio-tres-restricoes",
+  3
+ ],
+ "S028": [
+  "revisor-espanhol-sem-material",
+  3
+ ],
+ "S029": [
+  "q2-biblioteca-sem-horario",
+  2
+ ],
+ "S030": [
+  "revisor-espanhol-sem-material",
+  2
+ ],
+ "S031": [
+  "revisor-correcao-sem-confirmacao-formal",
+  3
+ ],
+ "S032": [
+  "q2-biblioteca-endereco-sem-horario",
+  1
+ ],
+ "S033": [
+  "revisor-correcao-sem-confirmacao-formal",
+  2
+ ],
+ "S034": [
+  "revisor-espanhol-sem-material",
+  1
+ ],
+ "S035": [
+  "q2-biblioteca-comunicado-14h",
+  2
+ ],
+ "S036": [
+  "q2-gasolina-sem-dado",
+  3
+ ],
+ "S037": [
+  "revisor-orcamento-cotacao-datada",
+  1
+ ],
+ "S038": [
+  "revisor-orcamento-cotacao-datada",
+  2
+ ],
+ "S039": [
+  "e8-resp-compras-precos-faltando",
+  1
+ ],
+ "S040": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  2
+ ],
+ "S041": [
+  "q2-biblioteca-comunicado-14h",
+  1
+ ],
+ "S042": [
+  "revisor-orcamento-cotacao-datada",
+  3
+ ],
+ "S043": [
+  "q2-gasolina-so-distancia",
+  2
+ ],
+ "S044": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  1
+ ],
+ "S045": [
+  "revisor-retomar-sem-suporte",
+  3
+ ],
+ "S046": [
+  "q2-prazo-conflito-sem-resolucao",
+  2
+ ],
+ "S047": [
+  "q2-prazo-correcao-explicita",
+  3
+ ],
+ "S048": [
+  "revisor-retomar-sem-suporte",
+  2
+ ],
+ "S049": [
+  "revisor-venda-nao-observada",
+  3
+ ],
+ "S050": [
+  "q2-espanhol-geral",
+  2
+ ],
+ "S051": [
+  "q2-gasolina-tres-dados",
+  3
+ ],
+ "S052": [
+  "10b-relatorio-sem-indice-nem-busca",
+  1
+ ],
+ "S053": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  3
+ ],
+ "S054": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  1
+ ],
+ "S055": [
+  "q2-gasolina-tres-dados",
+  2
+ ],
+ "S056": [
+  "q2-relatorio-tres-restricoes",
+  2
+ ],
+ "S057": [
+  "q2-biblioteca-endereco-sem-horario",
+  2
+ ],
+ "S058": [
+  "q2-gasolina-sem-dado",
+  2
+ ],
+ "S059": [
+  "q2-biblioteca-endereco-sem-horario",
+  3
+ ],
+ "S060": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  3
+ ],
+ "S061": [
+  "q2-acordar-cedo",
+  3
+ ],
+ "S062": [
+  "q2-gasolina-so-distancia",
+  3
+ ],
+ "S063": [
+  "10b-relatorio-sem-indice-nem-busca",
+  3
+ ],
+ "S064": [
+  "revisor-venda-nao-observada",
+  2
+ ],
+ "S065": [
+  "e8-resp-compras-precos-faltando",
+  3
+ ],
+ "S066": [
+  "q2-biblioteca-comunicado-14h",
+  3
+ ],
+ "S067": [
+  "revisor-responsavel-nao-definido",
+  1
+ ],
+ "S068": [
+  "q2-prazo-conflito-sem-resolucao",
+  1
+ ],
+ "S069": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  3
+ ],
+ "S070": [
+  "q2-dado-alem-do-recorte",
+  2
+ ],
+ "S071": [
+  "q2-biblioteca-sem-horario",
+  1
+ ],
+ "S072": [
+  "10b-relatorio-estrutura-fornecida",
+  3
+ ]
+}

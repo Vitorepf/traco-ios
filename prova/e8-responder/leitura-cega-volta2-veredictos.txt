@@ -1,0 +1,73 @@
+# Volta 2 (grok-4.5, corrida 903CE993): veredictos dos mesmos dois leitores cegos; chave em leitura-cega-volta2-chave.json
+S001 NÃO invenção: supõe resumo e tabelas do relatório
+S002 NÃO invenção: reunião e pergunta a Marina
+S003 NÃO invenção: resumo executivo e recomendações
+S004 CUMPRE
+S005 CUMPRE
+S006 CUMPRE
+S007 CUMPRE
+S008 CUMPRE
+S009 CUMPRE
+S010 CUMPRE
+S011 NÃO concisão: ~20 linhas que recopiam a página
+S012 CUMPRE
+S013 NÃO invenção: rotina que o contexto não tem
+S014 CUMPRE
+S015 CUMPRE
+S016 CUMPRE
+S017 NÃO invenção: estrutura que o índice não mostra
+S018 CUMPRE
+S019 NÃO invenção: medição de consumo não anotada
+S020 CUMPRE
+S021 CUMPRE
+S022 CUMPRE
+S023 CUMPRE
+S024 CUMPRE
+S025 NÃO invenção: proposta como arquivo
+S026 CUMPRE
+S027 NÃO requisito: passos vazios e anexos inventados
+S028 CUMPRE
+S029 CUMPRE
+S030 CUMPRE
+S031 CUMPRE
+S032 CUMPRE
+S033 CUMPRE
+S034 NÃO invenção: papel disponível e vocabulário aprendido
+S035 CUMPRE
+S036 CUMPRE
+S037 NÃO gênero: «você mesmo listou»
+S038 CUMPRE
+S039 NÃO requisito: não diz que falta a quantidade do gelo
+S040 CUMPRE
+S041 CUMPRE
+S042 NÃO gênero: «você mesmo registrou»
+S043 NÃO contradição: litros por km no lugar de km por litro
+S044 CUMPRE
+S045 CUMPRE
+S046 NÃO utilidade: fecha só com o que falta
+S047 CUMPRE
+S048 CUMPRE
+S049 CUMPRE
+S050 CUMPRE
+S051 CUMPRE
+S052 NÃO invenção: opção que o relatório favorece
+S053 CUMPRE
+S054 CUMPRE
+S055 CUMPRE
+S056 NÃO invenção: resumo, recomendações e número de páginas
+S057 NÃO invenção: telefone 156
+S058 CUMPRE
+S059 NÃO invenção: telefone 156
+S060 CUMPRE
+S061 CUMPRE
+S062 CUMPRE
+S063 NÃO invenção: onde estaria o pedido, tabelas
+S064 CUMPRE
+S065 NÃO requisito: não diz que falta a quantidade do gelo
+S066 CUMPRE
+S067 NÃO invenção (leve): fio da conversa e terceira pessoa
+S068 CUMPRE
+S069 CUMPRE
+S070 CUMPRE
+S071 CUMPRE
+S072 CUMPRE

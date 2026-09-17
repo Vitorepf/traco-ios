@@ -15,9 +15,30 @@ nonisolated enum SustentacaoPagina {
         Sabia.vazaAlheio(resposta, termos: documentoAlheio, texto: material)
     }
 
+    /// E8 (dono, 16/09: a guarda nossa não cala a resposta inteira): sai só a frase
+    /// que supõe o documento; a recusa inteira fica para quando nada útil sobra.
+    /// Antes, uma frase com "pdf" ou "sumário" trocava a resposta toda pela recusa —
+    /// 12 de 144 respostas medidas no Air, inclusive onde o material dava a estrutura.
     static func filtrar(_ resposta: String, pergunta: String, contexto: String) -> String? {
         let material = pergunta + "\n" + contexto
-        if inventouDocumento(resposta, material: material) { return recusaDocumento }
-        return resposta
+        guard inventouDocumento(resposta, material: material) else { return resposta }
+        let linhas = resposta.components(separatedBy: "\n").map { linha -> String? in
+            var frases: [String] = [], inicio = linha.startIndex
+            for m in linha.matches(of: /[.!?…]\s+/) {
+                frases.append(String(linha[inicio..<m.range.upperBound]))
+                inicio = m.range.upperBound
+            }
+            if inicio < linha.endIndex { frases.append(String(linha[inicio...])) }
+            let ficam = frases.filter { !inventouDocumento($0, material: material) }
+            if linha.trimmingCharacters(in: .whitespaces).isEmpty { return "" }
+            let nova = ficam.joined().trimmingCharacters(in: .whitespaces)
+            return nova.isEmpty ? nil : nova
+        }.compactMap { $0 }
+        let texto = linhas.joined(separator: "\n").replacing(/\n{3,}/, with: "\n\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return texto.count >= minimoUtil ? texto : recusaDocumento
     }
+
+    /// ponytail: tamanho como régua de "sobrou algo útil"; abaixo disto, a recusa.
+    static let minimoUtil = 60
 }

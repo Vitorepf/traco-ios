@@ -19,6 +19,30 @@ struct SustentacaoPaginaTests {
             "O PDF do banco que você citou tem a cotação.", material: comPdf))
     }
 
+    /// E8: a frase que supõe o documento sai; o resto da resposta fica. Só o que é
+    /// todo documento inventado vira recusa. E o "pdf" que o material traz passa.
+    @Test func aGuardaTiraAFraseENaoCalaARespostaInteira() {
+        let nota = "Relatório de setembro: 1. Contexto; 2. Metodologia; 3. Resultados por praça. Tenho 30 minutos."
+        let resposta = "Leia primeiro 3. Resultados por praça, que traz as filas de cada uma.\nAbra o PDF e vá ao sumário.\nDepois anote as três decisões em uma linha cada, dentro dos 30 minutos."
+        let r = SustentacaoPagina.filtrar(resposta, pergunta: "como organizo a leitura?", contexto: nota)
+        #expect(r == "Leia primeiro 3. Resultados por praça, que traz as filas de cada uma.\nDepois anote as três decisões em uma linha cada, dentro dos 30 minutos.")
+        let misturada = "Comece pelas filas da praça Leste. Abra o PDF na página 3. Anote as três decisões antes dos 30 minutos acabarem."
+        #expect(SustentacaoPagina.filtrar(misturada, pergunta: "como organizo?", contexto: nota)
+                == "Comece pelas filas da praça Leste. Anote as três decisões antes dos 30 minutos acabarem.")
+        let comPdf = nota + " Está no PDF que o banco mandou."
+        #expect(SustentacaoPagina.filtrar("O PDF que o banco mandou traz a cotação; comece pela seção 3.", pergunta: "e agora?", contexto: comPdf)
+                == "O PDF que o banco mandou traz a cotação; comece pela seção 3.", "o PDF que o material cita não é inventado")
+    }
+
+    /// E8: o pedido proíbe supor o que quem escreve anota ou usa, manda fechar a conta
+    /// de data, dizer tudo o que falta, remeter a profissional em saúde, e não presume gênero.
+    @Test func oPedidoDaPaginaNaoSupoeEFechaAConta() {
+        let p = Sabia.sistemaResponder
+        #expect(p.contains("Não suponha o que ela anota, usa ou tem") && p.contains("\"até 23/09\""))
+        #expect(p.contains("inclusive a quantidade") && p.contains("profissional de saúde"))
+        #expect(p.contains(Sabia.semGenero))
+    }
+
     @Test func obraFantasmaNaPaginaNaoChamaOModelo() async {
         var chamou = false
         let r = await Sabia.responder(

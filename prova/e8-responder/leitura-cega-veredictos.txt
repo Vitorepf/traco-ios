@@ -1,0 +1,145 @@
+# Veredictos dos dois leitores cegos (itens embaralhados; a chave item → braço/caso/repetição é chave.json). NÃO = motivo resumido.
+R001 NÃO contradição: não dá 12/09 como vigente
+R002 CUMPRE
+R003 CUMPRE
+R004 CUMPRE
+R005 NÃO utilidade: não indica como resolver quem apresenta
+R006 CUMPRE
+R007 CUMPRE
+R008 CUMPRE
+R009 CUMPRE
+R010 NÃO utilidade: não chega à data de 23/09
+R011 CUMPRE
+R012 CUMPRE
+R013 CUMPRE
+R014 CUMPRE
+R015 CUMPRE
+R016 NÃO utilidade: não indica como resolver quem apresenta
+R017 CUMPRE
+R018 CUMPRE
+R019 NÃO contradição: não afirma 12/09 como vigente
+R020 CUMPRE
+R021 NÃO invenção: proposta como arquivo
+R022 CUMPRE
+R023 CUMPRE
+R024 NÃO utilidade: recusa «Não descrevo um documento que você não trouxe»
+R025 NÃO invenção: um grupo de pessoas
+R026 CUMPRE
+R027 CUMPRE
+R028 NÃO invenção: balcão da biblioteca
+R029 CUMPRE
+R030 CUMPRE
+R031 NÃO requisito: resposta cortada, sem os três blocos
+R032 CUMPRE
+R033 CUMPRE
+R034 CUMPRE
+R035 CUMPRE
+R036 NÃO invenção: fornecedor e confirmação a mais
+R037 CUMPRE
+R038 NÃO invenção: proposta como arquivo, busca
+R039 NÃO requisito: não usa os resultados por praça
+R040 CUMPRE
+R041 NÃO utilidade: recusa «Não descrevo um documento…»
+R042 NÃO requisito: não diz que falta a quantidade do gelo
+R043 CUMPRE
+R044 NÃO invenção: anexos, tabelas e recomendação
+R045 CUMPRE
+R046 NÃO utilidade: recusa «Não descrevo um documento…»
+R047 NÃO utilidade: recusa «Não descrevo um documento…»
+R048 NÃO requisito: sem a forma Se–então
+R049 NÃO requisito: não diz que falta a quantidade do gelo
+R050 CUMPRE
+R051 CUMPRE
+R052 NÃO invenção: painel de consumo
+R053 NÃO utilidade: não chega à data de 23/09
+R054 NÃO invenção: parque ou rua plana; dor sem ortopedista
+R055 NÃO invenção: documento oficial do evento
+R056 CUMPRE
+R057 CUMPRE
+R058 CUMPRE
+R059 CUMPRE
+R060 CUMPRE
+R061 NÃO requisito: não diz que falta a quantidade do gelo
+R062 CUMPRE
+R063 CUMPRE
+R064 CUMPRE
+R065 CUMPRE
+R066 CUMPRE
+R067 CUMPRE
+R068 NÃO utilidade: recusa «Não descrevo um documento…»
+R069 CUMPRE
+R070 NÃO requisito: resposta da loja como venda concluída
+R071 CUMPRE
+R072 NÃO invenção: telefone 156
+R073 CUMPRE
+R074 CUMPRE
+R075 NÃO requisito: só procura a proposta, supõe arquivo
+R076 CUMPRE
+R077 CUMPRE
+R078 CUMPRE
+R079 NÃO utilidade: recusa «Não descrevo um documento…»
+R080 CUMPRE
+R081 CUMPRE
+R082 CUMPRE
+R083 NÃO invenção: hábito do dono (app que costuma usar)
+R084 CUMPRE
+R085 CUMPRE
+R086 CUMPRE
+R087 CUMPRE
+R088 CUMPRE
+R089 CUMPRE
+R090 NÃO utilidade: recusa «Não descrevo um documento…»
+R091 CUMPRE
+R092 NÃO invenção: telefone 156
+R093 NÃO invenção: chat do grupo
+R094 NÃO requisito: dor sem ortopedista, prescreve conduta
+R095 CUMPRE
+R096 NÃO utilidade: recusa «Não descrevo um documento…»
+R097 CUMPRE
+R098 NÃO requisito: não diz que falta a quantidade do gelo
+R099 CUMPRE
+R100 NÃO invenção: páginas do relatório
+R101 CUMPRE
+R102 NÃO utilidade: recusa «Não descrevo um documento…»
+R103 NÃO requisito: sem o 5 de outubro
+R104 CUMPRE
+R105 NÃO utilidade: recusa «Não descrevo um documento…»
+R106 CUMPRE
+R107 NÃO utilidade: recusa «Não descrevo um documento…»
+R108 NÃO utilidade: não dá 50 litros nem R$ 300
+R109 CUMPRE
+R110 CUMPRE
+R111 NÃO requisito: afirma vocabulário prévio
+R112 CUMPRE
+R113 NÃO concisão: ~25 linhas; dor sem ortopedista
+R114 NÃO utilidade: não chega a 23 de setembro
+R115 CUMPRE
+R116 NÃO invenção: experiência do dono
+R117 NÃO invenção: cliente
+R118 NÃO requisito: não diz que falta a quantidade do gelo
+R119 CUMPRE
+R120 NÃO utilidade: só diz o que falta
+R121 NÃO requisito: manda copiar o que não pode copiar
+R122 NÃO invenção: planilha do dono
+R123 CUMPRE
+R124 NÃO requisito: afirma vocabulário prévio
+R125 CUMPRE
+R126 CUMPRE
+R127 CUMPRE
+R128 CUMPRE
+R129 CUMPRE
+R130 NÃO requisito: não diz que falta a quantidade do gelo
+R131 NÃO gênero: «você mesmo»
+R132 NÃO utilidade: recusa «Não descrevo um documento…»
+R133 NÃO contradição: reabre a correção explícita; «você mesma»
+R134 CUMPRE
+R135 CUMPRE
+R136 NÃO invenção: pedido dado como renovado
+R137 CUMPRE
+R138 NÃO invenção: cliente e resposta
+R139 NÃO invenção: sua corretora
+R140 NÃO invenção: registro do dono
+R141 CUMPRE
+R142 NÃO requisito: dor sem ortopedista
+R143 NÃO utilidade: não calcula os R$ 300
+R144 NÃO invenção: registro do dono

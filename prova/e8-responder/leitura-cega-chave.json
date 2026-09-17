@@ -1,0 +1,722 @@
+{
+ "R001": [
+  "B",
+  "q2-prazo-correcao-explicita",
+  3
+ ],
+ "R002": [
+  "A",
+  "revisor-venda-nao-observada",
+  3
+ ],
+ "R003": [
+  "B",
+  "revisor-orcamento-cotacao-datada",
+  3
+ ],
+ "R004": [
+  "A",
+  "q2-prazo-correcao-explicita",
+  2
+ ],
+ "R005": [
+  "B",
+  "revisor-responsavel-nao-definido",
+  3
+ ],
+ "R006": [
+  "A",
+  "e8-resp-decisao-desconto-ja-decidido",
+  2
+ ],
+ "R007": [
+  "A",
+  "q2-prazo-conflito-sem-resolucao",
+  1
+ ],
+ "R008": [
+  "B",
+  "10b-relatorio-sem-indice-nem-busca",
+  1
+ ],
+ "R009": [
+  "B",
+  "q2-gasolina-so-distancia",
+  2
+ ],
+ "R010": [
+  "B",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  1
+ ],
+ "R011": [
+  "B",
+  "q2-biblioteca-sem-horario",
+  1
+ ],
+ "R012": [
+  "A",
+  "q2-biblioteca-sem-horario",
+  3
+ ],
+ "R013": [
+  "B",
+  "q2-gasolina-tres-dados",
+  3
+ ],
+ "R014": [
+  "B",
+  "q2-biblioteca-comunicado-14h",
+  2
+ ],
+ "R015": [
+  "B",
+  "q2-biblioteca-sem-horario",
+  3
+ ],
+ "R016": [
+  "B",
+  "revisor-responsavel-nao-definido",
+  2
+ ],
+ "R017": [
+  "B",
+  "q2-biblioteca-sem-horario",
+  2
+ ],
+ "R018": [
+  "B",
+  "q2-dado-alem-do-recorte",
+  1
+ ],
+ "R019": [
+  "B",
+  "q2-prazo-correcao-explicita",
+  1
+ ],
+ "R020": [
+  "A",
+  "revisor-venda-nao-observada",
+  1
+ ],
+ "R021": [
+  "B",
+  "revisor-retomar-sem-suporte",
+  3
+ ],
+ "R022": [
+  "A",
+  "revisor-correcao-sem-confirmacao-formal",
+  1
+ ],
+ "R023": [
+  "B",
+  "q2-espanhol-geral",
+  1
+ ],
+ "R024": [
+  "A",
+  "10b-relatorio-sem-indice-nem-busca",
+  2
+ ],
+ "R025": [
+  "A",
+  "revisor-responsavel-nao-definido",
+  3
+ ],
+ "R026": [
+  "A",
+  "revisor-correcao-sem-confirmacao-formal",
+  2
+ ],
+ "R027": [
+  "A",
+  "revisor-venda-nao-observada",
+  2
+ ],
+ "R028": [
+  "B",
+  "q2-biblioteca-endereco-sem-horario",
+  3
+ ],
+ "R029": [
+  "B",
+  "q2-gasolina-so-distancia",
+  3
+ ],
+ "R030": [
+  "B",
+  "q2-biblioteca-comunicado-14h",
+  3
+ ],
+ "R031": [
+  "A",
+  "revisor-espanhol-sem-material",
+  3
+ ],
+ "R032": [
+  "B",
+  "q2-gasolina-sem-dado",
+  3
+ ],
+ "R033": [
+  "B",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  2
+ ],
+ "R034": [
+  "A",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  1
+ ],
+ "R035": [
+  "A",
+  "q2-prazo-conflito-sem-resolucao",
+  3
+ ],
+ "R036": [
+  "B",
+  "revisor-correcao-sem-confirmacao-formal",
+  3
+ ],
+ "R037": [
+  "A",
+  "q2-prazo-correcao-explicita",
+  1
+ ],
+ "R038": [
+  "A",
+  "revisor-retomar-sem-suporte",
+  2
+ ],
+ "R039": [
+  "B",
+  "10b-relatorio-estrutura-fornecida",
+  1
+ ],
+ "R040": [
+  "B",
+  "q2-prazo-conflito-sem-resolucao",
+  2
+ ],
+ "R041": [
+  "A",
+  "q2-relatorio-tres-restricoes",
+  3
+ ],
+ "R042": [
+  "A",
+  "e8-resp-compras-precos-faltando",
+  3
+ ],
+ "R043": [
+  "A",
+  "q2-biblioteca-comunicado-14h",
+  3
+ ],
+ "R044": [
+  "A",
+  "10b-relatorio-sem-indice-nem-busca",
+  1
+ ],
+ "R045": [
+  "A",
+  "q2-biblioteca-sem-horario",
+  1
+ ],
+ "R046": [
+  "A",
+  "10b-relatorio-estrutura-fornecida",
+  2
+ ],
+ "R047": [
+  "B",
+  "q2-relatorio-tres-restricoes",
+  2
+ ],
+ "R048": [
+  "A",
+  "q2-acordar-cedo",
+  2
+ ],
+ "R049": [
+  "B",
+  "e8-resp-compras-precos-faltando",
+  2
+ ],
+ "R050": [
+  "B",
+  "revisor-orcamento-cotacao-datada",
+  2
+ ],
+ "R051": [
+  "B",
+  "q2-dado-alem-do-recorte",
+  3
+ ],
+ "R052": [
+  "A",
+  "q2-gasolina-sem-dado",
+  3
+ ],
+ "R053": [
+  "B",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  3
+ ],
+ "R054": [
+  "B",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  1
+ ],
+ "R055": [
+  "B",
+  "revisor-correcao-sem-confirmacao-formal",
+  2
+ ],
+ "R056": [
+  "B",
+  "q2-acordar-cedo",
+  3
+ ],
+ "R057": [
+  "B",
+  "q2-gasolina-so-distancia",
+  1
+ ],
+ "R058": [
+  "A",
+  "q2-espanhol-geral",
+  1
+ ],
+ "R059": [
+  "B",
+  "e8-resp-decisao-desconto-ja-decidido",
+  1
+ ],
+ "R060": [
+  "A",
+  "q2-gasolina-tres-dados",
+  1
+ ],
+ "R061": [
+  "B",
+  "e8-resp-compras-precos-faltando",
+  1
+ ],
+ "R062": [
+  "A",
+  "revisor-retomar-sem-suporte",
+  1
+ ],
+ "R063": [
+  "B",
+  "q2-biblioteca-comunicado-14h",
+  1
+ ],
+ "R064": [
+  "A",
+  "q2-prazo-conflito-sem-resolucao",
+  2
+ ],
+ "R065": [
+  "A",
+  "q2-gasolina-tres-dados",
+  3
+ ],
+ "R066": [
+  "B",
+  "revisor-orcamento-cotacao-datada",
+  1
+ ],
+ "R067": [
+  "B",
+  "revisor-espanhol-sem-material",
+  3
+ ],
+ "R068": [
+  "B",
+  "q2-relatorio-tres-restricoes",
+  1
+ ],
+ "R069": [
+  "A",
+  "revisor-espanhol-sem-material",
+  1
+ ],
+ "R070": [
+  "B",
+  "revisor-venda-nao-observada",
+  3
+ ],
+ "R071": [
+  "B",
+  "10b-relatorio-estrutura-fornecida",
+  3
+ ],
+ "R072": [
+  "A",
+  "q2-biblioteca-endereco-sem-horario",
+  3
+ ],
+ "R073": [
+  "A",
+  "e8-resp-decisao-desconto-ja-decidido",
+  3
+ ],
+ "R074": [
+  "B",
+  "10b-relatorio-estrutura-fornecida",
+  2
+ ],
+ "R075": [
+  "B",
+  "revisor-retomar-sem-suporte",
+  2
+ ],
+ "R076": [
+  "B",
+  "q2-biblioteca-endereco-sem-horario",
+  2
+ ],
+ "R077": [
+  "A",
+  "q2-biblioteca-comunicado-14h",
+  2
+ ],
+ "R078": [
+  "B",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  3
+ ],
+ "R079": [
+  "A",
+  "10b-relatorio-estrutura-fornecida",
+  3
+ ],
+ "R080": [
+  "A",
+  "q2-espanhol-geral",
+  3
+ ],
+ "R081": [
+  "A",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  3
+ ],
+ "R082": [
+  "A",
+  "q2-biblioteca-endereco-sem-horario",
+  1
+ ],
+ "R083": [
+  "A",
+  "q2-dado-alem-do-recorte",
+  2
+ ],
+ "R084": [
+  "A",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  2
+ ],
+ "R085": [
+  "B",
+  "revisor-venda-nao-observada",
+  2
+ ],
+ "R086": [
+  "A",
+  "q2-dado-alem-do-recorte",
+  3
+ ],
+ "R087": [
+  "A",
+  "q2-gasolina-tres-dados",
+  2
+ ],
+ "R088": [
+  "B",
+  "q2-prazo-correcao-explicita",
+  2
+ ],
+ "R089": [
+  "A",
+  "q2-gasolina-so-distancia",
+  2
+ ],
+ "R090": [
+  "B",
+  "revisor-retomar-sem-suporte",
+  1
+ ],
+ "R091": [
+  "B",
+  "q2-gasolina-sem-dado",
+  1
+ ],
+ "R092": [
+  "A",
+  "q2-biblioteca-endereco-sem-horario",
+  2
+ ],
+ "R093": [
+  "A",
+  "revisor-responsavel-nao-definido",
+  1
+ ],
+ "R094": [
+  "A",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  3
+ ],
+ "R095": [
+  "A",
+  "revisor-responsavel-nao-definido",
+  2
+ ],
+ "R096": [
+  "A",
+  "q2-relatorio-tres-restricoes",
+  1
+ ],
+ "R097": [
+  "A",
+  "q2-acordar-cedo",
+  1
+ ],
+ "R098": [
+  "A",
+  "e8-resp-compras-precos-faltando",
+  2
+ ],
+ "R099": [
+  "A",
+  "revisor-espanhol-sem-material",
+  2
+ ],
+ "R100": [
+  "B",
+  "10b-relatorio-sem-indice-nem-busca",
+  2
+ ],
+ "R101": [
+  "B",
+  "q2-acordar-cedo",
+  2
+ ],
+ "R102": [
+  "A",
+  "10b-relatorio-sem-indice-nem-busca",
+  3
+ ],
+ "R103": [
+  "B",
+  "e8-resp-decisao-desconto-ja-decidido",
+  3
+ ],
+ "R104": [
+  "A",
+  "q2-espanhol-geral",
+  2
+ ],
+ "R105": [
+  "A",
+  "q2-relatorio-tres-restricoes",
+  2
+ ],
+ "R106": [
+  "A",
+  "q2-acordar-cedo",
+  3
+ ],
+ "R107": [
+  "A",
+  "revisor-retomar-sem-suporte",
+  3
+ ],
+ "R108": [
+  "B",
+  "q2-gasolina-tres-dados",
+  1
+ ],
+ "R109": [
+  "B",
+  "q2-espanhol-geral",
+  2
+ ],
+ "R110": [
+  "B",
+  "q2-acordar-cedo",
+  1
+ ],
+ "R111": [
+  "B",
+  "revisor-espanhol-sem-material",
+  1
+ ],
+ "R112": [
+  "A",
+  "q2-prazo-correcao-explicita",
+  3
+ ],
+ "R113": [
+  "A",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  2
+ ],
+ "R114": [
+  "B",
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  2
+ ],
+ "R115": [
+  "B",
+  "revisor-venda-nao-observada",
+  1
+ ],
+ "R116": [
+  "A",
+  "q2-gasolina-sem-dado",
+  1
+ ],
+ "R117": [
+  "B",
+  "q2-prazo-conflito-sem-resolucao",
+  1
+ ],
+ "R118": [
+  "A",
+  "e8-resp-compras-precos-faltando",
+  1
+ ],
+ "R119": [
+  "A",
+  "q2-gasolina-so-distancia",
+  1
+ ],
+ "R120": [
+  "B",
+  "revisor-responsavel-nao-definido",
+  1
+ ],
+ "R121": [
+  "B",
+  "10b-relatorio-sem-indice-nem-busca",
+  3
+ ],
+ "R122": [
+  "A",
+  "revisor-orcamento-cotacao-datada",
+  2
+ ],
+ "R123": [
+  "A",
+  "q2-biblioteca-comunicado-14h",
+  1
+ ],
+ "R124": [
+  "B",
+  "revisor-espanhol-sem-material",
+  2
+ ],
+ "R125": [
+  "B",
+  "q2-espanhol-geral",
+  3
+ ],
+ "R126": [
+  "B",
+  "q2-gasolina-sem-dado",
+  2
+ ],
+ "R127": [
+  "B",
+  "q2-dado-alem-do-recorte",
+  2
+ ],
+ "R128": [
+  "A",
+  "revisor-orcamento-cotacao-datada",
+  3
+ ],
+ "R129": [
+  "A",
+  "q2-biblioteca-sem-horario",
+  2
+ ],
+ "R130": [
+  "B",
+  "e8-resp-compras-precos-faltando",
+  3
+ ],
+ "R131": [
+  "A",
+  "q2-gasolina-so-distancia",
+  3
+ ],
+ "R132": [
+  "B",
+  "q2-relatorio-tres-restricoes",
+  3
+ ],
+ "R133": [
+  "B",
+  "revisor-correcao-sem-confirmacao-formal",
+  1
+ ],
+ "R134": [
+  "A",
+  "10b-relatorio-estrutura-fornecida",
+  1
+ ],
+ "R135": [
+  "A",
+  "revisor-correcao-sem-confirmacao-formal",
+  3
+ ],
+ "R136": [
+  "B",
+  "e8-resp-decisao-desconto-ja-decidido",
+  2
+ ],
+ "R137": [
+  "B",
+  "q2-biblioteca-endereco-sem-horario",
+  1
+ ],
+ "R138": [
+  "B",
+  "q2-prazo-conflito-sem-resolucao",
+  3
+ ],
+ "R139": [
+  "A",
+  "revisor-orcamento-cotacao-datada",
+  1
+ ],
+ "R140": [
+  "A",
+  "q2-gasolina-sem-dado",
+  2
+ ],
+ "R141": [
+  "A",
+  "e8-resp-decisao-desconto-ja-decidido",
+  1
+ ],
+ "R142": [
+  "A",
+  "e8-resp-treino-tornozelo-tres-manhas",
+  1
+ ],
+ "R143": [
+  "B",
+  "q2-gasolina-tres-dados",
+  2
+ ],
+ "R144": [
+  "A",
+  "q2-dado-alem-do-recorte",
+  1
+ ]
+}
