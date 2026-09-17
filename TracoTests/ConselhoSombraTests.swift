@@ -112,7 +112,7 @@ struct ConselhoSombraTests {
             #expect(e.contraria == nil || e.contraria?.contains(e.texto ?? "") == false)
             #expect(!(e.porque ?? []).isEmpty)
             // o fim é o de sempre, e o cartão do conselho (ADR 16h) mostra a regra
-            #expect(s.toast == "guardada em Notas")
+            #expect(s.toast == "Guardada em Notas")
             // abrir e concluir de novo não registra outra vez
             let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.gesto == .decisao })
             s.abrir(nota)

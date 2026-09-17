@@ -1182,10 +1182,25 @@ final class Sessao {
     }
 
     /// As linhas da nota que trazem dia E hora viram compromissos, uma vez
-    /// cada (mesmo título e mesma hora não entram duas vezes). Toast com o
-    /// que entrou; a ficha não abre — a pessoa está a concluir, não a marcar.
-    func marcarCompromissosDaNota(agora: Date = .now) {
-        marcarCompromissos(em: texto, agora: agora, prefixoDoToast: "guardada · ")
+    /// cada (mesmo título e mesma hora não entram duas vezes). Devolve o que
+    /// entrou; o aviso é o do concluir (`toastDoConcluir`); a ficha não abre —
+    /// a pessoa está a concluir, não a marcar.
+    @discardableResult
+    func marcarCompromissosDaNota(agora: Date = .now) -> [EventoCalendario] {
+        let marcados = marcarSemAnunciar(em: texto, agora: agora)
+        if !marcados.isEmpty { Toque.suave() }
+        return marcados
+    }
+
+    /// Auditoria do líder (16/09, alto): concluir com dia e hora marcava em silêncio
+    /// — o aviso do compromisso era trocado na hora por "guardada em Notas".
+    static func toastDoConcluir(marcados: [EventoCalendario]) -> String {
+        guard let primeiro = marcados.first else { return "Guardada em Notas" }
+        guard marcados.count == 1 else { return "Guardada em Notas · \(marcados.count) compromissos marcados" }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.dateFormat = "EEE, d MMM, HH:mm"
+        return "Guardada em Notas · marcado \(f.string(from: primeiro.inicio))"
     }
 
     /// O que traz dia E hora vira compromisso sozinho — da nota ao concluir e
@@ -1195,6 +1210,21 @@ final class Sessao {
     /// quando TODAS as partes têm dia e hora. Devolve quantos marcou.
     @discardableResult
     func marcarCompromissos(em prosa: String, agora: Date = .now, prefixoDoToast: String = "") -> Int {
+        let ineditos = marcarSemAnunciar(em: prosa, agora: agora)
+        guard !ineditos.isEmpty else { return 0 }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.dateFormat = "EEEE d, HH:mm"
+        if ineditos.count == 1, let e = ineditos.first {
+            mostrarToast("\(prefixoDoToast)\(e.titulo) marcado para \(f.string(from: e.inicio))")
+        } else {
+            mostrarToast("\(prefixoDoToast)\(ineditos.count) compromissos marcados")
+        }
+        Toque.suave()
+        return ineditos.count
+    }
+
+    private func marcarSemAnunciar(em prosa: String, agora: Date) -> [EventoCalendario] {
         let cal = Calendario.gregoriano()
         let (m, t, n) = (Ancora.hora(.manha), Ancora.hora(.tarde), Ancora.hora(.noite))
         func datado(_ s: Substring) -> EventoCalendario? {
@@ -1207,12 +1237,12 @@ final class Sessao {
             let lidos = partes.compactMap(datado)
             if partes.count > 1, lidos.count == partes.count { novos = lidos }
         }
-        guard !novos.isEmpty else { return 0 }
+        guard !novos.isEmpty else { return [] }
         var lista: [EventoCalendario] = []
         if let agenda { lista = agenda.eventos } else if case .eventos(let atual) = CalendarioDisco.carregar() { lista = atual }
         let existentes = Set(lista.map { $0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970)) })
         let ineditos = novos.filter { !existentes.contains($0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970))) }
-        guard !ineditos.isEmpty else { return 0 }
+        guard !ineditos.isEmpty else { return [] }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
         f.dateFormat = "EEEE d, HH:mm"
@@ -1224,13 +1254,7 @@ final class Sessao {
             ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(lista), cal: cal, mudo: nil)
             for e in ineditos { agendarEContar(e, em: lista, cal: cal, marcado: "\(e.titulo) marcado para \(f.string(from: e.inicio))") }
         }
-        if ineditos.count == 1, let e = ineditos.first {
-            mostrarToast("\(prefixoDoToast)\(e.titulo) marcado para \(f.string(from: e.inicio))")
-        } else {
-            mostrarToast("\(prefixoDoToast)\(ineditos.count) compromissos marcados")
-        }
-        Toque.suave()
-        return ineditos.count
+        return ineditos
     }
 
     /// ADR 06d (revisão G3, A2): pede o alarme de verdade e conta o que
@@ -1988,14 +2012,14 @@ final class Sessao {
         guard salvar(no: context) else { texto = original; return }
         // Goal de 14/09: "agenda o que tem hora". A linha da nota que traz dia
         // e hora vira compromisso sozinha; a nota fica como está.
-        if gesto != .expressiva { marcarCompromissosDaNota() }
+        let marcados = gesto != .expressiva ? marcarCompromissosDaNota() : []
         // Só uma gravação confirmada pode contar como conclusão.
         if let g = gesto, g != .expressiva, camposComResposta { Sinais.ficou(g) }
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
         // "especificação guardada" dizia o nome do método; a pessoa só quer
         // saber ONDE a nota foi parar (auditoria 15/09, alto 1)
-        mostrarToast("guardada em Notas")
+        mostrarToast(Self.toastDoConcluir(marcados: marcados))
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta.

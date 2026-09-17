@@ -54,3 +54,38 @@ struct PadroesSemEnderecoTests {
         #expect(PadroesRemoto.citaEndereco("o que diz a nota 12?") && !PadroesRemoto.citaEndereco("o que dizem as notas?"))
     }
 }
+
+/// Concluir uma nota com dia e hora marcava o compromisso em silêncio: o aviso
+/// dele era trocado na hora por "guardada em Notas".
+@MainActor @Suite(.serialized)
+struct ConcluirDizOQueMarcouTests {
+    @Test func oAvisoDizODiaEAHoraOuSoOndeANotaFoi() throws {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = .current
+        let quinta = try #require(cal.date(from: DateComponents(year: 2026, month: 9, day: 17, hour: 10)))
+        let evento = EventoCalendario(id: UUID(), titulo: "Dentista", inicio: quinta, fim: quinta.addingTimeInterval(3600),
+                                      dominio: nil, notas: "", diaInteiro: false)
+        #expect(Sessao.toastDoConcluir(marcados: [evento]) == "Guardada em Notas · marcado qui., 17 set., 10:00")
+        #expect(Sessao.toastDoConcluir(marcados: []) == "Guardada em Notas")
+        #expect(Sessao.toastDoConcluir(marcados: [evento, evento]) == "Guardada em Notas · 2 compromissos marcados")
+    }
+
+    @Test func concluirComDiaEHoraAvisaQueMarcou() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let disco = FileManager.default.temporaryDirectory.appendingPathComponent("cal-\(UUID().uuidString)/calendario.json")
+        let agenda = CalendarioAgenda(agora: .now, cal: Calendario.gregoriano(), disco: disco, eventos: [])
+        let s = Sessao()
+        s.agenda = agenda
+        s.texto = "Dentista amanhã 10h"
+        s.concluir(no: c.mainContext)
+        #expect(agenda.eventos.count == 1)
+        #expect(s.toast?.hasPrefix("Guardada em Notas · marcado ") == true, "\(s.toast ?? "sem aviso")")
+
+        let semHora = Sessao()
+        semHora.agenda = agenda
+        semHora.texto = "Comprar pão e café"
+        semHora.concluir(no: c.mainContext)
+        #expect(semHora.toast == "Guardada em Notas")
+        withExtendedLifetime(agenda) {}
+    }
+}
