@@ -41,7 +41,7 @@ struct IntegridadeEntradaTests {
             sessao.concluir(no: container.mainContext)
             #expect(sessao.texto == "Quero estudar espanhol")
             #expect(sessao.campos == campos)
-            #expect(sessao.toast?.contains("guardada") != true)
+            #expect(sessao.toast?.localizedCaseInsensitiveContains("guardada") != true)
             #expect(Sinais.todos().filter { $0.tipo == .ficou }.isEmpty)
             #expect(try container.mainContext.fetch(FetchDescriptor<Nota>()).isEmpty)
             sessao.irPara(.notas, no: container.mainContext)

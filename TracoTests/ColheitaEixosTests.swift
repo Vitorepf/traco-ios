@@ -737,7 +737,7 @@ struct PromessaVerdadeTests {
         #expect(notas[0].campos["entao"] == "fecho o app")
         #expect(notas[0].temVoz)
         #expect(s.paginaVazia)
-        #expect(s.toast?.contains("guardada") == true)
+        #expect(s.toast?.hasPrefix("Guardada em Notas") == true)
     }
 
     @Test func paginaSemVozNaoGravaNemMente() throws {
