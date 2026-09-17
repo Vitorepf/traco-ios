@@ -163,7 +163,7 @@ cruza não é a frequência; é o placar.
 
 | # | método | por que segura | o que destravaria |
 |---|---|---|---|
-| 15 | **Autodistanciamento** (Kross e Ayduk) | é uma instrução ("escreva na terceira pessoa"), não uma anatomia de campos. Tecnicamente **passaria** a guarda de escrita pessoal — escrever "ele ficou irritado" não aciona nenhum dos cinco léxicos, que são todos de primeira pessoa —, e isso é mais curiosidade do que argumento | virar uma **lente**, não um método: o esquema já tem `funcao: "lente"`, e nenhum método do catálogo a usa hoje |
+| 15 | **Autodistanciamento** (Kross e Ayduk) | é uma instrução ("escreva na terceira pessoa"), não uma anatomia de campos. Tecnicamente **passaria** a guarda de escrita pessoal — escrever "ele ficou irritado" não aciona nenhum dos cinco léxicos, que são todos de primeira pessoa —, e isso é mais curiosidade do que argumento | virar uma **lente**, não um método: `funcao: "lente"` já é o que cinco métodos declaram (Argumento, Inversão, Steelman, Primeiros princípios, O que se vê e o que não se vê), e nenhum deles é uma instrução de reescrever o próprio texto |
 | 22 | **Reflexão diária de aprendizado** (Di Stefano e Gino 2014) | a melhor evidência ★★ da família para o ciclo de trabalho (+23% num treinamento de call center), mas o movimento fica espremido entre o `exameDaNoite` (a volta moral), a `praticaDeliberada` (o pedaço que falha) e a `notaPermanente` (a ideia nas suas palavras) | achar o movimento que **só ele** faz. Se for "o que eu aprendi fazendo, sem ser falha nem ideia", há ficha; se não for, é barra 3 |
 | 26 | **Worry postponement** (Borkovec) | movimento próprio — anotar e **adiar**, não resolver — e o Traço tem os dois mecanismos (compromisso e aviso). Mas o gatilho é o autor preocupado, e aí a guarda acende | a resposta à pergunta 1 do dono (abaixo). Se o fecho ganhar uma porta, este método ganha um lugar |
 | 19 | **Afirmação de valores** (Steele, Cohen) | replicação mista declarada na própria literatura, e o terreno vizinho já tem ficha (`regraQueEuFaco`) que ainda nem foi colada | a leva 3 mesclar, e depois ver o que sobra |
@@ -237,8 +237,10 @@ dias não serve a isso. É argumento a favor da avulsa; não resolve a pergunta.
 ## 7. A ordem sugerida, e por quê
 
 **1. Mesclar a leva 3** ([`leva-3-e-fusao.md`](leva-3-e-fusao.md), pronto desde
-06/09: cinco passos, 14 métodos, a fusão da Inversão no Pré-mortem, dois testes
-com número de linha). **Primeiro porque está pronto e porque a régua da M14 é
+06/09: cinco passos, 14 métodos, a fusão da Inversão no Pré-mortem). O pacote foi
+conferido contra o `main` de hoje em
+[`leva-3-conferencia-17-09.md`](leva-3-conferencia-17-09.md): continua válido, e a
+lista do que quebra cresceu de dois lugares para dez. **Primeiro porque está pronto e porque a régua da M14 é
 "trocar, não acrescentar"** — e essa régua não faz sentido enquanto a troca já
 decidida não aconteceu. Dois dos "em observação" desta leitura (#19, #25) dependem
 de fichas que estão nesse pacote.
