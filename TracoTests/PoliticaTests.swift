@@ -121,7 +121,7 @@ import Testing
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
         // A `responderNasNotas` saiu daqui na 09v: virou `.soGrok`, o `conserto`
         // ficou `nil` e ela não entra mais em `emCorrecao`.
-        for (op, leitura) in [(Politica.Operacao.instigar, "quando você diz que não sabe quando foi"),
+        for (op, leitura) in [(Politica.Operacao.instigar, "às vezes pergunta supondo um fato que a nota não diz"),
                               (.contrapor, "oferece um substituto para o que você disse que não tem")] {
             let r = try #require(emCorrecao.first { $0.op == op })
             let linha = PerfilView.restoDa(r)
@@ -284,7 +284,7 @@ import Testing
         #expect(inst.regra == .indisponivelPorQualidade)
         #expect(inst.porque.contains("GuardaDeInstigar"))
         #expect(inst.porque.contains("nota magra"))
-        #expect(inst.motivo.contains("quando você diz que não sabe quando foi"))
+        #expect(inst.motivo.contains("às vezes pergunta supondo um fato que a nota não diz"))
         let cont = Politica.linha(.contrapor)
         #expect(cont.regra == .indisponivelPorQualidade)
         #expect(cont.porque.contains("GuardaDeContrapor"))
