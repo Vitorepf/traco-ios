@@ -27,7 +27,7 @@ struct QualidadeTrabalhoTests {
             let contexto = MotorTrabalho.pedido(documento, pedido, teto: 18_000, praticaPreservada: pratica)
             #expect(contexto.contains("A abertura da apresentação"))
             #expect(contexto.contains(exercicio.enunciado))
-            #expect(contexto.contains("não resolva esse trecho por ela"))
+            #expect(contexto.contains("não resolva esse trecho no lugar da pessoa"))
             return .init(texto: textoDelegado, produtor: "Provedor de entrega controlado")
         })
         #expect(preparacoes == 1 && entregas == 1)

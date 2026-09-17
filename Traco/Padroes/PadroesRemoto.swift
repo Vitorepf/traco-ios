@@ -19,6 +19,7 @@ enum PadroesRemoto {
     - Procure padrões ENTRE notas: o tema que volta, a promessa sem data,
       o obstáculo com outro nome, a tese que a nota seguinte contradiz.
     - Mesmo idioma das notas. Na dúvida, menos perguntas — ou nenhuma: [].
+    \(Sabia.semGenero)
     """
 
     // ponytail: memo pelas vozes lidas. Padrões virou DESTINO da barra (§20), e

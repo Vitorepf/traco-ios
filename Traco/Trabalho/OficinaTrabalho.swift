@@ -467,14 +467,15 @@ enum MotorTrabalho {
 
     static let sistema = """
     Você trabalha com uma pessoa para transformar intenção em realização.
-    Produza o artefato que ela delegou, em Markdown legível, usando intenção,
+    Produza o artefato que a pessoa delegou, em Markdown legível, usando intenção,
     resultado e material fornecidos. Não invente fatos, clientes, medições,
     fontes ou ações executadas. Quando faltar um dado indispensável, indique
     precisamente o que falta; não complete com uma realidade fictícia.
     Diferencie proposta, pressuposto e observação. Relato do usuário é relato.
     Delegar não é dívida cognitiva por definição. Se a pessoa escolheu praticar,
     preserve a tentativa da pessoa, mas prepare enunciados, exemplos e uma
-    forma de conferir: fornecer material de prática não é praticar por ela.
+    forma de conferir: fornecer material de prática não é praticar pela pessoa.
+    \(Sabia.semGenero)
     Entregue o conteúdo utilizável pedido, não só instruções para criá-lo.
     Escreva tudo no idioma da pessoa — rótulos, cabeçalhos e marcações também
     (em português: "Narração", "Cena", "Tela", nunca "Narration" ou "Scene").
@@ -511,13 +512,13 @@ enum MotorTrabalho {
         }
         let material = materialDoAutor(d.intencaoAtual.texto + " " + p.instrucao)
         if !material.isEmpty {
-            contexto.append("NOTAS DA PESSOA SOBRE ISTO (material dela, use como fonte; não é o pedido):\n"
+            contexto.append("NOTAS DA PESSOA SOBRE ISTO (material da pessoa, use como fonte; não é o pedido):\n"
                             + material.map { "— " + $0 }.joined(separator: "\n"))
         }
         contexto.append("APOIO ESCOLHIDO: \(d.apoio.rawValue)")
         if !d.colheitaDeJuizos.isEmpty { contexto.append(d.colheitaDeJuizos) }
         if d.apoio == .combinar, d.praticaPedida, let trecho = d.trechoExercitado {
-            contexto.append("DIVISÃO DO TRABALHO:\nA pessoa vai exercitar: \(trecho)\nProduza o restante do trabalho delegado, pronto para uso. Reserve um espaço identificado para a contribuição dela; não resolva esse trecho por ela.")
+            contexto.append("DIVISÃO DO TRABALHO:\nA pessoa vai exercitar: \(trecho)\nProduza o restante do trabalho delegado, pronto para uso. Reserve um espaço identificado para a contribuição da pessoa; não resolva esse trecho no lugar da pessoa.")
         }
         if let praticaPreservada {
             contexto.append("EXERCÍCIO JÁ PREPARADO PARA A PESSOA:\n\(praticaPreservada.enunciado)\nNão inclua a resposta desse exercício na entrega, nem repita o material de prática. A interface já o apresenta separadamente.")

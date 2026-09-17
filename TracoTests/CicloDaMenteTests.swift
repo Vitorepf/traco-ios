@@ -234,12 +234,12 @@ private func temp(_ nome: String) -> URL {
         // acoplar a asserção ao ponto de quebra faz o teste ficar vermelho por
         // reformatação, que é ruído, e é o que aconteceu na 2ª redação.
         let pedido = Sabia.sistemaInstigar.replacingOccurrences(of: "\n", with: " ")
-        for pedaço in ["nunca as cite", "é DELA, seja qual for", "Não suponha nenhum fato",
+        for pedaço in ["nunca as cite", "é de quem escreve, seja qual for", "Não suponha nenhum fato",
                        "MANDA nas perguntas", "Não devolva vazio",
                        // ADR 10c: as DUAS pernas da condição. Uma sozinha é o
                        // defeito que a outra comprou — a nota magra sem o
                        // quando, ou a nota farta somando o gabarito.
-                       "se ela quase não dá", "se ela dá matéria",
+                       "se a nota quase não dá", "se a nota dá matéria",
                        "só entra a que a nota deixou sem resposta"] {
             #expect(pedido.contains(pedaço))
         }
@@ -259,7 +259,7 @@ private func temp(_ nome: String) -> URL {
     /// DESFECHO: um espaço a mais no meio faria a corrida medir duas coisas e
     /// chamar de uma alavanca só.
     @Test func aBaseEOCandidatoDiferemSoNoDesfecho() {
-        let comum = "ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.\n"
+        let comum = "quem escreve nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.\n"
         func ate(_ s: String) -> String {
             guard let f = s.range(of: comum)?.upperBound else { return "" }
             return String(s[..<f])
@@ -907,12 +907,25 @@ private func temp(_ nome: String) -> URL {
     /// O contrato do `contrapor` promoveu a proibição por procedência para o
     /// alto, ao lado da que já matou a evidência fabricada (Q4-B, 3/3).
     @Test func oContratoDeContraporProibeORecursoQueElaNaoEscreveu() {
-        for pedaço in ["Proibido também o que é DELA e ela não", "renda, salário, dívida",
+        for pedaço in ["Proibido também o que é da vida de quem escreve e", "renda, salário, dívida",
                        "apagada inteira"] {
             #expect(Sabia.sistemaContrapor.contains(pedaço))
         }
         // saiu do fim: era a penúltima linha e não mandava em nada
         #expect(!Sabia.sistemaContrapor.contains("Não atribua a ela recurso"))
+        // E8 volta 2: o pedido não ensina gênero — quem escreve é "quem escreve", e o semGenero vai junto;
+        // o outroCampo é analogia marcada, nunca fato histórico afirmado
+        for pedido in [Sabia.sistemaContrapor, Sabia.sistemaContraporComEsquema, Sabia.sistemaInstigar, Sabia.sistemaInstigarBase] {
+            #expect(pedido.contains(Sabia.semGenero))
+            #expect(pedido.range(of: #"\b(ela|dela|ELA|DELA)\b"#, options: .regularExpression) == nil, "\(pedido.prefix(60))")
+        }
+        #expect(Sabia.sistemaContrapor.contains("nunca fato histórico afirmado") && !Sabia.sistemaContrapor.contains("época"))
+        #expect(Sabia.vazaAlheio("qual o passo básico que falta?", termos: Sabia.andaimeDoPedido, texto: "Estudo espanhol."))
+        // a rota ligada das Notas também não ensina gênero (líder, 17/09: prioridade)
+        for trecho in ["que ela já anotou", "fala dela", "dúvida dela", "como se fosse dela", "ONDE ela confirma"] {
+            #expect(!Sabia.sistemaResponderNasNotas.contains(trecho) && !Sabia.sistemaConferirNasNotas.contains(trecho), "\(trecho)")
+        }
+        #expect(!Sabia.semGenero.contains("ela não disse") && !Sabia.vozDaObra.contains("anotação dela"))
     }
 
     /// ADR 2026-09-10c — a alavanca do LOTE-7, e é UMA. O caso cego do revisor
@@ -930,14 +943,14 @@ private func temp(_ nome: String) -> URL {
     /// autocertificação — foi assim que a Q4-C comprou o defeito oposto.
     @Test func oContratoDeContraporFechaASaidaQueElaMesmaDescartou() {
         for pedaço in ["é DADO também",
-                       "o que ela já descartou, recusou ou disse não ter",
+                       "o que a nota já descartou, recusou ou disse não ter",
                        "nem como alternativa no foraDaLista, nem como etapa antes",
-                       "Saída que ela mesma fechou não é contraponto, é troca de assunto",
-                       "Quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA",
+                       "Saída que a própria nota fechou não é contraponto, é troca de assunto",
+                       "Quanto mais saídas a nota fecha, mais o contraponto se aperta no que SOBRA",
                        // tentativa 2: as duas pontas que sobraram na primeira
-                       "O que ela pôs fora da conta fica fora, a favor e contra",
+                       "O que a nota pôs fora da conta fica fora, a favor e contra",
                        "não ofereça",
-                       "substituto para o recurso que ela disse não ter"] {
+                       "substituto para o recurso que a nota diz não ter"] {
             #expect(Sabia.sistemaContrapor.contains(pedaço))
         }
         // A guarda que acusa precisa da irmã que NÃO acusa: a regra é abstrata

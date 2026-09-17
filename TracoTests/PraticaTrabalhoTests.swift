@@ -728,7 +728,7 @@ struct PraticaTrabalhoTests {
         d.trechoExercitado = "As frases em espanhol"
         #expect(d.praticaPedida)
         #expect(PraticaTrabalho.montarPreparacao(d, try d.iniciarPedido("prepare"))
-            .contains("O TRECHO QUE ELA VAI EXERCITAR"))
+            .contains("O TRECHO QUE A PESSOA VAI EXERCITAR"))
     }
 
     @Test func montagemDaPreparacaoLevaTentativaAtribuidaSemResolverAProxima() throws {

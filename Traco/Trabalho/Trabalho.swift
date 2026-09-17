@@ -366,7 +366,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var colheitaDeJuizos: String {
         let linhas = linhasDaColheita
         guard !linhas.isEmpty else { return "" }
-        return "JUÍZOS QUE VOCÊ INFORMOU (observação dela, não aprendizagem nem rótulo):\n"
+        return "JUÍZOS QUE VOCÊ INFORMOU (observação da pessoa, não aprendizagem nem rótulo):\n"
             + linhas.joined(separator: "\n")
     }
 
