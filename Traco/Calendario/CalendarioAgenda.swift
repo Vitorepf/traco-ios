@@ -5,8 +5,17 @@ import UIKit
 @Observable
 final class CalendarioAgenda {
     var ancora: Date
-    var escala: EscalaCalendario = .dia
-    var modo: ModoCalendario = .grelha
+    // a última visão volta quando o app reabre (auditoria 17/09: voltava sempre
+    // ao «D»); só a agenda do disco padrão lembra — as de teste nascem limpas
+    var escala: EscalaCalendario = .dia {
+        didSet { if lembraVisao { UserDefaults.standard.set(escala.rawValue, forKey: Self.chaveEscala) } }
+    }
+    var modo: ModoCalendario = .grelha {
+        didSet { if lembraVisao { UserDefaults.standard.set(modo.rawValue, forKey: Self.chaveModo) } }
+    }
+    private var lembraVisao = false
+    static let chaveEscala = "calendario.escala"
+    static let chaveModo = "calendario.modo"
     var eventos: [EventoCalendario]
     /// As deixas das notas ("Se" com hora), lidas do modelo pela view. Não
     /// vão ao disco do calendário: a nota é a dona.
@@ -69,6 +78,15 @@ final class CalendarioAgenda {
                 CalendarioDisco.porDeLado(disco)
                 mostrar("o arquivo do calendário não abriu. guardei uma cópia ao lado e comecei vazio.")
             }
+        }
+        // só a agenda de verdade (disco padrão, eventos do disco) lembra a visão
+        if disco == CalendarioDisco.urlPadrao(), eventos == nil {
+            if let e = UserDefaults.standard.string(forKey: Self.chaveEscala).flatMap(EscalaCalendario.init(rawValue:)) {
+                escala = e
+                escalaAnterior = e
+            }
+            if let m = UserDefaults.standard.string(forKey: Self.chaveModo).flatMap(ModoCalendario.init(rawValue:)) { modo = m }
+            lembraVisao = true
         }
         ouvinteDaAcao = NotificationCenter.default.addObserver(
             forName: Revisoes.abrirCompromisso, object: nil, queue: .main

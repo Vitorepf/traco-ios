@@ -902,7 +902,13 @@ struct PaginaView: View {
         // duas vezes — consumida na primeira, a segunda levantava o teclado.
         // Quem a apaga é o toque do autor no papel (`focoPagina` fica true).
         if sessao.acabouDeAbrir { return }
-        focoPagina = true
+        // o teclado sobe depois que a página chega (auditoria 17/09: subia junto
+        // do empurrão e a barra atravessava a tela solta, a meio caminho)
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(reduceMotion ? 0 : 320))
+            guard sessao.aba == .escrever, sessao.confirmacao == nil, !mostrarCampos, !sessao.acabouDeAbrir else { return }
+            focoPagina = true
+        }
     }
 }
 
