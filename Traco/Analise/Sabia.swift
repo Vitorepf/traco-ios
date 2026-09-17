@@ -466,14 +466,14 @@ enum Sabia {
     /// precisa saber que houve resposta e que pedir de novo muda o resultado
     /// (nem `instigar` nem `contrapor` memoizam).
     nonisolated static let nadaPassouNaGuarda =
-        "a sábia respondeu, e nada do que veio era sobre a sua nota. Peça de novo."
+        "a Sábia respondeu, e nada do que veio era sobre a sua nota. Peça de novo."
 
     /// Emenda à 2026-09-09s — a mesma espécie uma função adiante, e numa rota
     /// VIVA (`vestir` é `.grokDepoisBordo`). Frase própria, e não a de cima,
     /// por um motivo medido: `vestir` MEMOIZA, então "peça de novo" seria
     /// falso — o memo devolve o mesmo cru, e o mesmo desfecho.
     nonisolated static let nadaVestiu =
-        "a sábia respondeu, e o que veio não vestia este texto. ele ficou como estava."
+        "a Sábia respondeu, e o que veio não vestia este texto. ele ficou como estava."
 
     nonisolated struct Contraparte: Sendable, Equatable {
         var contra: String

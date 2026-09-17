@@ -89,3 +89,15 @@ struct ConcluirDizOQueMarcouTests {
         withExtendedLifetime(agenda) {}
     }
 }
+
+/// A IA se chama «Sábia», com maiúscula, em toda frase que o autor lê.
+struct SabiaComMaiusculaTests {
+    @Test func asFrasesDaTelaDizemSabiaComMaiuscula() {
+        let frases = [Sabia.nadaPassouNaGuarda, Sabia.nadaVestiu, Grok.avisoDaFalha()]
+            + Politica.Operacao.allCases.map { Politica.semProvedor($0) }
+        for frase in frases {
+            #expect(!frase.contains("sábia"), "\(frase)")
+        }
+        #expect(Sabia.nadaPassouNaGuarda.contains("Sábia") && Sabia.nadaVestiu.contains("Sábia"))
+    }
+}

@@ -433,6 +433,6 @@ nonisolated enum Grok {
     static func avisoDaFalha() -> String {
         tranca.lock(); defer { tranca.unlock() }
         if let f = ultimaFalha { return frase(f) }
-        return "a sábia não respondeu. o que você escreveu continua aqui."
+        return "a Sábia não respondeu. o que você escreveu continua aqui."
     }
 }

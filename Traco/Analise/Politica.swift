@@ -211,7 +211,7 @@ enum Politica {
         case .contrapor: "Contrapor pela IA está indisponível: ela ainda oferece um substituto para o que você disse que não tem. O Steelman e a Inversão continuam no catálogo, escritos por você."
         case .responderNasNotas: "Responder as perguntas que você deixa nas notas precisa da sua conta Grok (em Perfil)."
         case .vestir, .classificar:
-            "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
+            "A Sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
         case .dominio: "O domínio pela IA precisa da Apple Intelligence ligada; sem ela, o léxico decide."
         case .escolherRegra: "Escolher pelo sentido a regra dos mestres para a sua Decisão e para as Notas precisa da sua conta Grok (em Perfil); sem ela, e sempre no Pré-mortem, a escolha é pelas palavras."
         }
