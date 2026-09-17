@@ -517,9 +517,12 @@ enum Caderno: Sendable {
 
     nonisolated static func estruturar(_ texto: String) -> String {
         var temTitulo = false
+        // a última linha do bloco de cima: abaixo de «Comprar» o item pode ter mais palavras
+        var anterior = ""
         var mudancas: [(Range<String.Index>, String)] = []
         for (indice, intervalo) in intervalosParaVestir(texto).enumerated() {
             let bloco = texto[intervalo].split(whereSeparator: \.isNewline).map(String.init)
+            defer { anterior = bloco.last ?? "" }
             // bloco que já carrega forma/marca é escolha do autor — não se toca
             if bloco.contains(where: jaVestida) {
                 if bloco.count == 1, bloco[0].trimmingCharacters(in: .whitespaces).hasPrefix("#") {
@@ -528,25 +531,19 @@ enum Caderno: Sendable {
                 continue
             }
             if bloco.count >= 2, bloco.allSatisfy(curtaSemPonto) {
-                // a nota que começa com três ou mais linhas curtas coladas
-                // ("Plano de sábado / comprar pão / ligar…") é um título e a
-                // sua lista, não quatro itens (dono, 14/09, sem a régua)
-                if indice == 0, !temTitulo, bloco.count >= 3 {
-                    let titulo = "# " + bloco[0].trimmingCharacters(in: .whitespaces)
-                    let itens = bloco.dropFirst().map { "- " + $0.trimmingCharacters(in: .whitespaces) }
-                    mudancas.append((intervalo, ([titulo] + itens).joined(separator: "\n")))
-                    temTitulo = true
-                    continue
-                }
-                // linhas curtas paralelas = lista: cada uma vira item
-                mudancas.append((intervalo, bloco.map { "- " + $0.trimmingCharacters(in: .whitespaces) }.joined(separator: "\n")))
+                // linhas curtas paralelas = lista: cada uma vira item, com a
+                // cabeça que `cabecaEItens` reconhece (título ou seção)
+                let partida = cabecaEItens(bloco, abreANota: indice == 0 && !temTitulo, abaixoDe: anterior)
+                let topo = partida.cabeca.map { [(temTitulo ? "## " : "# ") + $0] } ?? []
+                if partida.cabeca != nil { temTitulo = true }
+                mudancas.append((intervalo, (topo + partida.itens.map { "- " + $0 }).joined(separator: "\n")))
                 continue
             }
             if bloco.count == 1, curtaSemPonto(bloco[0]) {
                 // uma linha de itens («Leite , farinha , ovo») é lista, um item
                 // por linha — nunca título nem seção (dono, 17/09: a linha das
                 // compras virou SEÇÃO)
-                if let itens = itensDaEnumeracao(bloco[0]) {
+                if let itens = itensDaEnumeracao(bloco[0], abaixoDe: anterior) {
                     mudancas.append((intervalo, itens.map { "- " + $0 }.joined(separator: "\n")))
                     continue
                 }
@@ -568,16 +565,61 @@ enum Caderno: Sendable {
     /// como o autor as escreveu. Vírgula entre dois algarismos é decimal
     /// («1,5 kg») e não separa. Um lugar só: a regra local (`estruturar`), a
     /// forma da IA (`Sabia.aplicar`) e o Destaque (`AnaliseLocal.listaSemDia`).
-    nonisolated static func itensDaEnumeracao(_ linha: String) -> [String]? {
-        let cs = Array(linha)
+    ///
+    /// Revisão, 17/09: contar vírgulas partia frases e apagava as vírgulas do
+    /// autor («Hoje, cedo, fui ao mercado» virava três itens). Não é lista a
+    /// linha longa, a que termina como frase, a fala («disse: sim, não»), a que
+    /// tem separador dentro de parênteses ou aspas, nem a que tem item de mais
+    /// de duas palavras — quatro logo abaixo de uma cabeça de lista
+    /// (`cabecaDeLista`), onde «pasta de dente, sabão em pó» é compra.
+    /// ponytail: conta palavras, não lê gramática; «Hoje, amanhã, depois» ainda é lista.
+    nonisolated static func itensDaEnumeracao(_ linha: String, abaixoDe anterior: String = "") -> [String]? {
+        let t = linha.trimmingCharacters(in: .whitespaces)
+        guard t.count <= 60, !t.contains(":"), let ultimo = t.last, !".!?…".contains(ultimo) else { return nil }
+        let cs = Array(t)
         var itens = [""]
+        var fundo = 0
+        var aspas = false
         for (k, c) in cs.enumerated() {
+            if "([{«“".contains(c) { fundo += 1 } else if ")]}»”".contains(c) { fundo -= 1 } else if c == "\"" { aspas.toggle() }
             let decimal = c == "," && k > 0 && k + 1 < cs.count && cs[k - 1].isNumber && cs[k + 1].isNumber
-            if (c == "," || c == ";") && !decimal { itens.append("") } else { itens[itens.count - 1].append(c) }
+            guard c == "," || c == ";", !decimal else { itens[itens.count - 1].append(c); continue }
+            // «Comprar (leite, pão), ovo»: a vírgula de dentro não separa a linha
+            guard fundo == 0, !aspas else { return nil }
+            itens.append("")
         }
+        let teto = cabecaDeLista(anterior) ? 4 : 2
         let limpos = itens.map { $0.trimmingCharacters(in: .whitespaces) }
-        guard limpos.count >= 3, !limpos.contains(where: \.isEmpty) else { return nil }
+        guard limpos.count >= 3,
+              limpos.allSatisfy({ !$0.isEmpty && $0.split(whereSeparator: \.isWhitespace).count <= teto })
+        else { return nil }
         return limpos
+    }
+
+    /// A cabeça de uma lista de compras ou de itens: «Comprar», «Compras:»,
+    /// «Compras do mês», «Comprar no mercado», «Mercado», «Lista de…», com ou
+    /// sem `#`. «Comprar café» é um afazer, não cabeça. Um lugar só: a
+    /// enumeração (`itensDaEnumeracao`) e o Destaque (`AnaliseLocal.listaSemDia`).
+    nonisolated static func cabecaDeLista(_ linha: String) -> Bool {
+        linha.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            .trimmingCharacters(in: .whitespaces)
+            .contains(regex: #"^(#+\s*)?(comprar|compras|mercado|supermercado|feira|lista)(\s+(de|do|da|dos|das|no|na|nos|nas|em|pra|para|pro)\b.*)?\s*:?$"#)
+    }
+
+    /// Cabeça e itens de um bloco de linhas sem marca — a mesma leitura na
+    /// regra local (`estruturar`) e na forma de itens da IA (`Sabia.aplicar`).
+    /// A primeira linha é cabeça quando a de baixo é uma lista numa linha
+    /// («Comprar / Leite , farinha , ovo» com um Enter só, dono, 17/09) ou
+    /// quando o bloco abre a nota com três ou mais linhas curtas («Plano de
+    /// sábado / comprar pão / ligar…», dono, 14/09). Cada lista numa linha vira
+    /// os seus itens; as outras linhas são um item cada.
+    nonisolated static func cabecaEItens(_ linhas: [String], abreANota: Bool,
+                                         abaixoDe anterior: String) -> (cabeca: String?, itens: [String]) {
+        let l = linhas.map { $0.trimmingCharacters(in: .whitespaces) }
+        func itens(_ k: Int) -> [String]? { itensDaEnumeracao(l[k], abaixoDe: k > 0 ? l[k - 1] : anterior) }
+        let temCabeca = l.count >= 2 && itens(0) == nil
+            && (itens(1) != nil || abreANota && l.count >= 3 && l.allSatisfy(curtaSemPonto))
+        return (temCabeca ? l[0] : nil, l.indices.dropFirst(temCabeca ? 1 : 0).flatMap { itens($0) ?? [l[$0]] })
     }
 
     /// Linha curta e sem pontuação de fim de frase: candidata a título ou item.

@@ -1176,11 +1176,14 @@ final class Sessao {
     /// ou mapa fora do contrato, veste a regra local (`Caderno.estruturar`), com o
     /// mesmo aviso e o mesmo «Desfazer». Escrita pessoal e texto que não é do
     /// autor não viajam (só a regra local); expressiva e selada não se tocam.
+    /// `depoisDoAviso`: o aviso do concluir («Guardada em Notas · marcado …»)
+    /// fica esse tempo antes de a forma trocá-lo — sem IA a reserva chega no
+    /// mesmo instante (auditoria do líder, 16/09: aviso trocado na hora é mudo).
     var vestidaRecuperavel: (uuid: UUID, antes: String)?
     private var vestidaTask: Task<Void, Never>?
 
     @discardableResult
-    func vestirAoConcluir(_ uuid: UUID, no context: ModelContext,
+    func vestirAoConcluir(_ uuid: UUID, no context: ModelContext, depoisDoAviso: Duration = .zero,
                           vestir: @escaping @MainActor ([String], Gesto?) async -> [Sabia.Rotulo]? = {
                               await Sabia.vestir(blocos: $0, gesto: $1)
                           }) -> Task<Void, Never>? {
@@ -1190,12 +1193,19 @@ final class Sessao {
         let antes = nota.texto
         let g = nota.gesto
         let viaja = nota.origem == .autor && !AnaliseLocal.escritaPessoal(texto: antes, campos: nota.campos)
+        let livre = ContinuousClock.now + depoisDoAviso
+        // a tarefa segura o contêiner: o contexto de um contêiner já solto para
+        // o processo em `buscar` (a suíte solta o dela antes de a forma chegar)
+        let container = context.container
         return Task { [weak self] in
+            defer { withExtendedLifetime(container) {} }
             var mapa: [Sabia.Rotulo]?
             if viaja { mapa = await Grok.$semAviso.withValue(true, operation: { await vestir(Sabia.blocos(antes), g) }) }
             let vestido = if let mapa, !mapa.isEmpty { Sabia.aplicar(mapa, a: antes) } else { Caderno.estruturar(antes) }
+            guard vestido != antes else { return }
+            try? await Task.sleep(until: livre, clock: .continuous)
             // o autor mexeu na nota enquanto a Sábia pensava: a escrita dele vence
-            guard let self, vestido != antes,
+            guard let self,
                   let atual = Self.buscar(uuid: uuid, no: context), atual.texto == antes,
                   self.notaUUID != uuid || self.texto == antes else { return }
             atual.texto = vestido
@@ -2213,10 +2223,7 @@ final class Sessao {
         acabouDeAbrir = true
     }
 
-    /// `vestePelaIA`: há quem responda à forma (`Politica`). Então a nota é
-    /// gravada como o autor a escreveu e a IA decide a forma depois
-    /// (`vestirAoConcluir`); sem ninguém, a regra local veste antes de gravar.
-    func concluir(no context: ModelContext, vestePelaIA: Bool = Politica.provedor(.vestir) != nil) {
+    func concluir(no context: ModelContext) {
         if timerLigado {
             // §8: Concluída depois de 10 min já mereceu a porta — mas quem
             // escolhe QUAL porta (selar ou queimar) é sempre o autor
@@ -2229,17 +2236,12 @@ final class Sessao {
         }
         guard temVoz else { return }
         // A régua de formatos saiu da página (dono, 14/09): título, seção e
-        // lista nascem do próprio texto ao concluir, pelo motor local que o
-        // "Todas" já usava. Nenhuma palavra muda — só a forma do que é curto
-        // e paralelo. A expressiva fica intocada (selo). Com a IA ligada a
-        // forma é dela, sobre o texto do autor (dono, 17/09).
-        let original = texto
-        if gesto != .expressiva, !vestePelaIA {
-            let local = Caderno.estruturar(texto)
-            if local != texto { texto = local }
-        }
-        // gravação recusada devolve as palavras como estavam (integridade)
-        guard salvar(no: context) else { texto = original; return }
+        // lista nascem do próprio texto ao concluir. Grava-se o que o autor
+        // escreveu; a forma vem depois, em `vestirAoConcluir` — da IA ou, sem
+        // ela, da regra local —, sempre com versão, aviso e «Desfazer» (revisão,
+        // 17/09: a reserva vestia antes de gravar, calada, e sem IA as vírgulas
+        // do autor não ficavam em lugar nenhum). A expressiva fica intocada.
+        guard salvar(no: context) else { return }
         // Goal de 14/09: "agenda o que tem hora". A linha da nota que traz dia
         // e hora vira compromisso sozinha; a nota fica como está.
         let marcados = gesto != .expressiva ? marcarCompromissosDaNota() : []
@@ -2277,7 +2279,8 @@ final class Sessao {
         }
         novaPagina()
         if let concluida {
-            vestirAoConcluir(concluida, no: context)
+            // 2,5 s: a duração do aviso do concluir (`mostrarToast`)
+            vestirAoConcluir(concluida, no: context, depoisDoAviso: .seconds(2.5))
             conselhoDaConclusao = (concluida, .now.addingTimeInterval(8), camposConcluidos)
             oferecerConselho(concluida)
         }

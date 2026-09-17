@@ -358,7 +358,9 @@ struct ListaDeComprasTests {
     @Test func aLinhaDeItensEUmaEnumeracao() {
         #expect(Caderno.itensDaEnumeracao("Leite , farinha , ovo , macarrão") == ["Leite", "farinha", "ovo", "macarrão"])
         #expect(Caderno.itensDaEnumeracao("leite;pão ; café") == ["leite", "pão", "café"])
-        #expect(Caderno.itensDaEnumeracao("1,5 kg de farinha, ovo, leite") == ["1,5 kg de farinha", "ovo", "leite"])
+        // abaixo de uma cabeça de lista o item pode ter até quatro palavras
+        #expect(Caderno.itensDaEnumeracao("1,5 kg de farinha, ovo, leite", abaixoDe: "Compras:") == ["1,5 kg de farinha", "ovo", "leite"])
+        #expect(Caderno.itensDaEnumeracao("1,5 kg de farinha, ovo, leite") == nil)
         // uma vírgula só é frase; item vazio não é lista; palavra solta não é lista
         #expect(Caderno.itensDaEnumeracao("pão, leite e café para a semana toda") == nil)
         #expect(Caderno.itensDaEnumeracao("leite, , ovo") == nil)
@@ -387,6 +389,62 @@ struct ListaDeComprasTests {
         #expect(Sabia.aplicar([.init(i: 0, forma: .numerada)], a: "leite; pão; café") == "1. leite\n2. pão\n3. café")
         // a frase com uma vírgula continua uma linha só
         #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: "pão, leite e café") == "- pão, leite e café")
+    }
+
+    /// Revisão (17/09): contar vírgulas partia frases e apagava as vírgulas do
+    /// autor — pela regra local e pela forma da IA.
+    @Test func fraseComVirgulasNaoViraLista() {
+        for frase in ["Hoje, cedo, fui ao mercado", "Ontem, com a Ana, rimos muito",
+                      "Ela disse: sim, não, talvez", "Comprar (leite, pão), ovo"] {
+            #expect(Caderno.itensDaEnumeracao(frase) == nil, Comment(rawValue: frase))
+            #expect(Caderno.estruturar(frase).hasSuffix(frase), Comment(rawValue: frase))
+            #expect(Caderno.estruturar("Anotações\n\n" + frase).hasSuffix(frase), Comment(rawValue: frase))
+            #expect(Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: frase) == "- [ ] " + frase)
+        }
+        let longa = "Acordei cedo, tomei café com calma, li o jornal inteiro e depois, sem pressa nenhuma, saí para caminhar no parque."
+        #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: longa) == "- " + longa)
+        // abaixo de «Compras» o item pode ter mais palavras
+        #expect(Caderno.estruturar("Compras\n\npasta de dente, sabão em pó, arroz")
+                == "# Compras\n\n- pasta de dente\n- sabão em pó\n- arroz")
+    }
+
+    /// Revisão (17/09): o editor põe um Enter só — «Comprar / Leite , farinha…»
+    /// é um bloco de duas linhas, e a linha dos itens não partia.
+    @Test func umEnterSoTambemDaCabecaEItens() {
+        let texto = "Comprar\nLeite , farinha , ovo , macarrão"
+        let itens = ["Leite", "farinha", "ovo", "macarrão"]
+        #expect(Caderno.estruturar(texto) == "# Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
+        let tarefas = Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: texto)
+        #expect(tarefas == "# Comprar\n" + itens.map { "- [ ] " + $0 }.joined(separator: "\n"))
+        #expect(Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: tarefas) == tarefas)
+        // mais abaixo na nota a cabeça é seção
+        #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: "Semana\n\n" + texto)
+                == "# Semana\n\n## Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
+        #expect(Caderno.estruturar("Semana\n\n" + texto) == "# Semana\n\n## Comprar\n" + itens.map { "- " + $0 }.joined(separator: "\n"))
+    }
+
+    /// Revisão (17/09): a regra de 14/09 — três ou mais linhas curtas abrindo a
+    /// nota são título e lista — sumia com a IA, que só escolhe uma forma por bloco.
+    @Test func aNotaQueAbreComLinhasCurtasGuardaTituloEItensComAIA() {
+        let texto = "Comprar\nLeite\nFarinha\nOvo"
+        #expect(Caderno.estruturar(texto) == "# Comprar\n- Leite\n- Farinha\n- Ovo")
+        #expect(Sabia.aplicar([.init(i: 0, forma: .tarefas)], a: texto) == "# Comprar\n- [ ] Leite\n- [ ] Farinha\n- [ ] Ovo")
+        #expect(Sabia.aplicar([.init(i: 0, forma: .lista)], a: texto) == "# Comprar\n- Leite\n- Farinha\n- Ovo")
+        // com título em outro bloco, são só itens
+        #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: "Sábado\n\n" + texto)
+                == "# Sábado\n\n- Comprar\n- Leite\n- Farinha\n- Ovo")
+    }
+
+    /// Revisão (17/09): título ou seção num bloco de várias linhas juntava as
+    /// linhas do autor numa só. Não se aplica, e o mapa sai do contrato.
+    @Test func tituloNumBlocoDeVariasLinhasNaoJuntaAsLinhas() async {
+        for (texto, forma) in [("Plano de sábado\ncomprar pão\nligar pro João", Sabia.FormaDeBloco.titulo),
+                               ("Comprar\nLeite , farinha , ovo", .secao),
+                               ("Compras\n- leite\n- pão", .titulo)] {
+            #expect(Sabia.aplicar([.init(i: 0, forma: forma)], a: texto) == texto)
+            let cru = #"[{"i":0,"forma":"\#(forma.rawValue)"}]"#
+            #expect(await Sabia.vestir(blocos: [texto], gesto: nil, gerar: { _ in cru }) == [])
+        }
     }
 
     /// A IA vê as duas linhas — antes o modelo nem era chamado — e decide
@@ -423,30 +481,29 @@ struct ListaDeComprasTests {
         }
     }
 
-    /// Com a IA ligada, concluir grava o texto do autor — sem a forma local por
-    /// cima — e a forma chega depois. No teste ninguém responde: veste a reserva.
-    @Test func concluirComIAGravaOTextoDoAutorEAFormaVemDepois() async throws {
+    /// Concluir grava sempre o texto do autor e a forma chega depois, com aviso e
+    /// «Desfazer» — com IA ou sem (revisão, 17/09: sem IA a reserva vestia antes
+    /// de gravar, calada e sem versão, e as vírgulas do autor não ficavam em lugar
+    /// nenhum). O aviso do concluir não é trocado na hora. No teste ninguém
+    /// responde: veste a reserva.
+    @Test func concluirGravaOTextoDoAutorEAFormaVemDepoisComDesfazer() async throws {
         let c = try ModelContainer.traco(emMemoria: true)
         let s = Sessao()
         s.texto = Self.doDono
-        s.concluir(no: c.mainContext, vestePelaIA: true)
+        s.concluir(no: c.mainContext)
         let n = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
         #expect(n.texto == Self.doDono)
+        try await Task.sleep(for: .milliseconds(300))
+        #expect(s.toast?.hasPrefix("Guardada em Notas") == true, "o aviso do concluir foi trocado na hora")
         var espera = 0
-        while s.vestidaRecuperavel == nil, espera < 200 {
-            try await Task.sleep(for: .milliseconds(10))
+        while s.vestidaRecuperavel == nil, espera < 100 {
+            try await Task.sleep(for: .milliseconds(100))
             espera += 1
         }
         #expect(n.texto == Self.reserva)
+        #expect(s.toast == Sessao.avisoDaNotaVestida)
         s.desfazerVestirAoConcluir(no: c.mainContext)
         #expect(n.texto == Self.doDono)
-
-        // sem IA a regra local veste antes de gravar, como sempre
-        let semIA = Sessao()
-        semIA.texto = "Mercado\n\narroz, feijão, café"
-        semIA.concluir(no: c.mainContext, vestePelaIA: false)
-        let todas = try c.mainContext.fetch(FetchDescriptor<Nota>())
-        #expect(todas.contains { $0.texto == "# Mercado\n\n- arroz\n- feijão\n- café" })
     }
 
     /// Reaberta na Página, tocar no círculo marca a tarefa e o texto gravado leva
@@ -475,7 +532,10 @@ struct DestaqueNaoEListaDeComprasTests {
                       "Compras do mês\n- arroz\n- feijão\n- café",
                       "Mercado\n\nLeite , farinha , ovo , macarrão\npão",
                       "# Comprar\n\n- [ ] Leite\n- [x] farinha\n- [ ] ovo\n- [ ] macarrão",
-                      "leite, pão, café\nsabão\ndetergente"] {
+                      "leite, pão, café\nsabão\ndetergente",
+                      // revisão, 17/09: a cabeça com dois-pontos ou com complemento
+                      "Compras:\nleite\npão\novo", "Comprar:\nLeite\nfarinha\novo",
+                      "Mercado:\narroz\nfeijão\ncafé", "Comprar no mercado\nleite\npão\novo"] {
             #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:]) == .silencio,
                     Comment(rawValue: texto))
         }

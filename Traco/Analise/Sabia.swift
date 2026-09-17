@@ -38,9 +38,10 @@ enum Sabia {
     Um item por bloco, na ordem. titulo = só o título do texto inteiro (no máximo um) ·
     secao = só o cabeçalho de uma parte do texto · lista = linhas paralelas sem ordem · numerada = passos em ordem ·
     tarefas = coisas a fazer ou a comprar (compras, checklist) · citacao = fala de outro · codigo = código ou comando ·
-    tabela = linhas com colunas separadas por | ou tabulação.
-    Uma linha de itens separados por vírgula ou ponto e vírgula ("leite, farinha, ovo") é lista ou tarefas, nunca secao
-    nem titulo.
+    tabela = linhas com colunas separadas por | ou tabulação. titulo e secao só num bloco de UMA linha.
+    Uma linha de itens curtos separados por vírgula ou ponto e vírgula ("leite, farinha, ovo") é lista ou tarefas, nunca
+    secao nem titulo; uma frase com vírgulas é prosa. Uma cabeça com os itens embaixo, no mesmo bloco, é lista ou
+    tarefas: a cabeça fica como cabeçalho.
     Caixas, só quando o bloco INTEIRO é isso: lembrete = algo a não esquecer · pergunta = uma dúvida em aberto ·
     ideia = uma ideia ou insight · definicao = o que uma palavra ou conceito quer dizer · exemplo = um caso que
     ilustra o que veio antes · decisao = o que foi decidido · regra = um princípio que quem escreve segue ·
@@ -746,8 +747,14 @@ enum Sabia {
         // nunca é vazio, porque `blocos` não é.
         guard let cru = await gerar(usuario) else { return nil }
         let refinado = parseMapa(cru, blocos: pendentes.count)
-        guard let refinado, refinado.count == pendentes.count else {
-            apagou("vestir", refinado == nil ? "mapa fora do contrato" : "mapa menor que os blocos pendentes")
+        // título ou seção é de UMA linha: num bloco de várias o mapa sai do
+        // contrato e quem chama veste pela regra local (revisão, 17/09)
+        let cabecaDeVariasLinhas = refinado?.contains {
+            ($0.forma == .titulo || $0.forma == .secao) && blocos[pendentes[$0.i]].contains(where: \.isNewline)
+        } == true
+        guard let refinado, refinado.count == pendentes.count, !cabecaDeVariasLinhas else {
+            apagou("vestir", refinado == nil ? "mapa fora do contrato"
+                   : cabecaDeVariasLinhas ? "título ou seção num bloco de várias linhas" : "mapa menor que os blocos pendentes")
             return []
         }
         for rotulo in refinado {
@@ -1784,16 +1791,28 @@ enum Sabia {
             let marcadas: [Bool] = cruas.map { $0 != semMarcador($0) }
             let formaDeItens: Bool = forma == .lista || forma == .numerada || forma == .tarefas
             let temCabeca: Bool = formaDeItens && cruas.count >= 2 && !marcadas[0] && marcadas.dropFirst().contains(true)
-            let cabeca: [String] = temCabeca ? ["## " + cruas[0]] : []
+            var cabeca: [String] = temCabeca ? ["## " + cruas[0]] : []
             let semCabeca: [String] = temCabeca ? Array(cruas.dropFirst()) : cruas
             var linhas: [String] = semCabeca.map { semMarcador($0) }
-            // uma linha de itens («Leite , farinha , ovo») vira um item por linha
-            // (dono, 17/09); a mesma leitura da regra local
-            if formaDeItens, linhas.count == 1, let itens = Caderno.itensDaEnumeracao(linhas[0]) { linhas = itens }
+            // Dono, 17/09: a lista numa linha («Leite , farinha , ovo») vira um
+            // item por elemento, e a linha acima dela — ou a primeira de três ou
+            // mais linhas curtas abrindo a nota (14/09) — é a cabeça: a mesma
+            // leitura da regra local (`Caderno.cabecaEItens`). A IA só escolhe
+            // uma forma por bloco; sem isto, «Comprar» virava tarefa.
+            if formaDeItens, !temCabeca {
+                let anterior = i > 0 ? partes[i - 1].split(whereSeparator: \.isNewline).last.map(String.init) ?? "" : ""
+                let abre = i == 0 && !formas.values.contains(.titulo)
+                let partida = Caderno.cabecaEItens(linhas, abreANota: abre, abaixoDe: anterior)
+                cabeca = partida.cabeca.map { [(abre ? "# " : "## ") + $0] } ?? []
+                linhas = partida.itens
+            }
             func comCabeca(_ corpo: [String]) -> String { (cabeca + corpo).joined(separator: "\n") }
             switch forma {
-            case .titulo: saida.append("# " + cruas.map { semMarcador($0, titulo: true) }.joined(separator: " "))
-            case .secao: saida.append("## " + cruas.map { semMarcador($0, titulo: true) }.joined(separator: " "))
+            case .titulo where cruas.count == 1: saida.append("# " + semMarcador(cruas[0], titulo: true))
+            case .secao where cruas.count == 1: saida.append("## " + semMarcador(cruas[0], titulo: true))
+            // revisão, 17/09: título ou seção num bloco de várias linhas juntava
+            // as linhas do autor numa só («# Plano de sábado comprar pão…»)
+            case .titulo, .secao: saida.append(bloco)
             case .lista: saida.append(comCabeca(linhas.map { "- " + $0 }))
             case .numerada: saida.append(comCabeca(linhas.enumerated().map { "\($0.offset + 1). " + $0.element }))
             case .tarefas: saida.append(comCabeca(linhas.map { "- [ ] " + $0 }))
