@@ -18,7 +18,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 
 ## ALTA
 
-### [x] 1. A resposta da Sábia some depois de só abrir uma fonte — executora: `salvar` muda `editadaEm` sem edição — 7999e99c (executora)
+### [x] 1. A resposta da Sábia some depois de só abrir uma fonte — 7999e99c (executora): conferido no 17e, abrir a fonte e voltar mantém a resposta
 - **Onde:** Conversa. Capturas `49-sabia-fontes.png` → `51-sabia-fonte-nota.png` → `52-volta-da-fonte.png`.
 - **Evidência:** a resposta levou cerca de 35 s. Toquei na fonte «Subir o preço do plano anual», só li e toquei em voltar, sem editar nada. A resposta tinha virado «A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível.» e um botão «Perguntar de novo».
 - **Reincidência:** a segunda resposta (`54-resposta-2.png`) também sumiu. Isso aconteceu depois de navegar por Calendário, Padrões e Perfil, sem abrir fonte nenhuma. Vi na tela às 21:44, mas a captura foi sobrescrita.
@@ -350,7 +350,7 @@ O número no cabeçalho de seção muda de sentido: Calendário 3 são compromis
 ### [x] 40. Transição de compor — ce14a763
 No push da página nova, o teclado sobe ao mesmo tempo e a barra de composição atravessa a tela solta, a meio caminho, em 2 quadros (`81-compor-transicao.png`). **Correção:** subir o teclado depois do fim do push (cerca de 350 ms).
 
-### [ ] 41. Fonte aberta a partir da conversa
+### [x] 41. Fonte aberta a partir da conversa — 63c5e497 (sem foco automático): conferido no 17e, a nota da fonte abre no topo
 A fonte abre rolada no meio da Decisão, não no topo (`51`). **Correção:** abrir no topo, ou no trecho citado com destaque.
 
 ### [x] 42. «Concluir» sem edição — 828a24cd (executora) + este commit do líder
