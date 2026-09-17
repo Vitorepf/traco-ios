@@ -1893,7 +1893,19 @@ final class Sessao {
     /// gravar e zerar acontecem no mesmo ciclo.
     var geracaoDaPagina = 0
 
+    /// Auditoria 17/09 (#42): o que `abrir` carregou. «Concluir» aparecia numa nota
+    /// só aberta; a Página o mostra quando `mudouDesdeAbrir` (a página nova, sempre).
+    private var carregadoAoAbrir: (texto: String, campos: [String: String], gesto: Gesto?, dominio: Dominio?, travado: Bool)?
+
+    /// O domínio só conta quando quem escreve o trava: o inferido muda sozinho ao gravar.
+    var mudouDesdeAbrir: Bool {
+        guard let c = carregadoAoAbrir else { return true }
+        return texto != c.texto || campos != c.campos || gesto != c.gesto
+            || dominioTravado != c.travado || (dominioTravado && dominio != c.dominio)
+    }
+
     func novaPagina() {
+        carregadoAoAbrir = nil
         campoPedido = nil
         // a página nova é para escrever: o cursor volta (a flag da nota aberta
         // da lista, se ficou armada, não vale aqui)
@@ -1971,6 +1983,7 @@ final class Sessao {
         instigou = false
         dominio = nota.dominio
         dominioTravado = nota.dominioTravado
+        carregadoAoAbrir = (nota.texto, nota.campos, nota.gesto, nota.dominio, nota.dominioTravado)
         perguntaPadroes = nil
         perguntaDaSabia = nil
         notasNaPergunta = []

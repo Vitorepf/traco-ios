@@ -101,3 +101,27 @@ struct SabiaComMaiusculaTests {
         #expect(Sabia.nadaPassouNaGuarda.contains("Sábia") && Sabia.nadaVestiu.contains("Sábia"))
     }
 }
+
+/// «Concluir» aparecia numa nota só aberta (auditoria 17/09, #42): a Sessão diz se
+/// algo mudou desde que a nota foi aberta; a página nova sempre pode concluir.
+@MainActor @Suite(.serialized)
+struct MudouDesdeAbrirTests {
+    @Test func soAberturaNaoMudaEditarMuda() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let nota = Nota(texto: "# Compras", gesto: .decisao, campos: ["escolha": "Mercado ou feira"])
+        c.mainContext.insert(nota)
+        try c.mainContext.save()
+        let s = Sessao()
+        #expect(s.mudouDesdeAbrir, "página nova")
+        s.abrir(nota)
+        #expect(!s.mudouDesdeAbrir, "só abriu")
+        s.campos["escolha"] = "Feira"
+        #expect(s.mudouDesdeAbrir, "mudou um campo")
+        s.campos["escolha"] = "Mercado ou feira"
+        #expect(!s.mudouDesdeAbrir, "voltou ao que era")
+        s.texto = "# Compras da semana"
+        #expect(s.mudouDesdeAbrir, "mudou o texto")
+        s.novaPagina()
+        #expect(s.mudouDesdeAbrir, "página nova de novo")
+    }
+}
