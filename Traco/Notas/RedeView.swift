@@ -19,6 +19,8 @@ struct RedeView: View {
     @State private var ecos: [Sabia.Eco] = []
     @State private var candidatas: [Nota] = []
     @State private var escolhendo = false
+    /// E6 (captura no Air, 17/09): a busca leva 5 a 7 s de rede; calada, a folha parecia pronta.
+    @State private var procurandoDesde: Date?
 
     /// Quem pode ser eco: nota de verdade, não esta, não selada, e AINDA NÃO
     /// ligada — o valor está justamente no que a rede não sabe.
@@ -42,6 +44,8 @@ struct RedeView: View {
         let cs = montarCandidatas(jaLigadas)
         guard !cs.isEmpty else { return }
         candidatas = cs
+        procurandoDesde = .now
+        defer { procurandoDesde = nil }
         let achados = await Sabia.ecos(nota: Caderno.prosa(de: nota.texto),
                                        candidatas: cs.map(linha), gesto: nota.gesto)
         withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { ecos = achados ?? [] }
@@ -98,7 +102,7 @@ struct RedeView: View {
                     }
                     // auditoria 17/09: a folha vazia ensinava a sintaxe e não tinha ação;
                     // ligar é um toque, e o título escolhido entra na nota, à vista
-                    if !nota.fechada, nota.gesto != .expressiva {
+                    if podeLigar {
                         Button {
                             Toque.selecao()
                             escolhendo = true
@@ -153,6 +157,7 @@ struct RedeView: View {
                     ForEach(ecos, id: \.i) { eco in
                         if eco.i < candidatas.count {
                             let alvo = candidatas[eco.i]
+                            HStack(spacing: 8) {
                             Button {
                                 sessao.abrir(alvo)
                                 sessao.irPara(.escrever, no: context)
@@ -183,6 +188,16 @@ struct RedeView: View {
                                 .alvo()
                             }
                             .buttonStyle(PressaoDiscreta())
+                            // dono 16/09: a Sábia aponta, a ligação é um toque do autor
+                            if podeLigar {
+                                Pilula("Ligar", forma: .filtro) {
+                                    Toque.selecao()
+                                    ligar(alvo)
+                                }
+                                .padding(.trailing, 14)
+                                .accessibilityLabel("Ligar a \(alvo.tituloNaLista)")
+                            }
+                            }
                             .overlay(alignment: .bottom) {
                                 Rectangle().fill(Tema.linha).frame(height: 1).padding(.leading, 14)
                             }
@@ -193,6 +208,9 @@ struct RedeView: View {
             }
             .accessibilityIdentifier("rede-ecos")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
+        } else if let desde = procurandoDesde {
+            Espera(frase: "a Sábia procura notas que se ligam", desde: desde, identificador: "rede-procurando")
+                .padding(.leading, 4)
         } else if Politica.provedor(.ecos) == nil, temLigacoes {
             // auditoria 17/09: na folha vazia, a razão da engenharia era ruído;
             // o aviso só aparece onde as sugestões apareceriam, ao lado de ligações
@@ -201,6 +219,8 @@ struct RedeView: View {
                 .accessibilityIdentifier("rede-sem-provedor")
         }
     }
+
+    private var podeLigar: Bool { !nota.fechada && nota.gesto != .expressiva }
 
     private var temLigacoes: Bool {
         !Rede.daqui(nota.uuid, ligacoes).isEmpty || !Rede.paraCa(nota.uuid, ligacoes).isEmpty
