@@ -1204,12 +1204,18 @@ struct NotasView: View {
         for nota in notas {
             let ano = cal.component(.year, from: nota.criadaEm)
             f.dateFormat = ano == anoAtual ? "LLLL" : "LLLL yyyy"
-            // a seção de hoje se chama "hoje": repetir "agosto" no cabeçalho e
-            // "hoje" em cada linha gasta a única informação temporal útil.
-            // D1: minúsculas — é uma palavra na margem da folha, não um selo.
-            let titulo = cal.isDateInToday(nota.criadaEm)
-                ? "hoje"
-                : f.string(from: nota.criadaEm).lowercased()
+            // perto de hoje, o tempo é relativo; longe, é o mês (auditoria 17/09:
+            // de «Hoje» a lista pulava direto para «Setembro», como o Notas da
+            // Apple não faz)
+            let dias = cal.dateComponents([.day], from: cal.startOfDay(for: nota.criadaEm), to: cal.startOfDay(for: .now)).day ?? 0
+            let titulo: String
+            switch dias {
+            case ..<1: titulo = "hoje"
+            case 1: titulo = "ontem"
+            case 2...7: titulo = "últimos 7 dias"
+            case 8...30: titulo = "últimos 30 dias"
+            default: titulo = f.string(from: nota.criadaEm).lowercased()
+            }
             if grupos[titulo] == nil { ordem.append(titulo) }
             grupos[titulo, default: []].append(nota)
         }

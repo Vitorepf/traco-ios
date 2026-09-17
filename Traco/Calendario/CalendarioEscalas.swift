@@ -525,9 +525,14 @@ struct CalendarioMesView: View {
     var body: some View {
         let mapa = agenda.porDia
         let celulas = agenda.grelha
-        let semanas = stride(from: 0, to: celulas.count, by: 7).map { Array(celulas[$0..<min($0 + 7, celulas.count)]) }
+        // só as semanas que têm dia do mês (auditoria 17/09: a sexta linha era
+        // inteira de outubro, esmaecida)
+        let semanas = stride(from: 0, to: celulas.count, by: 7)
+            .map { Array(celulas[$0..<min($0 + 7, celulas.count)]) }
+            .filter { semana in semana.contains { Calendario.mesmoMes($0, agenda.ancora, agenda.cal) } }
         GeometryReader { geo in
-            let alturaCelula = max(64, (geo.size.height - CalendarioSemanaView.reservaChrome - 14 - 8 - 5 * 4) / 6)
+            let linhas = CGFloat(max(4, semanas.count))
+            let alturaCelula = max(64, (geo.size.height - CalendarioSemanaView.reservaChrome - 14 - 8 - (linhas - 1) * 4) / linhas)
             grade(semanas: semanas, mapa: mapa, alturaCelula: alturaCelula)
         }
     }
@@ -785,6 +790,9 @@ struct CalendarioAnoView: View {
             // visualização"): o número em vermelho de folhinha
             .foregroundStyle(ancora ? .white : !noMes ? CalendarioTema.tintaMorta
                              : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
+            // no ano, o dia do mês vizinho não se desenha (auditoria 17/09: doze
+            // meses com os vizinhos esmaecidos eram ruído); a casa fica
+            .opacity(noMes ? 1 : 0)
             .frame(maxWidth: .infinity)
             .frame(height: m.celulaA)
             .background {
