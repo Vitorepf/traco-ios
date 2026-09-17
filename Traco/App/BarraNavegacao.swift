@@ -86,7 +86,7 @@ struct BarraNavegacao: View {
                 HStack(spacing: Tema.folgaDasAbas) {
                     ForEach(Aba.naBarra) { glifo($0).symbolVariant(.fill) }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Tema.sobreAtivo)
                 .background(Tema.chipAtivo)
                 .mask {
                     // dono, 15/09: a seleção na forma de ícone, um quadrado

@@ -228,7 +228,7 @@ struct CalendarioFichaView: View {
         .background(CalendarioTema.fundo.ignoresSafeArea())
         .foregroundStyle(CalendarioTema.tinta)
         .environment(\.locale, Locale(identifier: "pt_BR"))
-        .preferredColorScheme(.light)
+        .mundoDoAutor()
         .onAppear {
             if evento.titulo.isEmpty { tituloEmFoco = true }
             agenda.lerEstadoDosAvisos()
@@ -286,7 +286,7 @@ struct CalendarioFichaView: View {
                     } label: {
                         Text(dia.letra)
                             .font(CalendarioTema.dia)
-                            .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
+                            .foregroundStyle(ligado ? Tema.sobreAtivo : CalendarioTema.tintaSuave)
                             .frame(width: 32, height: 32)
                             .background(ligado ? CalendarioTema.chipActivo : CalendarioTema.chip, in: Circle())
                             .frame(height: Tema.alvo)

@@ -1,7 +1,8 @@
 import SwiftUI
+import UIKit
 
 enum Tema {
-    // MARK: - O mundo claro (ADR 2026-09-02h; hex e medidas em SISTEMA-CLARO.md)
+    // MARK: - Os dois mundos (ADR 02h e 17c; hex em SISTEMA-CLARO.md e SISTEMA-ESCURO.md)
     //
     // Papel, não tela. A hierarquia vem de tipo, peso, tinta e espaço.
     //
@@ -31,16 +32,47 @@ enum Tema {
     // `ambarTinta` existe porque #D9A542 sobre o papel mede 2,0:1 — é o âmbar
     // que se lê onde a IDENTIDADE precisa de texto (a hora do agora). Não é
     // licença para pintar botão.
-    static let fundo = Color(hex: 0xF4F4F2)            // papel
-    static let superficie = Color(hex: 0xFFFFFF)       // cartão
-    static let superficieAlta = Color(hex: 0xFFFFFF)   // o que flutua (com sombra)
-    static let superficieApertada = Color(hex: 0xF9F9F8) // estado: o cartão sob o dedo
-    static let superficieBaixa = Color(hex: 0xEBEBEA)  // névoa: campo, trilho
-    static let chip = Color(hex: 0xE8E8E6)
-    static let chipAtivo = Color(hex: 0x2C2C2E)        // carvão
-    static let tinta = Color(hex: 0x1C1C1E)            // 15,5:1
-    /// 5,7:1 sobre o papel, 5,2:1 sobre o chip.
-    static let tintaSuave = Color(hex: 0x5F5F64)
+    // OS DOIS MUNDOS (ADR 2026-09-17c; hex e medidas em SISTEMA-ESCURO.md).
+    // A 02h dizia "um mundo só, nunca dois", e o que ela proibia era o app
+    // virar claro numa aba e escuro noutra — não o autor ESCOLHER onde mora.
+    // A escolha é dele, uma vez, no Perfil (`Aparencia`), e vale para o app
+    // inteiro: a lei de um mundo só por vez continua de pé.
+    //
+    // O claro é PAPEL: cinza quente e fosco, e o que flutua é mais claro que
+    // ele. O escuro é GRAFITE: quase-preto frio, e o que flutua é mais claro
+    // que ele também — porque a direção de "um degrau para fora do plano" é
+    // sempre em direção à LUZ, e no papel a luz é o branco, no grafite é o
+    // que sobra dela. É a única lei do claro que inverte; todas as outras
+    // (um acento, tudo é cápsula, hairline em vez de linha, sombra só no que
+    // flutua, tipo secundário cinza e não pequeno) ficam iguais.
+    //
+    // O acento de ESTADO troca de lado e continua sendo um só: no papel é o
+    // carvão sobre branco, no grafite é o osso sobre preto — o mesmo objeto
+    // de contraste máximo, a mesma tinta invertida (`sobreAtivo`). O âmbar
+    // não muda de emprego em mundo nenhum: continua IDENTIDADE, fill, uma vez
+    // por tela. A única diferença é que no grafite ele se lê sozinho (8,6:1),
+    // e por isso `ambarTinta` — que existe porque #D9A542 mede 2,0:1 no papel
+    // — é o próprio âmbar no escuro, sem a muleta.
+    static let fundo = Color(claro: 0xF4F4F2, escuro: 0x0F0F12)            // papel · grafite
+    static let superficie = Color(claro: 0xFFFFFF, escuro: 0x1C1C22)       // cartão
+    static let superficieAlta = Color(claro: 0xFFFFFF, escuro: 0x1C1C22)   // o que flutua (com sombra)
+    /// ESTADO: o cartão sob o dedo. No grafite ele CLAREIA, como todo degrau
+    /// para fora do plano nesse mundo (o claro é o único que escurece).
+    static let superficieApertada = Color(claro: 0xF9F9F8, escuro: 0x232329)
+    static let superficieBaixa = Color(claro: 0xEBEBEA, escuro: 0x17171C)  // névoa · bruma: campo, trilho
+    static let chip = Color(claro: 0xE8E8E6, escuro: 0x212127)
+    static let chipAtivo = Color(claro: 0x2C2C2E, escuro: 0xE6E6EA)        // carvão · osso
+    /// A tinta que pousa SOBRE `chipAtivo` (e sobre `aviso`): o inverso do
+    /// acento, nunca `.white` cravado. No papel o ativo é escuro e a tinta é
+    /// branca (13,9:1); no grafite o ativo é claro e a tinta é quase-preta
+    /// (15,0:1). Era `.white` em dez lugares — a aba acesa, o "Hoje", o dia
+    /// escolhido, a cápsula cheia, o enviar do campo, o toast — e no escuro
+    /// cada um deles seria branco sobre osso: invisível.
+    static let sobreAtivo = Color(claro: 0xFFFFFF, escuro: 0x121216)
+    static let tinta = Color(claro: 0x1C1C1E, escuro: 0xE9E9EC)            // 15,5:1 · 15,8:1
+    /// 5,7:1 sobre o papel, 5,2:1 sobre o chip. No grafite, 7,2:1 e 6,0:1 —
+    /// e ali os dois cinzas finalmente têm um degrau entre si (SISTEMA-ESCURO §3).
+    static let tintaSuave = Color(claro: 0x5F5F64, escuro: 0x9E9EA6)
     /// Terceiro nível de tinta. Era #86868B (3,3:1 no papel, 2,95:1 no chip) e
     /// carregava TEXTO em 58 lugares — o trecho da busca, a contagem de
     /// resultados, o rótulo da aba inativa a 11pt. A ADR 02h promete ≥4,5:1
@@ -48,34 +80,45 @@ enum Tema {
     /// #68686C mede 5,04:1 no papel, 4,65:1 no campo e 4,52:1 no chip.
     /// Custo assumido: ficou perto do `tintaSuave` — dois cinzas que quase se
     /// encostam. Um deles deve morrer (FILA); ler vem antes de escalonar.
-    static let tintaFraca = Color(hex: 0x68686C)
-    /// Só para DESABILITADO real — nunca para texto que deve ser lido.
-    static let tintaMorta = Color(hex: 0xC7C7CC)
+    /// O #8E8E98 do grafite foi calibrado pelo MESMO pior fundo, o chip: 4,94:1
+    /// ali, 5,9:1 no fundo, 5,6:1 na bruma.
+    static let tintaFraca = Color(claro: 0x68686C, escuro: 0x8E8E98)
+    /// Só para DESABILITADO real — nunca para texto que deve ser lido: 1,53:1
+    /// no papel, 1,70:1 no grafite. Quem diz "desligado" é o fundo que sai.
+    static let tintaMorta = Color(claro: 0xC7C7CC, escuro: 0x3A3A42)
     /// Hairline: ninguém vê a linha, vê a ordem.
-    static let linha = Color(hex: 0x1C1C1E, opacity: 0.08)
-    static let ambar = Color(hex: 0xD9A542)
+    static let linha = Color(claro: 0x1C1C1E, escuro: 0xFFFFFF, opacity: 0.08, opacidadeEscura: 0.10)
+    /// A ÚNICA cor da casa que atravessa os dois mundos igual: a assinatura
+    /// não muda de tom porque o papel virou grafite. O par está escrito assim,
+    /// e não como `Color(hex:)`, para dizer que o escuro foi pensado e não
+    /// esquecido — e para o portão (`MundoEscuroTests`) medir os dois lados.
+    static let ambar = Color(claro: 0xD9A542, escuro: 0xD9A542)
     static let ambarSuave = Color(hex: 0xD9A542).opacity(0.22)
     /// O âmbar que se lê: 5,8:1 sobre o papel.
-    static let ambarTinta = Color(hex: 0x7A5A16)
+    static let ambarTinta = Color(claro: 0x7A5A16, escuro: 0xD9A542)
     /// A cor da sábia (REFERENCIA-HERMES §6 e §10): IDENTIDADE, nunca enfeite —
     /// só a marca e o nome dela na conversa. 5,8:1 sobre o papel. Quem pergunta
     /// é o âmbar (`ambarTinta`): o mesmo do caret e do "?", o acento do app,
     /// como o azul do `USER` no Hermes.
-    static let sabia = Color(hex: 0x1F6B5A)
-    /// 5,3:1 sobre o papel.
-    static let aviso = Color(hex: 0xB5432F)
+    static let sabia = Color(claro: 0x1F6B5A, escuro: 0x46AE93)
+    /// 5,3:1 sobre o papel, 5,8:1 sobre o grafite. Dívida conhecida: sobre o
+    /// CHIP mede 4,49:1 no claro, um centésimo abaixo do piso da 02h — medida e
+    /// congelada em `MundoEscuroTests`, não corrigida aqui.
+    static let aviso = Color(claro: 0xB5432F, escuro: 0xE06A54)
     /// ESTADO: a tarefa feita — o visto, só o glifo; o texto riscado segue em
     /// tinta. Dono, 17/09: «visto verde». 4,8:1 sobre o papel, 5,3:1 no cartão.
     /// Não é a `sabia` (identidade): o verde dela é mais azul e só marca a Sábia.
-    static let feito = Color(hex: 0x267A4C)
-    static let codigoFundo = Color(hex: 0xEBEBEA)
-    static let codigoGutter = Color(hex: 0xE4E4E2)
-    static let synChave = Color(hex: 0x7A4E10)
-    static let synValor = Color(hex: 0x1F6B5A)
-    static let synNumero = Color(hex: 0x2F4F8A)
-    static let synTipo = Color(hex: 0x5A3D7A)
-    static let synFuncao = Color(hex: 0x245A66)
-    static let synPontuacao = Color(hex: 0x6E6E73)
+    /// O MESMO verde nos dois mundos: o branco do visto sobre ele mede 5,6:1 em
+    /// ambos, e clarear no grafite tiraria o glifo do piso.
+    static let feito = Color(claro: 0x267A4C, escuro: 0x267A4C)
+    static let codigoFundo = Color(claro: 0xEBEBEA, escuro: 0x17171C)
+    static let codigoGutter = Color(claro: 0xE4E4E2, escuro: 0x1C1C20)
+    static let synChave = Color(claro: 0x7A4E10, escuro: 0xC0954E)
+    static let synValor = Color(claro: 0x1F6B5A, escuro: 0x4FAE90)
+    static let synNumero = Color(claro: 0x2F4F8A, escuro: 0x7E9CCE)
+    static let synTipo = Color(claro: 0x5A3D7A, escuro: 0xA88CD0)
+    static let synFuncao = Color(claro: 0x245A66, escuro: 0x6EA8B6)
+    static let synPontuacao = Color(claro: 0x6E6E73, escuro: 0x8A8A92)
     static let synComentario = tintaFraca
     static let synTexto = tinta
     // §22 fechado (02/set): tudo por estilo de texto, escalando com o
@@ -178,10 +221,17 @@ enum Tema {
     // não como objeto acima do plano (law-of-figure-ground). O que falta é o
     // fio de luz no topo — a borda onde a luz bate — mais a sombra de contato.
     // É o detalhe que Linear, Craft e Things têm e que ninguém sabe nomear.
-    static let luzBorda = Color.white.opacity(0.6)
+    static let luzBorda = Color(claro: 0xFFFFFF, escuro: 0xFFFFFF, opacity: 0.6, opacidadeEscura: 0.12)
     /// Sombra com tinta, não preto: cinza-quente, só no que flutua.
-    static let sombraContato = Color(hex: 0x1C1C1E, opacity: 0.10)
-    static let sombraFlutuante = Color(hex: 0x1C1C1E, opacity: 0.08)
+    static let sombraContato = Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.10, opacidadeEscura: 0.50)
+    static let sombraFlutuante = Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.08, opacidadeEscura: 0.45)
+    /// O véu da folha que afunda na pilha (`Camadas`). No papel 28 % de preto
+    /// já é profundidade; no grafite 28 % sobre #0F0F12 não move quase nada —
+    /// a página de baixo tem de escurecer o dobro para ainda AFUNDAR.
+    static let veu = Color(claro: 0x000000, escuro: 0x000000, opacity: 0.28, opacidadeEscura: 0.55)
+    /// A sombra da folha do arquivo enquanto ela anda: cinza-quente no papel,
+    /// preto fundo no grafite. Aplica-se com `.opacity(0)` para desligar.
+    static let sombraCamada = Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.22, opacidadeEscura: 0.55)
     /// Sombra é cor, raio e deslocamento, sempre os três juntos (SISTEMA-CLARO
     /// §1.5: duas sombras, nenhuma dura). Aplica-se com `.sombra(_:)`.
     struct Sombra {
@@ -191,7 +241,7 @@ enum Tema {
         /// barra flutuante, toast, cartão da análise
         static let flutuante = Sombra(cor: sombraFlutuante, raio: 16, y: 6)
         /// o campo de prosa do calendário
-        static let campo = Sombra(cor: Color(hex: 0x1C1C1E, opacity: 0.06), raio: 12, y: 4)
+        static let campo = Sombra(cor: Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.06, opacidadeEscura: 0.40), raio: 12, y: 4)
     }
 
     // MARK: - Duração e mola (ADR 2026-09-05v)
@@ -299,6 +349,28 @@ extension Color {
             blue: Double(hex & 0xFF) / 255,
             opacity: opacity
         )
+    }
+
+    /// UM token, DOIS mundos (ADR 2026-09-17c). A cor se resolve na hora de
+    /// desenhar, pela aparência da janela — e é por isso que nenhuma das ~220
+    /// telas do app precisou de um `if escuro`. Quem escolhe a aparência é
+    /// `Aparencia`, na raiz; daqui para baixo só existe token.
+    ///
+    /// O par mora AQUI, na mesma linha, de propósito: um hex claro que muda
+    /// sem o escuro ao lado é como a paleta se parte em duas ao longo do
+    /// tempo. Componente continua sem citar hex nenhum (a regra do roteador).
+    nonisolated init(claro: UInt32, escuro: UInt32, opacity: Double = 1, opacidadeEscura: Double? = nil) {
+        let opacidadeNoEscuro = opacidadeEscura ?? opacity
+        // só UInt32 e Double atravessam a fronteira: nada de SwiftUI dentro do
+        // provedor, que o UIKit pode chamar fora do ator principal
+        self.init(uiColor: UIColor { tracos in
+            let escuroAgora = tracos.userInterfaceStyle == .dark
+            let hex = escuroAgora ? escuro : claro
+            return UIColor(red: CGFloat((hex >> 16) & 0xFF) / 255,
+                           green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255,
+                           alpha: CGFloat(escuroAgora ? opacidadeNoEscuro : opacity))
+        })
     }
 }
 

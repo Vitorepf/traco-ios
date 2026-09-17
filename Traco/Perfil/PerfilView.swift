@@ -59,6 +59,9 @@ struct PerfilView: View {
     /// ADR 06j: as hipóteses do Trabalho entram na latência pela mesma tela.
     @Query private var trabalhos: [Trabalho]
     @State private var serieDaLatencia = Latencia.Serie()
+    /// A mesma chave que a raiz lê (`MundoDoAutor`): mudar aqui vira o app
+    /// inteiro no mesmo quadro, sem sair do Perfil.
+    @AppStorage(Aparencia.chave) private var aparencia = Aparencia.claro
     /// Hermes §5: a densidade se controla no cabeçalho de cada seção. A tabela
     /// de quem responde nasce recolhida: o estado da conta já está nas linhas
     /// de cima, e o cabeçalho a mantém à vista (ADR 10k).
@@ -844,6 +847,9 @@ struct PerfilView: View {
 
     private var ajustes: some View {
         recolhidas.secao("Ajustes", id: "ajustes") {
+            // ADR 17c: a aparência abre a seção porque é o ajuste que vale em
+            // TODA tela — os quatro debaixo dela valem numa hora do dia.
+            aparenciaLinha
             // "Análise automática" não é ajuste: a IA age sozinha na pausa da
             // escrita, sempre (goal de 14/09: "a IA não podia decidir isso?").
             // O estado continua a existir para o instrumento (`-autoAnalise`).
@@ -870,6 +876,43 @@ struct PerfilView: View {
                 }
             ))
         }
+    }
+
+    /// ONDE O AUTOR MORA (ADR 2026-09-17c). Três estados não cabem num
+    /// interruptor e não merecem um componente novo: é o MESMO menu na linha
+    /// que a `hora` já usa — glifo, título, o valor de agora à direita e o
+    /// chevron duplo. Nada estreia aqui; o Perfil ganha uma linha, não um
+    /// vocabulário.
+    ///
+    /// O `@AppStorage` é o mesmo que a raiz lê (`MundoDoAutor`): o app vira
+    /// debaixo da linha, com a linha à vista, sem fechar o Perfil.
+    private var aparenciaLinha: some View {
+        Menu {
+            ForEach(Aparencia.naOrdem, id: \.self) { modo in
+                Button {
+                    aparencia = modo
+                    Toque.selecao()
+                } label: {
+                    if modo == aparencia { Label(modo.nome, systemImage: "checkmark") } else { Text(modo.nome) }
+                }
+            }
+        } label: {
+            LinhaDeLista(titulo: "Aparência", subtitulo: "o mundo onde o Traço abre",
+                         glifo: { Image(systemName: "circle.lefthalf.filled") },
+                         acessorio: {
+                             HStack(spacing: 4) {
+                                 Text(aparencia.nome).foregroundStyle(Tema.tintaSuave)
+                                 Image(systemName: "chevron.up.chevron.down")
+                                     .font(.caption2.weight(.semibold))
+                                     .foregroundStyle(Tema.tintaFraca)
+                             }
+                             .font(Tema.chrome)
+                         })
+        }
+        .buttonStyle(.linha)
+        .accessibilityIdentifier("ajuste-aparencia")
+        .accessibilityLabel("Aparência")
+        .accessibilityValue(aparencia.nome)
     }
 
     /// Um ajuste de liga/desliga. A LINHA inteira alterna, não só o

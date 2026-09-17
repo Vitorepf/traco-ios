@@ -59,7 +59,7 @@ struct Pilula<Conteudo: View>: View {
     /// alguém ver.
     static func tinta(ativa: Bool, cheia: Bool, forma: Forma) -> Color {
         if !ativa { return Tema.tintaFraca }
-        if cheia { return .white }
+        if cheia { return Tema.sobreAtivo }
         return forma == .larga ? Tema.tinta : Tema.tintaSuave
     }
 

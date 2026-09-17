@@ -19,14 +19,14 @@ enum SintaxeLocal: Sendable {
     nonisolated static func cor(_ papel: PapelSintaxe) -> Color {
         switch papel {
         // os mesmos hex do Tema (nonisolated: o Tema é MainActor)
-        case .texto: Color(hex: 0x1C1C1E)
-        case .chave: Color(hex: 0x7A4E10)
-        case .valor: Color(hex: 0x1F6B5A)
-        case .numero: Color(hex: 0x2F4F8A)
-        case .comentario: Color(hex: 0x86868B)
-        case .tipo: Color(hex: 0x5A3D7A)
-        case .funcao: Color(hex: 0x245A66)
-        case .pontuacao: Color(hex: 0x6E6E73)
+        case .texto: Color(claro: 0x1C1C1E, escuro: 0xE9E9EC)
+        case .chave: Color(claro: 0x7A4E10, escuro: 0xC0954E)
+        case .valor: Color(claro: 0x1F6B5A, escuro: 0x4FAE90)
+        case .numero: Color(claro: 0x2F4F8A, escuro: 0x7E9CCE)
+        case .comentario: Color(claro: 0x86868B, escuro: 0x8A8A92)
+        case .tipo: Color(claro: 0x5A3D7A, escuro: 0xA88CD0)
+        case .funcao: Color(claro: 0x245A66, escuro: 0x6EA8B6)
+        case .pontuacao: Color(claro: 0x6E6E73, escuro: 0x8A8A92)
         }
     }
 

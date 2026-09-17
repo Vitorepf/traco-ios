@@ -126,7 +126,9 @@ struct CampoFlutuante<Mais: View>: View {
                     // dos glifos do trilho
                     .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .system(size: 19, weight: .semibold))
                     .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? Tema.sobreAtivo : Tema.tinta)
+                    // 30 pt, não 26: o alvo do enviar é de HEAD e um PR de tema não
+                    // encolhe alvo de toque de passagem (mesclagem 17/09)
                     .frame(width: 30, height: 30)
                     .background {
                         // o disco se LEVANTA do poço, como a escala escolhida

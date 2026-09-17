@@ -49,7 +49,7 @@ struct CalendarioView: View {
             conteudo(agora: contexto.date)
         }
         .foregroundStyle(CalendarioTema.tinta)
-        .preferredColorScheme(.light)
+        .mundoDoAutor()
         .sheet(item: $trabalhoAberto) { destino in
             TrabalhoView(trabalho: destino.trabalho, acaoEmFoco: destino.acaoID)
         }
@@ -337,8 +337,17 @@ struct CalendarioView: View {
                         }
                     } label: {
                         Text(escala.letra)
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(CalendarioTema.tinta)
+                            .font(CalendarioTema.escala)
+                            .foregroundStyle(ligado ? Tema.sobreAtivo : CalendarioTema.tintaSuave)
+                            .frame(width: 28, height: 28)
+                            .background {
+                                if ligado {
+                                    Circle()
+                                        .fill(CalendarioTema.chipActivo)
+                                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
+                                        .matchedGeometryEffect(id: "escala-selecionada", in: morph)
+                                }
+                            }
                             .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
@@ -382,7 +391,7 @@ struct CalendarioView: View {
                 } label: {
                     Text("Hoje")
                         .font(CalendarioTema.chrome)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Tema.sobreAtivo)
                         .padding(.horizontal, 10)
                         .frame(height: 32)
                         .background(CalendarioTema.chipActivo, in: Capsule())
@@ -467,9 +476,9 @@ struct CalendarioChipDia: View {
                 .font(CalendarioTema.letra)
             Text(Calendario.formatar(dia, "d", cal))
                 .font(compacto ? CalendarioTema.meta.monospacedDigit() : CalendarioTema.dia)
-                .foregroundStyle(activo ? .white : feriado != nil ? CalendarioTema.feriado : CalendarioTema.tintaSuave)
+                .foregroundStyle(activo ? Tema.sobreAtivo : feriado != nil ? CalendarioTema.feriado : CalendarioTema.tintaSuave)
         }
-        .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
+        .foregroundStyle(activo ? Tema.sobreAtivo : CalendarioTema.tintaSuave)
         .frame(width: lado, height: lado)
         .background(activo ? CalendarioTema.chipActivo : CalendarioTema.chip,
                     in: RoundedRectangle(cornerRadius: Tema.raioDeCasa(lado), style: .continuous))

@@ -29,24 +29,24 @@ enum CalendarioTema {
     /// vermelho de folhinha, que toda pessoa lê como "não é dia útil" — o risco
     /// diagonal lia como "cancelado" (auditoria 15/09, 20; dono: "para ficar
     /// claro quando é um dia de feriado"). 5,3:1 sobre o papel.
-    static let feriado = Color(hex: 0xB5432F)
+    static let feriado = Color(claro: 0xB5432F, escuro: 0xE06A54)
 
     /// Sombra com tinta, não preto puro: cinza-quente.
     static let sombraFlutuante = Tema.Sombra.flutuante.cor
     static let sombraCampo = Tema.Sombra.campo.cor
     /// A semana da âncora no ano e no mês: azul de papel, o "onde estou" do clone.
-    static let semanaAncora = Color(hex: 0xD6E2F8)
+    static let semanaAncora = Color(claro: 0xD6E2F8, escuro: 0x1B2438)
     /// A luz do papel: o centro um fio mais claro que a borda, como folha sob luz.
     static var papel: some ShapeStyle {
-        RadialGradient(colors: [Color(hex: 0xF7F7F5), fundo], center: UnitPoint(x: 0.5, y: 0.35), startRadius: 0, endRadius: 700)
+        RadialGradient(colors: [Color(claro: 0xF7F7F5, escuro: 0x16161C), fundo], center: UnitPoint(x: 0.5, y: 0.35), startRadius: 0, endRadius: 700)
     }
     /// Trilho afundado: o que recebe o dedo está um degrau abaixo do papel.
     static var trilho: some ShapeStyle {
-        campo.shadow(.inner(color: Color(hex: 0x1C1C1E).opacity(0.10), radius: 3, y: 1))
-            .shadow(.inner(color: .white.opacity(0.9), radius: 1, y: -1))
+        campo.shadow(.inner(color: Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.10, opacidadeEscura: 0.45), radius: 3, y: 1))
+            .shadow(.inner(color: Color(claro: 0xFFFFFF, escuro: 0xFFFFFF, opacity: 0.9, opacidadeEscura: 0.06), radius: 1, y: -1))
     }
     /// O controle selecionado é o único objeto que se levanta do trilho.
-    static let sombraControle = Color(hex: 0x1C1C1E).opacity(0.28)
+    static let sombraControle = Color(claro: 0x1C1C1E, escuro: 0x000000, opacity: 0.28, opacidadeEscura: 0.55)
 
     // MARK: tipo (escala com Dynamic Type; fecha o §22 no calendário)
     static let evento: Font = .callout.weight(.semibold)        // 16
@@ -70,25 +70,25 @@ enum CalendarioTema {
     // MARK: domínio: fundo pastel e letra escura da mesma matiz (4,8 a 8,9:1)
     static func fundo(de dominio: Dominio?) -> Color {
         switch dominio {
-        case .trabalho: Color(hex: 0xC9D8F5)
-        case .saude: Color(hex: 0xC8E6D4)
-        case .pessoas: Color(hex: 0xF3D4C4)
-        case .casa: Color(hex: 0xD9C8F0)
-        case .dinheiro: Color(hex: 0xF2E2B8)
-        case .estudo: Color(hex: 0xC9E3E8)
-        case .ideias, .none: Color(hex: 0xE4E4E2)
+        case .trabalho: Color(claro: 0xC9D8F5, escuro: 0x1C2A46)
+        case .saude: Color(claro: 0xC8E6D4, escuro: 0x14332A)
+        case .pessoas: Color(claro: 0xF3D4C4, escuro: 0x3A2318)
+        case .casa: Color(claro: 0xD9C8F0, escuro: 0x2A1E42)
+        case .dinheiro: Color(claro: 0xF2E2B8, escuro: 0x33280F)
+        case .estudo: Color(claro: 0xC9E3E8, escuro: 0x142E35)
+        case .ideias, .none: Color(claro: 0xE4E4E2, escuro: 0x26262A)
         }
     }
 
     static func tinta(de dominio: Dominio?) -> Color {
         switch dominio {
-        case .trabalho: Color(hex: 0x2F4F8A)
-        case .saude: Color(hex: 0x2D6A4F)
-        case .pessoas: Color(hex: 0x8A4B2F)
-        case .casa: Color(hex: 0x5A3D7A)
-        case .dinheiro: Color(hex: 0x6B4E0F)
-        case .estudo: Color(hex: 0x245A66)
-        case .ideias, .none: Color(hex: 0x3A3A3C)
+        case .trabalho: Color(claro: 0x2F4F8A, escuro: 0x8FAEE0)
+        case .saude: Color(claro: 0x2D6A4F, escuro: 0x7FC3A2)
+        case .pessoas: Color(claro: 0x8A4B2F, escuro: 0xD9A177)
+        case .casa: Color(claro: 0x5A3D7A, escuro: 0xAC91D6)
+        case .dinheiro: Color(claro: 0x6B4E0F, escuro: 0xC9AF6A)
+        case .estudo: Color(claro: 0x245A66, escuro: 0x82B9C6)
+        case .ideias, .none: Color(claro: 0x3A3A3C, escuro: 0xADADB4)
         }
     }
 
@@ -123,13 +123,13 @@ enum CalendarioTema {
         evento.eDeixa || evento.doSistema
     }
 
-    static let contornoSistema = Color(hex: 0x1C1C1E).opacity(0.18)
+    static let contornoSistema = Color(claro: 0x1C1C1E, escuro: 0xFFFFFF, opacity: 0.18, opacidadeEscura: 0.20)
 
     static func contorno(de evento: EventoCalendario) -> Color {
         evento.doSistema ? contornoSistema : contornoDeixa
     }
 
-    static let contornoDeixa = Color(hex: 0x1C1C1E).opacity(0.35)
+    static let contornoDeixa = Color(claro: 0x1C1C1E, escuro: 0xFFFFFF, opacity: 0.35, opacidadeEscura: 0.38)
 
     static func icone(de dominio: Dominio?) -> String {
         switch dominio {
@@ -233,7 +233,7 @@ struct CalendarioToast: View {
         HStack(spacing: 14) {
             Text(texto)
                 .font(CalendarioTema.meta)
-                .foregroundStyle(.white)
+                .foregroundStyle(Tema.sobreAtivo)
             if ajustes {
                 Button("Ajustes") {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -242,7 +242,7 @@ struct CalendarioToast: View {
                 }
                 // ADR 10k: ação pelo peso e pelo lugar; âmbar é o agora
                 .font(CalendarioTema.meta.weight(.bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Tema.sobreAtivo)
                 .underline()
                 .accessibilityIdentifier("toast-ajustes")
             }
