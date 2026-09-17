@@ -1207,7 +1207,7 @@ final class Sessao {
         }
     }
 
-    static let avisoDaNotaVestida = "a Sábia deu forma à nota."
+    static let avisoDaNotaVestida = "a nota ganhou forma."
 
     func desfazerVestirAoConcluir(no context: ModelContext) {
         guard let v = vestidaRecuperavel else { return }

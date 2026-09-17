@@ -279,3 +279,33 @@ struct VestirAoConcluirTests {
         #expect(try #require(Sessao.buscar(uuid: id, no: c.mainContext)).texto == "o autor mudou")
     }
 }
+
+/// Dono, 17/09: «o formato não aparece como eu utilizo» — a forma nunca
+/// marca por cima de marca, e o Enter não deixa o marcador em dobro.
+struct FormatacaoSemMarcaEmDobroTests {
+    @Test func aListaNaoMarcaPorCimaEACabecaViraSecao() {
+        let texto = "Compras\n- leite\n- - pao"
+        let vestido = Sabia.aplicar([Sabia.Rotulo(i: 0, forma: .lista)], a: texto)
+        #expect(vestido == "## Compras\n- leite\n- pao")
+    }
+
+    @Test func vestirDuasVezesEOMesmoQueUma() {
+        let texto = "Mercado\n\narroz\nfeijão\ncafé\n\nligar para a Ana\nmandar o orçamento"
+        let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), Sabia.Rotulo(i: 1, forma: .lista), Sabia.Rotulo(i: 2, forma: .tarefas)]
+        let uma = Sabia.aplicar(mapa, a: texto)
+        #expect(uma == "# Mercado\n\n- arroz\n- feijão\n- café\n\n- [ ] ligar para a Ana\n- [ ] mandar o orçamento")
+        #expect(Sabia.aplicar(mapa, a: uma) == uma)
+        for palavra in ["Mercado", "arroz", "feijão", "café", "ligar para a Ana", "mandar o orçamento"] {
+            #expect(uma.contains(palavra))
+        }
+    }
+
+    @Test func oEnterNaoDeixaMarcadorEmDobro() {
+        // o Enter pôs "- " e o autor digitou "- " de novo
+        #expect(Caderno.continuar(velho: "- leite\n- -", novo: "- leite\n- - ") == "- leite\n- ")
+        #expect(Caderno.continuar(velho: "1. pão\n2. 2.", novo: "1. pão\n2. 2. ") == "1. pão\n2. ")
+        #expect(Caderno.continuar(velho: "- [ ] ligar\n- [ ] -", novo: "- [ ] ligar\n- [ ] - ") == "- [ ] ligar\n- [ ] ")
+        // quem escreve um traço no meio da frase não perde nada
+        #expect(Caderno.continuar(velho: "a - b", novo: "a - b ") == "a - b ")
+    }
+}

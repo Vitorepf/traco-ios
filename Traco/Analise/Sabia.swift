@@ -1734,6 +1734,18 @@ enum Sabia {
         return nil
     }
 
+    /// A linha sem as marcas de bloco do começo (lista, tarefa, numerada, citação
+    /// e, para título, os `#`), repetidas ou não: "- - pão" → "pão".
+    nonisolated static func semMarcador(_ linha: String, titulo: Bool = false) -> String {
+        var l = linha.trimmingCharacters(in: .whitespaces)
+        let marca = titulo ? /^(?:#{1,6}\s+)/ : /^(?:[-*•]\s+\[[ xX]?\]\s*|[-*•]\s+|\d+[.)]\s+|>\s*)/
+        while let m = l.firstMatch(of: marca), !m.output.isEmpty {
+            l.removeSubrange(m.range)
+            l = l.trimmingCharacters(in: .whitespaces)
+        }
+        return l
+    }
+
     /// Veste cada bloco com a forma do mapa. Bloco já vestido não se toca.
     nonisolated static func aplicar(_ mapa: [Rotulo], a texto: String) -> String {
         let intervalos = Caderno.intervalosParaVestir(texto)
@@ -1741,14 +1753,25 @@ enum Sabia {
         let formas = Dictionary(mapa.map { ($0.i, $0.forma) }, uniquingKeysWith: { a, _ in a })
         var saida: [String] = []
         for (i, bloco) in partes.enumerated() {
-            let linhas = bloco.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }
+            let cruas = bloco.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }
             guard formaExistente(bloco) == nil, let forma = formas[i] else { saida.append(bloco); continue }
+            // Nunca marcar por cima de marca (dono, 17/09: «Compras / - leite»
+            // virou «- Compras / - - leite»): a linha perde a marca que já tinha
+            // antes de ganhar a da forma, e a linha de cabeça sem marca acima de
+            // itens marcados fica como seção, não como item.
+            let marcadas: [Bool] = cruas.map { $0 != semMarcador($0) }
+            let formaDeItens: Bool = forma == .lista || forma == .numerada || forma == .tarefas
+            let temCabeca: Bool = formaDeItens && cruas.count >= 2 && !marcadas[0] && marcadas.dropFirst().contains(true)
+            let cabeca: [String] = temCabeca ? ["## " + cruas[0]] : []
+            let semCabeca: [String] = temCabeca ? Array(cruas.dropFirst()) : cruas
+            let linhas: [String] = semCabeca.map { semMarcador($0) }
+            func comCabeca(_ corpo: [String]) -> String { (cabeca + corpo).joined(separator: "\n") }
             switch forma {
-            case .titulo: saida.append("# " + linhas.joined(separator: " "))
-            case .secao: saida.append("## " + linhas.joined(separator: " "))
-            case .lista: saida.append(linhas.map { "- " + $0 }.joined(separator: "\n"))
-            case .numerada: saida.append(linhas.enumerated().map { "\($0.offset + 1). " + $0.element }.joined(separator: "\n"))
-            case .tarefas: saida.append(linhas.map { "- [ ] " + $0 }.joined(separator: "\n"))
+            case .titulo: saida.append("# " + cruas.map { semMarcador($0, titulo: true) }.joined(separator: " "))
+            case .secao: saida.append("## " + cruas.map { semMarcador($0, titulo: true) }.joined(separator: " "))
+            case .lista: saida.append(comCabeca(linhas.map { "- " + $0 }))
+            case .numerada: saida.append(comCabeca(linhas.enumerated().map { "\($0.offset + 1). " + $0.element }))
+            case .tarefas: saida.append(comCabeca(linhas.map { "- [ ] " + $0 }))
             case .citacao: saida.append(linhas.map { "> " + $0 }.joined(separator: "\n"))
             case .codigo: saida.append("```\n" + bloco + "\n```")
             case .tabela:

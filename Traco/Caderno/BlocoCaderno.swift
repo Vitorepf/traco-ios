@@ -769,6 +769,21 @@ enum Caderno: Sendable {
         let vs = Array(velho), ns = Array(novo)
         var i = 0
         while i < vs.count, vs[i] == ns[i] { i += 1 }
+        // O Enter já pôs o marcador e o autor digitou o seu por cima: "- - "
+        // vira "- " (dono, 17/09: «- - pao» na lista). Vale para o espaço que
+        // fecha o marcador repetido, logo no começo da linha.
+        if i < ns.count, ns[i] == " ", Array(ns[(i + 1)...]) == Array(vs[i...]) {
+            let antesDoEspaco = String(ns[..<i])
+            let inicio = antesDoEspaco.lastIndex(of: "\n").map { antesDoEspaco.index(after: $0) } ?? antesDoEspaco.startIndex
+            let linha = String(antesDoEspaco[inicio...]) + " "
+            for (dobrado, simples) in [("- - ", "- "), ("* * ", "* "), ("- [ ] - ", "- [ ] "), ("- [ ] - [ ] ", "- [ ] ")]
+            where linha == dobrado {
+                return String(antesDoEspaco[..<inicio]) + simples + String(ns[(i + 1)...])
+            }
+            if let m = linha.firstMatch(of: /^(\d+)\. (\d+)\. $/), m.1 == m.2 {
+                return String(antesDoEspaco[..<inicio]) + "\(m.1). " + String(ns[(i + 1)...])
+            }
+        }
         guard i < ns.count, ns[i] == "\n" else { return novo }
         // o resto precisa coincidir (inserção pura de um \n)
         guard Array(ns[(i + 1)...]) == Array(vs[i...]) else { return novo }
