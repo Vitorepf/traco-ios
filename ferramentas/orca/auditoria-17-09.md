@@ -67,7 +67,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** quando o texto é pergunta (termina em «?» ou tem 4 palavras ou mais), a primeira linha passa a ser «Perguntar à Sábia: …». As notas que batem ficam abaixo, e «Nenhuma nota» nunca aparece para pergunta.
 - **Como verificar:** digitar a mesma frase. A primeira linha é a ação de perguntar.
 
-### [~] 7. Notas ligadas mostram a justificativa da engenharia — a61099b4: sem a razão da engenharia; falta o botão «Ligar a uma nota…»
+### [x] 7. Notas ligadas mostram a justificativa da engenharia — a61099b4 + 9a56382a: sem a razão da engenharia e com «Ligar a uma nota…»
 - **Onde:** toque longo › Notas ligadas. Captura `22-notas-ligadas.png`.
 - **Evidência:** a folha diz «Sugerir notas parecidas está indisponível: a IA deixava de fora justamente as que mais tinham a ver.» e ensina a sintaxe «[[Título]]».
 - **Impacto:** é conversa de bastidor e sintaxe de programador num app premium. O estado vazio não tem nenhuma ação.
