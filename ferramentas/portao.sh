@@ -55,9 +55,17 @@ EOF
       -scheme Traco -destination "platform=iOS Simulator,id=$UDID" -derivedDataPath "$DD-suite" \
       -parallel-testing-enabled NO >"$log" 2>&1 || true
     grep -E '\.swift:[0-9]+:[0-9]+: error' "$log" | sort -u | head -20 >&2 || true
-    resumo=$(grep -E 'Test run with [0-9]+ tests' "$log" | tail -1)
+    # a linha "Test run with N tests" do Swift Testing conta errado quando há
+    # teste pulado (711 com 1323 passando, 17/09): a conta vem das linhas
+    ok=$(grep -c '✔ Test ' "$log" || true)
+    falhas=$(grep -c '✘ Test .* failed' "$log" || true)
+    pulados=$(grep -c '➜ Test ' "$log" || true)
     grep -E '✘ Test .* (failed|recorded an issue)' "$log" | head -20 >&2 || true
-    echo "portão: ${resumo:-a suíte não terminou (log em $log)}"
-    case "$resumo" in *"passed"*) exit 0 ;; *) exit 1 ;; esac
+    if grep -q '\*\* TEST SUCCEEDED \*\*' "$log" && [ "$falhas" = 0 ] && [ "$ok" -gt 0 ]; then
+      echo "portão: verde — $ok passaram, $pulados pulados com motivo, 0 falhas"
+      exit 0
+    fi
+    echo "portão: VERMELHO — $ok passaram, $falhas falharam, $pulados pulados (log em $log)"
+    exit 1
     ;;
 esac

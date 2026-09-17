@@ -154,3 +154,9 @@ novo sem apagar o velho, e sobreviveu porque **ninguém lê uma tabela inteira; 
 que procura**. Consertado aqui. **A lição é a mesma da caça cega:** o registro que
 ninguém confere por inteiro apodrece em silêncio — quem escreve uma linha nova
 **confere que a letra aparece UMA vez só**, com `grep -c "^| 09x"`.
+
+## 2026-09-17
+
+| letra | dona | estado |
+|---|---|---|
+| 17m | Auditoria de produção: integridade de anexos e cópia, selo, IA e portão | branch `producao-17-09` |
