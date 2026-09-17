@@ -368,7 +368,9 @@ struct PerfilView: View {
         case .afirmado, .devido:
             let ha = "há " + Latencia.emDias(r.diasEmAberto() ?? 0)
             guard let quando = r.devidoEm else { return ha }
-            return ha + " · conferir em " + quando.formatted(date: .abbreviated, time: .omitted)
+            // «14 de outubro»; o ano só se não for este (auditoria 17/09: «14 de out. de 2026»)
+            let mesmoAno = Calendar.current.isDate(quando, equalTo: .now, toGranularity: .year)
+            return ha + " · conferir em " + quando.formatted(mesmoAno ? .dateTime.day().month(.wide) : .dateTime.day().month(.wide).year())
         case .abandonado:
             return "fechado sem conferir"
         }

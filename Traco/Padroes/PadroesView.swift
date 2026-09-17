@@ -341,7 +341,8 @@ enum RevisaoSemanalFormato {
         // meia-noite em ponto é dia inteiro (aniversário, feriado): dizer
         // "00:00" era mentir a hora (auditoria 13/09, defeito 9)
         let c = Calendar.current.dateComponents([.hour, .minute], from: d)
-        f.dateFormat = c.hour == 0 && c.minute == 0 ? "EEE d, 'dia inteiro'" : "EEE d, HH:mm"
+        // com o mês (auditoria 17/09: «qua 14, 12:00» não dizia de que mês)
+        f.dateFormat = c.hour == 0 && c.minute == 0 ? "EEE, d 'de' MMM · 'dia inteiro'" : "EEE, d 'de' MMM · HH:mm"
         return f.string(from: d).replacingOccurrences(of: ".", with: "")
     }
 }

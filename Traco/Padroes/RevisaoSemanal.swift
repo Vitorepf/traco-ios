@@ -165,7 +165,7 @@ extension RevisaoSemanal {
         }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
-        f.dateFormat = "EEE d, HH:mm"
+        f.dateFormat = "EEE, d 'de' MMM · HH:mm"
         func bloco(_ t: String, _ xs: [Linha]) {
             guard !xs.isEmpty else { return }
             linhas.append(t + ":")
