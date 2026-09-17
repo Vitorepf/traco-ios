@@ -63,10 +63,18 @@ nonisolated struct Gesto: Hashable, Codable, Identifiable, Sendable, CaseIterabl
     var encadeamentos: [Metodo.Encadeamento] { metodoDef.encadeamentos }
     /// O catálogo conhece este id? Falso = método que sumiu da pasta.
     var conhecido: Bool { Catalogo.metodo(rawValue) != nil }
-    /// ADR 05x: o que a tela diz quando o método saiu da pasta (05o). Nil =
-    /// o catálogo conhece. Estado honesto, não bloqueio: os campos ficam.
+    /// ADR 05x: o que a tela diz quando o método não está mais no catálogo
+    /// (05o). Nil = o catálogo conhece. Estado honesto, não bloqueio: os campos
+    /// ficam.
+    ///
+    /// A frase NÃO diz "saiu da sua pasta" (como dizia até a colagem da leva 3):
+    /// isso é verdade quando o autor apagou um método da pasta dele, e falso
+    /// quando quem tirou foi o app — a fusão da Inversão no Pré-mortem é o
+    /// primeiro caso. Depois do fato os dois são indistinguíveis, porque o
+    /// método sumiu junto com a informação de onde vinha; a frase de agora é
+    /// verdadeira nos dois.
     var estadoDoMetodo: String? {
-        conhecido ? nil : "o método “\(rawValue)” saiu da sua pasta; os campos continuam na nota."
+        conhecido ? nil : "o método “\(rawValue)” não está mais no catálogo; os campos continuam na nota."
     }
 
     // MARK: Codable como texto (o que o disco e o corpus sempre guardaram)

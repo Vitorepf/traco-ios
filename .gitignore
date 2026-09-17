@@ -15,3 +15,5 @@ build-*/
 *.p8
 *.p12
 *.mobileprovision
+__pycache__/
+*.pyc

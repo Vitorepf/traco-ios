@@ -1,32 +1,38 @@
-# ADR 04z: os métodos novos se encadeiam. A Inversão ("como garantir que
-# falhe") vira Pré-mortem com as palavras do autor copiadas e a origem ligada.
+# ADR 04z: os métodos novos se encadeiam. A Porta ("isso não tem volta")
+# classifica a decisão pela volta e abre a Decisão com as palavras do autor
+# copiadas e a origem ligada.
+#
+# Este fluxo testava a cadeia Inversão → Pré-mortem até a colagem da leva 3,
+# que fundiu a Inversão no Pré-mortem: o texto de gatilho agora abre o
+# Pré-mortem direto, e não sobra encadeamento nenhum para provar. A cadeia
+# Porta → Decisão é a substituta natural — é da mesma leva, tem a mesma forma
+# (dois campos, um botão, os campos copiados no destino) e prova a mesma lei.
 appId: app.traco
 ---
 - launchApp:
     clearState: true
 - tapOn: {id: pagina}
-- inputText: "como garantir que falhe o lançamento do curso"
+- inputText: "isso não tem volta, preciso pensar antes"
 - extendedWaitUntil:
     visible: {id: "abrir-campos"}
     timeout: 25000
 - tapOn: {id: "abrir-campos"}
 - extendedWaitUntil:
-    visible: {id: "forma-inversao"}
+    visible: {id: "forma-porta"}
     timeout: 5000
-- tapOn: {id: "campo-quero"}
-- inputText: "lançar o curso em outubro"
-- tapOn: {id: "campo-falhe"}
-- inputText: "não avisar ninguém até a véspera"
+- tapOn: {id: "campo-oQue"}
+- inputText: "trocar o banco de dados do app"
+- tapOn: {id: "campo-via"}
+- inputText: "uma via"
 - extendedWaitUntil:
-    visible: "Virar Pré-mortem"
+    visible: "Uma via: abrir a Decisão"
     timeout: 8000
 - assertVisible: "Depois disto"
-- takeScreenshot: /tmp/traco-verify/ciclo/37-inversao-depois-disto
-- tapOn: "Virar Pré-mortem"
+- takeScreenshot: /tmp/traco-verify/ciclo/37-porta-depois-disto
+- tapOn: "Uma via: abrir a Decisão"
 - extendedWaitUntil:
-    visible: {id: "forma-premortem"}
+    visible: {id: "forma-decisao"}
     timeout: 25000
-- assertVisible: "lançar o curso em outubro"
-- assertVisible: "não avisar ninguém até a véspera"
-- assertVisible: ".*como garantir que falhe.*"
-- takeScreenshot: /tmp/traco-verify/ciclo/38-premortem-encadeado
+- assertVisible: "trocar o banco de dados do app"
+- assertVisible: ".*isso não tem volta.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/38-decisao-encadeada
