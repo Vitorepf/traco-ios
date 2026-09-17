@@ -18,7 +18,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 
 ## ALTA
 
-### [ ] 1. A resposta da Sábia some depois de só abrir uma fonte
+### [→] 1. A resposta da Sábia some depois de só abrir uma fonte — executora: `salvar` muda `editadaEm` sem edição
 - **Onde:** Conversa. Capturas `49-sabia-fontes.png` → `51-sabia-fonte-nota.png` → `52-volta-da-fonte.png`.
 - **Evidência:** a resposta levou cerca de 35 s. Toquei na fonte «Subir o preço do plano anual», só li e toquei em voltar, sem editar nada. A resposta tinha virado «A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível.» e um botão «Perguntar de novo».
 - **Reincidência:** a segunda resposta (`54-resposta-2.png`) também sumiu. Isso aconteceu depois de navegar por Calendário, Padrões e Perfil, sem abrir fonte nenhuma. Vi na tela às 21:44, mas a captura foi sobrescrita.
@@ -26,28 +26,28 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** só recolher quando o hash do texto da fonte mudar de verdade. Abrir sem editar não pode gravar nada. Se a fonte mudou, manter a resposta com uma linha «Uma fonte mudou depois desta resposta · Atualizar».
 - **Como verificar:** perguntar, abrir as 3 fontes, voltar. A resposta tem de estar lá, idêntica.
 
-### [ ] 2. Índices internos aparecem nas perguntas dos Padrões
+### [→] 2. Índices internos aparecem nas perguntas dos Padrões — executora: título no pedido + guarda de «NOTA n»
 - **Onde:** Padrões › Perguntas. Capturas `67-padroes-perguntas.png` e `68-padroes-rolada.png`.
 - **Evidência:** as perguntas trazem textos como «Na NOTA 3 você escreveu…», «…da NOTA 6?» e «NOTA 1 traz… e NOTA 12 menciona…».
 - **Impacto:** o autor não sabe qual é a «NOTA 6». A pergunta vira ruído e mostra a costura do prompt.
 - **Correção:** trocar os índices pelo título da nota entre aspas antes de exibir. Se sobrar algum índice, descartar a pergunta.
 - **Como verificar:** nenhuma pergunta exibida casa com `/\bNOTA\s*\d+/i`.
 
-### [ ] 3. A nota vira compromisso sem aviso
+### [→] 3. A nota vira compromisso sem aviso — executora: toast «Guardada em Notas · marcado …»
 - **Onde:** página de escrever → Calendário. Capturas `05-digitando-2.png`, `10-concluir-toast.png`, `61-cal-lista.png` e `62-ficha-compromisso.png`.
 - **Evidência:** às 21:16 concluí a nota «Reunião com o fornecedor amanhã as 10h…». O único retorno foi «guardada em Notas». No Calendário apareceu «Reunião com o fornecedor», 17/09, das 10:00 às 11:00, com o domínio Trabalho. O arquivo `superficie.json` do App Group foi regravado às 21:16:41 (`geradoEm` 1789604201) já com esse compromisso.
 - **Impacto:** um efeito colateral invisível. O autor não sabe que marcou algo, nem como desfazer. A ficha também não liga de volta à nota de origem.
 - **Correção:** o retorno do Concluir diz «Guardada em Notas · Marcado qui., 17 set., 10:00», com «Desfazer» e «Ver». A ficha ganha uma linha «Veio da nota «Reunião…»».
 - **Como verificar:** concluir uma nota com data e hora. O retorno cita o compromisso, e «Desfazer» remove só o compromisso.
 
-### [ ] 4. «3 versões» no cartão, «Nenhuma ainda» nas Alterações
+### [x] 4. «3 versões» no cartão, «Nenhuma ainda» nas Alterações — a61099b4
 - **Onde:** Notas › toque longo em «Compras» › Alterações. Capturas `15-compras-cartao.png` e `21-alteracoes.png`.
 - **Evidência:** o cartão diz «3 versões · 9:00». A folha Alterações diz «Nenhuma ainda. Uma versão nasce a cada gravação que muda o texto.». A mesma palavra, «versão», nomeia duas coisas: notas juntadas e histórico de edição.
 - **Impacto:** contradição direta. O autor não confia em nenhuma das duas.
 - **Correção:** um nome para cada conceito. Por exemplo, «3 datas» ou «3 listas» para as juntadas, e «Alterações» só para edições. Ou então Alterações mostra também as datas juntadas.
 - **Como verificar:** em nenhuma tela a palavra «versão» se refere a duas coisas.
 
-### [ ] 5. A IA tem cinco nomes
+### [x] 5. A IA tem cinco nomes — a61099b4: «Sábia» nas telas do líder; strings da Sessão/Sábia com a executora
 - **Onde:** app inteiro. Capturas `11-notas-lista.png`, `46-sabia-espera-1.png`, `34-busca-vazia.png`, `07-lente-a.png` e `73-perfil-3.png`.
 - **Evidência:**
   - o campo diz «Fale com o Traço»;
@@ -60,21 +60,21 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um nome só, por exemplo «Sábia», com maiúscula. O título da conversa é o assunto ou «Sábia», e o campo diz «Pergunte à Sábia».
 - **Como verificar:** a busca de strings na UI não acha «Suas notas» como título nem «Fale com o Traço».
 
-### [ ] 6. Uma pergunta digitada recebe «Nenhuma nota com…»
+### [x] 6. Uma pergunta digitada recebe «Nenhuma nota com…» — a61099b4
 - **Onde:** Notas, campo único. Captura `45-pergunta-digitada.png`.
 - **Evidência:** digitei «Por que eu sempre adio decidir sobre preço?». A lista sumiu e apareceu, em cinza de 20 pt, «Nenhuma nota com "Por que eu sempre adio decidir sobre preço?"». O caminho certo fica num link âmbar menor abaixo.
 - **Impacto:** parece erro antes de o autor enviar, e a lista inteira desaparece.
 - **Correção:** quando o texto é pergunta (termina em «?» ou tem 4 palavras ou mais), a primeira linha passa a ser «Perguntar à Sábia: …». As notas que batem ficam abaixo, e «Nenhuma nota» nunca aparece para pergunta.
 - **Como verificar:** digitar a mesma frase. A primeira linha é a ação de perguntar.
 
-### [ ] 7. Notas ligadas mostram a justificativa da engenharia
+### [~] 7. Notas ligadas mostram a justificativa da engenharia — a61099b4: sem a razão da engenharia; falta o botão «Ligar a uma nota…»
 - **Onde:** toque longo › Notas ligadas. Captura `22-notas-ligadas.png`.
 - **Evidência:** a folha diz «Sugerir notas parecidas está indisponível: a IA deixava de fora justamente as que mais tinham a ver.» e ensina a sintaxe «[[Título]]».
 - **Impacto:** é conversa de bastidor e sintaxe de programador num app premium. O estado vazio não tem nenhuma ação.
 - **Correção:** apagar a frase. Colocar um botão «Ligar a uma nota…», que abre o mesmo seletor do «Juntar com…». A dica de colchetes vai para Métodos, se for mesmo necessária.
 - **Como verificar:** a folha vazia tem 1 título, 1 frase e 1 botão.
 
-### [ ] 8. O Perfil fala a língua do código
+### [~] 8. O Perfil fala a língua do código — a61099b4: degrau/sinais/Sair; falta o Retrato em palavras de uso
 - **Onde:** Perfil. Capturas `71-perfil.png`, `72-perfil-2.png`, `73-perfil-3.png` e `76-perfil-4.png`.
 - **Evidência:**
   - «Formas nos últimos 30 dias (contagem): 12 sem forma · 5 Decisão.»
@@ -89,7 +89,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** reescrever com o que o autor vê. Exemplos: «12 notas livres e 5 decisões neste mês», «A Sábia pede mais detalhe nas decisões». Cada seção fica com uma frase de no máximo 2 linhas.
 - **Como verificar:** nenhuma das palavras «degrau», «sinais», «forma(s)», «contagem», «trancadas», «expressivas» ou «abertas» aparece na UI.
 
-### [ ] 9. «Sair da conta» em vermelho na segunda linha do Perfil
+### [x] 9. «Sair da conta» em vermelho na segunda linha do Perfil — a61099b4
 - **Onde:** Perfil › Conta. Captura `71-perfil.png`.
 - **Evidência:** a ação destrutiva está em y≈250 pt, logo abaixo da linha de status, no caminho natural do polegar ao rolar.
 - **Impacto:** um toque acidental desliga a IA com conta. O Ajustes da Apple põe «Sair» no fim, isolado.
@@ -146,7 +146,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** animar a página até o ícone de Notas (ou um fade de 250 ms). Toast com elevação, ícone ✓, «Guardada em Notas» e a ação «Abrir».
 - **Como verificar:** filmar o Concluir. Há pelo menos 6 quadros de transição.
 
-### [ ] 14. Os toasts de Juntar e Separar ficam por cima do conteúdo e somem num corte
+### [x] 14. Os toasts de Juntar e Separar ficam por cima do conteúdo e somem num corte — a61099b4
 - **Onde:** capturas `25-separar.png`, `27-separar-quadros.png`, `30-juntou.png` e `26-desfazer.png`.
 - **Evidência:**
   - «Separada das versões» e «Juntada a «Compras»» ficam planos e sem sombra, com o texto do cartão de baixo aparecendo em volta.
@@ -156,7 +156,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** a cápsula fica acima da barra, não sobre a lista, com sombra, fade de 200 ms e 8 a 10 s de duração (que se renovam ao tocar na tela).
 - **Como verificar:** filmar. O toast não cobre nenhum cartão e some com fade.
 
-### [ ] 15. «Juntar com…» não mostra as parecidas primeiro
+### [~] 15. «Juntar com…» não mostra as parecidas primeiro — a61099b4: parecidas separadas + prévia; falta busca e «Cancelar»
 - **Onde:** capturas `23-juntar-com.png` e `29-juntar-apos-separar.png`.
 - **Evidência:**
   - Para «Compras», o primeiro item é «Ideia: testar o café…».
@@ -168,7 +168,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** ordenar por semelhança de título e itens. Mostrar uma linha de prévia. Adicionar busca no topo e o botão «Cancelar».
 - **Como verificar:** com duas «Compras» e outras notas, as «Compras» vêm primeiro e têm prévia.
 
-### [ ] 16. A busca afirma o que não é verdade
+### [~] 16. A busca afirma o que não é verdade — «para» em vez de «com»; a capitalização fica (campo é busca e pergunta)
 - **Onde:** capturas `33-busca-resultado.png` e `34a-busca-pilates.png`.
 - **Evidência:**
   - «1 nota com "Academia de pilates"», mas a nota não contém «pilates», e o realce some.
@@ -178,7 +178,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** «1 nota parecida» quando o resultado é aproximado. Desligar a autocapitalização do campo. A prévia mostra a frase em volta do termo, com «…».
 - **Como verificar:** repetir as duas buscas.
 
-### [ ] 17. A busca não tem saída
+### [~] 17. A busca não tem saída — «x» e compartilhar fixo; falta tocar na aba limpar
 - **Onde:** capturas `34-busca-vazia.png` e `33`.
 - **Evidência:**
   - O campo não tem «x» nem «Cancelar».
@@ -189,7 +189,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** «x» de limpar dentro do campo. Tocar na aba ativa limpa a busca e rola ao topo. A barra mantém os mesmos ícones.
 - **Como verificar:** buscar e tocar na aba. A lista volta ao estado inicial.
 
-### [ ] 18. Compartilhar na lista exporta «traco-contexto» sem explicar
+### [x] 18. Compartilhar na lista exporta «traco-contexto» sem explicar — a61099b4
 - **Onde:** captura `80-compartilhar.png`.
 - **Evidência:** um toque no ícone de compartilhar da lista abre a folha do sistema com «traco-contexto · Documento de Texto · 12 KB». O ícone não diz o que é exportado.
 - **Impacto:** o autor não sabe que está levando o contexto das notas para outro lugar. O nome do arquivo é jargão.
@@ -226,7 +226,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** um formatador único com três tamanhos (longo, médio, curto), sempre com mês em minúscula e mês presente quando não for a semana atual.
 - **Como verificar:** passar todas as capturas por regex. Não há «Setembro» com maiúscula nem dia sem mês fora da semana.
 
-### [ ] 22. A resposta da Sábia é um bloco único e as fontes se repetem
+### [~] 22. A resposta da Sábia é um bloco único e as fontes se repetem — alvos de 44 e maiúscula; parágrafos e glossário vão com a executora (E9)
 - **Onde:** capturas `47-sabia-resposta-a.png`, `48-sabia-resposta-b.png`, `49-sabia-fontes.png` e `54-resposta-2.png`.
 - **Evidência:**
   - A resposta tem mais de 20 linhas sem parágrafo, com «trade-off» e «O material desta consulta não traz…» (meta-linguagem).
@@ -237,7 +237,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** parágrafos de 2 a 3 frases e glossário proibido na saída. Um único bloco de fontes. Barra de ações com passo de 44 pt ou mais, ou num menu «…».
 - **Como verificar:** medir o passo dos ícones. A resposta tem pelo menos 2 parágrafos.
 
-### [ ] 23. O menu de toque longo tem 9 itens sem grupos
+### [x] 23. O menu de toque longo tem 9 itens sem grupos — a61099b4
 - **Onde:** capturas `20-toque-longo-compras.png` e `24-dominio.png`.
 - **Evidência:**
   - Recordar, Enviar para outra IA, Alterações, Notas ligadas, Domínio, Juntar com…, Separar das versões, Selecionar e Apagar ficam numa só pilha.
@@ -277,7 +277,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** «Dia · Semana · Mês · Ano», ou um menu com o nome da visão atual. Segmentos de 44 pt. Prévia ao vivo acima do campo («Sex., 18 set. · 13:00–14:00»). O rascunho abre o campo em largura total, ou é descartado com aviso.
 - **Como verificar:** digitar o exemplo e ver a prévia. Medir os segmentos.
 
-### [ ] 27. Padrões: pergunta aberta desalinhada e hierarquia invertida nas hipóteses
+### [~] 27. Padrões: pergunta aberta desalinhada e hierarquia invertida nas hipóteses — margem e «Descartar pergunta»; falta a ordem título/estado nas hipóteses
 - **Onde:** capturas `69-padroes-pergunta-aberta.png` e `76-perfil-4.png`.
 - **Evidência:**
   - O cartão «Pergunta dos Padrões» começa em x=10 pt, enquanto o texto da página está em x=21 pt. O topo do cartão (y=143) fica 3 pt abaixo de «4 para conferir».
@@ -288,7 +288,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** margem de 20 pt e 16 pt de espaço acima. «Descartar pergunta» como botão. O título da hipótese é a decisão, o status fica abaixo e «Hora de conferir» fica igual em todo o app.
 - **Como verificar:** medir x do cartão = x do texto.
 
-### [ ] 28. Versões: o corpo pula ao trocar de data e os chips são pequenos
+### [x] 28. Versões: o corpo pula ao trocar de data e os chips são pequenos — a61099b4
 - **Onde:** capturas `16-compras-pagina.png`, `17-compras-10set.png` e `18-compras-28ago.png`.
 - **Evidência:**
   - O título «Compras» fica em y=223, 203 e 175 pt conforme a data: salto de até 48 pt.
@@ -298,7 +298,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** reservar altura fixa para a linha «Desde…» (ou colapsá-la numa linha com «+3 −2 ›»). Chips de 44 pt. Adições e remoções em linhas ou com marca visual própria.
 - **Como verificar:** trocar as 3 datas. O título não se move.
 
-### [ ] 29. Lente: quebra ruim e folha meio vazia
+### [~] 29. Lente: quebra ruim e folha meio vazia — subtítulo e menu; altura da folha fica
 - **Onde:** capturas `07-lente-a.png`, `03-mais-menu.png` e `06-mais-com-texto.png`.
 - **Evidência:**
   - «24 palavras · 3 frases · nada / a apontar» quebra com cerca de 130 pt livres à direita.
@@ -309,7 +309,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** subtítulo em largura total, folha com altura do conteúdo e menu com largura para uma linha. Item desativado com ícone cinza.
 - **Como verificar:** a captura da folha e do menu mostra cada rótulo numa linha só.
 
-### [ ] 30. A página nova pula na primeira tecla
+### [x] 30. A página nova pula na primeira tecla — a61099b4
 - **Onde:** capturas `02-escrever-vazia.png` → `04-digitando.png`.
 - **Evidência:** o cabeçalho «Quarta-feira, 16 de setembro / 4 para conferir» some ao primeiro caractere. O cursor, que estava em y≈165 pt, passa a y≈124 pt: um salto de 41 pt.
 - **Impacto:** o texto foge do olho no instante de começar a escrever.
