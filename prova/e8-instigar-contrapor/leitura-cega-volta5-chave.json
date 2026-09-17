@@ -1,0 +1,206 @@
+{
+ "V001": [
+  "q4-instigar-sem-metodo-degrau-0",
+  3
+ ],
+ "V002": [
+  "revisor-instigar-fatos-negados",
+  3
+ ],
+ "V003": [
+  "qn-instigar-contexto-insuficiente",
+  1
+ ],
+ "V004": [
+  "q4-instigar-o-autor-escreve-metodo",
+  1
+ ],
+ "V005": [
+  "e8-inst-dois-nao-sei",
+  3
+ ],
+ "V006": [
+  "q4-instigar-texto-magro",
+  3
+ ],
+ "V007": [
+  "q4-instigar-premissa-incerta",
+  3
+ ],
+ "V008": [
+  "revisor-instigar-nota-que-ja-responde",
+  3
+ ],
+ "V009": [
+  "q4-instigar-texto-magro",
+  1
+ ],
+ "V010": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  2
+ ],
+ "V011": [
+  "qn-instigar-degrau-avancado",
+  1
+ ],
+ "V012": [
+  "q4-instigar-o-autor-escreve-metodo",
+  2
+ ],
+ "V013": [
+  "e8-inst-suposicao-implicita",
+  3
+ ],
+ "V014": [
+  "revisor-instigar-fatos-negados",
+  2
+ ],
+ "V015": [
+  "continuidade-instigar",
+  1
+ ],
+ "V016": [
+  "qn-instigar-premissa-incerta",
+  1
+ ],
+ "V017": [
+  "q4-instigar-com-metodo-decisao",
+  2
+ ],
+ "V018": [
+  "q4-instigar-sem-metodo-degrau-0",
+  2
+ ],
+ "V019": [
+  "qn-instigar-contexto-insuficiente",
+  2
+ ],
+ "V020": [
+  "qn-instigar-contexto-insuficiente",
+  3
+ ],
+ "V021": [
+  "e8-inst-suposicao-implicita",
+  1
+ ],
+ "V022": [
+  "e8-inst-dois-nao-sei",
+  2
+ ],
+ "V023": [
+  "continuidade-instigar",
+  3
+ ],
+ "V024": [
+  "qn-instigar-decisao-com-restricao",
+  1
+ ],
+ "V025": [
+  "revisor-instigar-nota-que-ja-responde",
+  1
+ ],
+ "V026": [
+  "revisor-instigar-nota-que-ja-responde",
+  2
+ ],
+ "V027": [
+  "qn-instigar-degrau-avancado",
+  3
+ ],
+ "V028": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  1
+ ],
+ "V029": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  1
+ ],
+ "V030": [
+  "q4-instigar-premissa-incerta",
+  2
+ ],
+ "V031": [
+  "e8-inst-ja-responde-a-propria-pergunta",
+  3
+ ],
+ "V032": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  2
+ ],
+ "V033": [
+  "q4-instigar-o-autor-escreve-metodo",
+  3
+ ],
+ "V034": [
+  "qn-instigar-decisao-com-restricao",
+  2
+ ],
+ "V035": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  2
+ ],
+ "V036": [
+  "q4-instigar-com-metodo-decisao",
+  3
+ ],
+ "V037": [
+  "qn-instigar-decisao-com-restricao",
+  3
+ ],
+ "V038": [
+  "revisor-instigar-fatos-negados",
+  1
+ ],
+ "V039": [
+  "q4-instigar-sem-metodo-degrau-0",
+  1
+ ],
+ "V040": [
+  "qn-instigar-premissa-incerta",
+  3
+ ],
+ "V041": [
+  "q4-instigar-texto-magro",
+  2
+ ],
+ "V042": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  3
+ ],
+ "V043": [
+  "e8-inst-dois-nao-sei",
+  1
+ ],
+ "V044": [
+  "qn-instigar-degrau-avancado",
+  2
+ ],
+ "V045": [
+  "q4-instigar-mesmo-texto-degrau-4",
+  3
+ ],
+ "V046": [
+  "q4-instigar-premissa-incerta",
+  1
+ ],
+ "V047": [
+  "q4-instigar-com-metodo-decisao",
+  1
+ ],
+ "V048": [
+  "e8-inst-suposicao-implicita",
+  2
+ ],
+ "V049": [
+  "qn-instigar-sem-jargao-nem-metodo",
+  1
+ ],
+ "V050": [
+  "continuidade-instigar",
+  2
+ ],
+ "V051": [
+  "qn-instigar-premissa-incerta",
+  2
+ ]
+}

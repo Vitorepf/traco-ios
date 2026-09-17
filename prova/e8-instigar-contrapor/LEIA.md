@@ -119,3 +119,27 @@ Busca por "ela/dela/ele/dele/o autor/a autora/sozinha/mesma" dirigido a quem esc
 **Não passou nenhuma das duas.**
 - **instigar — piorou de novo, por nossa causa:** a linha nova "Se a nota não diz quando e não diz que não sabe, uma das perguntas pede QUANDO" virou fórmula em quase todo caso («Quando essa regra de três vídeos por semana passou a valer no mercado?», «Quando essa espera por uma hora livre costuma surgir?») — 10 reprovações por andaime e 2 por fato suposto nela. O pedido já mandava pedir o quando só na nota magra; a linha incondicional generalizou. Os degraus em verbos não voltaram como molde (0 no bruto). **Lição, a mesma da v3 por outro lado:** toda instrução incondicional de UMA pergunta vira molde em todas as notas. **Conserto seguinte nomeado (não feito):** tirar a linha do QUANDO (a regra da nota magra já cobre `qn-instigar-contexto-insuficiente`); ficam os degraus em verbos e a perna do critério.
 - **contrapor — a melhor volta (41/51, gênero 0, novos e q-qualidade na barra), mas os cegos não:** o `contra` ainda usa as razões descartadas («com preço, distância e horário já fora de questão, manter», «a ida exige só sair de casa») e a `foraDaLista` ainda varia a saída fechada («ensaio completo da virada numa réplica isolada», «condição clara de parar no meio»); duas propõem «outra pessoa» que a nota não tem. As guardas de número e tamanho não esvaziaram nenhum contra. **Pela regra do líder, o contrapor para aqui** — a (B) reprovou no falso positivo, e o pedido sozinho não fecha os cegos em quatro voltas.
+
+## Volta 5 do instigar — só subtração (líder, 17/09; registrada ANTES do código e da corrida; a última)
+
+**Contrapor:** parado com a medida da volta 4 (ADR 17j); não roda nesta volta.
+
+**Conserto:** tirar do `sistemaInstigar` a linha incondicional "Se a nota não diz quando e não diz que não sabe, uma das perguntas pede QUANDO." Ficam os degraus em verbos, a perna do critério na `GuardaDeInstigar`, a linha do critério já dado e a regra da nota magra que já existia. Nenhuma linha nova, nenhuma guarda nova. **Regra do líder daqui em diante:** nenhuma instrução incondicional sobre UMA pergunta ou UMA forma de frase — condição explícita ou não entra.
+
+**Perguntas que começam por «Quando»** (bruto, antes desta volta): v1 8 de 202; v2 8 de 210; v3 7 de 208; **v4 28 de 212**.
+
+**Régua:** a mesma do instigar, os 17 casos do instigar do mesmo lote `05564104…`, separados sem mudar uma letra em `lote-instigar-volta5.json` (sha `d9c5c30288dbe2d1…`), mesmos dois leitores cegos, e a contagem de «Quando» lado a lado. **Não passou → o instigar para como o contrapor e a frente volta ao líder para redesenho: sem volta 6 por prompt.**
+
+## Volta 5 do instigar — medida (corrida `C04C701E`, grok-4.5, dylib `205891b4…`, `grok45-volta5-instigar.jsonl`)
+
+51 respostas: 0 erros, 0 listas vazias, guardas tiraram algo em 0. Perguntas que começam por «Quando», lado a lado: v1 8/202 · v2 8/210 · v3 7/208 · v4 **28/212** · **v5 6/206**. Leitura cega (`leitura-cega-volta5-veredictos.txt`, chave `leitura-cega-volta5-chave.json`, semente 202609179):
+
+| volta | cegos (barra 2/2) | matriz (≥ 6/8) | novos (≥ 2/3) | q-qualidade (≥ 1/6) | gênero (0) | respostas que cumprem |
+|---|---|---|---|---|---|---|
+| v1 | 1 de 2 | 6 de 8 | 2 de 3 | 5 de 6 | 3 | 44 de 51 |
+| v2 | 1 de 2 | 6 de 8 | 3 de 3 | 3 de 6 | 0 | 45 de 51 |
+| v3 | 0 de 2 | 4 de 8 | 3 de 3 | 3 de 6 | 0 | 38 de 51 |
+| v4 | 1 de 2 | 3 de 8 | 0 de 3 | 3 de 6 | 0 | 33 de 51 |
+| **v5** | **1 de 2** | **6 de 8** | **2 de 3** | **5 de 6** | **0** | **43 de 51** |
+
+**Não passou** — só a barra dos cegos: `revisor-instigar-nota-que-ja-responde` cai em 2 das 3 repetições por fato suposto («a de 8.400 passou a valer?», «passou a valer para os dois?» — a nota diz que o cliente não respondeu). É o defeito que o `conserto` da `Politica` já nomeia. Fora da barra: a fórmula de relação («se contradizem ou um depende do outro?») repetida no caso do capítulo (3 andaimes). **Pela regra do líder, o instigar PARA como o contrapor, e a frente volta ao líder para redesenho: sem volta 6 por prompt.**

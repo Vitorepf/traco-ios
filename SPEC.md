@@ -10658,3 +10658,11 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Medida** (Air, grok-4.5, corrida `026DF0EA`, mesmos casos e leitores). Instigar: cegos 1/2, matriz 3/8, novos 0/3, q-qualidade 3/6, gênero 0; nenhum sintagma dos degraus no bruto. Contrapor: cegos 0/2, matriz 5/8, novos 2/3, q-qualidade 4/6, gênero 0, 41/51 — a melhor das quatro voltas.
 
 **Não passou.** O instigar piorou por nossa causa: a linha incondicional do QUANDO virou fórmula em quase toda nota (10 andaimes) — toda instrução de UMA pergunta vira molde; conserto nomeado: tirar essa linha. O contrapor ainda erra no que a nota fechou, e para aqui (líder). As duas seguem cortadas na `Politica`, com o medido no `porque`.
+
+## ADR 2026-09-17k — Instigar, volta 5: só subtração, a melhor volta, e a rota para
+
+**Conserto** (líder: só subtração). Sai do pedido a linha incondicional "se a nota não diz quando…, uma das perguntas pede QUANDO", que na volta 4 virou fórmula (28 de 212 perguntas começando por «Quando»). Ficam os degraus em verbos, a perna do critério e a regra da nota magra. **Regra daqui em diante:** nenhuma instrução incondicional sobre UMA pergunta ou UMA forma de frase — condição explícita ou não entra.
+
+**Medida** (Air, grok-4.5, corrida `C04C701E`, os 17 casos do instigar × 3, mesmos leitores cegos). «Quando» 6 de 206. Cegos 1/2, matriz 6/8, novos 2/3, q-qualidade 5/6, gênero 0, 43/51 — a melhor das cinco voltas.
+
+**Não passou** só na barra dos cegos: o caso da proposta de preço cai em 2 das 3 repetições por fato suposto («a de 8.400 passou a valer?»), o defeito que o `conserto` já nomeia. O instigar para como o contrapor (ADR 17j) e a frente volta ao líder para redesenho; as duas seguem cortadas na `Politica`, com as cinco voltas no `porque`.

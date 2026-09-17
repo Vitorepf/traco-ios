@@ -583,7 +583,6 @@ enum Sabia {
     certo, e nenhuma das três se troca por uma mais fácil; se a nota dá matéria, as perguntas saem do que está
     escrito, e dessas três só entra a que a nota deixou sem resposta.
     Não pergunte pela razão ou pelo critério que a nota já deu (o que vem depois de "porque"): pergunte o que essa razão deixa de fora.
-    Se a nota não diz quando e não diz que não sabe, uma das perguntas pede QUANDO.
     """
 
 #if DEBUG

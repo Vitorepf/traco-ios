@@ -65,7 +65,10 @@ import Testing
 
     @Test func oPedidoNaoPerguntaOCriterioDadoEPedeOQuando() {
         #expect(Sabia.sistemaInstigar.contains("Não pergunte pela razão ou pelo critério que a nota já deu"))
-        #expect(Sabia.sistemaInstigar.contains("Se a nota não diz quando e não diz que não sabe, uma das perguntas pede QUANDO"))
+        // volta 5 (líder): a linha incondicional do QUANDO virou fórmula em quase toda nota na volta 4
+        // (28 de 212 perguntas começaram por «Quando»; v1–v3: 7 a 8) — sai; fica só a regra da nota magra
+        #expect(!Sabia.sistemaInstigar.contains("uma das perguntas pede QUANDO"))
+        #expect(Sabia.sistemaInstigar.contains("se a nota quase não dá") && Sabia.sistemaInstigar.contains("outra pede QUANDO aconteceu"))
     }
 
     /// Medido no bruto v2+v3: tira 6 perguntas, 5 reprovadas por "critério já dado" e 1 aprovada.

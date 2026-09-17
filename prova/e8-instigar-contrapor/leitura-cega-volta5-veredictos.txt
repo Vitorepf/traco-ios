@@ -1,0 +1,52 @@
+# instigar volta 5 (grok-4.5, corrida C04C701E, só subtração da linha do QUANDO): dois leitores cegos (a54d423f, aa58f4b3), itens embaralhados (semente 202609179); chave em leitura-cega-volta5-chave.json
+V001 CUMPRE
+V002 CUMPRE
+V003 CUMPRE
+V004 NÃO fato suposto: «ler com fluência»
+V005 CUMPRE
+V006 CUMPRE
+V007 CUMPRE
+V008 NÃO fato suposto: «passou a valer para os dois?»
+V009 CUMPRE
+V010 CUMPRE
+V011 CUMPRE
+V012 NÃO andaime: «se contradizem ou um depende do outro?» repetido
+V013 CUMPRE
+V014 CUMPRE
+V015 CUMPRE
+V016 CUMPRE
+V017 CUMPRE
+V018 CUMPRE
+V019 CUMPRE
+V020 CUMPRE
+V021 CUMPRE
+V022 CUMPRE
+V023 CUMPRE
+V024 CUMPRE
+V025 NÃO fato suposto: «a de 8.400 passou a valer?»
+V026 CUMPRE
+V027 CUMPRE
+V028 CUMPRE
+V029 CUMPRE
+V030 CUMPRE
+V031 CUMPRE
+V032 CUMPRE
+V033 CUMPRE
+V034 CUMPRE
+V035 NÃO andaime: fórmula «se contradizem», nada do primeiro parágrafo
+V036 CUMPRE
+V037 CUMPRE
+V038 CUMPRE
+V039 CUMPRE
+V040 CUMPRE
+V041 CUMPRE
+V042 NÃO andaime: «quando» colado («Quando, nesta semana, cada começo virou parada?»)
+V043 NÃO fato suposto (leve): «base pronta»
+V044 CUMPRE
+V045 CUMPRE
+V046 CUMPRE
+V047 CUMPRE
+V048 CUMPRE
+V049 NÃO andaime: relação por fórmula, nada do primeiro parágrafo
+V050 CUMPRE
+V051 CUMPRE
