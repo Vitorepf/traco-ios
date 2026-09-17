@@ -22,21 +22,44 @@ nonisolated enum SustentacaoPagina {
     static func filtrar(_ resposta: String, pergunta: String, contexto: String) -> String? {
         let material = pergunta + "\n" + contexto
         guard inventouDocumento(resposta, material: material) else { return resposta }
-        let linhas = resposta.components(separatedBy: "\n").map { linha -> String? in
-            var frases: [String] = [], inicio = linha.startIndex
-            for m in linha.matches(of: /[.!?…]\s+/) {
-                frases.append(String(linha[inicio..<m.range.upperBound]))
-                inicio = m.range.upperBound
+        let linhas = resposta.components(separatedBy: "\n")
+        let paragrafos = linhas.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+        // E8 volta 4: tirar só a frase deixava item "4." vazio e frase órfã ("Leia só o que
+        // cerca esses achados.") — sai o item ou o parágrafo inteiro, e a lista renumera.
+        // Resposta de um parágrafo só perde a frase: tirar o parágrafo seria calar tudo.
+        var numero = 0
+        var saida: [String] = []
+        for linha in linhas {
+            let limpa = linha.trimmingCharacters(in: .whitespaces)
+            if limpa.isEmpty { saida.append(""); continue }
+            var texto = linha
+            if inventouDocumento(linha, material: material) {
+                guard paragrafos.count == 1 else { continue }
+                texto = semAsFrases(linha, material: material)
             }
-            if inicio < linha.endIndex { frases.append(String(linha[inicio...])) }
-            let ficam = frases.filter { !inventouDocumento($0, material: material) }
-            if linha.trimmingCharacters(in: .whitespaces).isEmpty { return "" }
-            let nova = ficam.joined().trimmingCharacters(in: .whitespaces)
-            return nova.isEmpty ? nil : nova
-        }.compactMap { $0 }
-        let texto = linhas.joined(separator: "\n").replacing(/\n{3,}/, with: "\n\n")
+            if let marca = texto.firstMatch(of: /^(\s*)\d+[.)]\s*/) {
+                let resto = texto[marca.range.upperBound...].trimmingCharacters(in: .whitespaces)
+                guard !resto.isEmpty else { continue }
+                numero += 1
+                texto = marca.output.1 + "\(numero). " + resto
+            } else {
+                numero = 0
+            }
+            saida.append(texto)
+        }
+        let texto = saida.joined(separator: "\n").replacing(/\n{3,}/, with: "\n\n")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return texto.count >= minimoUtil ? texto : recusaDocumento
+    }
+
+    private static func semAsFrases(_ linha: String, material: String) -> String {
+        var frases: [String] = [], inicio = linha.startIndex
+        for m in linha.matches(of: /[.!?…]\s+/) {
+            frases.append(String(linha[inicio..<m.range.upperBound]))
+            inicio = m.range.upperBound
+        }
+        if inicio < linha.endIndex { frases.append(String(linha[inicio...])) }
+        return frases.filter { !inventouDocumento($0, material: material) }.joined().trimmingCharacters(in: .whitespaces)
     }
 
     /// ponytail: tamanho como régua de "sobrou algo útil"; abaixo disto, a recusa.

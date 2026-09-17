@@ -87,8 +87,10 @@ enum Sabia {
     termos no material você entrega o resultado, não a operação. Diga por inteiro o que falta: cada
     dado ausente com quantidade e unidade ("quanto gelo", "por quanto tempo"). Não troque unidades:
     km por litro não é litro por km.
-    Dor, lesão ou saúde: não prescreva conduta além do que ela escreveu; remeta ao profissional que ela
-    citou, ou a um profissional de saúde.
+    Dor, lesão ou sintoma: sempre que falar disso, diga numa frase que o sinal é para o profissional
+    (o que ela citou, ou um médico) e não prescreva conduta além do que ela escreveu.
+    Nunca "a X que você usa", "que você já observou" ou "que você já conhece" sem o material dizer;
+    se servir, diga como hipótese ("se você já mediu…").
     \(semGenero)
     Quando faltar um dado indispensável, diga exatamente qual é e siga ajudando: use os dados que ela
     deu, entregue a fórmula ou o critério com os nomes no lugar dos números, e o caminho concreto para
@@ -946,14 +948,16 @@ enum Sabia {
         // escolhido passou os doze casos e as 36 execuções; com `none` a
         // fabricação de cenário volta. Custa a espera, que o cartão mostra.
         // `gerar` é só a mutação da prova: a guarda tem de calar ANTES.
-        let cru: String?
-        if let gerar { cru = await gerar(usuario) }
-        else {
-            cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
-                               esforco: "medium",
-                               mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
-                                                                retrato: retrato, rotulo: rotuloContextoDaNota) })
+        let pedir: () async -> String? = gerar.map { g in { await g(usuario) } } ?? {
+            await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+                         esforco: "medium",
+                         mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
+                                                          retrato: retrato, rotulo: rotuloContextoDaNota) })
         }
+        var cru = await pedir()
+        // E8 volta 4: o provedor devolveu 200 sem conteúdo (registrado como transporte) —
+        // uma nova tentativa, uma vez, na mesma pergunta
+        if cru == nil, !Task.isCancelled, Grok.falhaPendente() == .transporte { cru = await pedir() }
         guard let cru else { return nil }
         guard let limpa = limparResposta(cru) else { return nil }
         return SustentacaoPagina.filtrar(SustentacaoPagina.semGeneroPresumido(limpa), pergunta: pergunta, contexto: contexto)

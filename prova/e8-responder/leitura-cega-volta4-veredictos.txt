@@ -1,0 +1,73 @@
+# Volta 4 (grok-4.5, corrida 12681EEA): mesmos dois leitores cegos, mesma instrução da volta 3. Chave em leitura-cega-volta4-chave.json
+U001 NÃO utilidade: não indica como resolver quem apresenta
+U002 CUMPRE
+U003 NÃO invenção: busca no app e anexos do relatório
+U004 CUMPRE
+U005 CUMPRE
+U006 CUMPRE
+U007 CUMPRE
+U008 NÃO invenção: proposta como arquivo por mensagem
+U009 NÃO invenção: verbos que você já viu
+U010 CUMPRE
+U011 CUMPRE
+U012 NÃO concisão: ~20 linhas; abrir tabelas sem condição
+U013 CUMPRE
+U014 CUMPRE
+U015 CUMPRE
+U016 CUMPRE
+U017 CUMPRE
+U018 CUMPRE
+U019 CUMPRE
+U020 CUMPRE
+U021 CUMPRE
+U022 CUMPRE
+U023 CUMPRE
+U024 CUMPRE
+U025 CUMPRE
+U026 CUMPRE
+U027 CUMPRE
+U028 CUMPRE
+U029 CUMPRE
+U030 CUMPRE
+U031 CUMPRE
+U032 CUMPRE
+U033 NÃO invenção: verbos que você já viu
+U034 CUMPRE
+U035 CUMPRE
+U036 NÃO invenção: resumo, conclusão e anexos do relatório
+U037 CUMPRE
+U038 CUMPRE
+U039 NÃO utilidade: só diz que falta o registro
+U040 CUMPRE
+U041 CUMPRE
+U042 CUMPRE
+U043 CUMPRE
+U044 CUMPRE
+U045 CUMPRE
+U046 NÃO requisito: roteiro só procura a proposta
+U047 CUMPRE
+U048 CUMPRE
+U049 CUMPRE
+U050 CUMPRE
+U051 CUMPRE
+U052 CUMPRE
+U053 CUMPRE
+U054 CUMPRE
+U055 CUMPRE
+U056 NÃO utilidade: fecha só com o que falta
+U057 CUMPRE
+U058 CUMPRE
+U059 CUMPRE
+U060 CUMPRE
+U061 CUMPRE
+U062 CUMPRE
+U063 CUMPRE
+U064 CUMPRE
+U065 CUMPRE
+U066 CUMPRE
+U067 CUMPRE
+U068 NÃO utilidade: só diz o que falta
+U069 CUMPRE
+U070 CUMPRE
+U071 NÃO requisito: 14h sem dizer que vem do comunicado
+U072 CUMPRE

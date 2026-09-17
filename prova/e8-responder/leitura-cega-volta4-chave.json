@@ -1,0 +1,290 @@
+{
+ "U001": [
+  "revisor-responsavel-nao-definido",
+  2
+ ],
+ "U002": [
+  "revisor-correcao-sem-confirmacao-formal",
+  3
+ ],
+ "U003": [
+  "q2-relatorio-tres-restricoes",
+  3
+ ],
+ "U004": [
+  "q2-gasolina-tres-dados",
+  3
+ ],
+ "U005": [
+  "q2-biblioteca-endereco-sem-horario",
+  2
+ ],
+ "U006": [
+  "q2-gasolina-sem-dado",
+  3
+ ],
+ "U007": [
+  "q2-prazo-correcao-explicita",
+  3
+ ],
+ "U008": [
+  "revisor-retomar-sem-suporte",
+  1
+ ],
+ "U009": [
+  "revisor-espanhol-sem-material",
+  1
+ ],
+ "U010": [
+  "q2-biblioteca-sem-horario",
+  1
+ ],
+ "U011": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  2
+ ],
+ "U012": [
+  "10b-relatorio-sem-indice-nem-busca",
+  2
+ ],
+ "U013": [
+  "q2-biblioteca-comunicado-14h",
+  1
+ ],
+ "U014": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  3
+ ],
+ "U015": [
+  "q2-biblioteca-endereco-sem-horario",
+  3
+ ],
+ "U016": [
+  "q2-biblioteca-sem-horario",
+  2
+ ],
+ "U017": [
+  "q2-prazo-correcao-explicita",
+  1
+ ],
+ "U018": [
+  "revisor-venda-nao-observada",
+  2
+ ],
+ "U019": [
+  "revisor-responsavel-nao-definido",
+  3
+ ],
+ "U020": [
+  "q2-espanhol-geral",
+  2
+ ],
+ "U021": [
+  "10b-relatorio-sem-indice-nem-busca",
+  3
+ ],
+ "U022": [
+  "e8-resp-compras-precos-faltando",
+  3
+ ],
+ "U023": [
+  "10b-relatorio-estrutura-fornecida",
+  3
+ ],
+ "U024": [
+  "q2-espanhol-geral",
+  3
+ ],
+ "U025": [
+  "q2-dado-alem-do-recorte",
+  3
+ ],
+ "U026": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  2
+ ],
+ "U027": [
+  "revisor-correcao-sem-confirmacao-formal",
+  2
+ ],
+ "U028": [
+  "q2-gasolina-tres-dados",
+  2
+ ],
+ "U029": [
+  "q2-biblioteca-comunicado-14h",
+  2
+ ],
+ "U030": [
+  "revisor-correcao-sem-confirmacao-formal",
+  1
+ ],
+ "U031": [
+  "10b-relatorio-estrutura-fornecida",
+  2
+ ],
+ "U032": [
+  "q2-gasolina-sem-dado",
+  1
+ ],
+ "U033": [
+  "revisor-espanhol-sem-material",
+  2
+ ],
+ "U034": [
+  "q2-gasolina-so-distancia",
+  2
+ ],
+ "U035": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  2
+ ],
+ "U036": [
+  "10b-relatorio-sem-indice-nem-busca",
+  1
+ ],
+ "U037": [
+  "revisor-venda-nao-observada",
+  3
+ ],
+ "U038": [
+  "revisor-venda-nao-observada",
+  1
+ ],
+ "U039": [
+  "q2-prazo-conflito-sem-resolucao",
+  3
+ ],
+ "U040": [
+  "q2-relatorio-tres-restricoes",
+  1
+ ],
+ "U041": [
+  "revisor-orcamento-cotacao-datada",
+  2
+ ],
+ "U042": [
+  "q2-gasolina-tres-dados",
+  1
+ ],
+ "U043": [
+  "q2-gasolina-so-distancia",
+  3
+ ],
+ "U044": [
+  "revisor-responsavel-nao-definido",
+  1
+ ],
+ "U045": [
+  "e8-resp-compras-precos-faltando",
+  1
+ ],
+ "U046": [
+  "revisor-retomar-sem-suporte",
+  3
+ ],
+ "U047": [
+  "q2-acordar-cedo",
+  1
+ ],
+ "U048": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  3
+ ],
+ "U049": [
+  "revisor-espanhol-sem-material",
+  3
+ ],
+ "U050": [
+  "q2-espanhol-geral",
+  1
+ ],
+ "U051": [
+  "q2-biblioteca-sem-horario",
+  3
+ ],
+ "U052": [
+  "q2-biblioteca-endereco-sem-horario",
+  1
+ ],
+ "U053": [
+  "q2-prazo-correcao-explicita",
+  2
+ ],
+ "U054": [
+  "revisor-orcamento-cotacao-datada",
+  3
+ ],
+ "U055": [
+  "q2-acordar-cedo",
+  3
+ ],
+ "U056": [
+  "q2-prazo-conflito-sem-resolucao",
+  2
+ ],
+ "U057": [
+  "q2-gasolina-so-distancia",
+  1
+ ],
+ "U058": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  3
+ ],
+ "U059": [
+  "e8-resp-compras-precos-faltando",
+  2
+ ],
+ "U060": [
+  "q2-relatorio-tres-restricoes",
+  2
+ ],
+ "U061": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  1
+ ],
+ "U062": [
+  "q2-gasolina-sem-dado",
+  2
+ ],
+ "U063": [
+  "q2-acordar-cedo",
+  2
+ ],
+ "U064": [
+  "q2-dado-alem-do-recorte",
+  1
+ ],
+ "U065": [
+  "q2-dado-alem-do-recorte",
+  2
+ ],
+ "U066": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  1
+ ],
+ "U067": [
+  "revisor-retomar-sem-suporte",
+  2
+ ],
+ "U068": [
+  "q2-prazo-conflito-sem-resolucao",
+  1
+ ],
+ "U069": [
+  "revisor-orcamento-cotacao-datada",
+  1
+ ],
+ "U070": [
+  "10b-relatorio-estrutura-fornecida",
+  1
+ ],
+ "U071": [
+  "q2-biblioteca-comunicado-14h",
+  3
+ ],
+ "U072": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  1
+ ]
+}

@@ -10574,3 +10574,13 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Por que não para aqui (líder, 17/09).** 7 dos 10 casos reprovados caem por UMA repetição, e a causa principal é de novo NOSSA: a guarda da volta 2, ao tirar a frase do PDF, deixa item de lista vazio e frase órfã (T012, T057, S027). Parar deixaria o Tutor cortado por defeito nosso: volta 4 autorizada — item inteiro renumerado, remeter a profissional em saúde, uma nova tentativa quando o provedor devolve vazio. Sem passar na volta 4, a rota para.
 
 **Dívida.** 1 resposta vazia do provedor (HTTP 200 sem conteúdo) sem nova tentativa; invenção atribuída a quem escreve em 4 de 72.
+
+## ADR 2026-09-17b — A pergunta da Página, volta 4: nenhuma guarda nossa quebra a resposta; falta um caso, e ligar é decisão do dono
+
+**Causa.** Na volta 3 (ADR 17a) a guarda que tirava a frase do PDF deixava item de lista vazio e frase órfã (T012, T057, S027); dor sem remeter ao profissional; hábito suposto ("a nuvem que você usa"); uma resposta vazia do provedor (HTTP 200 sem conteúdo).
+
+**Decisão.** `SustentacaoPagina.filtrar` tira o item ou o parágrafo INTEIRO que supõe o documento, renumera a lista e não deixa item vazio; resposta de um parágrafo só perde a frase (tirar o parágrafo calaria tudo). `sistemaResponder`: dor, lesão ou sintoma → uma frase que manda o sinal ao profissional; "a X que você usa, já observou ou já conhece" só como hipótese. `Sabia.responder`: sem resposta e com a falha registrada como transporte (o 200 vazio chega assim), uma nova tentativa, uma vez.
+
+**Prova.** Air, `grok-4.5`, mesmo lote, corrida 12681EEA (binário `ce007440…`), mesmos dois leitores cegos: matriz **13 de 20** (8 → 8 → 12 → 13), novos **4 de 4**, **60 de 72**; vazias, recusas inteiras e itens vazios **0**. Não passa por um caso (barra ≥ 14/20). Testes: `SustentacaoPaginaTests` (as três respostas quebradas do Air como fixture — o item sai, a lista renumera, nada vazio; a nova tentativa acontece uma vez só), `PoliticaTests` (medido e o `conserto` com o texto do líder).
+
+**Dívida e decisão pendente.** O que reprova já não é guarda nossa: conflito de datas respondido só com o que falta (0 de 3), suposição do que a pessoa já sabe ("verbos que você já viu"), conhecimento geral de relatório posto como fato. Conserto seguinte nomeado: conflito sem resolução fecha com a verificação que desempata; não supor conhecimento prévio de quem se declara iniciante. A rota fica cortada pela regra; o líder leva ao dono a decisão de ligar com 13/20, 4/4 e 60/72 ("protege, mas enfraquece") — nada se liga antes da resposta dele.

@@ -251,8 +251,8 @@ import Testing
         // obra. A metade nova ("só diz o que falta") é o que as duas tentativas
         // acharam de pé, e o autor lê as duas metades do defeito.
         #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu,"
-                + " e às vezes só diz o que falta · falta a Sábia não deixar a resposta quebrada ao tirar"
-                + " uma frase errada, e não supor o que você usa ou já sabe")
+                + " e às vezes só diz o que falta · falta a Sábia não supor o que você já sabe ou tem,"
+                + " e dizer o que desempata quando duas informações se contradizem")
         // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
         // `"none"` é recusado por modelo que raciocina, e a rota calaria.
         #expect(Grok.esforcoMinimo == "low")
