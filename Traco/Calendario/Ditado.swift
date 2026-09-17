@@ -25,6 +25,7 @@ final class Ditado {
     private let motor = AVAudioEngine()
     private var pedido: SFSpeechAudioBufferRecognitionRequest?
     private var canal: LinhaDeAudio?
+    private var pedindo = false
     private var tarefa: SFSpeechRecognitionTask?
     private var recadoTask: Task<Void, Never>?
     private let reconhecedor = SFSpeechRecognizer(locale: Locale(identifier: "pt_BR"))
@@ -48,6 +49,10 @@ final class Ditado {
             motorDeTeste(self)
             return
         }
+        // `gravando` só fica verdadeiro depois da permissão, que é `await`:
+        // sem este guarda, dois toques enquanto o diálogo está aberto abrem dois
+        // reconhecedores e o primeiro fica órfão, a mandar texto e a mandar parar
+        guard !pedindo else { return }
         guard let reconhecedor, reconhecedor.isAvailable else {
             mostrar("o ditado não está disponível agora.")
             return
@@ -57,18 +62,29 @@ final class Ditado {
             mostrar("o português para ditado offline não está instalado. Ajustes › Geral › Teclado › Ditado.")
             return
         }
+        pedindo = true
         Task { @MainActor in
-            guard await autorizado() else {
-                mostrar("o ditado precisa de permissão de microfone e de fala.")
-                return
+            let resposta = await autorizado()
+            pedindo = false
+            switch resposta {
+            case .pode:
+                escutar(reconhecedor)
+            // dizer O QUE falta e ONDE se liga: recusada uma vez, a permissão
+            // nunca mais é pedida pelo iOS, e "precisa de permissão" deixava o
+            // autor num beco — o microfone simplesmente não abria mais
+            case .semFala:
+                mostrar("o reconhecimento de fala está desligado. Ajustes › Traço › Reconhecimento de Fala.")
+            case .semMicrofone:
+                mostrar("o microfone está desligado para o Traço. Ajustes › Traço › Microfone.")
             }
-            escutar(reconhecedor)
         }
     }
 
-    private func autorizado() async -> Bool {
-        guard await PermissaoDeFala.pedir() == .authorized else { return false }
-        return await AVAudioApplication.requestRecordPermission()
+    private enum Licenca { case pode, semFala, semMicrofone }
+
+    private func autorizado() async -> Licenca {
+        guard await PermissaoDeFala.pedir() == .authorized else { return .semFala }
+        return await AVAudioApplication.requestRecordPermission() ? .pode : .semMicrofone
     }
 
     private func escutar(_ reconhecedor: SFSpeechRecognizer) {
