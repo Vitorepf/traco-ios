@@ -326,7 +326,7 @@ Os 4 cartões «Hora de conferir» (`37`) reaparecem como cartões comuns na lis
 ### [x] 32. Seções da lista pulam direto para o mês — 08fc2da4
 Depois de «Hoje» vem «Setembro» (`14`), sem «Ontem» nem «7 dias anteriores». As Notas da Apple usam esses intervalos. **Correção:** Hoje · Ontem · 7 dias · 30 dias · mês.
 
-### [ ] 33. O título grande não recolhe
+### [=] 33. O título grande não recolhe — o título fica fora da rolagem e o conteúdo passa por baixo com esmaecimento (deliberado); recolher mudaria a altura do cabeçalho e faria a lista pular
 «Notas» continua grande ao rolar (`12`), e os cartões passam por baixo com fade. Na Decisão rolada, o conteúdo encosta em «‹ Notas» sem fundo (`41`, em y≈100). **Correção:** título que recolhe para a barra e efeito de borda de rolagem.
 
 ### [x] 34. Ficha do compromisso — b31171b2
