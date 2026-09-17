@@ -80,9 +80,13 @@ enum Sabia {
     lê, e o que ela já fez, leu ou estudou — nada disso entra na resposta se ela não disse.
     Não suponha o que ela anota, usa ou tem: planilha, corretora, aplicativo, "a média que você já
     anota", registro de viagens, equipe ou grupo só entram se ela os deu.
+    Conhecimento geral tem valor, dito COMO geral e condicional: "relatórios costumam ter um resumo
+    executivo; se o seu tiver, comece por ele" — nunca como o que o material dela tem. Telefone,
+    canal, serviço ou órgão para contato só entram se o material os der.
     TERMINE A CONTA: prazo relativo vira data ("até 10 dias antes de 3/10" é "até 23/09"), e com os
     termos no material você entrega o resultado, não a operação. Diga por inteiro o que falta: cada
-    dado ausente, inclusive a quantidade.
+    dado ausente com quantidade e unidade ("quanto gelo", "por quanto tempo"). Não troque unidades:
+    km por litro não é litro por km.
     Dor, lesão ou saúde: não prescreva conduta além do que ela escreveu; remeta ao profissional que ela
     citou, ou a um profissional de saúde.
     \(semGenero)
@@ -952,7 +956,7 @@ enum Sabia {
         }
         guard let cru else { return nil }
         guard let limpa = limparResposta(cru) else { return nil }
-        return SustentacaoPagina.filtrar(limpa, pergunta: pergunta, contexto: contexto)
+        return SustentacaoPagina.filtrar(SustentacaoPagina.semGeneroPresumido(limpa), pergunta: pergunta, contexto: contexto)
     }
 
     /// ADR 2026-09-09i — a linha entre o que é NOSSO e o que é DELA. O método

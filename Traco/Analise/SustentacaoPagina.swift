@@ -41,4 +41,10 @@ nonisolated enum SustentacaoPagina {
 
     /// ponytail: tamanho como régua de "sobrou algo útil"; abaixo disto, a recusa.
     static let minimoUtil = 60
+
+    /// E8 volta 3: "você mesmo/mesma" presume o gênero de quem escreve, e o pedido
+    /// sozinho não segurou (2 de 72 na volta 2). A guarda troca por "você" e não cala nada.
+    static func semGeneroPresumido(_ resposta: String) -> String {
+        resposta.replacing(/(?i)\b(você|voce)\s+mesm[oa]\b/) { $0.output.1 + "" }
+    }
 }

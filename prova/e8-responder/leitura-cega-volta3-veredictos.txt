@@ -1,0 +1,73 @@
+# Volta 3 (grok-4.5, corrida 70D9D5B9): mesmos dois leitores cegos; instrução nova: conhecimento geral MARCADO como geral não é invenção. Chave em leitura-cega-volta3-chave.json
+T001 CUMPRE
+T002 CUMPRE
+T003 CUMPRE
+T004 CUMPRE
+T005 CUMPRE
+T006 CUMPRE
+T007 CUMPRE
+T008 CUMPRE
+T009 CUMPRE
+T010 NÃO invenção: a nuvem que você usa
+T011 CUMPRE
+T012 NÃO requisito: resposta quebrada, achados nunca ditos
+T013 CUMPRE
+T014 CUMPRE
+T015 NÃO requisito: dor sem remeter ao ortopedista
+T016 CUMPRE
+T017 NÃO invenção: consumo já observado
+T018 CUMPRE
+T019 CUMPRE
+T020 CUMPRE
+T021 CUMPRE
+T022 CUMPRE
+T023 NÃO invenção: resumo e anexos do relatório
+T024 CUMPRE
+T025 NÃO requisito: resposta vazia
+T026 CUMPRE
+T027 CUMPRE
+T028 CUMPRE
+T029 CUMPRE
+T030 CUMPRE
+T031 CUMPRE
+T032 CUMPRE
+T033 NÃO requisito: dor sem ortopedista; longa
+T034 NÃO invenção: verbos que você já conhece
+T035 CUMPRE
+T036 CUMPRE
+T037 CUMPRE
+T038 CUMPRE
+T039 CUMPRE
+T040 CUMPRE
+T041 CUMPRE
+T042 CUMPRE
+T043 CUMPRE
+T044 CUMPRE
+T045 CUMPRE
+T046 CUMPRE
+T047 CUMPRE
+T048 CUMPRE
+T049 CUMPRE
+T050 NÃO invenção: resumo executivo e recomendações do relatório
+T051 NÃO contradição: atrasando e manda deitar mais cedo
+T052 CUMPRE
+T053 CUMPRE
+T054 CUMPRE
+T055 CUMPRE
+T056 CUMPRE
+T057 NÃO utilidade: não diz como achar as decisões; item vazio
+T058 CUMPRE
+T059 CUMPRE
+T060 CUMPRE
+T061 CUMPRE
+T062 CUMPRE
+T063 CUMPRE
+T064 CUMPRE
+T065 CUMPRE
+T066 NÃO requisito: não separa o limite de reserva do pagamento
+T067 CUMPRE
+T068 CUMPRE
+T069 CUMPRE
+T070 NÃO utilidade: lista o que falta sem critério de aprovação
+T071 CUMPRE
+T072 CUMPRE

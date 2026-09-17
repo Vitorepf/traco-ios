@@ -1,0 +1,290 @@
+{
+ "T001": [
+  "revisor-responsavel-nao-definido",
+  1
+ ],
+ "T002": [
+  "q2-biblioteca-comunicado-14h",
+  3
+ ],
+ "T003": [
+  "10b-relatorio-sem-indice-nem-busca",
+  2
+ ],
+ "T004": [
+  "q2-biblioteca-sem-horario",
+  2
+ ],
+ "T005": [
+  "e8-resp-compras-precos-faltando",
+  3
+ ],
+ "T006": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  1
+ ],
+ "T007": [
+  "revisor-correcao-sem-confirmacao-formal",
+  1
+ ],
+ "T008": [
+  "q2-acordar-cedo",
+  3
+ ],
+ "T009": [
+  "revisor-correcao-sem-confirmacao-formal",
+  2
+ ],
+ "T010": [
+  "revisor-retomar-sem-suporte",
+  2
+ ],
+ "T011": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  2
+ ],
+ "T012": [
+  "q2-relatorio-tres-restricoes",
+  3
+ ],
+ "T013": [
+  "revisor-espanhol-sem-material",
+  3
+ ],
+ "T014": [
+  "revisor-venda-nao-observada",
+  1
+ ],
+ "T015": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  3
+ ],
+ "T016": [
+  "q2-biblioteca-comunicado-14h",
+  2
+ ],
+ "T017": [
+  "q2-gasolina-sem-dado",
+  2
+ ],
+ "T018": [
+  "revisor-espanhol-sem-material",
+  2
+ ],
+ "T019": [
+  "q2-prazo-conflito-sem-resolucao",
+  2
+ ],
+ "T020": [
+  "q2-dado-alem-do-recorte",
+  1
+ ],
+ "T021": [
+  "q2-dado-alem-do-recorte",
+  2
+ ],
+ "T022": [
+  "revisor-orcamento-cotacao-datada",
+  3
+ ],
+ "T023": [
+  "q2-relatorio-tres-restricoes",
+  2
+ ],
+ "T024": [
+  "q2-prazo-conflito-sem-resolucao",
+  3
+ ],
+ "T025": [
+  "e8-resp-compras-precos-faltando",
+  1
+ ],
+ "T026": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  1
+ ],
+ "T027": [
+  "q2-biblioteca-sem-horario",
+  3
+ ],
+ "T028": [
+  "revisor-venda-nao-observada",
+  3
+ ],
+ "T029": [
+  "revisor-venda-nao-observada",
+  2
+ ],
+ "T030": [
+  "10b-relatorio-estrutura-fornecida",
+  2
+ ],
+ "T031": [
+  "q2-gasolina-tres-dados",
+  3
+ ],
+ "T032": [
+  "q2-prazo-correcao-explicita",
+  3
+ ],
+ "T033": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  1
+ ],
+ "T034": [
+  "revisor-espanhol-sem-material",
+  1
+ ],
+ "T035": [
+  "e8-resp-compras-precos-faltando",
+  2
+ ],
+ "T036": [
+  "10b-relatorio-sem-indice-nem-busca",
+  1
+ ],
+ "T037": [
+  "q2-espanhol-geral",
+  1
+ ],
+ "T038": [
+  "q2-gasolina-tres-dados",
+  1
+ ],
+ "T039": [
+  "10b-relatorio-estrutura-fornecida",
+  3
+ ],
+ "T040": [
+  "q2-biblioteca-endereco-sem-horario",
+  3
+ ],
+ "T041": [
+  "q2-gasolina-sem-dado",
+  1
+ ],
+ "T042": [
+  "q2-acordar-cedo",
+  2
+ ],
+ "T043": [
+  "q2-gasolina-so-distancia",
+  2
+ ],
+ "T044": [
+  "q2-biblioteca-endereco-sem-horario",
+  2
+ ],
+ "T045": [
+  "q2-biblioteca-sem-horario",
+  1
+ ],
+ "T046": [
+  "revisor-responsavel-nao-definido",
+  3
+ ],
+ "T047": [
+  "q2-espanhol-geral",
+  2
+ ],
+ "T048": [
+  "revisor-orcamento-cotacao-datada",
+  1
+ ],
+ "T049": [
+  "q2-prazo-conflito-sem-resolucao",
+  1
+ ],
+ "T050": [
+  "q2-relatorio-tres-restricoes",
+  1
+ ],
+ "T051": [
+  "q2-acordar-cedo",
+  1
+ ],
+ "T052": [
+  "q2-gasolina-so-distancia",
+  3
+ ],
+ "T053": [
+  "q2-prazo-correcao-explicita",
+  1
+ ],
+ "T054": [
+  "q2-biblioteca-comunicado-14h",
+  1
+ ],
+ "T055": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  3
+ ],
+ "T056": [
+  "q2-espanhol-geral",
+  3
+ ],
+ "T057": [
+  "10b-relatorio-sem-indice-nem-busca",
+  3
+ ],
+ "T058": [
+  "q2-dado-alem-do-recorte",
+  3
+ ],
+ "T059": [
+  "e8-resp-treino-tornozelo-tres-manhas",
+  2
+ ],
+ "T060": [
+  "q2-prazo-correcao-explicita",
+  2
+ ],
+ "T061": [
+  "q2-gasolina-tres-dados",
+  2
+ ],
+ "T062": [
+  "revisor-retomar-sem-suporte",
+  3
+ ],
+ "T063": [
+  "revisor-responsavel-nao-definido",
+  2
+ ],
+ "T064": [
+  "revisor-retomar-sem-suporte",
+  1
+ ],
+ "T065": [
+  "q2-gasolina-so-distancia",
+  1
+ ],
+ "T066": [
+  "revisor-correcao-sem-confirmacao-formal",
+  3
+ ],
+ "T067": [
+  "q2-biblioteca-endereco-sem-horario",
+  1
+ ],
+ "T068": [
+  "e8-resp-decisao-desconto-ja-decidido",
+  3
+ ],
+ "T069": [
+  "10b-relatorio-estrutura-fornecida",
+  1
+ ],
+ "T070": [
+  "revisor-orcamento-cotacao-datada",
+  2
+ ],
+ "T071": [
+  "q2-gasolina-sem-dado",
+  3
+ ],
+ "T072": [
+  "e8-resp-vizinha-taxa-antiga-corrigida",
+  2
+ ]
+}

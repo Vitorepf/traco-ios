@@ -228,7 +228,7 @@ import Testing
         #expect(!Politica.desceAoAparelho(.responder))
         #expect(!Politica.pelaConta.contains(.responder))
         #expect(Politica.indisponiveis.contains(.responder))
-        #expect(Politica.linha(.responder).medidaEm == "16/09/2026")
+        #expect(Politica.linha(.responder).medidaEm == "17/09/2026")
         // ADR 2026-09-10b: o conserto do prompt SAIU, porque foi medido. Duas
         // reescritas de `sistemaResponder` correram contra o texto vigente no
         // MESMO binário — 20 casos × 3 cada braço, `TRACO_AVALIAR_PEDIDO` como
@@ -251,8 +251,8 @@ import Testing
         // obra. A metade nova ("só diz o que falta") é o que as duas tentativas
         // acharam de pé, e o autor lê as duas metades do defeito.
         #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu,"
-                + " e às vezes só diz o que falta · falta a Sábia não trocar a resposta inteira por uma"
-                + " recusa por causa de uma frase, e não supor o que você anota ou usa")
+                + " e às vezes só diz o que falta · falta a Sábia não deixar a resposta quebrada ao tirar"
+                + " uma frase errada, e não supor o que você usa ou já sabe")
         // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
         // `"none"` é recusado por modelo que raciocina, e a rota calaria.
         #expect(Grok.esforcoMinimo == "low")

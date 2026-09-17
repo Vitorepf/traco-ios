@@ -39,8 +39,17 @@ struct SustentacaoPaginaTests {
     @Test func oPedidoDaPaginaNaoSupoeEFechaAConta() {
         let p = Sabia.sistemaResponder
         #expect(p.contains("Não suponha o que ela anota, usa ou tem") && p.contains("\"até 23/09\""))
-        #expect(p.contains("inclusive a quantidade") && p.contains("profissional de saúde"))
+        #expect(p.contains("com quantidade e unidade") && p.contains("profissional de saúde"))
+        #expect(p.contains("dito COMO geral e condicional") && p.contains("só entram se o material os der"))
         #expect(p.contains(Sabia.semGenero))
+    }
+
+    /// E8 volta 3: a guarda de gênero troca, não cala; e o que não presume gênero fica como está.
+    @Test func aGuardaDeGeneroTrocaSemCalar() {
+        #expect(SustentacaoPagina.semGeneroPresumido("Some o que você mesmo listou; Você mesma anotou 12/09.")
+                == "Some o que você listou; Você anotou 12/09.")
+        let neutra = "Mesmo assim, some o que você listou. O mesmo vale para o gelo."
+        #expect(SustentacaoPagina.semGeneroPresumido(neutra) == neutra)
     }
 
     @Test func obraFantasmaNaPaginaNaoChamaOModelo() async {
