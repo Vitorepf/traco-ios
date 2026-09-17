@@ -74,7 +74,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** apagar a frase. Colocar um botão «Ligar a uma nota…», que abre o mesmo seletor do «Juntar com…». A dica de colchetes vai para Métodos, se for mesmo necessária.
 - **Como verificar:** a folha vazia tem 1 título, 1 frase e 1 botão.
 
-### [~] 8. O Perfil fala a língua do código — a61099b4: degrau/sinais/Sair; falta o Retrato em palavras de uso
+### [x] 8. O Perfil fala a língua do código — a61099b4 + Retrato em língua de gente
 - **Onde:** Perfil. Capturas `71-perfil.png`, `72-perfil-2.png`, `73-perfil-3.png` e `76-perfil-4.png`.
 - **Evidência:**
   - «Formas nos últimos 30 dias (contagem): 12 sem forma · 5 Decisão.»
@@ -206,14 +206,14 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 - **Correção:** abrir no topo e sem teclado, com «Hora de conferir» rolando para a vista. A escala vira um controle de 3 opções (Aquém · Igual · Além) com alvos de 44 pt. Manter pelo menos 64 pt entre o cursor e o teclado.
 - **Como verificar:** abrir a Decisão a conferir. Não há teclado e o título está visível.
 
-### [ ] 20. Decisão sem título deixa 80 pt em branco
+### [=] 20. Decisão sem título deixa 80 pt em branco — o espaço é o papel onde se escreve (ADR 09d, piso do papel)
 - **Onde:** captura `43-decisao-futura.png`.
 - **Evidência:** em «Subir o preço do plano anual», a primeira coisa na página é o rótulo «O que estou decidindo», em y≈203 pt. Entre y≈95 e y≈185 fica um vazio. «As opções» mostra uma só opção («Manter em 90»; em `39`, «Dar o desconto»).
 - **Impacto:** a página parece quebrada e a palavra «opções» não bate com o que aparece.
 - **Correção:** sem título, usar «O que estou decidindo» como título ou colapsar o espaço. Conferir se as opções guardadas estão todas sendo exibidas.
 - **Como verificar:** abrir as duas decisões. Não há espaço vazio e o número de opções bate.
 
-### [~] 21. Datas em seis formatos — Juntar com igual à lista; formatador único em aberto
+### [~] 21. Datas em seis formatos — Padrões, revisão da semana e hipóteses com o mês (dcd50cb6); o título do calendário com maiúscula é do dono
 - **Evidência:**
   - «Quarta-feira, 16 de setembro» (`02`)
   - «16 de Setembro», com maiúscula (`57`)
@@ -353,7 +353,7 @@ No push da página nova, o teclado sobe ao mesmo tempo e a barra de composição
 ### [ ] 41. Fonte aberta a partir da conversa
 A fonte abre rolada no meio da Decisão, não no topo (`51`). **Correção:** abrir no topo, ou no trecho citado com destaque.
 
-### [→] 42. «Concluir» sem edição — executora: `mudouDesdeAbrir`; a PaginaView fica com o líder
+### [x] 42. «Concluir» sem edição — 828a24cd (executora) + este commit do líder
 Abrir uma nota existente já mostra «Concluir» sem nenhuma edição (`16`). As Notas da Apple mostram «OK» só durante a edição. **Correção:** mostrar só com o foco no texto.
 
 ### [x] 43. Folha da obra — b31171b2
