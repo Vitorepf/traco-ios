@@ -18,7 +18,8 @@ SIM_PADRAO=8A5B6500-D263-4BBE-AEF6-E04DDB0993B0 # iPhone 17e: a suíte roda aqui
 DD="$RAIZ/build-portao"
 
 compilar() {
-  command -v xcodegen >/dev/null && xcodegen generate -q
+  # sem xcodegen aqui: no pre-commit ele reescreveria o project.pbxproj de quem
+  # está commitando. Arquivo Swift novo pede `xcodegen generate` antes (lei 7).
   local log; log=$(mktemp -t portao)
   if ! xcodebuild build-for-testing -project Traco.xcodeproj -scheme Traco \
       -destination 'generic/platform=iOS Simulator' -derivedDataPath "$DD" \
