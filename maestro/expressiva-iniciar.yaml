@@ -2,6 +2,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."

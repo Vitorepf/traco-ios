@@ -8,6 +8,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - openLink: traco://calendario/dia
 - extendedWaitUntil:
     visible: {id: "calendario-titulo"}

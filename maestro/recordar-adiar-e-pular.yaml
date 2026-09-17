@@ -6,12 +6,26 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- extendedWaitUntil:
     visible: {id: "pagina"}
     timeout: 6000
 - tapOn: {id: "pagina"}
 - inputText: "quero acordar mais cedo para escrever antes do trabalho"
 - waitForAnimationToEnd: {timeout: 3000}
 - tapOn: {id: "concluir"}
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - waitForAnimationToEnd: {timeout: 2500}
 
 # a nota volta e o Recordar abre

@@ -4,10 +4,24 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "preciso fechar o orçamento do trimestre com a equipe de finanças antes da reunião"
 - waitForAnimationToEnd: {timeout: 2500}
 - tapOn: {id: "concluir"}
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - waitForAnimationToEnd: {timeout: 1500}
 - openLink: traco://calendario/dia
 - extendedWaitUntil:

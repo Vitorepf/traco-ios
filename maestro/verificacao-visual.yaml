@@ -3,6 +3,13 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- extendedWaitUntil:
     visible:
       id: pagina
     timeout: 8000
@@ -25,6 +32,13 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "eu sou um vencedor"
@@ -39,10 +53,17 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/hoje/04-aviso
 - tapOn:
     id: "concluir"
-# §20: da escrita, a borda esquerda traz o arquivo
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+# da escrita, o voltar do topo traz o arquivo (o gesto da borda saiu)
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn:
     id: "aba-notas"
 - takeScreenshot: /tmp/traco-verify/hoje/05-notas

@@ -3,13 +3,24 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "toda vez que eu chegar em casa deixo o celular na gaveta e vou ler"
 - extendedWaitUntil:
     visible: {id: "campo-se"}
     timeout: 15000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-se"}
 - inputText: "chegar em casa às 18h"
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-entao"}
 - inputText: "deixo o celular na gaveta e vou ler"
 - waitForAnimationToEnd: {timeout: 1000}

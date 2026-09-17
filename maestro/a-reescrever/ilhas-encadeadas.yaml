@@ -4,6 +4,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "como garantir que falhe o lançamento do curso"
 - extendedWaitUntil:
@@ -12,8 +19,12 @@ appId: app.traco
 - extendedWaitUntil:
     visible: {id: "forma-inversao"}
     timeout: 5000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-quero"}
 - inputText: "lançar o curso em outubro"
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-falhe"}
 - inputText: "não avisar ninguém até a véspera"
 - extendedWaitUntil:

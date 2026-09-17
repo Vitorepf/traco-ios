@@ -4,6 +4,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
@@ -12,8 +19,12 @@ appId: app.traco
 - extendedWaitUntil:
     visible: {id: "forma-woop"}
     timeout: 5000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-obstaculo"}
 - inputText: "o celular na cama"
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-plano"}
 - inputText: "deixo o celular na cozinha"
 # depois de responder o último campo a folha já está no pé, onde mora a linha

@@ -7,7 +7,7 @@
 set -u
 cd "$(dirname "$0")/.."
 M=~/bin/maestro
-FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml maestro/forma-folha.yaml"}
+FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml"}
 
 restaurar() {
     xcrun simctl ui booted content_size large >/dev/null 2>&1

@@ -3,6 +3,13 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- extendedWaitUntil:
     visible:
       id: pagina
     timeout: 8000

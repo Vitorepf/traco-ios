@@ -3,6 +3,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "estou desenhando a tabela de rotas do app\n? como posso definir a fronteira entre rota e destino"
 - extendedWaitUntil:

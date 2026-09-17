@@ -6,11 +6,20 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "preciso decidir entre ficar no emprego ou abrir a empresa"
 - extendedWaitUntil:
     visible: {id: "campo-escolha"}
     timeout: 15000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-escolha"}
 - inputText: "ficar ou sair"
 - scrollUntilVisible:
@@ -18,6 +27,8 @@ appId: app.traco
     direction: DOWN
     centerElement: true
     timeout: 6000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-espero"}
 - inputText: "mais calma em tres meses"
 - scrollUntilVisible:
@@ -25,6 +36,8 @@ appId: app.traco
     direction: DOWN
     centerElement: true
     timeout: 6000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-aconteceu"}
 - inputText: "menos dinheiro e mais calma"
 - tapOn: "Concluir"

@@ -2,6 +2,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
@@ -10,9 +17,9 @@ appId: app.traco
     timeout: 8000
 - tapOn: "Começar o timer"
 # §20: sair com o timer de pé pede confirmação — o selo vale no gesto
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-trancar"
@@ -31,9 +38,9 @@ appId: app.traco
 - tapOn:
     id: "fecho-selar"
 # a selada entra no arquivo com o selo, sem uma linha do conteúdo
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
     timeout: 6000

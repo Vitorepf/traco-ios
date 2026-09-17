@@ -2,6 +2,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - assertVisible:
     id: pagina
 - tapOn:
@@ -12,8 +19,9 @@ appId: app.traco
     visible:
       id: "cartao-analise"
     timeout: 8000
-- assertVisible: "Deixar como nota"
-# o texto do autor fica na página; os campos moram na folha
+- assertVisible:
+    id: "soltar-forma"
+# o texto do autor fica na página; os campos aparecem abaixo dele
 - assertVisible: "quero correr de manhã"
 - assertVisible:
     id: "forma-woop"
@@ -21,6 +29,13 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "eu sou um vencedor"
@@ -31,24 +46,19 @@ appId: app.traco
 - assertVisible: "Aviso"
 - tapOn:
     id: "concluir"
-- tapOn:
-    id: pagina
-- inputText: "leite"
-# hideKeyboard do maestro é inerte no iOS (leis do instrumento 4): o botão da
-# régua fecha o teclado de verdade, e o toast sai de trás dele
-- tapOn: {text: "Esconder teclado", optional: true}
-- waitForAnimationToEnd: {timeout: 1500}
-# silêncio no automático é invisível; o manual responde com o toast
-- assertVisible: Analisar
-- tapOn: Analisar
 - extendedWaitUntil:
-    visible:
-      id: "toast-analise"
-    timeout: 4000
-# §20: da escrita, a borda esquerda traz o arquivo
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+# (a régua com «Analisar» e «Esconder teclado» saiu em 14/09: o silêncio do
+# automático segue invisível, e não há mais botão manual na página)
+# da escrita, o voltar do topo traz o arquivo (o gesto da borda saiu)
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn:
     id: "aba-notas"
 # §20: do arquivo, a borda direita devolve a escrita

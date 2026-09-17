@@ -4,6 +4,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 # três vezes, desenroladas (o `repeat` do maestro parou na primeira volta em 04/set)
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
@@ -12,6 +19,13 @@ appId: app.traco
     timeout: 8000
 - tapOn: {id: "soltar-forma"}
 - tapOn: {id: "concluir"}
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
@@ -19,6 +33,13 @@ appId: app.traco
     timeout: 8000
 - tapOn: {id: "soltar-forma"}
 - tapOn: {id: "concluir"}
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
@@ -26,6 +47,13 @@ appId: app.traco
     timeout: 8000
 - tapOn: {id: "soltar-forma"}
 - tapOn: {id: "concluir"}
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 # a quarta vez SUGERE: o cartão tem "Abrir a forma", e não "Deixar como nota"
@@ -35,9 +63,16 @@ appId: app.traco
 - assertNotVisible: {id: "soltar-forma"}
 - takeScreenshot: /tmp/traco-verify/ciclo/10-forma-sugerida
 - tapOn: {id: "concluir"}
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn: {id: aba-notas}
 - tapOn: {id: aba-perfil}
 - scrollUntilVisible:

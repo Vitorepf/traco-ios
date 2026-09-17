@@ -11,11 +11,18 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- extendedWaitUntil:
     visible: {id: pagina}
     timeout: 8000
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn: {id: aba-notas}
 - tapOn: {id: aba-perfil}
 - extendedWaitUntil:

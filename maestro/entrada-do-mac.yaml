@@ -7,9 +7,9 @@ appId: app.traco
     visible: "1 nota veio de fora."
     timeout: 10000
 - takeScreenshot: /tmp/traco-verify/ciclo/12-entrada-toast
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn: {id: aba-notas}
 - assertVisible: ".*li que a atenção é finita.*"
 - assertVisible: "LEITURA"

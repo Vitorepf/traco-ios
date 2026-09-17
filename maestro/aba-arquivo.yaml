@@ -2,6 +2,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "uma nota qualquer"
@@ -11,6 +18,7 @@ appId: app.traco
 - extendedWaitUntil:
     visible: {id: "notas-da-pagina"}
     timeout: 5000
+- waitForAnimationToEnd: {timeout: 2500}
 - tapOn:
     id: "notas-da-pagina"
 - extendedWaitUntil:

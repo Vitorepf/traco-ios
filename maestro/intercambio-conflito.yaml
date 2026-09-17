@@ -17,6 +17,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 # o alerta de avisos do iOS pode cobrir a primeira tela depois do clearState
 - runFlow:
     when:

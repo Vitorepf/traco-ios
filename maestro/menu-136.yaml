@@ -5,6 +5,13 @@ appId: app.traco
 # forma virava portal fechado, e era isso que este fluxo cobrava.
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn:
     id: pagina
 - inputText: "atencao a isto aqui"

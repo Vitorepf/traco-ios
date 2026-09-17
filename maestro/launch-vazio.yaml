@@ -2,6 +2,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 # §3 + §20: a casa é só o cursor. Sem barra de navegação, sem barra de ações,
 # sem placeholder — a página vazia não oferece nada além de escrever.
 - assertVisible:

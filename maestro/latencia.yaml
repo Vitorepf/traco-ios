@@ -8,10 +8,10 @@ appId: app.traco
     visible:
       id: pagina
     timeout: 8000
-# §20: da escrita, a borda esquerda traz o arquivo
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+# da escrita, o voltar do topo traz o arquivo (o gesto da borda saiu)
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn:
     id: aba-notas
 - tapOn:

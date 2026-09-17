@@ -4,6 +4,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "Especificação do módulo de rotas. O problema é que hoje cada tela decide sozinha para onde ir."
 - waitForAnimationToEnd: {timeout: 2500}
@@ -12,6 +19,8 @@ appId: app.traco
     visible: {id: "soltar-forma"}
     timeout: 10000
 - tapOn: {id: "soltar-forma"}
+# a Lente mora no «+» da página desde 14/09
+- tapOn: {id: "mais-acoes-da-nota"}
 - extendedWaitUntil:
     visible: {id: "abrir-lente"}
     timeout: 6000

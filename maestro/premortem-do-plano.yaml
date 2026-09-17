@@ -4,11 +4,20 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "vamos construir o módulo de rotas do app até outubro"
 - extendedWaitUntil:
     visible: {id: "campo-problema"}
     timeout: 15000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-problema"}
 - inputText: "cada tela decide sozinha para onde ir"
 - tapOn: "Concluir"

@@ -3,6 +3,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 # prosa que a análise não veste sozinha: o teste é do Vestir tudo, não dela
 - inputText: "Reunião sobre a loja nova\n\nlayout da entrada\ntempo de espera no caixa\nhorário do suporte\n\nA loja abre em outubro e o suporte passa a atender a partir das nove da manhã, com a equipe inteira presente na primeira semana."

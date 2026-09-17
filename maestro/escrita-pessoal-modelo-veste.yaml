@@ -5,6 +5,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 # clearState zera as permissões: o alerta de notificações rouba o primeiro toque
 - tapOn:
     text: "Não Permitir"
@@ -15,6 +22,7 @@ appId: app.traco
 - tapOn: {id: pagina}
 - inputText: "Amanhã eu arrumo a estante da sala."
 - extendedWaitUntil:
-    visible: "Deixar como nota"
+    visible:
+      id: "soltar-forma"
     timeout: 8000
 - assertVisible: {id: "soltar-forma"}

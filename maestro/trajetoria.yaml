@@ -3,6 +3,13 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
 - tapOn: {id: pagina}
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
@@ -11,14 +18,23 @@ appId: app.traco
 - extendedWaitUntil:
     visible: {id: "forma-woop"}
     timeout: 5000
+- swipe:
+    direction: DOWN
 - tapOn: {id: "campo-obstaculo"}
 - inputText: "o celular na cama"
 - swipe:
     direction: DOWN
 - tapOn: {id: "concluir"}
-- swipe:
-    start: 1%, 50%
-    end: 85%, 50%
+- extendedWaitUntil:
+    visible: "Permitir"
+    timeout: 3000
+    optional: true
+- tapOn:
+    text: "Permitir"
+    optional: true
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn:
+    id: "notas-da-pagina"
 - tapOn: {id: "aba-notas"}
 - tapOn: {id: "aba-padroes"}
 - extendedWaitUntil:
