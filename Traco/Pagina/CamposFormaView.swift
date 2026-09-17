@@ -61,8 +61,11 @@ struct CamposFormaView: View {
             withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.longa), reduzido: reduceMotion)) {
                 nascida = true
             }
-            // o foco pede a árvore montada: um tique depois do onAppear
-            if let campoInicial { Task { @MainActor in campoFocado = campoInicial } }
+            // auditoria 17/09: abrir a volta direto no campo, com o teclado de pé,
+            // escondia o que se decidiu — o autor respondia sem reler. A nota
+            // abre no topo; o anel âmbar e «Hora de conferir» mostram onde
+            // escrever, e um toque no campo abre o teclado.
+            let _ = campoInicial
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("forma-\(gesto.rawValue)")

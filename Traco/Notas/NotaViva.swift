@@ -175,14 +175,18 @@ struct JuntarView: View {
     let todas: [Nota]
     let juntou: (Nota) -> Void
     @Environment(\.dismiss) private var dismiss
+    /// Achar a nota certa num caderno grande (auditoria 17/09: sem busca).
+    @State private var filtro = ""
 
     /// As parecidas primeiro, separadas das outras: misturadas, a lista não
     /// dizia quais tinham algo em comum com esta.
     private var candidatas: (parecidas: [Nota], outras: [Nota]) {
         let jaJuntas = Set(Juntas.membros(de: nota.uuid))
+        let termo = filtro.trimmingCharacters(in: .whitespaces)
         let pool = todas.filter {
             !jaJuntas.contains($0.uuid)
                 && Juntas.podeJuntar(fechada: $0.fechada, gesto: $0.gesto, obra: $0.origem.eObra)
+                && (termo.isEmpty || $0.textoDeQualquerOrigem.localizedStandardContains(termo))
         }
         let ordem = Juntas.pontuadas(
             com: nota.tituloNaLista, texto: nota.textoDeQualquerOrigem, gesto: nota.gesto,
@@ -214,6 +218,29 @@ struct JuntarView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Tema.tintaFraca)
+                    .accessibilityHidden(true)
+                TextField("", text: $filtro, prompt: Text("Buscar nas notas").foregroundStyle(Tema.tintaFraca))
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tinta)
+                    .tint(Tema.ambar)
+                    .textInputAutocapitalization(.never)
+                    .submitLabel(.search)
+                    .accessibilityIdentifier("juntar-buscar")
+                if !filtro.isEmpty {
+                    Button { filtro = "" } label: {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(Tema.tintaFraca)
+                    }
+                    .buttonStyle(.discreto)
+                    .accessibilityLabel("Limpar")
+                }
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 40)
+            .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
 
             ScrollView {
                 let c = candidatas
