@@ -8,11 +8,11 @@ A volta de produção fechou os altos (anexos, «Desfazer», cópia .md, Face ID
 
 | dívida | por que não entrou | onde |
 |---|---|---|
-| candidatas de `ecos` cortadas em 9.000 caracteres no meio de uma linha, e o recibo das Notas conta as 40 | a linha é da E6b, não commitada em 17/09 10h: montar por linha inteira e contar só as que foram depois que ela pousar | `Sabia.ecos`, `Sessao` (recibo) |
-| a resposta das Notas é conferida pelo id do trecho, não pelo texto entre aspas | é contrato da Sábia («fiel, não literal»): pede decisão do dono antes de recusar resposta | `RespostaNotas.interpretar` |
 | a `Sessao` repete à mão as projeções depois do commit (salvar, apagar, queimar, importar, ditado) | refatoração sem defeito aberto hoje | `Sessao.swift` |
-| 20 fluxos maestro trocaram `abrir-campos` por `soltar-forma` sem rodar | `varrer.sh` exige um simulador ligado, e havia três | `maestro/` |
-| `.git` com 1,1 GB, quase tudo PNG/MP4 de prova | reescrever a história muda todos os hashes: decisão do dono | `ferramentas/orca/`, `prova/` |
+| nove fluxos maestro descrevem a interface antiga | cada um pede leitura da tela atual; a lista e o primeiro passo que falha estão no LEIA | `maestro/a-reescrever/` |
+| `.git` com 1,1 GB de mídia antiga | o dono escolheu parar de versionar mídia nova, sem reescrever a história | `.gitignore` |
+
+Fechados na segunda passada do mesmo dia: o corte das candidatas de `ecos`, as aspas não literais nas Notas, a suíte que sujava os sinais do aparelho, o véu e a porta da selada vistos no simulador, e a Release instalada no iPhone do dono.
 
 ## Em curso (12/09 — a semanal do Claude no fim, e só o Codex a trabalhar)
 
