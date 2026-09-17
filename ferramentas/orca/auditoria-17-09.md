@@ -323,7 +323,7 @@ Capturas em `auditoria-17-09/NN-*.jpg`.
 ### [x] 31. As decisões a conferir aparecem duas vezes — b31171b2
 Os 4 cartões «Hora de conferir» (`37`) reaparecem como cartões comuns na lista «Hoje» (`12` e `13`). **Correção:** omitir da lista quem está no topo, ou marcar o cartão da lista.
 
-### [ ] 32. Seções da lista pulam direto para o mês
+### [x] 32. Seções da lista pulam direto para o mês — 08fc2da4
 Depois de «Hoje» vem «Setembro» (`14`), sem «Ontem» nem «7 dias anteriores». As Notas da Apple usam esses intervalos. **Correção:** Hoje · Ontem · 7 dias · 30 dias · mês.
 
 ### [ ] 33. O título grande não recolhe
@@ -332,13 +332,13 @@ Depois de «Hoje» vem «Setembro» (`14`), sem «Ontem» nem «7 dias anteriore
 ### [x] 34. Ficha do compromisso — b31171b2
 Linhas com passo de 40 pt, medido em 269, 309, 349 e 390 (`62`). «X» e «Pronto» aparecem juntos. «Abrir os Ajustes» é texto preto sem cara de botão, e «não repete» está em minúscula. **Correção:** linhas de 44 pt, um só botão de fechar e link com cor de ação.
 
-### [ ] 35. Visão Ano
+### [~] 35. Visão Ano — 08fc2da4: sem os vizinhos; a faixa da semana fica (aprovada)
 Os dias têm cerca de 9 pt, os dias dos meses vizinhos aparecem esmaecidos em todos os meses e há uma faixa azul na semana atual (`60`). **Correção:** tirar os dias vizinhos, usar números maiores e marcar a semana com a cor do sistema.
 
-### [ ] 36. Visão Mês
+### [x] 36. Visão Mês — 08fc2da4
 A sexta linha inteira é de dias esmaecidos de outubro (`59`). **Correção:** mostrar só as semanas do mês.
 
-### [ ] 37. Modo lista do Calendário
+### [~] 37. Modo lista do Calendário — ce14a763: lembra a visão; o «A» aceso na lista fica
 O modo lista mantém «A» aceso e o título «2026» (`61`). Depois de relançar, o app volta ao modo «D» sem lembrar a escolha (`84`). **Correção:** estado próprio para lista e lembrar a última visão.
 
 ### [=] 38. Métodos — «Expressiva» não tem campos para abrir
@@ -347,13 +347,13 @@ O modo lista mantém «A» aceso e o título «2026» (`61`). Depois de relança
 ### [ ] 39. Detalhes do Perfil
 O número no cabeçalho de seção muda de sentido: Calendário 3 são compromissos, Perguntas 3 são perguntas, Métodos 28 são arquivos (`74`, `68` e `76`). As divisórias têm recuos diferentes (`74`). Os parágrafos param em x≈300 pt, enquanto as linhas vão até 370 (`71`). **Correção:** tirar ou rotular os contadores, usar recuo único e texto em largura total.
 
-### [ ] 40. Transição de compor
+### [x] 40. Transição de compor — ce14a763
 No push da página nova, o teclado sobe ao mesmo tempo e a barra de composição atravessa a tela solta, a meio caminho, em 2 quadros (`81-compor-transicao.png`). **Correção:** subir o teclado depois do fim do push (cerca de 350 ms).
 
 ### [ ] 41. Fonte aberta a partir da conversa
 A fonte abre rolada no meio da Decisão, não no topo (`51`). **Correção:** abrir no topo, ou no trecho citado com destaque.
 
-### [ ] 42. «Concluir» sem edição
+### [→] 42. «Concluir» sem edição — executora: `mudouDesdeAbrir`; a PaginaView fica com o líder
 Abrir uma nota existente já mostra «Concluir» sem nenhuma edição (`16`). As Notas da Apple mostram «OK» só durante a edição. **Correção:** mostrar só com o foco no texto.
 
 ### [x] 43. Folha da obra — b31171b2
