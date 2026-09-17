@@ -223,7 +223,14 @@ struct MarcarCompromissoIntent: AppIntent {
             return .result(dialog: "Não consegui gravar. O compromisso não entrou.")
         }
         let aviso = await Revisoes.agendarCompromisso(evento, cal: cal)
-        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos), cal: cal)
+        // ADR 06d, item 6 («o sino é promessa, não enfeite»): o RESULTADO do
+        // alarme vai junto. Sem `mudo:`, esta rota publicava sino para o
+        // alarme que o iOS RECUSOU — com o teto de 64 pendentes cheio, a Siri
+        // dizia "ficou sem alarme" e a tela bloqueada desenhava `bell.fill`
+        // com a hora (auditoria 17/09). É a mesma linha das duas irmãs:
+        // `Sessao.agendarEContar` e `CalendarioAgenda.avisar`.
+        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos), cal: cal,
+                                    mudo: aviso.vaiTocar ? nil : evento.id)
         let quando = evento.diaInteiro
             ? Calendario.diaPorExtenso(evento.inicio, cal)
             : "\(Calendario.diaPorExtenso(evento.inicio, cal)) às \(Calendario.horaCurta(evento.inicio, cal))"

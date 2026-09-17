@@ -1903,10 +1903,40 @@ enum Sabia {
             case .citacao: saida.append(linhas.map { "> " + $0 }.joined(separator: "\n"))
             case .codigo: saida.append("```\n" + bloco + "\n```")
             case .tabela:
-                let celulas = linhas.map { $0.split(whereSeparator: { $0 == "|" || $0 == "\t" }).map { $0.trimmingCharacters(in: .whitespaces) } }
-                guard let cabeca = celulas.first, cabeca.count >= 2 else { saida.append(bloco); continue }
+                // A célula VAZIA do autor tem de ficar na coluna dele: `split`
+                // omite subsequências vazias por omissão, e a tabela colada de
+                // planilha «Mês⇥Gasto⇥Nota / Jan⇥120⇥ok / Fev⇥⇥atrasou» saía com
+                // a linha de fevereiro em DUAS células — o Markdown alinha pela
+                // esquerda, «atrasou» subia para a coluna Gasto e a coluna Nota
+                // sumia (auditoria 17/09). Isto se grava na nota, e palavra do
+                // autor não muda de lugar sem ordem dele (ADR 2026-09-02o).
+                // O pipe da BORDA é cerca de Markdown, não célula: só ele sai.
+                func celulasDaLinha(_ bruta: String) -> [String] {
+                    // só o ESPAÇO da borda sai: a TABULAÇÃO da borda é a primeira
+                    // coluna vazia do autor («⇥120⇥ok» tem a coluna Mês em branco),
+                    // e as linhas chegam aqui já trimadas em `cruas` — por isso a
+                    // tabela lê as linhas CRUAS do bloco (auditoria 17/09).
+                    let l = bruta.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+                    var c = l.split(omittingEmptySubsequences: false, whereSeparator: { $0 == "|" || $0 == "\t" })
+                        .map { $0.trimmingCharacters(in: .whitespaces) }
+                    if c.count > 1, l.hasPrefix("|") { c.removeFirst() }
+                    if c.count > 1, l.hasSuffix("|") { c.removeLast() }
+                    return c
+                }
+                let celulas = bloco.split(whereSeparator: \.isNewline).map { celulasDaLinha(String($0)) }
+                // linha com MAIS células que o cabeçalho: não se sabe a que
+                // coluna a sobra pertence, e adivinhar é mexer no texto dele —
+                // o bloco fica como o autor o escreveu
+                guard let cabeca = celulas.first, cabeca.count >= 2,
+                      celulas.allSatisfy({ $0.count <= cabeca.count })
+                else { saida.append(bloco); continue }
                 var t = ["| " + cabeca.joined(separator: " | ") + " |", "|" + String(repeating: " --- |", count: cabeca.count)]
-                for linha in celulas.dropFirst() { t.append("| " + linha.joined(separator: " | ") + " |") }
+                for linha in celulas.dropFirst() {
+                    // o que falta numa linha curta é o FIM dela: completa-se à
+                    // direita, e nenhuma palavra escorrega de coluna
+                    let completa = linha + Array(repeating: "", count: cabeca.count - linha.count)
+                    t.append("| " + completa.joined(separator: " | ") + " |")
+                }
                 saida.append(t.joined(separator: "\n"))
             case .prosa: saida.append(bloco)
             case .lembrete, .pergunta, .ideia, .definicao, .exemplo, .decisao, .regra, .risco, .pros, .contras, .passos:

@@ -743,6 +743,32 @@ struct NotaVelhaSeConsertaTests {
         #expect(Caderno.consertarVestidoErrado(verso) == verso)
     }
 
+    /// Auditoria de produção (17/09): a varredura tirava o método de nota que
+    /// não é lista de compras, e o Destaque continuava no widget depois disso.
+    @Test func aVarreduraSoSoltaMetodoDeListaDeComprasEApagaODestaque() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        // sem cabeça de compras, o método de campos vazios FICA: pergunta em
+        // aberto não é lixo
+        let semCabeca = Nota(texto: "Lista de coisas para decidir\n\n- [ ] mudar de casa\n- [ ] trocar de carro",
+                             gesto: .woop, campos: ["resultado": "", "obstaculo": "", "plano": ""])
+        // com cabeça de compras, o método cai
+        let compras = Nota(texto: "# Comprar\n\n- [ ] leite\n- [ ] pão\n- [ ] café",
+                           gesto: .destaque, campos: ["unica": ""])
+        c.mainContext.insert(semCabeca)
+        c.mainContext.insert(compras)
+        try c.mainContext.save()
+        DestaqueDoDia.gravar("Comprar", id: compras.uuid)
+        #expect(DestaqueDoDia.linhaDeHoje() != nil)
+
+        Sessao().consertarFormaVelha(no: c.mainContext)
+        #expect(semCabeca.gesto == .woop, "sem cabeça de compras o método fica")
+        #expect(!Caderno.cabecaDeCompras("Lista de coisas para decidir"))
+        #expect(Caderno.cabecaDeLista("Lista de coisas para decidir"), "a bolinha continua boa numa lista")
+        #expect(Caderno.cabecaDeCompras("Compras do mês") && Caderno.cabecaDeCompras("# Feira"))
+        #expect(compras.gesto == nil)
+        #expect(DestaqueDoDia.linhaDeHoje() == nil, "o Destaque sai da tela bloqueada junto com o método")
+    }
+
     @Test func oConsertoNaoTocaNotaDeMetodoRespondido() throws {
         let c = try ModelContainer.traco(emMemoria: true)
         // WOOP com resposta: o método fica, mesmo se houver linha de itens

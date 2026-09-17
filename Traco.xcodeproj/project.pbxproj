@@ -34,6 +34,7 @@
 		18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		195933238DD47B0633723CC7 /* DesenhoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F203F4E2975DEDF4FA3041 /* DesenhoView.swift */; };
 		198370EA532E27044DBF7CC9 /* FonteNotas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7C655DC474B72C55FD3A38 /* FonteNotas.swift */; };
+		19FE89B02DC64762FC9DCC3E /* SuperficieDasNotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 280B80D2B0552A3BD49B12A2 /* SuperficieDasNotasTests.swift */; };
 		1A4E61254ECA4D97944BFDC7 /* GrokContratoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4184FEB9365E01A506762A /* GrokContratoTests.swift */; };
 		1CFD0BB36BB608A16E2FC510 /* NotaEnormeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63E0DB3E410F59BD0224A77 /* NotaEnormeTests.swift */; };
 		1D4ACAE206478E95A594C12B /* ArranqueFalhouView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3BF4BFF47F4717BAEDCE78 /* ArranqueFalhouView.swift */; };
@@ -164,6 +165,7 @@
 		933716ABEB4902BCBAC8C048 /* CicloDaMenteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A9AA7FB43129401ADE7DB7 /* CicloDaMenteTests.swift */; };
 		93D35C3A111837E5CA2D4133 /* PortalArquivoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */; };
 		949455D7A14ECB8246E790F1 /* PedidoNoCalendarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FED53B1D556D01129A08ED2 /* PedidoNoCalendarioTests.swift */; };
+		95A33869E0107FFCB7A44237 /* AuditoriaCalendarioEspelhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C368058ED1BC852DEB5313F1 /* AuditoriaCalendarioEspelhoTests.swift */; };
 		96E50715F0908B24E0C79D2A /* ConsultarObrasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9984EDB4CF11B4855D1648 /* ConsultarObrasTests.swift */; };
 		994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CF1006FD54376D4F9A5274 /* PaginaView.swift */; };
 		9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */; };
@@ -183,6 +185,7 @@
 		A97C8A6DB88F62888FC65D44 /* ConferenciaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494F4BA0893E2C27972D8DE /* ConferenciaTrabalho.swift */; };
 		AA0F9C83337A13CC30E29387 /* EsperaComEstadoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB155DEF47AD024A2C0E3C54 /* EsperaComEstadoUITests.swift */; };
 		AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */; };
+		AAF42F50DD00939BF072C44F /* GravarSemEdicaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9CC88FC60DEE135D51F55F8 /* GravarSemEdicaoTests.swift */; };
 		AB0C9971D3509CD45DE07BC8 /* Atividades.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD0DC7A5E06584B2E182AB2 /* Atividades.swift */; };
 		AC3494485054B366E6AC1661 /* SeloNasRotasDoContextoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DB6E4457BE4189D9AFBCF2 /* SeloNasRotasDoContextoTests.swift */; };
 		ADF9B0BFF4FA39DAA48A8CB6 /* ProsaLiteralTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC80765D4B74C62577A5363A /* ProsaLiteralTests.swift */; };
@@ -344,6 +347,7 @@
 		244F8029491F757DB2D14930 /* ResultadoAjustaRegrasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultadoAjustaRegrasTests.swift; sourceTree = "<group>"; };
 		26D439FE100A61693F59D02A /* BuracosFuncionaisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuracosFuncionaisTests.swift; sourceTree = "<group>"; };
 		26DB6E4457BE4189D9AFBCF2 /* SeloNasRotasDoContextoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeloNasRotasDoContextoTests.swift; sourceTree = "<group>"; };
+		280B80D2B0552A3BD49B12A2 /* SuperficieDasNotasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperficieDasNotasTests.swift; sourceTree = "<group>"; };
 		29368EC04AD6536FE9C979DD /* ArquivoMarkdownTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArquivoMarkdownTrabalho.swift; sourceTree = "<group>"; };
 		2A4184FEB9365E01A506762A /* GrokContratoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokContratoTests.swift; sourceTree = "<group>"; };
 		2BCF75841A504A0DB56F81BB /* CabecalhoDeFolha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CabecalhoDeFolha.swift; sourceTree = "<group>"; };
@@ -487,6 +491,7 @@
 		BD60B26ECF00C1DA4AD9DB8D /* Latencia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Latencia.swift; sourceTree = "<group>"; };
 		BE9984EDB4CF11B4855D1648 /* ConsultarObrasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsultarObrasTests.swift; sourceTree = "<group>"; };
 		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
+		C368058ED1BC852DEB5313F1 /* AuditoriaCalendarioEspelhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuditoriaCalendarioEspelhoTests.swift; sourceTree = "<group>"; };
 		C48E78EE65F3C16DDD899BE9 /* Degraus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Degraus.swift; sourceTree = "<group>"; };
 		C4A2FBEC14832485F2525E96 /* AuditoriaDoLiderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuditoriaDoLiderTests.swift; sourceTree = "<group>"; };
 		C5E62A0F1DA399D86F076645 /* Versoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versoes.swift; sourceTree = "<group>"; };
@@ -519,6 +524,7 @@
 		D63E0DB3E410F59BD0224A77 /* NotaEnormeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotaEnormeTests.swift; sourceTree = "<group>"; };
 		D78CA40BB6261B7ED51A389D /* ConversaNotas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversaNotas.swift; sourceTree = "<group>"; };
 		D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseDeBordoTests.swift; sourceTree = "<group>"; };
+		D9CC88FC60DEE135D51F55F8 /* GravarSemEdicaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GravarSemEdicaoTests.swift; sourceTree = "<group>"; };
 		D9E647F55D16F6E4EA3682ED /* GuardaDeContraporTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardaDeContraporTests.swift; sourceTree = "<group>"; };
 		DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolhaDeConfirmacao.swift; sourceTree = "<group>"; };
 		DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OficinaTrabalho.swift; sourceTree = "<group>"; };
@@ -738,6 +744,7 @@
 				8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */,
 				D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */,
 				AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */,
+				C368058ED1BC852DEB5313F1 /* AuditoriaCalendarioEspelhoTests.swift */,
 				C4A2FBEC14832485F2525E96 /* AuditoriaDoLiderTests.swift */,
 				BBBAD3C4CFBE7C138D05D621 /* AuditoriaIntegridadeTests.swift */,
 				4AA98E63AA92191FE0E81A20 /* AvaliacaoIACarimboTests.swift */,
@@ -769,6 +776,7 @@
 				A8573C1126CAFCC2B2C727D3 /* EscritaVisivelTests.swift */,
 				83FFA57EFEC5C5DEDA186EAF /* FeriadosTests.swift */,
 				FC8485E4A18F46DC7AEC2352 /* ForaDoAppTests.swift */,
+				D9CC88FC60DEE135D51F55F8 /* GravarSemEdicaoTests.swift */,
 				2A4184FEB9365E01A506762A /* GrokContratoTests.swift */,
 				D9E647F55D16F6E4EA3682ED /* GuardaDeContraporTests.swift */,
 				3812F59AB690B3EEE53733B6 /* GuardaDeEcosTests.swift */,
@@ -821,6 +829,7 @@
 				59FC14D4331E1F7DF97D336F /* SelecaoE6cMedidaTests.swift */,
 				26DB6E4457BE4189D9AFBCF2 /* SeloNasRotasDoContextoTests.swift */,
 				A8729A057C355E3EC071B862 /* SuperficieDaRespostaTests.swift */,
+				280B80D2B0552A3BD49B12A2 /* SuperficieDasNotasTests.swift */,
 				4B9C5AB945E277330A388C0C /* SustentacaoPaginaTests.swift */,
 				0B04DABEDFD9C86D45507C64 /* TemaTests.swift */,
 				DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */,
@@ -1177,6 +1186,7 @@
 				15D58FA109E577388359863B /* AjusteDoExercicioTests.swift in Sources */,
 				167D033BE03D47F30DA5BAD5 /* AnaliseDeBordoTests.swift in Sources */,
 				810CC40FDE779309217667CD /* AnaliseLocalTests.swift in Sources */,
+				95A33869E0107FFCB7A44237 /* AuditoriaCalendarioEspelhoTests.swift in Sources */,
 				9AC723B464ED2F909C71E3DA /* AuditoriaDoLiderTests.swift in Sources */,
 				E95CED780F9B2C66839CD60B /* AuditoriaIntegridadeTests.swift in Sources */,
 				72D3AA8AC2BDE0A01372B14D /* AvaliacaoIACarimboTests.swift in Sources */,
@@ -1208,6 +1218,7 @@
 				F3644C6DEE608DA2066CA188 /* EscritaVisivelTests.swift in Sources */,
 				91CB62279EB8A12ADECD379D /* FeriadosTests.swift in Sources */,
 				6265D7FE86179B2527DC9E2F /* ForaDoAppTests.swift in Sources */,
+				AAF42F50DD00939BF072C44F /* GravarSemEdicaoTests.swift in Sources */,
 				1A4E61254ECA4D97944BFDC7 /* GrokContratoTests.swift in Sources */,
 				3BE13558E6D46E62237A7835 /* GuardaDeContraporTests.swift in Sources */,
 				45DF067252E28EF6D29A5766 /* GuardaDeEcosTests.swift in Sources */,
@@ -1261,6 +1272,7 @@
 				BD69C9B35F6647B1B2E4201F /* SelecaoE6cMedidaTests.swift in Sources */,
 				AC3494485054B366E6AC1661 /* SeloNasRotasDoContextoTests.swift in Sources */,
 				EFDE3B3974576287D89DC93E /* SuperficieDaRespostaTests.swift in Sources */,
+				19FE89B02DC64762FC9DCC3E /* SuperficieDasNotasTests.swift in Sources */,
 				6E1009440C0DBDB5B213659A /* SustentacaoPaginaTests.swift in Sources */,
 				DA6C18AAF7BE831A53CC6306 /* TemaTests.swift in Sources */,
 				44BADDD31419D3764ECE1AE5 /* TrabalhoTests.swift in Sources */,

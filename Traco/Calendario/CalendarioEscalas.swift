@@ -416,6 +416,17 @@ struct CalendarioSemanaView: View {
         return saida
     }
 
+    /// Quantos compromissos do dia NÃO couberam na barra. Os de dia inteiro
+    /// dividem UMA pista (a de cima), e do segundo em diante sumiam sem entrar
+    /// em conta nenhuma: o dia com «Aniversário da Ana» (do iPhone) e «Viagem
+    /// a Lisboa» (do autor) mostrava uma pílula e nenhum «+n» — e com o
+    /// calendário do iPhone lido, dois de dia inteiro no mesmo dia é o caso
+    /// comum (auditoria 17/09). A célula do Mês já contava o excedente; a
+    /// Semana é a escala em que se confere "o que tenho nesta semana".
+    static func escondidos(pistas: [Int], inteiros: Int) -> Int {
+        pistas.filter { $0 >= 3 }.count + max(0, inteiros - 1)
+    }
+
     private func barra(dia: Date, eventos: [EventoCalendario], hoje: Bool, largura: CGFloat, altura: CGFloat) -> some View {
         let marcados = pistas(eventos, largura: largura)
         let inteiros = eventos.filter(\.diaInteiro)
@@ -451,11 +462,14 @@ struct CalendarioSemanaView: View {
                 let pista = p.indice + (inteiros.isEmpty ? 0 : 1)
                 pilula(p.evento, x: p.x, w: p.w, y: topo + CGFloat(pista) * passo, h: alturaPilula)
             }
-            if let extra = marcados.first(where: { $0.indice >= 3 }) {
-                Text("+\(marcados.filter { $0.indice >= 3 }.count)")
+            let escondidos = Self.escondidos(pistas: marcados.map(\.indice), inteiros: inteiros.count)
+            if escondidos > 0 {
+                // sem marcado escondido o número é de dia inteiro, e a pílula
+                // deles ocupa a largura toda: o «+n» encosta à esquerda
+                Text("+\(escondidos)")
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(CalendarioTema.tintaSuave)
-                    .offset(x: extra.x + 2, y: altura / 2 - 9)
+                    .offset(x: (marcados.first(where: { $0.indice >= 3 })?.x ?? 4) + 2, y: altura / 2 - 9)
             }
         }
     }

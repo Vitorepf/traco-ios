@@ -46,6 +46,19 @@ final class CalendarioSistema {
     /// é ruído; sete dias é o horizonte em que "marcar" ainda é uma decisão.
     nonisolated static let janelaDias = 7
 
+    /// A JANELA HONESTA dos sete dias, onde quem publica a Superfície a
+    /// alcança sem pedir nada à tela (ADR 04a + 03c).
+    ///
+    /// Era `CalendarioAgenda.doSistema` — a faixa VISÍVEL da grade — que
+    /// chegava à face, e só pela rota do calendário. Duas mentiras saíam
+    /// daí (auditoria 17/09): guardar qualquer coisa no Trabalho republicava
+    /// a Superfície sem os compromissos do iPhone, e a reunião de amanhã
+    /// desaparecia da tela bloqueada; e depois de o dedo parar em dezembro na
+    /// escala Mês, a face anunciava o show de 12/12 como "o próximo".
+    /// `proximos` é `private(set)` e a view é a única que o lê; este espelho
+    /// existe para as outras cinco rotas de publicação, que não têm view.
+    nonisolated(unsafe) static var naSuperficie: [EventoCalendario] = []
+
     private(set) var proximos: [CompromissoDoSistema] = []
     /// O que a escala visível mostra (A3). Separado de `proximos` porque a
     /// recomendação quer sete dias e a grade quer o que está na tela.
@@ -81,7 +94,10 @@ final class CalendarioSistema {
     /// (auditoria 15/09, alto 5: o diálogo do iOS caía na primeira aba).
     func atualizar() async {
         estado = EKEventStore.authorizationStatus(for: .event)
-        if podeLer { await recarregar() }
+        // sem o `podeLer` na frente: quem revogou o acesso nos Ajustes tem de
+        // ver o espelho da Superfície esvaziar. `ler` já devolve [] sem
+        // permissão, então não há leitura a mais.
+        await recarregar()
     }
 
     /// Pede o acesso UMA vez, e só quando o autor está olhando um calendário —
@@ -102,6 +118,8 @@ final class CalendarioSistema {
     func recarregar(agora: Date = .now, _ cal: Calendar = Calendario.gregoriano()) async {
         let fim = cal.date(byAdding: .day, value: Self.janelaDias, to: agora) ?? agora
         proximos = ler(de: agora, a: fim)
+        // a única escrita do espelho: `carregarFaixa` (a grade) não entra aqui
+        Self.naSuperficie = proximos.map(\.comoEvento)
     }
 
     /// A3: o que a escala está mostrando. A recomendação continua olhando só

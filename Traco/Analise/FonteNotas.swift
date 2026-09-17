@@ -104,6 +104,11 @@ nonisolated enum RespostaNotas {
         var omitidas: Int
         var respostasOmitidas: Int = 0
         var mensagensDaPessoa: Int = 0
+        /// Auditoria 17/09: a pergunta e as falas anteriores, cruas, para
+        /// `semRotulos` saber se «N1» é palavra DELA antes de tratá-lo como
+        /// endereço nosso. A `mensagem` não serve de material: o `fonteID`
+        /// planta «N1» nela em toda pergunta.
+        var palavrasDaPessoa: String = ""
         /// ADR 2026-09-16i: obras que chegaram e não eram assunto (o modelo não
         /// escolheu seção, ou as palavras não admitiram). Não são "omitidas":
         /// a recusa «não coube nesta consulta» não pode nascer delas.
@@ -170,7 +175,8 @@ nonisolated enum RespostaNotas {
             }
         }
         var pacote = Pacote(mensagem: carga(historico), fontes: [], omitidas: 0,
-                             respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count)
+                             respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count,
+                             palavrasDaPessoa: ([pergunta] + conversa.map(\.pergunta)).joined(separator: "\n"))
         var partesDaNota: [UUID: String] = [:]
         func bloco(_ fonte: FonteNotas, indice: Int) -> String {
             var campos: [String: Any] = [
@@ -293,7 +299,17 @@ nonisolated enum RespostaNotas {
         // que `N1` case dentro de `N12`. Rótulo sem fonte no pacote (`N9T9`,
         // inventado) fica como está — não é endereço nosso.
         var porRotulo = Dictionary(pacote.trechos.map { ($0.id, $0.fonte) }, uniquingKeysWith: { a, _ in a })
-        for (i, fonte) in pacote.fontes.enumerated() { porRotulo["N\(i + 1)"] = fonte }
+        // Auditoria 17/09: o rótulo CURTO, sem `T`, também é palavra corrente em
+        // português — níveis de atendimento («o N1 resolve reinício, o N2 assume o
+        // resto») —, e a regex não distingue o endereço que o app criou da palavra
+        // que a pessoa escreveu: a tela mostrava o título de uma nota no lugar dela,
+        // às vezes dentro das aspas que prometem literal. Quando o token já está no
+        // material — nota, título ou fala dela —, é a palavra dela ecoada e fica
+        // como está; ler «N1» em vez do título é o preço honesto. Os endereços de
+        // verdade, os `N1T1` que a 09h mediu vazando, continuam todos trocados.
+        let material = ([pacote.palavrasDaPessoa] + pacote.fontes.flatMap { [$0.texto, $0.titulo] }).joined(separator: "\n")
+        let dela = Set(material.matches(of: /\bN[0-9]+\b/).map { String($0.output) })
+        for (i, fonte) in pacote.fontes.enumerated() where !dela.contains("N\(i + 1)") { porRotulo["N\(i + 1)"] = fonte }
         return texto.replacing(/\bN[0-9]+(?:T[0-9]+)?\b/) { casamento in
             porRotulo[String(casamento.output)].map { "\u{201C}\($0.titulo)\u{201D}" } ?? String(casamento.output)
         }
@@ -362,7 +378,17 @@ nonisolated enum RespostaNotas {
             for frase in frases {
                 var resto = frase
                 while resto.count > tamanho {
-                    let corte = resto.prefix(tamanho).lastIndex(of: " ") ?? resto.index(resto.startIndex, offsetBy: tamanho)
+                    // O corte é o ÍNDICE DO ESPAÇO, então o `resto` seguinte COMEÇA por
+                    // esse espaço. Se o que vem depois dele não tiver outro espaço — uma
+                    // linha «Assinado: eyJhbGciOiJSUzI1…», JWT, URL assinada ou base64
+                    // colada fora de bloco de código, que `Caderno.prosa` não descarta —,
+                    // `lastIndex` devolve o próprio início: `atual` fica vazio, `fecha()`
+                    // não acrescenta nada e o `resto` volta IDÊNTICO, o laço não avança
+                    // nunca. A Sábia é MainActor e chama isto síncrono, então a tela
+                    // congela para sempre (medido: «Referencia: » + 1.499 «x»). O espaço
+                    // do início não é corte; aí corta pelo tamanho, que garante avanço.
+                    let espaco = resto.prefix(tamanho).lastIndex(of: " ").flatMap { $0 == resto.startIndex ? nil : $0 }
+                    let corte = espaco ?? resto.index(resto.startIndex, offsetBy: max(1, tamanho))
                     fecha()
                     atual = String(resto[..<corte]); fecha()
                     resto = String(resto[corte...])

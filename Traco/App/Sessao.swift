@@ -114,8 +114,16 @@ final class Sessao {
         gesto != nil && gesto != .expressiva && cartao == nil && !analisando
     }
 
+    /// Os minutos da expressiva EM VOO. Só a expressiva os conta: nem
+    /// `pararTimer` nem `novaPagina` devolvem `segundosRestantes` ao cheio,
+    /// então, depois de selar uma sessão de 12 min, isto valia 12 para o resto
+    /// do processo — e `salvar` dava por editada a primeira nota comum que o
+    /// autor abrisse só para reler (`minutosExpressiva > minutosEscritos`),
+    /// gravava 12 minutos numa nota que nunca foi expressiva, mexia em
+    /// `editadaEm` e recolhia a resposta da sábia que a citava (auditoria 17/09).
     var minutosExpressiva: Int {
-        max(0, (15 * 60 - segundosRestantes) / 60)
+        guard gesto == .expressiva else { return 0 }
+        return max(0, (15 * 60 - segundosRestantes) / 60)
     }
 
     private var analiseTask: Task<Void, Never>?
@@ -362,9 +370,16 @@ final class Sessao {
     var autoSuprimidaNaNota = false
     var revisaoPendente: UUID?
 
-    /// Exp 12: abrir a notificação não é revisão — REVELAR é.
+    /// Exp 12: abrir a notificação não é revisão — REVELAR é. E o degrau é da
+    /// nota que está NA FOLHA, a mesma leitura de `cobrarAntesPendente` e
+    /// `adiarPendente`: fechar o Recordar pelo X (ou arrastando) não limpa
+    /// `revisaoPendente`, e a folha seguinte — `irRecordar`, do widget ou da
+    /// página — herdava a identidade da anterior. «Revelar» creditava a nota A,
+    /// que ninguém recordou, subia o degrau dela e empurrava a cobrança de 3
+    /// para 7 dias, enquanto a recordada de verdade ficava em zero (auditoria
+    /// 17/09).
     func cumprirRevisaoPendente(no context: ModelContext) {
-        guard let uuid = revisaoPendente else { return }
+        guard let uuid = recordarUUID ?? revisaoPendente else { return }
         revisaoPendente = nil
         Revisoes.registrarCumprida(uuid)
         if let nota = Self.buscar(uuid: uuid, no: context) {
@@ -1702,6 +1717,8 @@ final class Sessao {
         // disco só depois (ADR m); a expressiva nunca: o que queima não pode
         // sobreviver aqui.
         var versaoAnterior: (texto: String, campos: [String: String], gesto: Gesto?, fechada: Bool)?
+        // Nota nova é sempre mudança; a existente decide abaixo.
+        var mudou = true
         if let notaUUID, let existente = Self.buscar(uuid: notaUUID, no: context) {
             if existente.texto != texto || existente.campos != campos {
                 // marcar um item não é versão nova: no mercado, cada bolinha
@@ -1715,7 +1732,7 @@ final class Sessao {
             // Gravar sem mudança não é edição (auditoria 16/09): trocar de aba ou o
             // app perder o foco mudava a data e reescrevia os campos, e a resposta
             // das Notas que dependia da nota era recolhida sem ninguém ter mexido.
-            let mudou = existente.texto != texto || existente.campos != campos || existente.gesto != gesto
+            mudou = existente.texto != texto || existente.campos != campos || existente.gesto != gesto
                 || existente.expressivaPrazo != prazo || (trancar && !existente.trancada)
                 || sentidoPendente.map { $0 != existente.sentido } == true
                 || minutosExpressiva > existente.minutosEscritos
@@ -1741,7 +1758,17 @@ final class Sessao {
         }
         aplicarDominio(na: nota)
         aplicarSerie(na: nota)
-        let gatilho = aplicarGatilho(na: nota)
+        // A lei de "gravar sem mudança não é edição" vale também para as duas
+        // projeções que falam FORA do app, e é onde as duas passam: o Destaque
+        // na tela bloqueada e o aviso do «Se». As duas resolvem a data no
+        // RELÓGIO DA GRAVAÇÃO, e `salvar` corre a cada troca de aba, bloqueio
+        // de tela e ida ao fundo. Sem esta guarda, abrir o Destaque de 10/09
+        // só para reler carimbava-o como «a única coisa de hoje» e roubava o
+        // de hoje da tela bloqueada, do widget e da Ilha; e ler a nota Se–então
+        // depois de o aviso tocar reagendava-o para o dia seguinte, todo dia,
+        // num aviso diário que o autor nunca pediu (ADR 02e: o aviso do Se
+        // "não tem recorrência"). Auditoria 17/09.
+        let gatilho = mudou ? aplicarGatilho(na: nota) : nil
         if criadaEmDaPagina == nil { criadaEmDaPagina = nota.criadaEm }
         guard persistir(context) else {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
@@ -1757,14 +1784,16 @@ final class Sessao {
         }
         // o aviso só muda depois do commit: se o disco recusasse, o rollback
         // desfazia `gatilhoEm` e o aviso novo ficava (até para nota que não existe)
-        Revisoes.cancelarGatilho(uuid: nota.uuid)
-        if let gatilho {
-            Revisoes.agendarGatilho(uuid: nota.uuid, titulo: gatilho.titulo, em: gatilho.quando)
+        if mudou {
+            Revisoes.cancelarGatilho(uuid: nota.uuid)
+            if let gatilho {
+                Revisoes.agendarGatilho(uuid: nota.uuid, titulo: gatilho.titulo, em: gatilho.quando)
+            }
         }
         if let v = versaoAnterior {
             Versoes.registrar(nota.uuid, texto: v.texto, campos: v.campos, gesto: v.gesto, fechada: v.fechada)
         }
-        aplicarDestaque(na: nota)
+        if mudou { aplicarDestaque(na: nota) }
         // ADR 04n: o índice de sentido acompanha a nota — fora da main thread,
         // porque `salvar` roda em toda troca de cena e o índice regrava o
         // arquivo inteiro (ponytail: JSON de N×200 floats; formato binário por
@@ -1848,7 +1877,13 @@ final class Sessao {
         default: ""
         }
         let titulo = VozDoAutor.titulo(texto, gesto: gesto, campos: campos)
-        guard let quando = Gatilho.data(em: fonte), !titulo.isEmpty else {
+        // ADR 08u: o aviso do «Se» atravessa o Foco na tela bloqueada
+        // (`.timeSensitive`) com o texto da nota — e o que não é do autor não
+        // fala por ele. O índice (`paraIndice`), o espelho (`Corpus`) e a
+        // semana (`RevisaoSemanal`) já cortam a origem; esta rota não cortava,
+        // e um `se: sexta 9h ligar para o cliente` que o bot deixou em
+        // `entrada/` tocava como se fosse dele (auditoria 17/09).
+        guard let quando = Gatilho.data(em: fonte), !titulo.isEmpty, nota.origem == .autor else {
             nota.gatilhoEm = nil
             return nil
         }
@@ -1860,9 +1895,20 @@ final class Sessao {
     /// ação derivada. O título do aviso é texto do Trabalho, e o Trabalho fica
     /// restrito no mesmo instante — deixar tocar seria o selo tocando sozinho.
     private func calarAcoesDerivadas(de nota: UUID, no context: ModelContext) {
-        for t in AcessoTrabalho.derivados(daNota: nota, no: context) {
+        let derivados = AcessoTrabalho.derivados(daNota: nota, no: context)
+        guard !derivados.isEmpty else { return }
+        for t in derivados {
             Revisoes.cancelarAcoes(doTrabalho: t)
         }
+        // ADR 11a: a ação do Trabalho está na MESMA tesoura do widget, da tela
+        // bloqueada e da Ilha — mas a tesoura só corta quando alguém a manda
+        // recalcular. O aviso era calado aqui e a projeção do App Group ficava
+        // com a linha da ação agora restrita: apagar a nota de origem e
+        // bloquear o iPhone deixava «falar com a advogada» na tela bloqueada
+        // até o app voltar à cena, e o arranque a frio não republica
+        // (auditoria 17/09). A Oficina já publica no mesmo instante; as três
+        // rotas do selo — salvar com selo, queimar e apagar — passam por aqui.
+        ProximoCompromisso.publicarMundo(no: context)
     }
 
     /// A nota do disco — id, datas e sentido reais. Nunca um cabeçalho inventado.
@@ -1873,27 +1919,38 @@ final class Sessao {
         return fatia.nuncaSai ? nil : fatia
     }
 
-    /// `unica` vazio depois de vestir a forma não é ausência — o campo existe
-    /// como "". A prosa do corpo é a única de hoje até o autor preencher o sítio.
-    private func linhaDoDestaque(texto: String, campos: [String: String]) -> String {
+    /// A linha que vai à tela bloqueada, ou `nil` quando esta forma não tem
+    /// única. `unica` vazio depois de vestir a forma não é ausência — o campo
+    /// existe como "". A prosa do corpo é a única de hoje até o autor preencher
+    /// o sítio. ADR 04k: a única do Dia é o Destaque do dia — mesma lei, mesma
+    /// tela, e por isso a regra vive AQUI, num lugar só: `desfazerApagar`
+    /// guardava uma cópia reduzida (só `.destaque`) e devolver uma nota do
+    /// método Dia deixava a tela bloqueada a dizer que o autor não escolheu
+    /// nada, sem nenhuma tela no app a mostrar-lhe isso (auditoria 17/09).
+    private static func linhaDoDestaque(gesto: Gesto?, texto: String,
+                                        campos: [String: String], fechada: Bool) -> String? {
+        guard !fechada, let g = gesto else { return nil }
         let unica = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return unica.isEmpty ? VozDoAutor.titulo(texto) : unica
+        if g == .destaque { return unica.isEmpty ? VozDoAutor.titulo(texto) : unica }
+        guard g.campos.contains(where: { $0.id == "unica" }), !unica.isEmpty else { return nil }
+        return unica
     }
 
     private func aplicarDestaque(na nota: Nota) {
-        if gesto == .destaque, !nota.fechada {
-            DestaqueDoDia.gravar(linhaDoDestaque(texto: texto, campos: campos), id: nota.uuid)
+        // ADR 08u: a tela bloqueada, a Ilha e o widget declaram a mente do
+        // autor — «a única coisa de hoje», sem etiqueta de origem nenhuma (a
+        // etiqueta só existe dentro da página). A nota que o bot deixou em
+        // `entrada/` fica legível no caderno e cala aqui, como já cala no
+        // índice, no espelho e na semana; sem isto o app afirmava duas coisas
+        // contrárias sobre a mesma nota (auditoria 17/09).
+        guard nota.origem == .autor,
+              let linha = Self.linhaDoDestaque(gesto: gesto, texto: texto,
+                                               campos: campos, fechada: nota.fechada)
+        else {
+            DestaqueDoDia.apagar(id: nota.uuid)
             return
         }
-        // ADR 04k: a única do Dia é o Destaque do dia — mesma lei, mesma tela
-        if let g = gesto, g != .destaque, !nota.fechada, g.campos.contains(where: { $0.id == "unica" }) {
-            let unica = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            if !unica.isEmpty {
-                DestaqueDoDia.gravar(unica, id: nota.uuid)
-                return
-            }
-        }
-        DestaqueDoDia.apagar(id: nota.uuid)
+        DestaqueDoDia.gravar(linha, id: nota.uuid)
     }
 
     func desfazerDominio() {
@@ -2135,28 +2192,59 @@ final class Sessao {
     /// removido vai para o histórico junto.
     func consertarFormaVelha(no context: ModelContext) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
-        var mexidas = 0
+        // o que a varredura vai mexer, decidido ANTES de tocar em nada: a versão
+        // só entra no histórico depois de o disco dizer sim (ADR 05s)
+        var trabalho: [(nota: Nota, depois: String, soltar: Bool, antes: String, campos: [String: String], gesto: Gesto?)] = []
         // expressiva não se toca NUNCA: é desabafo, não matéria de forma
         for nota in notas where !nota.queimada && !nota.trancada
             && nota.gesto != .expressiva && nota.origem == .autor {
             let antes = nota.texto
-            let depois = Caderno.consertarVestidoErrado(antes)
+            // peneira barata primeiro: sem cabeçalho com vírgula e sem vão de
+            // várias linhas em branco, não há nada a consertar nesta nota (a
+            // varredura corre no arranque, na main thread — não pode reescrever
+            // o caderno inteiro para nada)
+            let podeTerVestidoErrado = antes.contains("\n\n\n")
+                || antes.contains(regex: #"(?m)^\s*#+ [^\n]*[,;]"#)
+            let depois = podeTerVestidoErrado ? Caderno.consertarVestidoErrado(antes) : antes
+            // o método só cai quando a nota é DECLARADAMENTE uma lista de
+            // compras — a cabeça está na primeira linha — e nenhum campo tem
+            // resposta. Sem a cabeça explícita não se tira nada: método vazio é
+            // pergunta em aberto, não lixo (auditoria de produção, 17/09).
+            let cabeca = Caderno.prosa(de: depois).split(whereSeparator: \.isNewline)
+                .map { $0.trimmingCharacters(in: .whitespaces) }.first { !$0.isEmpty } ?? ""
             let soltarMetodo = nota.gesto != nil
                 && nota.gesto != .expressiva
                 && nota.campos.values.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-                && AnaliseLocal.listaDeCompras(Caderno.prosa(de: depois), cru: depois)
+                && Caderno.cabecaDeCompras(cabeca)
             guard depois != antes || soltarMetodo else { continue }
             guard Self.palavrasIguais(antes, depois) else { continue }
-            Versoes.registrar(nota.uuid, texto: antes, campos: nota.campos,
-                              gesto: nota.gesto, fechada: nota.fechada)
-            nota.texto = depois
-            if soltarMetodo {
-                nota.gesto = nil
-                nota.campos = [:]
-            }
-            mexidas += 1
+            trabalho.append((nota, depois, soltarMetodo, antes, nota.campos, nota.gesto))
         }
-        guard mexidas > 0, persistir(context) else { return }
+        guard !trabalho.isEmpty else { return }
+        for t in trabalho {
+            t.nota.texto = t.depois
+            if t.soltar {
+                t.nota.gesto = nil
+                t.nota.campos = [:]
+            }
+        }
+        guard persistir(context) else { return }
+        for t in trabalho {
+            // versão só do que MUDOU de texto: quando cai apenas o método, o
+            // texto de antes é igual ao de agora e a linha em «Alterações» seria
+            // indistinguível
+            if t.antes != t.depois {
+                Versoes.registrar(t.nota.uuid, texto: t.antes, campos: t.campos,
+                                  gesto: t.gesto, fechada: t.nota.fechada)
+            }
+            // o Destaque do dia mora fora da nota: sem isto a linha continuava
+            // na tela bloqueada e no widget depois de o método cair
+            if t.soltar {
+                DestaqueDoDia.apagar(id: t.nota.uuid)
+                Revisoes.cancelar(uuid: t.nota.uuid)
+                Revisoes.cancelarGatilho(uuid: t.nota.uuid)
+            }
+        }
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
     }
 
@@ -2505,9 +2593,20 @@ final class Sessao {
     }
 
     func recordarDaNotas(_ nota: Nota) {
-        guard !nota.fechada,
-              RitualRecordar.de(nota.gesto).temAlvo(texto: nota.texto, campos: nota.campos)
-        else { return }
+        // a mesma régua da fila do dia, na RAIZ: a expressiva em curso não se
+        // relê no ritual (§8.5), a queimada não tem texto, e nota sem alvo não
+        // tem o que recordar. A superfície já esconde o item; aqui a rota
+        // recusa, e diz porquê em vez de calar (auditoria de produção, 17/09).
+        guard Revisoes.podeAgendar(gesto: nota.gesto, trancada: nota.fechada,
+                                   texto: nota.texto, campos: nota.campos)
+        else {
+            if nota.queimada {
+                mostrarToast("essa você queimou. ficou a data e o que você entendeu.")
+            } else if nota.gesto == .expressiva {
+                mostrarToast("a expressiva tem o ritual dela.")
+            }
+            return
+        }
         if !filaAtiva { filaUUIDs = [] }
         recordarTexto = nota.texto
         recordarCampos = nota.campos
@@ -2542,7 +2641,6 @@ final class Sessao {
     /// Se o disco recusa, a queima não aconteceu: o texto e o fecho ficam.
     @discardableResult
     func queimar(no context: ModelContext, sentido linha: String) -> Bool {
-        let minutos = minutosExpressiva
         let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
         let nota: Nota
         if let alvo = fechoUUID ?? notaUUID, let existente = Self.buscar(uuid: alvo, no: context) {
@@ -2551,9 +2649,25 @@ final class Sessao {
             nota = Nota(gesto: .expressiva)
             context.insert(nota)
         }
+        // SPEC §8.4: «Sobram data, minutos e a linha de sentido» — e os minutos
+        // vêm do DISCO, não de `segundosRestantes`, que é estado de processo.
+        // Quando a varredura do arranque abre o fecho de uma expressiva que
+        // venceu com o app morto, o relógio desta sessão nunca correu: a folha
+        // dizia «12 minutos escritos.» (lidos da nota) e a queima gravava 0 por
+        // cima, deixando a lista com «Expressiva — queimada» sem minutos
+        // (auditoria 17/09). Selar preservava e queimar apagava.
+        let minutos = max(nota.minutosEscritos, minutosExpressiva)
         // os anexos da queimada saem junto (sem a carência de 24 h da varredura)
         let anexosDaQueimada = AnexoDisco.idsReferenciados(
             em: [nota.texto, texto] + Array(nota.campos.values))
+        // SPEC §8.9: «o fecho abre a série», sem distinguir Selar de Queimar, e
+        // §8.5 diz que a linha de sentido é pulável. A série nascia DEPOIS de a
+        // cinza esvaziar `texto` e `sentido`, e o `temVoz` de `continuarSerie`
+        // olha só esses dois campos: queimar a primeira sessão com a linha em
+        // branco deixava o dia 1 sem `serieUUID`, sem o aviso do dia 2 e fora
+        // do resgate de `Revisoes.rearmarSeries` — a série de quatro dias nunca
+        // começava, e nada na tela o dizia (auditoria 17/09).
+        continuarSerie(na: nota)
         // a cinza não guarda o texto. Só o "" chega ao disco: o SQLite pode
         // conservar o valor antigo no WAL ou em página livre (SPEC §8)
         nota.texto = ""
@@ -2566,7 +2680,6 @@ final class Sessao {
         nota.sentido = corte
         nota.expressivaPrazo = nil
         nota.editadaEm = .now
-        continuarSerie(na: nota)
         guard persistir(context) else {
             mostrarToast("não consegui queimar — o texto continua.")
             return false
@@ -2777,9 +2890,10 @@ final class Sessao {
             mostrarToast("não consegui devolver a nota.")
             return
         }
-        if nota.gesto == .destaque, !nota.fechada {
-            DestaqueDoDia.gravar(
-                linhaDoDestaque(texto: nota.texto, campos: nota.campos), id: nota.uuid)
+        // a mesma regra de `aplicarDestaque`, não uma cópia dela
+        if let linha = Self.linhaDoDestaque(gesto: nota.gesto, texto: nota.texto,
+                                            campos: nota.campos, fechada: nota.fechada) {
+            DestaqueDoDia.gravar(linha, id: nota.uuid)
         }
         if let quando = nota.gatilhoEm {
             let titulo = VozDoAutor.titulo(nota.texto, gesto: nota.gesto, campos: nota.campos)

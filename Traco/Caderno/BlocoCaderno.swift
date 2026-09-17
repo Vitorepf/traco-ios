@@ -630,6 +630,18 @@ enum Caderno: Sendable {
         return limpos
     }
 
+    /// A cabeça de COMPRA, sem o genérico «Lista de…»: «Comprar», «Compras do
+    /// mês», «Mercado», «Feira», «Supermercado». Serve para a decisão
+    /// DESTRUTIVA — soltar o método vestido numa nota antiga —, onde «Lista de
+    /// coisas para decidir» não pode contar: é lista, mas é matéria de método
+    /// (auditoria de produção, 17/09). Para a MARCA do item continua valendo a
+    /// `cabecaDeLista`, mais larga: bolinha numa lista qualquer é boa.
+    nonisolated static func cabecaDeCompras(_ linha: String) -> Bool {
+        linha.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            .trimmingCharacters(in: .whitespaces)
+            .contains(regex: #"^(#+\s*)?(comprar|compras|mercado|supermercado|feira)(\s+(de|do|da|dos|das|no|na|nos|nas|em|pra|para|pro)\b.*)?\s*:?$"#)
+    }
+
     /// A cabeça de uma lista de compras ou de itens: «Comprar», «Compras:»,
     /// «Compras do mês», «Comprar no mercado», «Mercado», «Lista de…», com ou
     /// sem `#`. «Comprar café» é um afazer, não cabeça. Um lugar só: a

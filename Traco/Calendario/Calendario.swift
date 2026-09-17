@@ -1008,7 +1008,12 @@ extension ProximoCompromisso {
     static func publicar(_ eventos: [EventoCalendario], cal: Calendar,
                          manha: Int = Ancora.hora(.manha), agora: Date = .now,
                          mudo: UUID? = nil) {
-        let fatias = proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo)
+        // Os compromissos do iPhone entram AQUI, de uma fonte só, e não pela
+        // lista que o chamador trouxe: das seis rotas de publicação, só a do
+        // calendário os juntava, e a do Trabalho — que corre a cada commit da
+        // Oficina — reescrevia a Superfície sem eles (auditoria 17/09).
+        let fatias = proximasFatias(eventos + CalendarioSistema.naSuperficie,
+                                    cal: cal, manha: manha, agora: agora, mudo: mudo)
         publicar(fatias, agora: agora)
         FilaDeAtividade.compartilhada.enfileirar {
             await atualizarAtividade(fatias.first, agora: agora)

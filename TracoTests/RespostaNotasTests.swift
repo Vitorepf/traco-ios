@@ -395,4 +395,42 @@ struct RespostaNotasTests {
         #expect(!corpo.contains("cortada") && !corpo.contains("limite"))
         #expect(RespostaNotas.dentroDoTeto("curto") == "curto")
     }
+
+    /// Auditoria 17/09, VERMELHO antes do conserto: este teste NÃO TERMINAVA. Uma
+    /// linha «rótulo: <1.499 caracteres sem espaço>» — um JWT, uma URL assinada ou
+    /// uma base64 colada na nota — punha `pedacos` a girar para sempre, e na rota
+    /// viva quem gira é a main thread da Sábia: o app congela e só resta matá-lo.
+    // teto de tempo: se alguém regredir a linha, o teste FALHA em vez de
+    // pendurar a suíte inteira (era o único jeito de um laço infinito acusar)
+    @Test(.timeLimit(.minutes(1))) func aLinhaSemEspacoNaoPrendeOLacoDasPartes() throws {
+        let semEspaco = String(repeating: "x", count: 1_499)
+        let linha = "Assinado: " + semEspaco + " fim"
+        let partes = RespostaNotas.partes(linha)
+        #expect(partes.flatMap { $0.components(separatedBy: "\n") } == ["Assinado:", semEspaco, "fim"],
+                "nada se perde e cada pedaço é o que foi escrito")
+        #expect(partes.allSatisfy { $0.count <= RespostaNotas.tamanhoDaParte + RespostaNotas.cabecaCurta })
+        // a rota viva: a nota que não cabe inteira vai por partes, e a montagem TERMINA
+        let nota = FonteNotas(id: UUID(), titulo: "Credenciais", texto: String(repeating: linha + "\n", count: 20),
+                              editadaEm: Date(timeIntervalSince1970: 1_783_000_000))
+        #expect(nota.texto.count > RespostaNotas.tetoInteira)
+        _ = try #require(RespostaNotas.montar(pergunta: "qual é a chave assinada?", fontes: [nota], conversa: [],
+                                              catalogo: "", retrato: "", teto: 16_000))
+    }
+
+    /// Auditoria 17/09: «N1» é palavra corrente em português (níveis de
+    /// atendimento), e a troca pelo título punha na tela — dentro das aspas que
+    /// prometem literal — uma palavra que a pessoa nunca escreveu. O rótulo curto
+    /// só vira título quando não é dela; o endereço de verdade (09h) continua saindo.
+    @Test func oRotuloCurtoNaoComeAPalavraDaPessoa() throws {
+        let niveis = fonte("Níveis do atendimento", texto: "O N1 resolve reinício.\nO N2 assume o resto.")
+        let p = try #require(RespostaNotas.montar(pergunta: "o que eu decidi sobre o atendimento N1?",
+                                                  fontes: [niveis, fonte("Pré-mortem da mudança")],
+                                                  conversa: [], catalogo: "", retrato: "", teto: 4000))
+        let dito = "Você decidiu que o N1 resolve reinício e o N2 assume o resto."
+        let r = try #require(RespostaNotas.interpretar(try resposta(["N1T1"], texto: dito), pacote: p))
+        let corpo = try #require(r.texto.components(separatedBy: "\nReferência:").first)
+        #expect(corpo == dito)
+        #expect(!r.escreveuRotuloInterno, "ele escreveu a palavra dela, não endereço nosso")
+        #expect(RespostaNotas.semRotulos("conforme N1T1", pacote: p) == "conforme “Níveis do atendimento”")
+    }
 }

@@ -22,7 +22,13 @@ struct NotasView: View {
         nonmutating set { conversaNotas.busca = newValue }
     }
     /// ADR 04n: as notas próximas da busca que a busca por letras não achou.
-    @State private var peloSentido: [Nota] = []
+    /// Guarda os UUID, não as `Nota`: auditoria 17/09 — com os objetos aqui a
+    /// seção era um retrato congelado (só `procurarPeloSentido` a escrevia, e
+    /// só o texto da busca a chamava). Apagar uma nota desta seção deixava o
+    /// cartão desenhado; tocá-lo abria na página um modelo já removido do
+    /// contexto, e o `salvar` seguinte não achava o uuid e INSERIA a nota de
+    /// volta — o apagar do autor desfeito sozinho.
+    @State private var peloSentidoIDs: [UUID] = []
     @State private var tarefaSentido: Task<Void, Never>?
     @State private var filtro: FiltroNotas?
     @State private var filtroDominio: Dominio?
@@ -989,18 +995,29 @@ struct NotasView: View {
     private func procurarPeloSentido(_ termo: String, entre visiveis: [Nota]) {
         tarefaSentido?.cancel()
         let limpo = termo.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard limpo.count >= 3, Indice.disponivel else { peloSentido = []; return }
+        guard limpo.count >= 3, Indice.disponivel else { peloSentidoIDs = []; return }
         let jaVistas = Set(visiveis.map(\.uuid))
-        let todas = notas
         tarefaSentido = Task {
             let vizinhas = await Task.detached(priority: .userInitiated) {
                 Indice.vizinhas(de: limpo, teto: 5, minimo: 0.3, exceto: jaVistas)
             }.value
             guard !Task.isCancelled else { return }
-            let porId = Dictionary(todas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
-            peloSentido = vizinhas.compactMap { porId[$0.uuid] }
-                .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz }
+            peloSentidoIDs = vizinhas.map(\.uuid)
         }
+    }
+
+    /// A seção resolvida contra o caderno vigente. Quem sai do caderno sai da
+    /// seção: a nota apagada, a selada e a queimada não têm cartão no quadro
+    /// seguinte, como já acontecia na lista por letras (`filtradas`).
+    static func resolverPeloSentido(ids: [UUID], entre notas: [Nota]) -> [Nota] {
+        let porId = Dictionary(notas.map { ($0.uuid, $0) }, uniquingKeysWith: { a, _ in a })
+        return ids.compactMap { porId[$0] }
+            .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz }
+    }
+
+    /// Refeita a cada passagem do `body`, do `@Query` — não do retrato guardado.
+    private var peloSentido: [Nota] {
+        peloSentidoIDs.isEmpty ? [] : Self.resolverPeloSentido(ids: peloSentidoIDs, entre: notas)
     }
 
     @ViewBuilder private var secaoPeloSentido: some View {
@@ -1324,7 +1341,9 @@ struct NotasView: View {
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
             .accessibilityValue(versoes(nota) > 1 ? "\(versoes(nota)) versões" : "")
-            .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
+            .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla"
+                               : Self.podeRecordar(nota) ? "Segure para recordar a memória"
+                               : "Segure para mais opções")
             .accessibilityIdentifier("nota-notas")
 
             if temDominio(nota) {
@@ -1365,6 +1384,21 @@ struct NotasView: View {
         .contextMenu { menuDaNota(nota) }
     }
 
+    /// A mesma régua da fila (`Revisoes.podeAgendar`): o «Recordar» só se
+    /// oferece quando o ritual existe. Auditoria 17/09 — a superfície olhava só
+    /// o SELO (`!nota.trancada`), e selo não é fecho: (a) a expressiva EM CURSO
+    /// passava e o item abria o desabafo inteiro na folha de releitura, que o
+    /// §8 só permite com dupla confirmação e Face ID; (b) a QUEIMADA também
+    /// passava — `queimar` zera `trancada` — e morria calada no `guard` da
+    /// `Sessao`, um item morto na nota que o app acabou de dizer que destruiu
+    /// (§8.7: queimada não abre, e o app DIZ); (c) sem alvo (Decisão sem
+    /// «espero», Destilar sem corte, Se sem Então) o toque também não abria
+    /// nada (§15: «Recordar: desabilitado sem alvo»).
+    static func podeRecordar(_ nota: Nota) -> Bool {
+        Revisoes.podeAgendar(gesto: nota.gesto, trancada: nota.fechada,
+                             texto: nota.texto, campos: nota.campos)
+    }
+
     /// O mesmo menu no cartão da nota e no de «Hora de conferir», que é a mesma nota
     /// (auditoria 16/09 noite: o toque longo ali abria em vez de mostrar o menu).
     @ViewBuilder private func menuDaNota(_ nota: Nota) -> some View {
@@ -1373,7 +1407,7 @@ struct NotasView: View {
         let aberta = !nota.fechada && nota.gesto != .expressiva
         let fatia = FatiaCorpus.de(nota)
         Section {
-            if !nota.trancada {
+            if Self.podeRecordar(nota) {
                 Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
             }
             if !fatia.nuncaSai {

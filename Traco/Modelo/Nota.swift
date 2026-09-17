@@ -207,7 +207,8 @@ final class Nota {
             trancada: trancada, queimada: queimada, queimadaEm: queimadaEm,
             minutosEscritos: minutosEscritos, sentido: sentido,
             dominio: dominio, dominioTravado: dominioTravado,
-            gatilhoEm: gatilhoEm, serieUUID: serieUUID, diaDaSerie: diaDaSerie
+            gatilhoEm: gatilhoEm, serieUUID: serieUUID, diaDaSerie: diaDaSerie,
+            origem: origem
         )
     }
 
@@ -224,6 +225,10 @@ final class Nota {
         n.gatilhoEm = r.gatilhoEm
         n.serieUUID = r.serieUUID
         n.diaDaSerie = r.diaDaSerie
+        // ADR 09b: a origem acompanha todo consumidor. Sem ela, desfazer o
+        // apagar devolvia obra, pesquisa e texto do bot como VOZ DO AUTOR — e a
+        // voz dele é o que o Trabalho e o Destaque usam (auditoria 17/09).
+        n.origem = r.origem
         return n
     }
 }
@@ -246,6 +251,7 @@ struct NotaRecuperavel: Sendable, Equatable {
     var gatilhoEm: Date?
     var serieUUID: UUID?
     var diaDaSerie: Int
+    var origem: OrigemNota = .autor
 }
 /// ADR 2026-09-09b — a origem acompanha todo consumidor.
 ///

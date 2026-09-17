@@ -456,6 +456,29 @@ struct SabiaTests {
         #expect(Sabia.aplicar([Sabia.Rotulo(i: 0, forma: .lista)], a: "# já é título") == "# já é título")
     }
 
+    /// Auditoria 17/09: a célula vazia do autor era DESCARTADA e as células à
+    /// direita dela subiam uma coluna — «atrasou» aparecia na coluna Gasto e a
+    /// coluna Nota sumia, na nota gravada. Palavra do autor não muda de coluna
+    /// (ADR 2026-09-02o).
+    @Test func tabelaGuardaACelulaVaziaSemEscorregarAsColunas() {
+        let mapa = [Sabia.Rotulo(i: 0, forma: .tabela)]
+        // colada de planilha, com um valor em falta no meio
+        #expect(Sabia.aplicar(mapa, a: "Mês\tGasto\tNota\nJan\t120\tok\nFev\t\tatrasou")
+                == "| Mês | Gasto | Nota |\n| --- | --- | --- |\n| Jan | 120 | ok |\n| Fev |  | atrasou |")
+        // linha curta completa-se à direita, não à esquerda
+        #expect(Sabia.aplicar(mapa, a: "Mês | Gasto | Nota\nFev | 120")
+                == "| Mês | Gasto | Nota |\n| --- | --- | --- |\n| Fev | 120 |  |")
+        // o pipe da borda é cerca, não célula: o cabeçalho continua com três colunas
+        #expect(Sabia.aplicar(mapa, a: "Mês | Gasto | Nota |\nFev | | atrasou |")
+                == "| Mês | Gasto | Nota |\n| --- | --- | --- |\n| Fev |  | atrasou |")
+        // e a irmã que NÃO acusa: sem célula vazia, a saída é a de antes
+        #expect(Sabia.aplicar(mapa, a: "Mês\tGasto\nJan\t120")
+                == "| Mês | Gasto |\n| --- | --- |\n| Jan | 120 |")
+        // com MAIS células que o cabeçalho ninguém adivinha a coluna: fica como ele escreveu
+        let sobra = "Mês\tGasto\nFev\t120\tatrasou"
+        #expect(Sabia.aplicar(mapa, a: sobra) == sobra)
+    }
+
     @Test func aLinhaComInterrogacaoEAPergunta() {
         #expect(Sabia.perguntaNaNota("texto\n? como defino isso\nmais") == "como defino isso")
         #expect(Sabia.perguntaNaNota("sem pergunta") == nil)

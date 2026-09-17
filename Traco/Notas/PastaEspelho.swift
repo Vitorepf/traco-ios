@@ -44,8 +44,14 @@ nonisolated enum PastaEspelho {
 
     /// Parar de espelhar TIRA a cópia: apagar no app apaga de verdade, e uma
     /// pasta que ninguém mais atualiza mentiria. Só o que este aparelho escreveu.
+    ///
+    /// A ESCOLHA só sai quando a varredura de fato correu. Com o iCloud fora
+    /// ou o volume ausente, `comAcesso` não roda `corpo` — e apagar o bookmark
+    /// ali deixava o caderno inteiro na nuvem sem chave para voltar a limpá-lo,
+    /// com o Perfil dizendo "Espelhar numa pasta" (auditoria 17/09). Nesse caso
+    /// a pasta continua registrada e `chaveEstado` diz por quê.
     static func limpar() {
-        comAcesso { raiz in
+        guard comAcesso({ raiz in
             let fm = FileManager.default
             let manifesto = raiz.appendingPathComponent(".espelho-\(aparelho).json")
             let meus: Set<String> = (try? Data(contentsOf: manifesto))
@@ -53,12 +59,18 @@ nonisolated enum PastaEspelho {
             let notas = raiz.appendingPathComponent("notas", isDirectory: true)
             for nome in meus { try? fm.removeItem(at: notas.appendingPathComponent(nome)) }
             try? fm.removeItem(at: manifesto)
-            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md", "agenda.md"] {
+            // `calendario.json` está nesta lista porque `Corpus.escrever`
+            // também o grava na raiz do espelho (decisão A4: "os compromissos
+            // vão junto"). Sem ele, «Parar de espelhar» deixava a agenda do
+            // autor — título, data e o campo livre de cada compromisso — na
+            // pasta do iCloud, e a raiz nunca ficava vazia, então a pasta
+            // `Traço/` também ficava à vista (auditoria 17/09).
+            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md", "agenda.md", "calendario.json"] {
                 try? fm.removeItem(at: raiz.appendingPathComponent(solto))
             }
             if let resto = try? fm.contentsOfDirectory(atPath: notas.path), resto.isEmpty { try? fm.removeItem(at: notas) }
             if let resto = try? fm.contentsOfDirectory(atPath: raiz.path), resto.isEmpty { try? fm.removeItem(at: raiz) }
-        }
+        }) else { return }
         defaults.removeObject(forKey: chave)
         defaults.removeObject(forKey: chaveNome)
         defaults.removeObject(forKey: chaveEstado)
@@ -69,8 +81,10 @@ nonisolated enum PastaEspelho {
     /// que um espelho que finge gravar — e o Perfil diz que sumiu (ADR 05s).
     /// Pasta que resolve mas não recebe escrita (iCloud fora, volume ausente)
     /// não roda `corpo`: a cópia fica só no aparelho, e a linha diz isso.
-    static func comAcesso(_ corpo: (URL) -> Void) {
-        guard let dados = defaults.data(forKey: chave) else { return }
+    /// Devolve se `corpo` correu: quem limpa precisa saber se alcançou a pasta.
+    @discardableResult
+    static func comAcesso(_ corpo: (URL) -> Void) -> Bool {
+        guard let dados = defaults.data(forKey: chave) else { return false }
         let nome = defaults.string(forKey: chaveNome) ?? "escolhida"
         var velho = false
         guard let url = try? URL(resolvingBookmarkData: dados, options: [], relativeTo: nil, bookmarkDataIsStale: &velho) else {
@@ -79,7 +93,7 @@ nonisolated enum PastaEspelho {
             defaults.removeObject(forKey: chave)
             defaults.removeObject(forKey: chaveNome)
             defaults.set("a pasta “\(nome)” não existe mais; guardando só no aparelho", forKey: chaveEstado)
-            return
+            return false
         }
         if velho, let novo = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
             defaults.set(novo, forKey: chave)
@@ -90,10 +104,11 @@ nonisolated enum PastaEspelho {
             let nuvem = url.path.contains("Mobile Documents") || url.path.contains("CloudDocs")
             defaults.set(nuvem ? "iCloud indisponível; guardando só no aparelho"
                                : "a pasta “\(nome)” está indisponível; guardando só no aparelho", forKey: chaveEstado)
-            return
+            return false
         }
         defaults.removeObject(forKey: chaveEstado)
         let raiz = url.appendingPathComponent("Traço", isDirectory: true)
         corpo(raiz)
+        return true
     }
 }

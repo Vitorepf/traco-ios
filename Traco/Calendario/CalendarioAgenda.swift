@@ -386,7 +386,10 @@ final class CalendarioAgenda {
     /// ADR 04a: o compromisso existe FORA do app — widget, tela bloqueada e
     /// Ilha. Toda escrita no calendário republica o próximo.
     func publicarProximo(agora: Date = .now, mudo: UUID? = nil) {
-        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos + doSistema),
+        // `doSistema` NÃO vai daqui: é a faixa visível da grade, e a face tem
+        // horizonte próprio. Quem os junta é `publicar`, do espelho dos sete
+        // dias (`CalendarioSistema.naSuperficie`) — igual em todas as rotas.
+        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos),
                                     cal: cal, agora: agora, mudo: mudo)
     }
 
