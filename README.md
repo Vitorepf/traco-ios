@@ -46,21 +46,26 @@ Projeto gerado por [XcodeGen](https://github.com/yonaskolb/XcodeGen) — o
 ```bash
 xcodegen generate
 xcodebuild build -project Traco.xcodeproj -scheme Traco \
-  -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath build
+  -destination 'platform=iOS Simulator,name=iPhone 17e' -derivedDataPath build
 ```
 
-Testes (Swift Testing, inclui fuzz de propriedade do parser):
+Portão (compila app e testes e roda a suíte unitária no iPhone 17e, pela trava
+`ferramentas/orca/com-trava.sh`; Swift Testing, inclui fuzz do parser):
 
 ```bash
-xcodebuild test -project Traco.xcodeproj -scheme Traco \
-  -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath build
+ferramentas/portao.sh              # suíte no 17e
+ferramentas/portao.sh --compilar   # só compila, sem simulador
+ferramentas/portao.sh --instalar   # pre-commit que recusa commit de Swift que não compila
 ```
 
-Os exemplos exigem Xcode, XcodeGen e um simulador iPhone 17 disponível. Confira
-`xcrun simctl list devices available`; com nomes repetidos, use
-`-destination 'platform=iOS Simulator,id=<UDID escolhido>'`. Na auditoria desta
-evolução, build e testes rodaram em candidato isolado, com UDID explícito; não
-se presume que o projeto gerado ou um simulador arbitrário já estejam atualizados.
+A suíte nunca roda no iPhone Air da conta Grok (instalar por cima, nunca
+desinstalar ou testar ali). Com nomes repetidos, use
+`-destination 'platform=iOS Simulator,id=<UDID escolhido>'`. Os testes de UI
+(`TracoUITests`) ficam no esquema próprio e dirigem o aparelho: rode-os à parte.
+
+**Produção** é a build Release instalada no iPhone do dono (o Traço é só dele,
+sem loja). As rotas `#if DEBUG` — sondas `TRACO_AVALIAR_*`, modelo falso,
+medições — não existem em Release.
 
 Varredura E2E ([Maestro](https://maestro.mobile.dev)) — recusa rodar com mais
 de um simulador ligado, porque com dois o instalador e o driver escolhem
@@ -125,4 +130,4 @@ maestro/       fluxos E2E; cenarios/ = famílias hostis
 - `DOSSIE.md`, `VIZINHANCA.md`, `REFERENCIAS.md`, `CATALOGO.md`, `COLHEITA.md` — o mercado e o que se colheu dele.
 - `ferramentas/traco-mcp/` — o companheiro no Mac: servidor MCP de consulta e entrada de notas na pasta do Traço; não é ainda um executor geral de realizações.
 - SPEC ADRs 2026-09-02o a q — contratos locais da sábia/prática, formas Decisão e Pré-mortem e revisão da semana; não são veto global à produção delegada.
-- SPEC ADRs 2026-09-04g a s — o ciclo da mente: o sinal (serviu / não serviu), o retrato que viaja com cada pergunta, degraus para instigar e vestir, as formas que se encadeiam (DEPOIS DISTO), o catálogo de 21 métodos como dado (`Traco/Modelo/Metodos.json` + `Documents/Traço/metodos/*.json`), Contrapor, o índice de sentido no aparelho, o corpus incremental, a entrada do Mac (`entrada/`, pelo MCP `traco_escrever`), a trajetória nos Padrões, e a doutrina "abundante no ato, calada na pausa".
+- SPEC ADRs 2026-09-04g a s — o ciclo da mente: o sinal (serviu / não serviu), o retrato que viaja com cada pergunta, degraus para instigar e vestir, as formas que se encadeiam (DEPOIS DISTO), o catálogo de métodos como dado (21 em 04/09; 28 em 17/09) (`Traco/Modelo/Metodos.json` + `Documents/Traço/metodos/*.json`), Contrapor, o índice de sentido no aparelho, o corpus incremental, a entrada do Mac (`entrada/`, pelo MCP `traco_escrever`), a trajetória nos Padrões, e a doutrina "abundante no ato, calada na pausa".

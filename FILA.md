@@ -90,7 +90,7 @@ swipe-back (P3 opcional) · App Store signing/TestFlight (BLOQUEADO: conta
 Apple Developer do dono).
 
 + pt/en fatia 1: String Catalog (77 chaves, base pt, en traduzido), developmentRegion
-  pt, en.lproj no bundle — "Notes"/"Analyze" renderizando em inglês (evidencia-en.png).
+  pt, en.lproj no bundle — "Notes"/"Analyze" renderizando em inglês (_historico/raiz-02-09/evidencia-en.png).
   Teto: literais do SwiftUI localizam; strings dinâmicas (nomes de forma via variável,
   toasts, notificação) precisam de String(localized:) — fatia 2.
 
