@@ -1,0 +1,233 @@
+{
+  "caderno" : "prova\/e6c\/caderno.json",
+  "ecos" : [
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n052"
+      ],
+      "id" : "c01",
+      "tipo" : "consequencia"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n014"
+      ],
+      "id" : "c02",
+      "tipo" : "padrao"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n028"
+      ],
+      "id" : "c03",
+      "tipo" : "compromisso"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n064"
+      ],
+      "id" : "c04",
+      "tipo" : "contradicao"
+    },
+    {
+      "emA_40recentes" : [
+        "n196"
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n196",
+        "n059"
+      ],
+      "id" : "c05",
+      "tipo" : "mesma-decisao"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n190"
+      ],
+      "id" : "c06",
+      "tipo" : "consequencia"
+    },
+    {
+      "emA_40recentes" : [
+        "n202"
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n010",
+        "n202"
+      ],
+      "id" : "c07",
+      "tipo" : "padrao"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n040"
+      ],
+      "id" : "c08",
+      "tipo" : "compromisso"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+        "n187"
+      ],
+      "esperadas" : [
+        "n187"
+      ],
+      "id" : "c09",
+      "tipo" : "contradicao"
+    },
+    {
+      "emA_40recentes" : [
+
+      ],
+      "emB_20recentes20palavras" : [
+
+      ],
+      "esperadas" : [
+        "n022"
+      ],
+      "id" : "c10",
+      "tipo" : "mesma-decisao"
+    }
+  ],
+  "perguntas" : [
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n006"
+      ],
+      "id" : "p01"
+    },
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n002"
+      ],
+      "id" : "p02"
+    },
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n045"
+      ],
+      "id" : "p03"
+    },
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n063"
+      ],
+      "id" : "p04"
+    },
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n034"
+      ],
+      "id" : "p05"
+    },
+    {
+      "controle" : false,
+      "emCandidatasDoAutor30" : [
+
+      ],
+      "esperadas" : [
+        "n070"
+      ],
+      "id" : "p06"
+    },
+    {
+      "controle" : true,
+      "emCandidatasDoAutor30" : [
+        "n017"
+      ],
+      "esperadas" : [
+        "n017"
+      ],
+      "id" : "p07"
+    },
+    {
+      "controle" : true,
+      "emCandidatasDoAutor30" : [
+        "n086"
+      ],
+      "esperadas" : [
+        "n086"
+      ],
+      "id" : "p08"
+    }
+  ],
+  "resumo" : {
+    "controlesAchados" : 2,
+    "emA" : 2,
+    "emB" : 1,
+    "esperadasEcos" : 12,
+    "perguntasSemPalavra" : 6,
+    "perguntasSemPalavraAchadas" : 0
+  },
+  "tempos400" : {
+    "A_ms" : 9.8881959915161133,
+    "B_ms_notaLonga" : 167.35420227050781,
+    "candidatasDoAutor_ms" : 33.415603637695312,
+    "notas" : 400
+  }
+}
