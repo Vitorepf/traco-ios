@@ -1,0 +1,159 @@
+{
+  "adrs": {
+    "total": 168,
+    "duplicatas_historicas": {
+      "2026-09-09q": "Q2-F (comparação pareada) e B2 (a rota que cala) reservaram a mesma letra em ramos paralelos"
+    }
+  },
+  "operacoes": {
+    "total": 17,
+    "por_regra": {
+      "grokDepoisBordo": [
+        "classificar",
+        "vestir"
+      ],
+      "indisponivelPorQualidade": [
+        "calibragem",
+        "contrapor",
+        "ecos",
+        "instigar",
+        "recordar",
+        "responder"
+      ],
+      "soBordo": [
+        "dominio"
+      ],
+      "soGrok": [
+        "conferir",
+        "conferirTentativa",
+        "escolherRegra",
+        "padroes",
+        "prepararPratica",
+        "produzir",
+        "responderNasNotas",
+        "revisar"
+      ]
+    },
+    "linhas": {
+      "produzir": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/4.md",
+          "prova/qualidade-ia-avaliacao-base.md"
+        ]
+      },
+      "prepararPratica": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/6.md"
+        ]
+      },
+      "conferirTentativa": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/6.md"
+        ]
+      },
+      "revisar": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/5.md"
+        ]
+      },
+      "conferir": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/q-qualidade-avaliacoes.jsonl",
+          "prova/qualidade-ia-q5-avaliacao-base.md"
+        ]
+      },
+      "ecos": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
+          "ferramentas/orca/q-qualidade.md",
+          "prova/q-qualidade-avaliacoes.jsonl"
+        ]
+      },
+      "calibragem": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
+          "prova/q-qualidade-avaliacoes.jsonl"
+        ]
+      },
+      "padroes": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/qualidade-ia-q5-avaliacao-base.md"
+        ]
+      },
+      "recordar": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/cauda-ecos-calibragem-recordar.md",
+          "prova/q-qualidade-avaliacoes.jsonl"
+        ]
+      },
+      "responderNasNotas": {
+        "regra": "soGrok",
+        "provas": [
+          "ferramentas/orca/q3-responder-nas-notas.md",
+          "prova/lote09d-q3-grok-4.3.jsonl",
+          "prova/lote09d-q3-grok-4.5.jsonl"
+        ]
+      },
+      "responder": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/responder.md",
+          "prova/10b",
+          "prova/10b2"
+        ]
+      },
+      "instigar": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/instigar.md",
+          "ferramentas/orca/q-qualidade.md",
+          "ferramentas/orca/revisao-q4-instigar.md",
+          "prova/instigar-lote/t1",
+          "prova/instigar-lote/t2",
+          "prova/lote09c-q4-grok-4.3.jsonl",
+          "prova/lote09c-q4-grok-4.5.jsonl"
+        ]
+      },
+      "contrapor": {
+        "regra": "indisponivelPorQualidade",
+        "provas": [
+          "ferramentas/orca/q-qualidade.md",
+          "ferramentas/orca/q4f-contrapor.md",
+          "prova/lote09g",
+          "prova/lote09h",
+          "prova/lote09i"
+        ]
+      },
+      "vestir": {
+        "regra": "grokDepoisBordo",
+        "provas": []
+      },
+      "classificar": {
+        "regra": "grokDepoisBordo",
+        "provas": []
+      },
+      "dominio": {
+        "regra": "soBordo",
+        "provas": []
+      },
+      "escolherRegra": {
+        "regra": "soGrok",
+        "provas": [
+          "prova/16g",
+          "prova/16i",
+          "prova/16j"
+        ]
+      }
+    }
+  },
+  "achados": []
+}
