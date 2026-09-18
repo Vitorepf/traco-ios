@@ -319,7 +319,7 @@
     },
     "filtro": "Decisões",
     "reconhecimento": "isto é uma escolha entre caminhos.",
-    "movimento": "Diário de decisão. Cobre: quais são as opções de verdade (duas não são opções se uma é palha), qual CRITÉRIO separa uma da outra, que evidência faria mudar de ideia, quanto custa errar para cada lado, e se dá para desfazer. Decisão reversível e barata não merece o mesmo cuidado que uma que não volta.",
+    "movimento": "Diário de decisão. Cobre: quais são as opções de verdade (duas não são opções se uma é palha), qual CRITÉRIO separa uma da outra, que evidência faria mudar de ideia e quanto custa errar para cada lado.",
     "pergunta": "Quais são as opções — uma por linha?",
     "roteamento": [
       "\\b(preciso|tenho que|vou ter que) (decidir|escolher)\\b|\\bdecis[ãa]o\\b|escolher entre|\\bou ent[ãa]o\\b.*\\bou\\b"
@@ -384,10 +384,11 @@
     },
     "filtro": "Pré-mortem",
     "reconhecimento": "isto é um plano que ainda não imaginou a própria falha.",
-    "movimento": "Pré-mortem (Klein, 2007). O enquadramento é obrigatório: é um ano depois e o plano JÁ FALHOU — nunca \"o que pode dar errado\". Cobre as causas dessa falha, qual é a mais provável, e que sinal PRECOCE apareceria primeiro.",
+    "movimento": "Pré-mortem (Klein, 2007). O enquadramento é obrigatório: é um ano depois e o plano JÁ FALHOU — nunca \"o que pode dar errado\". Se ajudar a começar, o caminho curto é o contrário: como você GARANTIRIA que isto falhasse? Cobre as causas dessa falha, qual é a mais provável, e que sinal PRECOCE apareceria primeiro.",
     "pergunta": "Um ano depois, o plano falhou. O que aconteceu?",
     "roteamento": [
-      "pr[ée]-?mortem|imagin[ae] que (deu errado|falhou)|se isto falhar"
+      "pr[ée]-?mortem|imagin[ae] que (deu errado|falhou)|se isto falhar",
+      "\\binvers[ãa]o\\b|\\bcomo garantir que (isso |ele |ela |o plano )?(falhe|d[êe] errado)\\b|\\bo que evitar\\b|\\bpior jeito de\\b|\\bao contr[áa]rio\\b"
     ],
     "campos": [
       {
@@ -407,6 +408,18 @@
         "rotulo": "O que eu mudo no plano agora"
       }
     ],
+    "recordar": {
+      "alvo": [
+        "falhou",
+        "sinal"
+      ],
+      "pista": [
+        "plano"
+      ],
+      "pergunta": "Um ano depois, o que tinha acontecido — e qual foi o primeiro sinal?",
+      "instrucao": "O plano fica. A falha some.",
+      "rotuloAlvo": "A FALHA"
+    },
     "encadeamentos": [
       {
         "rotulo": "Vigiar o sinal (Se–então)",
@@ -447,7 +460,7 @@
     },
     "filtro": "Argumento",
     "reconhecimento": "isto é uma tese que pede evidência e objeção.",
-    "movimento": "Argumento (Toulmin). Tese, evidência, a MELHOR objeção e a resposta a ela. O passo que se pula é a objeção forte: todo mundo responde à fraca. Cobre se a evidência sustenta a tese ou só a ilustra, e se a objeção escolhida é a que um adversário competente faria.",
+    "movimento": "Argumento (Toulmin). Tese, evidência, a MELHOR objeção e a resposta a ela. O passo que o método cobra é a objeção FORTE — não a que é fácil de derrubar. Cobre se a evidência sustenta a tese ou só a ilustra, e se a objeção escolhida é a que um adversário competente faria.",
     "pergunta": "Qual é a melhor objeção — a que um adversário competente faria?",
     "roteamento": [
       "\\b(argumento|tese|defendo que|obje[çc][ãa]o|contra-?argumento|sustento que)\\b"
@@ -583,7 +596,7 @@
     },
     "filtro": "Feynman",
     "reconhecimento": "isto é algo que você quer entender de verdade.",
-    "movimento": "Técnica de Feynman. Explicar como para uma criança de doze anos, achar onde TRAVA, voltar à fonte só nesse ponto. O passo que se pula é o travar: quem explica sem travar usou jargão no lugar da compreensão. Cobre qual palavra da explicação esconde o que não se entende.",
+    "movimento": "Técnica de Feynman. Explicar como para uma criança de doze anos, achar onde TRAVA, voltar à fonte só nesse ponto. O passo que o método cobra é o travar: se a explicação saiu inteira, o método pede a palavra que você usou sem saber explicar. Cobre qual palavra da explicação esconde o que não se entende.",
     "pergunta": "Onde a explicação travou — qual palavra você usou sem saber explicar?",
     "roteamento": [
       "\\bexplicar (como|para|pra)\\b|\\bnão entendi\\b|\\bentender de verdade\\b|\\bfeynman\\b|\\bcomo funciona\\b"
@@ -646,7 +659,7 @@
     },
     "filtro": "Dia",
     "reconhecimento": "isto é o seu dia pedindo ordem.",
-    "movimento": "O dia (Ivy Lee). A única, as três seguintes em ordem, o que vai ROUBAR o dia e o que se faz quando roubar. O passo que se pula é nomear o ladrão antes: todo mundo planeja como se o dia fosse obedecer. À noite, o que roubou de fato. Cobre se a única é uma só, e se o ladrão nomeado é o de verdade.",
+    "movimento": "O dia (Ivy Lee). A única, as três seguintes em ordem, o que vai ROUBAR o dia e o que se faz quando roubar. O passo que o método cobra é nomear o ladrão ANTES, e não depois que o dia acabou. À noite, o que roubou de fato. Cobre se a única é uma só, e se o ladrão nomeado é o de verdade.",
     "pergunta": "O que vai roubar o dia — e o que você faz quando roubar?",
     "roteamento": [
       "\\bmeu dia\\b|\\bplanejar o dia\\b|\\bo dia de hoje\\b|\\bprioridades de hoje\\b|\\bhoje eu (preciso|tenho que|vou)\\b"
@@ -882,7 +895,7 @@
     },
     "filtro": "Divergência",
     "reconhecimento": "isto pede muitas opções antes de escolher.",
-    "movimento": "Divergência (Osborn, brainstorming individual). Dez opções cruas SEM julgar, a mais estranha, e o que a estranha ensina. O passo que se pula é chegar a dez: a maioria para na terceira, que é a óbvia. Cobre se há dez de verdade, e o que a mais estranha revela sobre o problema.",
+    "movimento": "Divergência (Osborn, brainstorming individual). Dez opções cruas SEM julgar, a mais estranha, e o que a estranha ensina. O passo que o método cobra é chegar a dez, e a conta é literal: com três, não houve divergência. Cobre se há dez de verdade, e o que a mais estranha revela sobre o problema.",
     "pergunta": "Há dez de verdade — ou você parou na terceira, que é a óbvia?",
     "roteamento": [
       "\\bdez (op[çc][õo]es|ideias|jeitos)\\b|\\bbrainstorm\\b|\\bdivergir\\b|\\btodas as (op[çc][õo]es|ideias|possibilidades)\\b|\\bde quantos jeitos\\b"
@@ -1747,5 +1760,1167 @@
       }
     ],
     "definicao": "o dia julgado à noite pelos próprios atos, com uma regra concreta para a próxima vez"
+  },
+  {
+    "id": "fatoContrario",
+    "nome": "A nota do fato contrário",
+    "origem": "Charles Darwin",
+    "faculdade": "honestidade",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral. Charles Darwin, The Autobiography of Charles Darwin (escrita em 1876, publicada em 1887 por Francis Darwin); texto integral lido no Project Gutenberg, eBook 2010",
+      "funcao": "pratica",
+      "adaptacao": "Darwin descreve um hábito de captura, não um formulário. O Traço faz quatro campos e cobra a única coisa que a regra exige — escrever AGORA, com o fato do jeito que ele veio. O campo da resposta nasce vazio de propósito e só aparece depois: a regra é sobre capturar, não sobre vencer a objeção.",
+      "evidencia": "Darwin relata o hábito e o resultado que atribui a ele: quase nenhuma objeção o pegou desprevenido. É testemunho de um cientista sobre a própria prática — sem controle, sem medida, e contado por quem já sabia que tinha dado certo. Não há evidência de que anotar o fato contrário faça diferença em quem não seja Darwin.",
+      "aplicabilidade": "Serve para o instante em que aparece um fato, uma observação ou um argumento CONTRA o que o autor sustenta. Não serve para dúvida geral nem para autocrítica: sem um fato específico, não é isto."
+    },
+    "filtro": "Fato contrário",
+    "reconhecimento": "isto é um fato contra o que você defende — e ele foge.",
+    "movimento": "A regra de ouro de Darwin. Quando aparece um fato, uma observação ou uma ideia CONTRÁRIA ao que se sustenta, anotar sem falta e na hora — porque, como Darwin observou em si mesmo, o contrário escapa da memória muito mais depressa que o favorável. Cobre o fato como ele veio, não como você o rebateria: a resposta pode ficar em branco. Cobre também o que ele atinge e o que teria de ser verdade para ele ser decisivo.",
+    "pergunta": "O fato, do jeito que ele veio. A resposta pode ficar para depois.",
+    "roteamento": [
+      "\\bcontra o que eu (acho|penso|defendo|sustento)\\b|\\bisso contraria\\b|\\bcontradiz o que eu\\b|\\bn[ãa]o bate com o que eu\\b",
+      "\\bfato contr[áa]rio\\b|\\bachei um (dado|estudo|caso|n[úu]mero) contra\\b|\\bevid[êe]ncia contra\\b",
+      "\\bderruba (a minha|minha) (ideia|hip[óo]tese|posi[çc][ãa]o)\\b|\\bfala contra a minha\\b"
+    ],
+    "campos": [
+      {
+        "id": "fato",
+        "rotulo": "O fato contrário, como ele veio"
+      },
+      {
+        "id": "contra",
+        "rotulo": "O que ele atinge (o que eu sustento)"
+      },
+      {
+        "id": "onde",
+        "rotulo": "Onde eu topei com ele"
+      },
+      {
+        "id": "decisivo",
+        "rotulo": "O que teria de ser verdade para ele ser decisivo"
+      },
+      {
+        "id": "resposta",
+        "rotulo": "A minha resposta, quando eu tiver",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "fato"
+      ],
+      "pista": [
+        "contra"
+      ],
+      "pergunta": "Qual era o fato que ia contra?",
+      "instrucao": "O que você sustenta fica. O fato contrário some — como ele sempre faz.",
+      "rotuloAlvo": "O FATO CONTRÁRIO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Quanto isto mexe na crença",
+        "para": "atualizacao",
+        "mapa": {
+          "acredito": "contra",
+          "descer": "fato"
+        },
+        "exige": [
+          "fato"
+        ]
+      },
+      {
+        "rotulo": "Montar o argumento com esta objeção",
+        "para": "argumento",
+        "mapa": {
+          "tese": "contra",
+          "objecao": "fato"
+        },
+        "exige": [
+          "fato"
+        ]
+      }
+    ],
+    "definicao": "um fato, observação ou ideia contrária ao que o autor sustenta, anotada na hora"
+  },
+  {
+    "id": "ordemDeGrandeza",
+    "nome": "Ordem de grandeza",
+    "origem": "Enrico Fermi, 1945",
+    "faculdade": "quantidade",
+    "proveniencia": {
+      "fonte": "GRAU A para o relatório de Fermi, lido na íntegra; GRAU D para a prática (problema de Fermi, tradição de ensino de física, sem autor único). Enrico Fermi, \"My Observations During the Explosion at Trinity on July 16, 1945\"; relatório curto, lido na íntegra. A prática de estimar por decomposição ficou conhecida como problema de Fermi e é tradição de ensino de física, sem autor único.",
+      "funcao": "pratica",
+      "adaptacao": "Fermi estimou uma grandeza com o que tinha na mão, em segundos. O Traço faz disso cinco campos: a pergunta, os fatores em que ela se quebra com o palpite de cada um, a conta, a CASA — e o campo que separa número de opinião: o que teria de ser verdade para o resultado mudar de casa.",
+      "evidencia": "O relatório de Fermi é observação de campo, não artigo de método: ele não propõe técnica nenhuma. E o número dele estava errado — estimou dez mil toneladas de TNT, e o cálculo final deu vinte e uma mil. Errado por mais do dobro, e ainda assim mais perto do que a maior parte das previsões de Los Alamos. A promessa do método é a casa e a velocidade, não a precisão. Não há estudo de eficácia.",
+      "aplicabilidade": "Serve para uma quantidade desconhecida que se quebra em fatores palpitáveis. Não serve quando existem casos parecidos com desfecho conhecido — aí é a Classe de referência — nem quando a resposta exata está a um clique."
+    },
+    "filtro": "Ordem de grandeza",
+    "reconhecimento": "isto é uma quantidade que dá para estimar antes de medir.",
+    "movimento": "Ordem de grandeza (problema de Fermi). Quebrar a pergunta em fatores que dá para palpitar, palpitar cada um, multiplicar, e dizer a CASA: dezenas, milhares, milhões. Cobre o palpite de cada fator separado — o palpite escondido dentro da cabeça não conta — e a pergunta que separa número de opinião: o que teria de ser verdade para o resultado mudar de casa.",
+    "pergunta": "Em que fatores isto se quebra — e quanto é cada um?",
+    "roteamento": [
+      "\\bordem de grandeza\\b|\\bchute de quanto\\b|\\bn[úu]mero aproximado\\b|\\bproblema de fermi\\b",
+      "\\bd[áa] para estimar\\b|\\bquanto (dá|daria) mais ou menos\\b|\\bquantos? mais ou menos\\b",
+      "\\bnem sei a ordem\\b|\\bnem imagino quanto\\b|\\bquanto ser[áa] que d[áa]\\b"
+    ],
+    "campos": [
+      {
+        "id": "quantidade",
+        "rotulo": "A quantidade que eu quero saber"
+      },
+      {
+        "id": "fatores",
+        "rotulo": "Os fatores, um por linha, com o meu palpite"
+      },
+      {
+        "id": "conta",
+        "rotulo": "A conta e o resultado"
+      },
+      {
+        "id": "casa",
+        "rotulo": "A casa: dezenas, centenas, milhares…"
+      },
+      {
+        "id": "muda",
+        "rotulo": "O que teria de ser verdade para mudar de casa"
+      },
+      {
+        "id": "medido",
+        "rotulo": "O número de verdade, quando eu souber",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "casa",
+        "muda"
+      ],
+      "pista": [
+        "quantidade"
+      ],
+      "pergunta": "Qual era a casa, e o que a mudaria?",
+      "instrucao": "A pergunta fica. O número some.",
+      "rotuloAlvo": "A CASA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Tem casos parecidos? Classe de referência",
+        "para": "classeDeReferencia",
+        "mapa": {
+          "estimo": "quantidade"
+        },
+        "exige": [
+          "quantidade"
+        ]
+      },
+      {
+        "rotulo": "Conferir o número em 30 dias",
+        "compromisso": {
+          "titulo": "o número de verdade: ",
+          "campo": "quantidade",
+          "dias": 30
+        },
+        "exige": [
+          "casa"
+        ]
+      }
+    ],
+    "definicao": "uma quantidade desconhecida que se quebra em fatores palpitáveis (\"ordem de grandeza\", \"dá para estimar\")"
+  },
+  {
+    "id": "comecariaHoje",
+    "nome": "Começaria hoje?",
+    "origem": "Jevons, 1871",
+    "faculdade": "desapego",
+    "proveniencia": {
+      "fonte": "GRAU A para Jevons, lido no fac-símile; GRAU B para Arkes e Blumer — metadados conferidos, texto integral atrás de paywall, NÃO lido. William Stanley Jevons, The Theory of Political Economy (1871), p. 159–160: \"In commerce, bygones are for ever bygones\"; texto integral lido no exemplar digitalizado da Universidade de Toronto, no Internet Archive. O viés que o método existe para vencer está documentado em Hal R. Arkes e Catherine Blumer, \"The psychology of sunk cost\", Organizational Behavior and Human Decision Processes 35(1), 1985, p. 124–140.",
+      "funcao": "lente",
+      "adaptacao": "Jevons enuncia o princípio; o Traço o transforma em pergunta com data. O que já foi gasto ganha um campo — para ser escrito e posto de lado, não ignorado — e a decisão é tomada como se hoje fosse o primeiro dia.",
+      "evidencia": "Jevons argumenta, não mede: é economia clássica de 1871. De Arkes e Blumer eu confirmei os metadados no Crossref, mas NÃO li o texto integral, que está atrás de paywall — digo isto em vez de citar de segunda mão. E a literatura posterior não é unânime: o próprio Arkes assina, em 1998, um trabalho intitulado \"Failure to demonstrate the sunk cost effect in a field experiment\". Nada aqui alega que responder à pergunta melhore decisão alguma.",
+      "aplicabilidade": "Serve para algo em curso em que já se investiu tempo, dinheiro ou reputação. Não serve para escolha nova — aí é a Decisão — nem para o que não dá para abandonar."
+    },
+    "filtro": "Começaria hoje?",
+    "reconhecimento": "isto já consumiu muito, e é por isso que continua.",
+    "movimento": "Bygones (Jevons, 1871): o trabalho já gasto não tem influência sobre o valor futuro de coisa nenhuma. Escrever o que já foi gasto — para tirar do caminho, não para fingir que não houve — e decidir como se hoje fosse o primeiro dia: sabendo o que eu sei agora, eu começaria isto hoje? Cobre a resposta honesta em uma frase e o que muda: seguir com critério novo, ou parar dizendo o que se leva.",
+    "pergunta": "Sabendo o que você sabe hoje, você começaria isto hoje?",
+    "roteamento": [
+      "\\bj[áa] investi\\b|\\bj[áa] gastei tanto\\b|\\bdepois de tudo (que|o que) eu\\b",
+      "\\bcusto afundado\\b|\\bcome[çc]aria (isso |isto )?hoje\\b|\\bcome[çc]aria de novo\\b",
+      "\\bn[ãa]o posso parar agora\\b|\\bseria desperd[íi]cio (parar|desistir|largar)\\b|\\bjogar fora tudo\\b"
+    ],
+    "campos": [
+      {
+        "id": "oQue",
+        "rotulo": "O que está em curso"
+      },
+      {
+        "id": "gastei",
+        "rotulo": "O que eu já gastei (tempo, dinheiro, reputação)"
+      },
+      {
+        "id": "hoje",
+        "rotulo": "Sabendo o que sei hoje, eu começaria isto hoje?"
+      },
+      {
+        "id": "porque",
+        "rotulo": "Por quê — em uma frase"
+      },
+      {
+        "id": "faco",
+        "rotulo": "O que eu faço: sigo com que critério, ou paro"
+      },
+      {
+        "id": "levo",
+        "rotulo": "Se parar: o que eu levo daqui"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir com critério novo",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "oQue",
+          "criterio": "porque"
+        },
+        "exige": [
+          "faco"
+        ]
+      },
+      {
+        "rotulo": "Se parar, o que sai",
+        "para": "subtracao",
+        "mapa": {
+          "melhorar": "oQue",
+          "sai": "oQue"
+        },
+        "exige": [
+          "faco"
+        ]
+      },
+      {
+        "rotulo": "Perguntar de novo em 30 dias",
+        "compromisso": {
+          "titulo": "ainda começaria hoje? ",
+          "campo": "oQue",
+          "dias": 30
+        },
+        "exige": [
+          "faco"
+        ]
+      }
+    ],
+    "definicao": "algo em curso que continua por causa do que já se gastou (\"já investi muito\", \"não posso parar agora\")"
+  },
+  {
+    "id": "combinado",
+    "nome": "O combinado",
+    "origem": "Winograd e Flores, 1986",
+    "faculdade": "coordenação",
+    "proveniencia": {
+      "fonte": "GRAU A: artigo publicado, lido no texto integral. Terry Winograd, \"A Language/Action Perspective on the Design of Cooperative Work\", CSCW '86 (Austin, dezembro de 1986); versão em Human-Computer Interaction 3(1), 1987, p. 3–30. Texto integral lido. A estrutura da conversa para ação vem de Fernando Flores (1981) e de Winograd e Flores, Understanding Computers and Cognition (1986).",
+      "funcao": "lente",
+      "adaptacao": "A conversa para ação tem duas pessoas e, no artigo, um sistema que acompanha os estados. O Traço tem uma pessoa e uma nota: o autor escreve o pedido na frase que usou, as condições de satisfação como as duas partes as entenderiam, a resposta que veio de fato — e, na volta, se ele declarou satisfeito. Nada disto governa o outro; é o autor escrevendo o que combinou.",
+      "evidencia": "É uma perspectiva de projeto, não um estudo de eficácia. Winograd diz que o diagrama \"não é um modelo do estado mental\" de ninguém, e sim a estrutura da conversa. O próprio artigo observa que, no hospital que ele descreve, o aceite é presumido quando não há recusa explícita e a declaração de satisfação fica implícita — ou seja, o que este método cobra é justamente o que a prática deixa de fora. Há crítica publicada: Lucy Suchman, \"Do categories have politics?\", CSCW 2, 1993, p. 177–190, argumenta que transformar conversa em máquina de estados impõe disciplina a quem é pedido. Numa nota pessoal isso não se aplica do mesmo jeito, mas fica dito.",
+      "aplicabilidade": "Serve para um pedido ou uma promessa entre duas pessoas, com prazo. Não serve para tarefa só sua — aí é a Especificação — nem para conversa que já azedou, que é a Coluna da esquerda."
+    },
+    "filtro": "Combinado",
+    "reconhecimento": "isto é um combinado com outra pessoa.",
+    "movimento": "Conversa para ação (Winograd e Flores). Um pedido só existe com condições de satisfação — o que as DUAS partes vão entender por pronto — e com um aceite explícito: silêncio não é aceite, e recusa e contraproposta são respostas legítimas. E o combinado não termina quando o outro entrega: termina quando quem pediu DECLARA que está satisfeito. Cobre as condições, a resposta que veio de fato, e a declaração no fim.",
+    "pergunta": "Como vocês dois vão saber que está pronto?",
+    "roteamento": [
+      "\\bcombinei com\\b|\\bficou combinado\\b|\\bo combinado (era|foi)\\b|\\bcondi[çc][õo]es de satisfa[çc][ãa]o\\b",
+      "\\bpedi (para|pro|pra) (o|a|ele|ela)\\b|\\bprometi (para|pro|pra)\\b|\\bme comprometi a\\b",
+      "\\bficou de (me )?(mandar|fazer|entregar|responder|trazer)\\b|\\bdisse que (ia|iria) (mandar|fazer|entregar)\\b"
+    ],
+    "campos": [
+      {
+        "id": "pedido",
+        "rotulo": "O que eu pedi (ou prometi), na frase que eu usei"
+      },
+      {
+        "id": "quem",
+        "rotulo": "Com quem"
+      },
+      {
+        "id": "pronto",
+        "rotulo": "Condições de satisfação: como nós DOIS vamos saber que está pronto"
+      },
+      {
+        "id": "quando",
+        "rotulo": "Para quando"
+      },
+      {
+        "id": "resposta",
+        "rotulo": "O que veio: aceitou, recusou, contrapôs — ou nada"
+      },
+      {
+        "id": "declarei",
+        "rotulo": "Entregue e declarado satisfeito? O que faltou",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "pronto"
+      ],
+      "pista": [
+        "pedido",
+        "quem"
+      ],
+      "pergunta": "Quais eram as condições de satisfação?",
+      "instrucao": "O pedido fica. O que era \"pronto\" some.",
+      "rotuloAlvo": "O QUE ERA PRONTO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Cobrar o combinado em 7 dias",
+        "compromisso": {
+          "titulo": "combinado: ",
+          "campo": "pedido",
+          "dias": 7
+        },
+        "exige": [
+          "pronto"
+        ]
+      },
+      {
+        "rotulo": "Se azedou, abrir a conversa",
+        "para": "colunaEsquerda",
+        "mapa": {
+          "comQuem": "quem",
+          "disse": "resposta"
+        },
+        "exige": [
+          "resposta"
+        ]
+      }
+    ],
+    "definicao": "um combinado com outra pessoa: o pedido, as condições de satisfação e o aceite (\"combinei com\", \"ficou de me mandar\")"
+  },
+  {
+    "id": "pontoQueDecide",
+    "nome": "O ponto que decide",
+    "origem": "Duncan Sabien, 2017 (double crux)",
+    "faculdade": "desacordo",
+    "proveniencia": {
+      "fonte": "GRAU C: material assinado e datado fora da edição formal (post de comunidade, manual de oficina), lido na íntegra; não passou por editora nem revisão de pares. Duncan Sabien, \"Double Crux — A Strategy for Mutual Understanding\", LessWrong, 2 de janeiro de 2017; o algoritmo é do manual do CFAR. Texto integral lido.",
+      "funcao": "pratica",
+      "adaptacao": "O duplo crux é uma conversa entre duas pessoas. No Traço vira PREPARO: o autor escreve sozinho o próprio crux e o melhor palpite do crux do outro, antes de conversar — e, depois, o campo de volta guarda qual era o crux de verdade. A nota não substitui a conversa; ela é o que se leva para ela.",
+      "evidencia": "Não há estudo nenhum: é material de oficina, e o próprio texto diz que o algoritmo \"tem alguns buracos e esquisitices\" e foi escrito para ser lido junto com uma aula de uma hora. É a proveniência mais recente e mais frágil do catálogo, e a ficha prefere dizer isso a inflá-la. Em compensação, é origem datada, assinada e legível na íntegra — o que dois métodos já colados (Feynman, atribuído sem texto do autor; Dia, anedota sem fonte primária) não têm.",
+      "aplicabilidade": "Serve para um desacordo específico com alguém que você respeita e vai encontrar de novo. Não serve para posição que ninguém defende — isso é o Steelman — nem para discussão em que o outro não quer chegar a lugar nenhum."
+    },
+    "filtro": "Crux",
+    "reconhecimento": "isto é um desacordo sem o fato que o decide.",
+    "movimento": "Duplo crux (Sabien, 2017, do manual do CFAR). Em vez de defender a posição, achar o FATO que decide: aquele que, se fosse falso, faria VOCÊ mudar de ideia. Cobre duas coisas que o método existe para não deixar passar: que o fato seja observável — dito como o mundo é, não como a coisa parece —, e a segunda metade, o crux do OUTRO, no melhor palpite de quem escreve. Sem as duas, não é desacordo localizado: é discussão.",
+    "pergunta": "Que fato, se fosse falso, faria VOCÊ mudar de ideia?",
+    "roteamento": [
+      "\\bduplo crux\\b|\\bdouble crux\\b|\\bponto que decide\\b|\\bonde exatamente (a gente|n[óo]s|eu e ele|eu e ela) discord\\w+\\b",
+      "\\bdiscordamos sobre\\b|\\bn[ãa]o chegamos a (um )?acordo\\b|\\bcada um acha uma coisa\\b",
+      "\\bo que (decidiria|resolveria) (isso|essa discuss[ãa]o|o impasse)\\b|\\bestamos em impasse\\b"
+    ],
+    "campos": [
+      {
+        "id": "desacordo",
+        "rotulo": "Sobre o que a gente discorda, em uma frase"
+      },
+      {
+        "id": "minha",
+        "rotulo": "O que eu sustento"
+      },
+      {
+        "id": "dele",
+        "rotulo": "O que ele sustenta, na melhor versão que eu consigo"
+      },
+      {
+        "id": "meuCrux",
+        "rotulo": "O fato que, se fosse falso, me faria mudar"
+      },
+      {
+        "id": "cruxDele",
+        "rotulo": "O fato que faria ele mudar (meu palpite)"
+      },
+      {
+        "id": "observavel",
+        "rotulo": "Como isso seria observável — o que a gente iria olhar"
+      },
+      {
+        "id": "depois",
+        "rotulo": "Depois da conversa: qual era o crux de verdade",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "meuCrux",
+        "cruxDele"
+      ],
+      "pista": [
+        "desacordo"
+      ],
+      "pergunta": "Qual era o fato que decidia — de cada lado?",
+      "instrucao": "O desacordo fica. Os cruxes somem.",
+      "rotuloAlvo": "O PONTO QUE DECIDE"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Escrever o lado dele no melhor",
+        "para": "steelman",
+        "mapa": {
+          "contraria": "dele"
+        },
+        "exige": [
+          "dele"
+        ]
+      },
+      {
+        "rotulo": "Quanto eu acredito nisso",
+        "para": "atualizacao",
+        "mapa": {
+          "acredito": "minha",
+          "descer": "meuCrux"
+        },
+        "exige": [
+          "meuCrux"
+        ]
+      }
+    ],
+    "definicao": "um desacordo com outra pessoa que ainda não achou o fato que o decide"
+  },
+  {
+    "id": "oQueSeRepetiu",
+    "nome": "O que se repetiu",
+    "origem": "Aristóteles (Ética a Nicômaco)",
+    "faculdade": "balanço",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada. Aristóteles, Ética a Nicômaco, livro I, capítulo 7, e livro II, capítulo 1; tradução inglesa de D. P. Chase, lida no texto integral do Project Gutenberg (eBook 8438). Aristóteles NÃO propõe este exercício: o Traço toma dele o critério — uma vez não estabelece disposição — e monta o resto.",
+      "funcao": "lente",
+      "adaptacao": "O critério de Aristóteles vira contagem: o autor escreve o que DIZ que faz, depois o que fez mais de uma vez com quantas, e o que fez uma vez só e conta como se fosse hábito. O fecho é do Traço: parar de dizer, ou marcar a próxima data.",
+      "evidencia": "É argumento filosófico do século IV a.C., não medida: Aristóteles discute felicidade e virtude ao longo de uma vida inteira, e não faz balanço de ano nem propõe procedimento. Não há estudo de eficácia de nada disto, e a contagem que o método pede é a do próprio autor, sujeita à mesma memória seletiva que ele quer corrigir — por isso o método vale mais com as notas do período à mão.",
+      "aplicabilidade": "Serve para o fim de um período longo (um ano, um trimestre) em que o autor quer separar o que faz do que diz que faz. Não serve para o dia — isso é o Dia — nem para julgar conduta, que é o Exame da noite."
+    },
+    "filtro": "O que se repetiu",
+    "reconhecimento": "isto é um período inteiro pedindo contagem, não lembrança.",
+    "movimento": "O critério de Aristóteles: \"não é uma andorinha nem um dia bonito que fazem a primavera\". Uma vez não estabelece disposição — disposição é o que se repete. Cobre a contagem: o que o autor DIZ que faz, o que ele fez mais de uma vez e QUANTAS, e o que fez uma vez só e conta como hábito. É a contagem, não a lembrança, que separa uma coisa da outra.",
+    "pergunta": "Quantas vezes, de verdade? Uma vez não conta.",
+    "roteamento": [
+      "\\bbalan[çc]o do (ano|semestre|trimestre)\\b|\\bo que ficou (do|desse|deste) ano\\b|\\bfechando o ano\\b",
+      "\\bolhando (o ano|os [úu]ltimos meses|para tr[áa]s)\\b|\\bno ano passado eu\\b|\\bnesse ano eu\\b",
+      "\\beu (sempre|nunca) fa[çc]o isso\\b|\\bvivo fazendo\\b|\\bisso [ée] o que eu fa[çc]o\\b"
+    ],
+    "campos": [
+      {
+        "id": "periodo",
+        "rotulo": "O período (de quando a quando)"
+      },
+      {
+        "id": "digo",
+        "rotulo": "O que eu digo que faço"
+      },
+      {
+        "id": "repeti",
+        "rotulo": "O que eu fiz mais de uma vez — e quantas"
+      },
+      {
+        "id": "umaVez",
+        "rotulo": "O que eu fiz UMA vez e conto como se fosse hábito"
+      },
+      {
+        "id": "paro",
+        "rotulo": "O que eu paro de dizer que faço"
+      },
+      {
+        "id": "sigo",
+        "rotulo": "O que eu levo para o período seguinte, e a primeira data"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "umaVez"
+      ],
+      "pista": [
+        "digo"
+      ],
+      "pergunta": "O que você contava como hábito e tinha feito uma vez só?",
+      "instrucao": "O que você diz que faz fica. A contagem some.",
+      "rotuloAlvo": "A UMA VEZ SÓ"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Virar hábito (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "entao": "sigo"
+        },
+        "exige": [
+          "sigo"
+        ]
+      },
+      {
+        "rotulo": "Conferir a contagem em 90 dias",
+        "compromisso": {
+          "titulo": "quantas vezes? ",
+          "campo": "sigo",
+          "dias": 90
+        },
+        "exige": [
+          "sigo"
+        ]
+      }
+    ],
+    "definicao": "um período longo em que o autor separa o que faz do que diz que faz, contando as vezes"
+  },
+  {
+    "id": "regraQueEuFaco",
+    "nome": "A regra que eu faço",
+    "origem": "Immanuel Kant, 1785",
+    "faculdade": "ética",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada. Immanuel Kant, Fundamentação da Metafísica dos Costumes (1785); tradução inglesa de Thomas Kingsmill Abbott, Fundamental Principles of the Metaphysic of Morals, lida no texto integral no Project Gutenberg (eBook 5682). Kant não propõe um formulário; o Traço toma dele o teste e a distinção entre prudente e certo.",
+      "funcao": "lente",
+      "adaptacao": "O imperativo categórico vira seis campos. O que o Traço acrescenta é a ordem — escrever a regra ANTES de julgá-la, porque a regra escrita como desculpa (\"só desta vez\") já é a resposta — e o campo final, que é a distinção que Kant faz e o resto do catálogo não faz: isto é prudente, ou é certo?",
+      "evidencia": "É filosofia de 1785, uma lente: não há estudo, não há medida, e não pode haver. E a objeção contra o teste tem a mesma idade que ele — desde Constant, discute-se que a universalização produz resultados absurdos em casos-limite (o clássico é mentir ao assassino que pergunta onde está a vítima). O Traço usa o teste como PERGUNTA que obriga a escrever a regra, não como máquina de decidir; quem espera dele uma resposta automática vai se decepcionar, e é isso mesmo.",
+      "aplicabilidade": "Serve para um ato que o autor já sabe fazer e ainda não sabe se deve. Não serve para escolher entre caminhos — isso é a Decisão — nem para o que já foi feito, que é a Reparação."
+    },
+    "filtro": "A regra",
+    "reconhecimento": "isto é um ato que ainda não passou pela pergunta do certo.",
+    "movimento": "O imperativo categórico (Kant, 1785): \"aja só segundo aquela máxima pela qual você possa ao mesmo tempo querer que ela se torne lei universal\". Escrever a REGRA que o ato faz — como lei, não como desculpa — e virá-la geral, inclusive contra você. O teste não é gostar do resultado: é se a regra SOBREVIVE ao virar geral ou se destrói sozinha, como a promessa falsa, que acaba com as promessas. E cobre a distinção que o resto do catálogo não faz: isto é prudente, ou é certo?",
+    "pergunta": "Se valesse para todos, inclusive contra você, a regra ainda funciona?",
+    "roteamento": [
+      "\\bs[óo] (desta|dessa) vez\\b|\\btodo mundo faz\\b|\\bningu[ée]m vai (saber|notar|ver)\\b|\\bn[ãa]o faz mal a ningu[ée]m\\b",
+      "\\be se (todos|todo mundo) fizesse(m|mos)?\\b|\\bimperativo categ[óo]rico\\b|\\bque regra eu estou (fazendo|criando)\\b",
+      "\\bposso fazer isso\\b|\\bseria errado\\b|\\b(é|e) errado (fazer )?isso\\b|\\bisso (é|e) [ée]tico\\b"
+    ],
+    "campos": [
+      {
+        "id": "ato",
+        "rotulo": "O que eu vou fazer"
+      },
+      {
+        "id": "regra",
+        "rotulo": "A regra que eu estaria fazendo (escreva como lei, não como desculpa)"
+      },
+      {
+        "id": "todos",
+        "rotulo": "Se valesse para todos, inclusive contra mim: o que acontece"
+      },
+      {
+        "id": "sobrevive",
+        "rotulo": "A regra sobrevive, ou se destrói ao virar geral?"
+      },
+      {
+        "id": "prudente",
+        "rotulo": "Isto é prudente, é certo, ou só prudente?"
+      },
+      {
+        "id": "faco",
+        "rotulo": "O que eu faço com isso"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "regra",
+        "sobrevive"
+      ],
+      "pista": [
+        "ato"
+      ],
+      "pergunta": "Qual era a regra que aquilo fazia — e ela sobrevivia?",
+      "instrucao": "O ato fica. A regra some.",
+      "rotuloAlvo": "A REGRA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir com este critério",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "ato",
+          "criterio": "sobrevive"
+        },
+        "exige": [
+          "sobrevive"
+        ]
+      },
+      {
+        "rotulo": "Quem paga o que não se vê",
+        "para": "vistoNaoVisto",
+        "mapa": {
+          "ato": "ato"
+        },
+        "exige": [
+          "ato"
+        ]
+      }
+    ],
+    "definicao": "um ato que ainda não passou pela pergunta do certo (\"só desta vez\", \"ninguém vai saber\", \"e se todos fizessem\")"
+  },
+  {
+    "id": "reparacao",
+    "nome": "A reparação",
+    "origem": "Maimônides, Mishneh Torá (c. 1180)",
+    "faculdade": "reparação",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada — NÃO li o hebraico, e isto está dito. Maimônides (Moshe ben Maimon), Mishneh Torá, Hilchot Teshuvá, capítulo 2, seções 1, 2 e 9 (c. 1180); tradução inglesa de Eliyahu Touger (Moznaim), lida no texto integral no Sefaria.",
+      "funcao": "pratica",
+      "adaptacao": "Maimônides escreve um código religioso sobre pecado e perdão. O Traço toma duas coisas e deixa a teologia de fora: a ORDEM da reparação entre pessoas — devolver o que se deve, depois pedir, e pedir de novo — e o critério operacional de que acabou, que não é sentimento e sim a mesma situação com a mesma oportunidade sem repetir.",
+      "evidencia": "É código legal do século XII, não estudo: não há medida de nada, e as afirmações de Maimônides sobre perdão divino não são avaliáveis aqui e não entram na ficha. O que o Traço usa é o critério e a ordem, que são verificáveis pelo próprio autor. Não há evidência de que escrever isto repare relação alguma; quem repara é o que se faz depois de escrever.",
+      "aplicabilidade": "Serve para um dano concreto feito a uma pessoa concreta. Não serve para culpa difusa nem para desabafo — desabafo é a Expressiva, e ela não é comentada."
+    },
+    "filtro": "Reparação",
+    "reconhecimento": "isto é um dano feito a alguém, esperando reparo.",
+    "movimento": "Teshuvá (Maimônides, Hilchot Teshuvá 2). Dano a outra pessoa não se resolve por dentro: \"mesmo que devolva o dinheiro que deve, tem de apaziguá-lo e pedir que o perdoe\". Primeiro o que ela perdeu — não como você se sente —, depois o que dá para devolver, depois o que você vai dizer e quando. E o critério de que acabou é o mais duro: a mesma situação, com a mesma oportunidade, e você não repete. Sentir-se mal não é reparação; é o começo dela.",
+    "pergunta": "O que ELA perdeu — não como você se sente?",
+    "roteamento": [
+      "\\bmagoei\\b|\\bmachuquei\\b|\\bprejudiquei\\b|\\bfiz mal (a|ao|à|para)\\b",
+      "\\bpreciso pedir desculpa\\b|\\bdevo (desculpas|uma desculpa)\\b|\\bpedir perd[ãa]o\\b|\\bcomo (eu )?reparo\\b",
+      "\\bfoi culpa minha\\b|\\bdeixei (ele|ela|eles) na m[ãa]o\\b|\\bquebrei a confian[çc]a\\b"
+    ],
+    "campos": [
+      {
+        "id": "quem",
+        "rotulo": "Quem foi atingido"
+      },
+      {
+        "id": "perdeu",
+        "rotulo": "O que ELA perdeu (não como eu me sinto)"
+      },
+      {
+        "id": "devolvo",
+        "rotulo": "O que dá para devolver, concretamente"
+      },
+      {
+        "id": "digo",
+        "rotulo": "O que eu vou dizer a ela, e quando"
+      },
+      {
+        "id": "teste",
+        "rotulo": "A situação que vai testar: a mesma chance, e eu não repito"
+      },
+      {
+        "id": "foi",
+        "rotulo": "Depois: o que aconteceu quando eu disse",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "teste"
+      ],
+      "pista": [
+        "quem",
+        "perdeu"
+      ],
+      "pergunta": "Qual era a situação que ia testar isso?",
+      "instrucao": "Quem e o quê ficam. O teste some.",
+      "rotuloAlvo": "A SITUAÇÃO DE TESTE"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Vigiar a situação de teste (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "se": "teste"
+        },
+        "exige": [
+          "teste"
+        ]
+      },
+      {
+        "rotulo": "Falar com ela em 3 dias",
+        "compromisso": {
+          "titulo": "falar com ",
+          "campo": "quem",
+          "dias": 3
+        },
+        "exige": [
+          "digo"
+        ]
+      }
+    ],
+    "definicao": "um dano concreto feito a uma pessoa concreta, com o que devolver, o que dizer e a situação que testa"
+  },
+  {
+    "id": "verAntesDeNomear",
+    "nome": "Ver antes de nomear",
+    "origem": "John Ruskin, 1857",
+    "faculdade": "percepção",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral. John Ruskin, The Elements of Drawing (1857), carta I, nota do parágrafo 5; Project Gutenberg, eBook 30325. Ruskin escreve sobre desenho e não propõe este exercício: o Traço toma dele o critério — supomos ver o que apenas sabemos — e monta os campos.",
+      "funcao": "lente",
+      "adaptacao": "Ruskin treina o olho para pintar. O Traço separa em campos o que ele diz estar colado: o registro (só o que uma câmera pegaria) fica em um campo, a conclusão em outro, e mais dois que são do Traço — o que o MESMO registro também poderia significar, e o que seria preciso olhar para separar as duas leituras.",
+      "evidencia": "É um manual de desenho de 1857, uma lente: sem estudo, sem medida. A afirmação de Ruskin sobre a percepção da forma sólida é do seu tempo e a psicologia da percepção discute isso desde então — o Traço não usa a teoria, usa a distinção. Não há evidência de que separar registro e conclusão numa nota melhore julgamento algum.",
+      "aplicabilidade": "Serve para uma cena, tela, relatório ou fala que o autor já está explicando enquanto olha. Não serve quando não há nada para observar — opinião sobre ideia é Argumento."
+    },
+    "filtro": "Ver",
+    "reconhecimento": "isto já veio interpretado — falta o que estava lá.",
+    "movimento": "A inocência do olho (Ruskin, 1857): \"sempre supomos que VEMOS o que apenas sabemos\". Primeiro o registro — só o que uma câmera pegaria: palavras ditas, números, o que se vê —, sem nome, sem causa e sem adjetivo. A conclusão vem depois, em campo separado. Cobre a separação: se no registro aparecer uma palavra que já explica (nervoso, atrasado, ruim, confuso), ela é da conclusão. E cobre o que o mesmo registro também poderia significar.",
+    "pergunta": "O que uma câmera teria registrado — sem nome, sem causa?",
+    "roteamento": [
+      "\\bcl[áa]ro que (ele|ela|eles|isso|est[áa])\\b|\\bobviamente (ele|ela|eles|est[áa]|foi)\\b|\\bd[áa] para ver que\\b|\\best[áa] na cara que\\b",
+      "\\bs[óo] o que d[áa] para ver\\b|\\bantes de interpretar\\b|\\bo que eu vi foi\\b|\\bdescrever sem (julgar|interpretar)\\b",
+      "\\binoc[êe]ncia do olho\\b|\\bo que estava l[áa] de fato\\b"
+    ],
+    "campos": [
+      {
+        "id": "olho",
+        "rotulo": "O que eu estou olhando (a cena, a tela, o relato)"
+      },
+      {
+        "id": "registro",
+        "rotulo": "Só o que uma câmera registraria: palavras, números, o que se vê"
+      },
+      {
+        "id": "conclui",
+        "rotulo": "O que eu concluí (aqui, e não no campo de cima)"
+      },
+      {
+        "id": "outra",
+        "rotulo": "O que o MESMO registro também poderia significar"
+      },
+      {
+        "id": "olharia",
+        "rotulo": "O que eu teria de olhar para separar as duas leituras"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "registro"
+      ],
+      "pista": [
+        "conclui"
+      ],
+      "pergunta": "O que estava lá, antes da sua conclusão?",
+      "instrucao": "A conclusão fica. O registro some — como ele sempre some.",
+      "rotuloAlvo": "O REGISTRO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Virar tese e evidência",
+        "para": "argumento",
+        "mapa": {
+          "tese": "conclui",
+          "evidencia": "registro"
+        },
+        "exige": [
+          "conclui"
+        ]
+      },
+      {
+        "rotulo": "Olhar de novo em 3 dias",
+        "compromisso": {
+          "titulo": "olhar de novo: ",
+          "campo": "olharia",
+          "dias": 3
+        },
+        "exige": [
+          "olharia"
+        ]
+      }
+    ],
+    "definicao": "uma cena, tela ou relato em que a interpretação já entrou no lugar do que se vê"
+  },
+  {
+    "id": "oQueNaoEsta",
+    "nome": "O que não está lá",
+    "origem": "Arthur Conan Doyle, 1892",
+    "faculdade": "percepção",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral — e é FICÇÃO, o que a régua desta trilha ainda não tinha classificado. Arthur Conan Doyle, \"Silver Blaze\", em The Memoirs of Sherlock Holmes (1893; publicado no Strand em dezembro de 1892); Project Gutenberg, eBook 834. Doyle não propõe método: o diálogo do cão que não latiu dá o critério e o nome; os campos são do Traço.",
+      "funcao": "lente",
+      "adaptacao": "O Traço inverte a ordem que a cena de Doyle esconde: primeiro a LISTA do que deveria estar ali, feita de propósito, e só depois o que falta. Sem a lista antes, a ausência não aparece — é essa a única razão de o método existir em vez de ser um conselho.",
+      "evidencia": "É ficção do século XIX. Não estabelece nada: nenhum experimento, nenhuma medida, nem sequer um relato de prática — um personagem inventado nota uma ausência numa história escrita para que ele a notasse. O que o Traço usa é o critério e o nome, e isto está dito. Não há evidência de que listar o esperado melhore a leitura de relato algum.",
+      "aplicabilidade": "Serve para um relato, relatório ou cena que se quer conferir. Não serve para dúvida geral sobre alguém, e não é instrumento de desconfiança: a lista é do que a própria história promete, não do que você teme."
+    },
+    "filtro": "O que falta",
+    "reconhecimento": "isto é um relato em que falta algo que deveria estar.",
+    "movimento": "O cão que não latiu (Doyle, 1892). Diante de um relato, listar primeiro o que DEVERIA estar ali se ele fosse o que diz ser — e só então ver o que da lista não está. A ausência não salta à vista: ela só aparece contra uma lista feita antes. Cobre a lista antes do veredito, o que a falta mais provavelmente significa, e a pergunta que vai a quem escreveu.",
+    "pergunta": "O que deveria estar aqui e não está?",
+    "roteamento": [
+      "\\bo que (est[áa] )?faltando\\b|\\bfalta alguma coisa\\b|\\bo que deveria estar\\b|\\bc[ãa]o que n[ãa]o latiu\\b",
+      "\\bn[ãa]o mencionou\\b|\\bn[ãa]o falou (de|do|da|sobre)\\b|\\bpassou batido\\b|\\bevitou falar\\b",
+      "\\bnada sobre\\b|\\bem nenhum momento (ele|ela|eles)\\b"
+    ],
+    "campos": [
+      {
+        "id": "relato",
+        "rotulo": "O que eu tenho na frente (o relato, o relatório, a cena)"
+      },
+      {
+        "id": "deveria",
+        "rotulo": "O que DEVERIA estar aqui, se isto fosse o que diz ser (um por linha)"
+      },
+      {
+        "id": "falta",
+        "rotulo": "O que dessa lista não está"
+      },
+      {
+        "id": "significa",
+        "rotulo": "O que a falta mais provavelmente significa"
+      },
+      {
+        "id": "pergunto",
+        "rotulo": "O que eu pergunto, e a quem"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "falta"
+      ],
+      "pista": [
+        "relato"
+      ],
+      "pergunta": "O que faltava naquele relato?",
+      "instrucao": "O relato fica. A falta some.",
+      "rotuloAlvo": "O QUE FALTAVA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Pedir o que falta (Combinado)",
+        "para": "combinado",
+        "mapa": {
+          "pedido": "pergunto",
+          "pronto": "falta"
+        },
+        "exige": [
+          "pergunto"
+        ]
+      },
+      {
+        "rotulo": "Perguntei? Conferir em 3 dias",
+        "compromisso": {
+          "titulo": "perguntei? ",
+          "campo": "pergunto",
+          "dias": 3
+        },
+        "exige": [
+          "pergunto"
+        ]
+      }
+    ],
+    "definicao": "um relato ou cena em que falta algo que deveria estar (\"o que está faltando\", \"não mencionou\")"
+  },
+  {
+    "id": "estaBom",
+    "nome": "Está bom?",
+    "origem": "Horácio, Ars Poetica",
+    "faculdade": "criação",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada. Horácio, Ars Poetica (c. 19 a.C.), versos 385–390 e 438–452; tradução inglesa em prosa de The Works of Horace, Project Gutenberg, eBook 14020. A frase do enfeite tem segunda fonte, também lida: Arthur Quiller-Couch, On the Art of Writing (1916), aula XII, \"On Style\".",
+      "funcao": "lente",
+      "adaptacao": "Horácio dá três coisas e o Traço as põe em campos: guardar antes de julgar (\"até o nono ano\"), mostrar a um juiz competente, e cortar o enfeite. O nono ano vira uma data que o autor escolhe. Os dois campos que são do Traço são os que este autor precisa: onde ele DEFENDEU em vez de corrigir, e a pergunta que ninguém faz — é ruim, ou eu estou cansado?",
+      "evidencia": "É um poema didático de dois mil anos, uma lente: não há estudo, não há medida, e não pode haver. Horácio fala de versos e de leitura em público; nada nele trata de produto, de código ou de trabalho delegado, e a transposição é do Traço. Não há evidência de que guardar por sete dias ou perguntar a um juiz melhore o que quer que seja — o que há é a experiência de dois milênios de gente que faz coisas, o que a régua chama de lente, e não de prova.",
+      "aplicabilidade": "Serve para uma coisa feita, pronta ou quase, que o autor está julgando sozinho. Não serve antes de existir — aí é a Especificação, que define o pronto — nem para a coisa de outra pessoa."
+    },
+    "filtro": "Está bom?",
+    "reconhecimento": "isto é uma coisa feita, e você está julgando sozinho.",
+    "movimento": "Ars Poetica (Horácio). Três movimentos e mais dois que o Traço acrescenta. De Horácio: guardar antes de julgar — \"que seja suprimido até o nono ano\" —, mostrar a um juiz competente, e cortar o enfeite: o bom crítico \"poda os ornamentos ambiciosos\". Do Traço: onde você DEFENDEU em vez de corrigir, que é o momento exato em que o julgamento acaba; e a pergunta que ninguém faz — isto é \"não está bom\" ou eu estou cansado? Cobre a leitura mais dura da promessa que a coisa faz, e a decisão: mexer mais, ou ir assim com os defeitos aceitos escritos.",
+    "pergunta": "Isto é \"não está bom\", ou você está cansado? Como você sabe?",
+    "roteamento": [
+      "\\best[áa] bom (assim|o suficiente|\\?)|\\bser[áa] que (est[áa]|t[áa]) bom\\b|\\bt[áa] bom assim\\b",
+      "\\bquando (eu )?paro de mexer\\b|\\bfico mexendo\\b|\\bn[ãa]o sei se (paro|mexo mais|continuo mexendo)\\b",
+      "\\bdou por (pronto|encerrado|acabado)\\b|\\bmando assim mesmo\\b|\\bacho que acabei\\b"
+    ],
+    "campos": [
+      {
+        "id": "oQue",
+        "rotulo": "O que eu fiz, e o que isso prometia fazer"
+      },
+      {
+        "id": "falha",
+        "rotulo": "Onde NÃO cumpre a promessa — na leitura mais dura"
+      },
+      {
+        "id": "enfeite",
+        "rotulo": "A parte de que eu mais gosto: ela serve à promessa, ou a mim?"
+      },
+      {
+        "id": "juiz",
+        "rotulo": "Quem pode julgar isto e não sou eu — e o que eu pergunto a ele"
+      },
+      {
+        "id": "defendi",
+        "rotulo": "Onde eu defendi em vez de corrigir"
+      },
+      {
+        "id": "cansado",
+        "rotulo": "É \"não está bom\" ou eu estou cansado? Como eu sei"
+      },
+      {
+        "id": "decido",
+        "rotulo": "Mexo mais, ou vai assim — com estes defeitos aceitos"
+      },
+      {
+        "id": "distancia",
+        "rotulo": "Olhando de novo, com distância: o que eu vejo agora",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "falha",
+        "enfeite"
+      ],
+      "pista": [
+        "oQue"
+      ],
+      "pergunta": "Onde não cumpria a promessa — e qual era a parte de que você mais gostava?",
+      "instrucao": "O que você fez fica. O julgamento some.",
+      "rotuloAlvo": "O JULGAMENTO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Tirar o enfeite (Subtração)",
+        "para": "subtracao",
+        "mapa": {
+          "melhorar": "oQue",
+          "sai": "enfeite"
+        },
+        "exige": [
+          "enfeite"
+        ]
+      },
+      {
+        "rotulo": "Olhar de novo em 7 dias",
+        "compromisso": {
+          "titulo": "olhar de novo: ",
+          "campo": "oQue",
+          "dias": 7
+        },
+        "exige": [
+          "oQue"
+        ]
+      }
+    ],
+    "definicao": "algo já feito, esperando o julgamento do próprio autor (\"está bom?\", \"quando eu paro de mexer\")"
+  },
+  {
+    "id": "porta",
+    "nome": "Porta",
+    "origem": "Jeff Bezos, 2015",
+    "faculdade": "decidir",
+    "proveniencia": {
+      "fonte": "GRAU A: documento público, lido na íntegra. Jeff Bezos, carta aos acionistas da Amazon de 2015 (publicada em abril de 2016), seção \"Invention Machine\". A distinção NÃO está na carta de 1997 — essa fala de decisões de investimento e de horizonte longo, e não usa porta nem reversibilidade.",
+      "funcao": "lente",
+      "adaptacao": "Bezos escreve sobre organizações que ficam lentas. O Traço traz para uma pessoa e faz da triagem uma forma DELIBERADAMENTE PEQUENA: quatro campos, porque uma triagem que custa o que custa a decisão não serve para nada. O encadeamento é o produto: porta de uma via abre a Decisão ou o Pré-mortem; porta de duas vias fecha a nota e o autor decide.",
+      "evidencia": "É uma carta de acionistas — argumento de quem administra, não estudo. Não há medida de nada, e a própria carta admite o limite em nota de rodapé: \"há sem dúvida algum viés de sobrevivência. Empresas que habitualmente usam o processo leve para decisões do Tipo 1 se extinguem antes de ficarem grandes.\" Ou seja: a fonte só observou quem sobreviveu. Nada aqui mede o efeito de classificar decisões numa nota.",
+      "aplicabilidade": "Serve para uma decisão que ainda não foi deliberada. Não serve para decisão já tomada — aí é o Começaria hoje? — nem para escolher entre caminhos, que é a Decisão."
+    },
+    "filtro": "Porta",
+    "reconhecimento": "isto é uma decisão que ainda não foi pesada pela volta.",
+    "movimento": "Porta (Bezos, 2015). Antes de deliberar, classificar: \"se você atravessar e não gostar do que vê do outro lado, não consegue voltar para onde estava\" — porta de uma via, decisão devagar, com consulta. Porta de duas vias volta barato e deve ser decidida rápido. O erro que a carta descreve é usar o processo pesado na porta de duas vias, e o preço é lentidão e menos experimento. Cobre a classificação e o custo de voltar — e mais nada: uma triagem que custa o que custa a decisão não serve para nada.",
+    "pergunta": "Se você atravessar e não gostar, dá para voltar? A que custo?",
+    "roteamento": [
+      "\\bd[áa] para voltar atr[áa]s\\b|\\bisso (tem|n[ãa]o tem) volta\\b|\\bn[ãa]o tem volta\\b|\\bsem volta\\b",
+      "\\bporta de (uma|duas) vias?\\b|\\bd[áa] para desfazer\\b|\\bse eu me arrepender\\b",
+      "\\birrevers[íi]vel\\b|\\bd[áa] para experimentar e ver\\b"
+    ],
+    "campos": [
+      {
+        "id": "oQue",
+        "rotulo": "A decisão, em uma linha"
+      },
+      {
+        "id": "volta",
+        "rotulo": "Dá para voltar? E o que custa voltar"
+      },
+      {
+        "id": "via",
+        "rotulo": "Uma via ou duas vias"
+      },
+      {
+        "id": "agora",
+        "rotulo": "Duas vias: decido agora e sigo. Uma via: o que eu faço antes"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Uma via: abrir a Decisão",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "oQue"
+        },
+        "exige": [
+          "via"
+        ]
+      },
+      {
+        "rotulo": "Uma via: imaginar a falha",
+        "para": "premortem",
+        "mapa": {
+          "plano": "oQue"
+        },
+        "exige": [
+          "via"
+        ]
+      }
+    ],
+    "definicao": "uma decisão ainda não classificada pela reversibilidade (\"dá para voltar atrás?\", \"isso não tem volta\")"
+  },
+  {
+    "id": "transferencia",
+    "nome": "Transferência",
+    "origem": "John Stuart Mill, 1843",
+    "faculdade": "raciocínio",
+    "proveniencia": {
+      "fonte": "GRAU A: obra publicada, lida no texto integral em domínio público. John Stuart Mill, A System of Logic, Ratiocinative and Inductive (1843), livro III, capítulo XX, \"Of Analogy\", § 3; Project Gutenberg, eBook 27942.",
+      "funcao": "lente",
+      "adaptacao": "Mill escreve sobre a força de um argumento analógico em geral. O Traço aplica ao caso que interessa ao autor — o que funcionou para outra pessoa — e transforma as três quantidades de Mill em três campos, com o terceiro em destaque porque é o que ninguém escreve: a região inexplorada. O fecho (levo, adapto ou deixo) e o campo do que apurar são do Traço.",
+      "evidencia": "É lógica indutiva de 1843, uma lente: Mill não mede nada e não trata de biografia nem de negócio. E ele é explícito sobre o limite do próprio instrumento — a analogia, sozinha, dá probabilidade, não conclusão. Não há evidência de que escrever as três colunas melhore transferência alguma; o que há é a garantia de que quem escreveu as três não confundiu semelhança com prova.",
+      "aplicabilidade": "Serve quando o autor quer aplicar em si o que funcionou para outra pessoa ou em outro contexto. Não serve para criar solução nova a partir de outro campo — isso é a Analogia — nem para julgar se o relato é verdadeiro, que é o Sobrevivente."
+    },
+    "filtro": "Transferência",
+    "reconhecimento": "isto é o que funcionou para outra pessoa, querendo virar seu.",
+    "movimento": "Analogia julgada (Mill, 1843). O valor da transferência depende de três quantidades, e a terceira é a que ninguém escreve: \"a extensão da semelhança apurada, comparada primeiro com a quantidade de diferença apurada, e depois com a extensão da região inexplorada de propriedades não apuradas\". Cobre as três — o que é igual, o que é diferente, e o que você nem sabe se é igual ou diferente — e o veredito que sai delas: levo, adapto ou deixo.",
+    "pergunta": "O que era verdade na situação dela que não é verdade na sua?",
+    "roteamento": [
+      "\\bfuncionou (para|pro|pra) (ele|ela|eles|o|a)\\b|\\bdeu certo (para|pro|pra) (ele|ela|eles)\\b|\\bno caso dele deu certo\\b",
+      "\\bvou fazer igual\\b|\\bfazer o mesmo que (ele|ela|eles)\\b|\\bcopiar o que (ele|ela) fez\\b|\\baplicar o que (ele|ela) fez\\b",
+      "\\bser[áa] que serve (para|pro|pra) mim\\b|\\bvale (para|pro|pra) o meu caso\\b"
+    ],
+    "campos": [
+      {
+        "id": "funcionou",
+        "rotulo": "O que funcionou para ela, e em que situação"
+      },
+      {
+        "id": "igual",
+        "rotulo": "O que na situação dela é igual à minha — apurado, não suposto"
+      },
+      {
+        "id": "diferente",
+        "rotulo": "O que é diferente — apurado"
+      },
+      {
+        "id": "naoSei",
+        "rotulo": "O que eu nem sei se é igual ou diferente"
+      },
+      {
+        "id": "pesa",
+        "rotulo": "Pesando os três: eu levo, adapto ou deixo"
+      },
+      {
+        "id": "apurar",
+        "rotulo": "O que eu apuraria para encolher o \"não sei\""
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "diferente",
+        "naoSei"
+      ],
+      "pista": [
+        "funcionou"
+      ],
+      "pergunta": "O que era diferente — e o que você nem sabia?",
+      "instrucao": "O que funcionou para ela fica. As diferenças somem.",
+      "rotuloAlvo": "A DIFERENÇA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Quanto eu acredito que transfere",
+        "para": "atualizacao",
+        "mapa": {
+          "acredito": "pesa",
+          "descer": "diferente"
+        },
+        "exige": [
+          "pesa"
+        ]
+      },
+      {
+        "rotulo": "Apurar em 14 dias",
+        "compromisso": {
+          "titulo": "apurar: ",
+          "campo": "apurar",
+          "dias": 14
+        },
+        "exige": [
+          "apurar"
+        ]
+      }
+    ],
+    "definicao": "o que funcionou para outra pessoa, pesado contra a situação do autor (\"funcionou para ele\", \"vou fazer igual\")"
+  },
+  {
+    "id": "sobrevivente",
+    "nome": "Sobrevivente",
+    "origem": "Abraham Wald, 1943",
+    "faculdade": "honestidade",
+    "proveniencia": {
+      "fonte": "GRAU A: documento público, lido na íntegra. Abraham Wald, \"A Method of Estimating Plane Vulnerability Based on Damage of Survivors\", oito memorandos do Statistical Research Group / Applied Mathematics Panel, 1943; reimpressão do Center for Naval Analyses (CRC 432, 1980), lida na digitalização do DTIC no Internet Archive.",
+      "funcao": "lente",
+      "adaptacao": "Wald resolve um problema estatístico: estimar a vulnerabilidade de cada parte do avião a partir dos danos de quem VOLTOU, tratando os que não voltaram como dado ausente. O Traço toma a estrutura — a amostra é só de sobreviventes — e a transforma em três perguntas sobre um relato de sucesso. A pergunta da simetria (a mesma frase na boca de quem fracassou) é do Traço, não de Wald.",
+      "evidencia": "São memorandos de estatística aplicada, com equações, não uma parábola. **A história popular não está no documento:** nos 113 mil caracteres da reimpressão não aparecem as palavras \"buraco\", \"diagrama\" nem \"ponto vermelho\", e não há nenhuma cena de reunião nem a frase sobre blindar onde não há furos. O que existe é o método de estimativa e uma linha dizendo que a tabela de vulnerabilidade resultante \"pode ser usada como guia para posicionar blindagem\". Quem cita Wald pela anedota está citando quem contou a anedota, não Wald. E nada nele mede o efeito de desconfiar de um relato.",
+      "aplicabilidade": "Serve para um relato de sucesso — biografia, entrevista, caso de estudo, thread. Não serve para relato de fracasso, que tem o viés oposto, nem para entender o texto, que é a Leitura."
+    },
+    "filtro": "Sobrevivente",
+    "reconhecimento": "isto é um relato de quem voltou.",
+    "movimento": "Viés de sobrevivência (Wald, 1943). A amostra é feita só de quem voltou: o método de Wald estima a vulnerabilidade do avião a partir dos danos dos sobreviventes, tratando quem não voltou como dado ausente. Aqui: separar o que a pessoa OBSERVOU do que ela INFERIU, e então a pergunta que desarma quase tudo — esta mesma frase também seria verdadeira na boca de quem fracassou com o mesmo método? Se for, ela não explica o sucesso. Cobre também quem não aparece no relato.",
+    "pergunta": "Quem fracassou com o mesmo método diria esta mesma frase?",
+    "roteamento": [
+      "\\bo segredo (dele|dela|deles)\\b|\\b(ele|ela) conseguiu porque\\b|\\bfoi assim que (ele|ela) (fez|conseguiu)\\b",
+      "\\bvi[ée]s de sobreviv[êe]ncia\\b|\\bhist[óo]ria de sucesso\\b|\\btodos os que deram certo\\b",
+      "\\ba receita (dele|dela)\\b|\\bo que fez (ele|ela) dar certo\\b"
+    ],
+    "campos": [
+      {
+        "id": "relato",
+        "rotulo": "O relato, e de quem"
+      },
+      {
+        "id": "observou",
+        "rotulo": "O que a pessoa OBSERVOU: o que ela viu, fez, mediu"
+      },
+      {
+        "id": "inferiu",
+        "rotulo": "O que ela INFERIU: a explicação que ela dá"
+      },
+      {
+        "id": "mesmaFrase",
+        "rotulo": "A mesma frase na boca de quem fracassou: continua verdadeira?"
+      },
+      {
+        "id": "naoVoltaram",
+        "rotulo": "Quem fez o mesmo e não aparece neste relato"
+      },
+      {
+        "id": "sobra",
+        "rotulo": "O que sobra de instrução depois disso"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "mesmaFrase"
+      ],
+      "pista": [
+        "relato"
+      ],
+      "pergunta": "A frase resistia à boca de quem fracassou?",
+      "instrucao": "O relato fica. O teste some.",
+      "rotuloAlvo": "O TESTE DA SIMETRIA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Isto vale para mim? (Transferência)",
+        "para": "transferencia",
+        "mapa": {
+          "funcionou": "sobra"
+        },
+        "exige": [
+          "sobra"
+        ]
+      },
+      {
+        "rotulo": "Virar tese e evidência",
+        "para": "argumento",
+        "mapa": {
+          "tese": "inferiu",
+          "evidencia": "observou"
+        },
+        "exige": [
+          "inferiu"
+        ]
+      }
+    ],
+    "definicao": "um relato de sucesso, separado entre o que foi observado e o que foi inferido (\"o segredo dele\", \"foi assim que ele conseguiu\")"
   }
 ]

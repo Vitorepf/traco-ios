@@ -1,8 +1,9 @@
 # Volta M3 (ADR 2026-09-06e): os sete métodos novos no catálogo, vistos no app.
 #
-# O que este fluxo prova: o catálogo do bundle chegou à TELA — 28 métodos no
-# Perfil, e a proveniência de um dos sete abre e mostra as cinco linhas da
-# volta 16. O roteamento em si é provado por teste (CatalogoTests), que é onde
+# O que este fluxo prova: o catálogo do bundle chegou à TELA — 41 métodos no
+# Perfil desde a colagem da leva 3 (28 menos a Inversão, mais catorze), e a
+# proveniência de um dos sete abre e mostra as cinco linhas da volta 16.
+# O roteamento em si é provado por teste (CatalogoTests), que é onde
 # ele é determinístico: na tela, o degrau de bordo (ADR 04c) roteia ANTES da
 # regex e pode discordar dela — o esquema dele já nasce de `Catalogo.todos`,
 # então os sete estão lá também, mas quem escolhe é o modelo.
@@ -32,8 +33,8 @@ appId: app.traco
     element: {id: "metodos"}
     direction: DOWN
     timeout: 25000
-- assertVisible: "28 do app"
-- takeScreenshot: /tmp/traco-verify/m3/01-vinte-e-oito
+- assertVisible: "41 do app"
+- takeScreenshot: /tmp/traco-verify/m3/01-quarenta-e-um
 - tapOn: {id: "metodos"}
 - extendedWaitUntil:
     visible: "Métodos"
