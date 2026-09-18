@@ -67,7 +67,7 @@ nonisolated enum ProximoCompromisso: Sendable {
         }
         let validoAte = comSoneca.count < candidatas
             ? fimDoHorizonte(agora: agora)
-            : (comSoneca.last?.fim ?? agora)
+            : (comSoneca.last?.inicio ?? agora)
         return SuperficieDisco.publicar(agora: agora) {
             $0.proximos = comSoneca
             $0.alemDaLista = alem
@@ -80,8 +80,8 @@ nonisolated enum ProximoCompromisso: Sendable {
         publicar(f.map { [$0] } ?? [], agora: agora)
     }
 
-    /// O que está publicado, se ainda não acabou. Compromisso que terminou não
-    /// é "o próximo" — deixar o de ontem na tela bloqueada é mentira barata.
+    /// O que está publicado, se ainda não começou. Compromisso que já começou
+    /// não é "o próximo" — deixar o das 10:00 às 11:29 é mentira barata.
     nonisolated static func lido(agora: Date = .now) -> Fatia? {
         guard case .disponivel(let s) = SuperficieDisco.ler(), let p = s.proximo(agora: agora) else { return nil }
         var f = p
@@ -154,7 +154,7 @@ nonisolated enum ProximoCompromisso: Sendable {
         let ate = cal.date(byAdding: .day, value: 15, to: agora) ?? agora
         if let e = Calendario.ocorrencias(candidatosAoProximo(lista),
                                           de: agora.addingTimeInterval(-86400), a: ate, cal)
-            .first(where: { Superficie.ocorrencia($0.id, $0.inicio) == ocorrencia && $0.fim > agora }) {
+            .first(where: { Superficie.ocorrencia($0.id, $0.inicio) == ocorrencia && $0.inicio > agora }) {
             return Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim, diaInteiro: e.diaInteiro,
                          aviso: lido(agora: agora)?.aviso)
         }
@@ -167,6 +167,10 @@ nonisolated enum ProximoCompromisso: Sendable {
     @MainActor
     static func lembrarDepois(ocorrencia: String, minutos: Int, agora: Date = .now) async {
         guard let f = revalidar(ocorrencia: ocorrencia, agora: agora) else {
+            if let id = UUID(uuidString: ocorrencia.split(separator: "@").first.map(String.init) ?? "") {
+                Revisoes.recolherNoInicio(id: id, ocorrencia: ocorrencia)
+            }
+            esquecerSoneca()
             await encerrarAtividade(ocorrencia: ocorrencia)
             return
         }
@@ -214,9 +218,9 @@ nonisolated enum ProximoCompromisso: Sendable {
 
     // MARK: - A Ilha (só quando é hoje e está perto)
 
-    /// Longe demais na Ilha vira ruído permanente; perto é justamente quando
-    /// olhar o relógio resolve. Seis horas é a janela de "o resto do meu dia".
-    nonisolated static let janelaViva: TimeInterval = 6 * 3600
+    /// Longe demais na Ilha vira ruído permanente; perto é quando olhar o
+    /// relógio resolve. Uma hora: o próximo real, sem ocupar a bloqueada a tarde toda.
+    nonisolated static let janelaViva: TimeInterval = 3600
 
     /// ADR 08v: com o Destaque também vivo, o iOS mostra UMA atividade do app
     /// na Ilha e empilha a outra na tela bloqueada — e sem dizer qual, era o
@@ -234,7 +238,7 @@ nonisolated enum ProximoCompromisso: Sendable {
 
     nonisolated static func atualizarAtividade(_ f: Fatia?, agora: Date = .now) async {
         #if canImport(ActivityKit)
-        guard let f, f.inicio.timeIntervalSince(agora) <= janelaViva, f.fim > agora else {
+        guard let f, f.inicio > agora, f.inicio.timeIntervalSince(agora) <= janelaViva else {
             await encerrarAtividades()
             return
         }
@@ -267,7 +271,7 @@ nonisolated enum ProximoCompromisso: Sendable {
         -> ActivityContent<CompromissoAtividade.ContentState> {
         ActivityContent(state: .init(titulo: f.titulo, inicio: f.inicio, fim: f.fim, diaInteiro: f.diaInteiro,
                                      lembrarEm: f.lembrarEm, recado: recado),
-                        staleDate: f.fim, relevanceScore: relevanciaNaIlha)
+                        staleDate: f.inicio, relevanceScore: relevanciaNaIlha)
     }
     #endif
 

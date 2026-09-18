@@ -34,8 +34,8 @@ nonisolated enum Relogio {
     ///
     /// - Parameters:
     ///   - base: o que a superfície já sabe (`Superficie.transicoes`: agora, o
-    ///     fim de cada próximo, a soneca e o horizonte).
-    ///   - inicios: o começo de cada compromisso que ainda não acabou.
+    ///     início de cada próximo, a soneca e o horizonte).
+    ///   - inicios: o começo de cada compromisso que ainda não começou.
     /// Entram também a VÉSPERA de cada começo (quando a linha passa a chamar
     /// atenção) e a MEIA-NOITE (quando o Destaque de hoje deixa de ser o de
     /// hoje). Entrada não custa orçamento — recarga custa —, então o dia

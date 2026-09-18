@@ -36,7 +36,7 @@ struct LinhaDoTempoWidgetTests {
                                  inicios: [], agora: agora, cal: cal)
         }
         return Relogio.datas(base: Superficie.transicoes(leitura, agora: agora),
-                             inicios: s.proximos.filter { $0.fim > agora }.map(\.inicio),
+                             inicios: s.proximos.filter { $0.inicio > agora }.map(\.inicio),
                              agora: agora, cal: cal)
     }
 
@@ -78,13 +78,13 @@ struct LinhaDoTempoWidgetTests {
 
     // MARK: - As entradas: o dia desenhado de uma vez
 
-    @Test("a véspera, o início e o fim de cada compromisso entram na linha")
+    @Test("a véspera e o início de cada compromisso entram na linha")
     func vesperaInicioEFim() {
         let p = proximo("Dentista", daqui: 180)
         let datas = datas(superficie([p]))
         #expect(datas.contains(p.inicio.addingTimeInterval(-Relogio.vespera)))
         #expect(datas.contains(p.inicio))
-        #expect(datas.contains(p.fim))
+        #expect(!datas.contains(p.fim))
     }
 
     @Test("a meia-noite entra sempre: o Destaque de hoje deixa de ser o de hoje")

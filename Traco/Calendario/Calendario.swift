@@ -1073,11 +1073,13 @@ extension ProximoCompromisso {
         // lista que o chamador trouxe: das seis rotas de publicação, só a do
         // calendário os juntava, e a do Trabalho — que corre a cada commit da
         // Oficina — reescrevia a Superfície sem eles (auditoria 17/09).
-        let fatias = proximasFatias(eventos + CalendarioSistema.naSuperficie,
-                                    cal: cal, manha: manha, agora: agora, mudo: mudo)
+        let todos = eventos + CalendarioSistema.naSuperficie
+        recolherComecados(todos, agora: agora, cal: cal)
+        let fatias = proximasFatias(todos, cal: cal, manha: manha, agora: agora, mudo: mudo)
         publicar(fatias, agora: agora)
         FilaDeAtividade.compartilhada.enfileirar {
             await atualizarAtividade(fatias.first, agora: agora)
+            await DestaqueDoDia.reconciliar(agora: agora)
         }
     }
 
@@ -1085,6 +1087,16 @@ extension ProximoCompromisso {
     static func proximaFatia(_ eventos: [EventoCalendario], cal: Calendar,
                              manha: Int, agora: Date, mudo: UUID? = nil) -> Fatia? {
         proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo).first
+    }
+
+    /// Aviso e soneca do que já começou saem da bloqueada e do centro.
+    static func recolherComecados(_ eventos: [EventoCalendario], agora: Date, cal: Calendar) {
+        let ate = fimDoHorizonte(agora: agora, cal: cal)
+        for e in Calendario.ocorrencias(candidatosAoProximo(eventos),
+                                        de: agora.addingTimeInterval(-86400), a: ate, cal)
+        where e.inicio <= agora {
+            Revisoes.recolherNoInicio(id: e.id, ocorrencia: Superficie.ocorrencia(e.id, e.inicio))
+        }
     }
 
     /// Deixa de nota não entra. Ação de Trabalho elegível entra: o selo já a
@@ -1103,7 +1115,7 @@ extension ProximoCompromisso {
         let ate = fimDoHorizonte(agora: agora, cal: cal)
         let vivos = candidatosAoProximo(eventos)
         return Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
-            .filter { $0.fim > agora }
+            .filter { $0.inicio > agora }
             .sorted { $0.inicio < $1.inicio }
             .map { e in
                 Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,

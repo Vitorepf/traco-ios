@@ -143,8 +143,23 @@ enum DestaqueDoDia: Sendable {
     /// `ProximoCompromisso.relevanciaNaIlha`); o Destaque fica no padrão.
     nonisolated static let relevanciaNaIlha: Double = 0
 
+    /// Há um compromisso na janela viva: o Destaque não empilha segundo cartão.
+    nonisolated static func deveEncerrarPorCompromisso(agora: Date = .now) -> Bool {
+        guard let f = ProximoCompromisso.lido(agora: agora) else { return false }
+        return f.inicio.timeIntervalSince(agora) <= ProximoCompromisso.janelaViva
+    }
+
+    /// Alias estável para a suíte dos 9 buracos.
+    nonisolated static func empilhaComCompromisso(agora: Date = .now) -> Bool {
+        deveEncerrarPorCompromisso(agora: agora)
+    }
+
     nonisolated static func reconciliar(agora: Date = .now) async {
         #if canImport(ActivityKit)
+        if deveEncerrarPorCompromisso(agora: agora) {
+            await encerrarAtividades()
+            return
+        }
         guard let p = projecao(agora: agora), let estado = estadoVivo(agora: agora) else {
             await encerrarAtividades()
             return

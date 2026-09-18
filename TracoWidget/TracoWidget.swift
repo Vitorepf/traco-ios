@@ -5,7 +5,7 @@ import SwiftUI
 
 // ADR 05u: os widgets LEEM `Superficie` (o snapshot do App Group) e nada mais.
 // Nenhuma chave solta, nenhum domínio, nenhum reload por minuto: a linha do
-// tempo já traz as transições conhecidas (meia-noite, fim de cada próximo,
+// tempo já traz as transições conhecidas (meia-noite, início de cada próximo,
 // horizonte) e o app recarrega os kinds afetados depois de cada escrita.
 // Tipografia pelos degraus de `Tema` (D3): escala com o sistema.
 
@@ -13,7 +13,7 @@ import SwiftUI
 extension Relogio {
     static func inicios(_ leitura: SuperficieDisco.Leitura, agora: Date) -> [Date] {
         guard case .disponivel(let s) = leitura else { return [] }
-        return s.proximos.filter { $0.fim > agora }.map(\.inicio)
+        return s.proximos.filter { $0.inicio > agora }.map(\.inicio)
     }
 }
 
@@ -31,7 +31,7 @@ struct EntradaTraco: TimelineEntry {
     /// única coisa de hoje, ele traz algo do app em vez de morrer vazio.
     var proximos: [Superficie.Proximo] {
         guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
-        return s.proximos.filter { $0.fim > date }
+        return s.proximos.filter { $0.inicio > date }
     }
     /// Quantos compromissos do horizonte NÃO couberam no instantâneo (achado
     /// A do G4). `nil` = instantâneo anterior a esta conta: não sabe, e a face
@@ -184,7 +184,7 @@ private struct LinhaProximo: View {
 
     private var hoje: Bool { Calendar.current.isDate(proximo.inicio, inSameDayAs: agora) }
     private var iminente: Bool {
-        primeiro && proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera && proximo.fim > agora
+        primeiro && proximo.inicio > agora && proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera
     }
 
     var body: some View {
@@ -1121,7 +1121,7 @@ struct EntradaProximo: TimelineEntry {
     /// A agenda que ainda vale, para o médio: até três, na ordem.
     var proximos: [Superficie.Proximo] {
         guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
-        return s.proximos.filter { $0.fim > date }.map { p in
+        return s.proximos.filter { $0.inicio > date }.map { p in
             var p = p
             if let l = p.lembrarEm, l <= date { p.lembrarEm = nil }
             return p
@@ -1215,13 +1215,15 @@ struct ProximoWidgetView: View {
                     // rótulo sem teto de linha nenhum (é o PRÓXI-/MO original,
                     // vivo na tela bloqueada), o assunto sem escala e a
                     // ausência em 0,9, que não chega em AX5.
-                    Text("PRÓXIMO")
-                        .font(Tema.label)
-                        .tracking(Tema.trackingLabel)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .allowsTightening(true)
-                        .minimumScaleFactor(0.6)
+                    if case .proximo = entrada.estado {
+                        Text("PRÓXIMO")
+                            .font(Tema.label)
+                            .tracking(Tema.trackingLabel)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
+                    }
                     if case .proximo(let p) = entrada.estado {
                         Text(p.titulo)
                             .font(Tema.meta.weight(.medium))

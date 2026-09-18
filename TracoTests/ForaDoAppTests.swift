@@ -205,7 +205,9 @@ struct ForaDoAppTests {
         #expect(vencida.estadoDoProximo(agora: agora) == .desatualizado)
         let valida = Superficie(geradoEm: agora, validoAte: agora.addingTimeInterval(86400), proximos: [p])
         #expect(valida.estadoDoProximo(agora: agora) == .proximo(p))
-        // depois do fim, e ainda no horizonte: nada marcado — não inventa o seguinte
+        // no início (ainda com fim futuro): nada marcado — não inventa o seguinte
+        #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(3600)) == .vazio)
+        // depois do fim, e ainda no horizonte: continua vazio
         #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(7300)) == .vazio)
         // no instante exato do horizonte (a entrada da linha do tempo) já é velho
         #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(86400)) == .desatualizado)
@@ -233,7 +235,7 @@ struct ForaDoAppTests {
         }
     }
 
-    @Test("linha do tempo curta: agora, cada fim, a soneca e o horizonte — nada por minuto")
+    @Test("linha do tempo curta: agora, cada início, a soneca e o horizonte — nada por minuto")
     func linhaDoTempoCurta() async throws {
         try await isolado { _, _ in
             // segundos inteiros: o documento guarda datas em segundos
@@ -244,13 +246,13 @@ struct ForaDoAppTests {
             }
             ProximoCompromisso.publicar(tres, agora: agora)
             let s = try #require(lida())
-            // três candidatas = o horizonte é o fim da última: não sabemos o que vem depois
-            #expect(s.validoAte == tres[2].fim)
+            // três candidatas = o horizonte é o início da última: no start some
+            #expect(s.validoAte == tres[2].inicio)
             let datas = Superficie.transicoes(.disponivel(s), agora: agora)
-            #expect(datas == [agora, tres[0].fim, tres[1].fim, tres[2].fim])
+            #expect(datas == [agora, tres[0].inicio, tres[1].inicio, tres[2].inicio])
             ProximoCompromisso.publicar([tres[0]], agora: agora)
             let uma = try #require(lida())
-            #expect(Superficie.transicoes(.disponivel(uma), agora: agora) == [agora, tres[0].fim, uma.validoAte])
+            #expect(Superficie.transicoes(.disponivel(uma), agora: agora) == [agora, tres[0].inicio, uma.validoAte])
             #expect(Superficie.transicoes(.indisponivel, agora: agora) == [agora])
         }
     }
@@ -322,7 +324,7 @@ struct ForaDoAppTests {
         let destaque = DestaqueDoDia.conteudo(.init(linha: "terminar o capítulo"), agora: agora)
         #expect(compromisso.relevanceScore > destaque.relevanceScore)
         #expect(compromisso.relevanceScore == 1 && destaque.relevanceScore == 0)
-        #expect(compromisso.staleDate == f.fim)
+        #expect(compromisso.staleDate == f.inicio)
         #expect(compromisso.state.titulo == "Dentista" && compromisso.state.recado == nil)
         // o recado (a resposta do intent da tela bloqueada) é um update: mesma prioridade
         let recado = ProximoCompromisso.conteudo(de: f, recado: "avisos desligados")
@@ -709,6 +711,107 @@ struct ForaDoAppTests {
         _ = try await ok.perform()
         let itens = Entrada.recolher(raizes: [Entrada.raizDoApp])
         #expect(itens.map(\.texto).sorted() == ["e o pão", "ligar para o dentista"])
+    }
+
+    // MARK: - Tesoura no início (os 9 da bloqueada)
+
+    @Test("1: 11:29 com encontro 10:00 não é PRÓXIMO")
+    func caso1129NaoEProximo() {
+        let agora = Date(timeIntervalSince1970: 1_000_000)
+        let dez = agora.addingTimeInterval(-89 * 60)
+        let meioDia = dez.addingTimeInterval(2 * 3600)
+        let p = Superficie.Proximo(id: UUID(), titulo: "Stupid Button", inicio: dez,
+                                   fim: meioDia, diaInteiro: false)
+        let s = Superficie(geradoEm: dez.addingTimeInterval(-3600),
+                           validoAte: agora.addingTimeInterval(86400), proximos: [p])
+        #expect(s.proximo(agora: agora) == nil)
+        #expect(s.estadoDoProximo(agora: agora) == .vazio)
+    }
+
+    @Test("2: lotada — o que começou larga a vez para o próximo de verdade")
+    func agendaLotadaSobeOSeguinte() {
+        let agora = Date(timeIntervalSince1970: 2_000_000)
+        let das10 = Superficie.Proximo(id: UUID(), titulo: "A", inicio: agora.addingTimeInterval(-3600),
+                                       fim: agora.addingTimeInterval(3600), diaInteiro: false)
+        let das14 = Superficie.Proximo(id: UUID(), titulo: "B", inicio: agora.addingTimeInterval(3 * 3600),
+                                       fim: agora.addingTimeInterval(4 * 3600), diaInteiro: false)
+        let s = Superficie(geradoEm: agora, validoAte: agora.addingTimeInterval(86400),
+                           proximos: [das10, das14])
+        #expect(s.proximo(agora: agora)?.titulo == "B")
+    }
+
+    @Test("3 e 4: stale e tesoura no início — sem cartão acabou")
+    func staleNoInicioSemAcabou() {
+        let agora = Date()
+        let f = Superficie.Proximo(titulo: "Dentista", inicio: agora.addingTimeInterval(600),
+                                   fim: agora.addingTimeInterval(4200), diaInteiro: false)
+        let c = ProximoCompromisso.conteudo(de: f)
+        #expect(c.staleDate == f.inicio)
+        #expect(c.staleDate != f.fim)
+    }
+
+    @Test("5: janela viva é 1 h, não 6 h")
+    func janelaDeUmaHora() {
+        #expect(ProximoCompromisso.janelaViva == 3600)
+        #expect(ProximoCompromisso.janelaViva < 6 * 3600)
+    }
+
+    @Test("6: dia inteiro de hoje não tapa o horário")
+    func diaInteiroNaoTapaHorario() async throws {
+        try await isolado { _, _ in
+            let agora = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970))
+            let cal = Calendario.gregoriano()
+            let inicioDia = cal.startOfDay(for: agora)
+            let dia = EventoCalendario(titulo: "Aniversário", inicio: inicioDia,
+                                       fim: cal.date(byAdding: .day, value: 1, to: inicioDia)!,
+                                       diaInteiro: true)
+            let pontual = EventoCalendario(titulo: "Dentista",
+                                           inicio: agora.addingTimeInterval(3600),
+                                           fim: agora.addingTimeInterval(5400))
+            let fatias = ProximoCompromisso.proximasFatias([dia, pontual], cal: cal, manha: 8, agora: agora)
+            #expect(fatias.first?.titulo == "Dentista")
+            #expect(!fatias.contains { $0.diaInteiro && $0.inicio <= agora })
+        }
+    }
+
+    @Test("7: Destaque não fica vivo junto do compromisso na janela")
+    func destaqueNaoEmpilha() async throws {
+        try await isolado { _, _ in
+            let agora = Date()
+            let f = ProximoCompromisso.Fatia(titulo: "Dentista", inicio: agora.addingTimeInterval(600),
+                                             fim: agora.addingTimeInterval(4200), diaInteiro: false)
+            ProximoCompromisso.gravar(f, agora: agora)
+            #expect(DestaqueDoDia.empilhaComCompromisso(agora: agora))
+            #expect(DestaqueDoDia.deveEncerrarPorCompromisso(agora: agora))
+        }
+    }
+
+    @Test("8: widget e superfície usam a mesma tesoura")
+    func widgetMesmaTesoura() {
+        let agora = Date(timeIntervalSince1970: 3_000_000)
+        let passou = Superficie.Proximo(id: UUID(), titulo: "passou", inicio: agora.addingTimeInterval(-60),
+                                        fim: agora.addingTimeInterval(3600), diaInteiro: false)
+        let vem = Superficie.Proximo(id: UUID(), titulo: "vem", inicio: agora.addingTimeInterval(600),
+                                     fim: agora.addingTimeInterval(2400), diaInteiro: false)
+        let s = Superficie(geradoEm: agora, validoAte: agora.addingTimeInterval(86400),
+                           proximos: [passou, vem])
+        #expect(s.proximo(agora: agora)?.titulo == "vem")
+        #expect(s.proximos.filter { $0.inicio > agora }.map(\.titulo) == ["vem"])
+    }
+
+    @Test("9: Lembrar depois do início não agenda")
+    func lembrarDepoisDoInicioRecusa() async throws {
+        try await isolado { _, _ in
+            try await comCompromisso { f, _ in
+                let pedidos = Contador()
+                Revisoes.centro = Centro.fake(adicionar: { r in pedidos.registrar([r.identifier]) })
+                let depois = f.inicio.addingTimeInterval(60)
+                await ProximoCompromisso.lembrarDepois(ocorrencia: f.ocorrencia, minutos: 10, agora: depois)
+                #expect(pedidos.chamadas.isEmpty)
+                #expect(ProximoCompromisso.sonecaAtiva(ocorrencia: f.ocorrencia, agora: depois) == nil)
+                #expect(ProximoCompromisso.revalidar(ocorrencia: f.ocorrencia, agora: depois) == nil)
+            }
+        }
     }
 }
 

@@ -356,6 +356,15 @@ enum Revisoes {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [idDaSoneca(ocorrencia)])
     }
 
+    /// No `inicio` a faixa entregue e a soneca pendente saem. A série semanal
+    /// pendente fica: cancelar o weekday inteiro apagaria o aviso de amanhã.
+    static func recolherNoInicio(id: UUID, ocorrencia: String) {
+        let ids = [idDoCompromisso(id)] + (1...7).map { idDoCompromisso(id, weekday: $0) } + [idDaSoneca(ocorrencia)]
+        let centro = UNUserNotificationCenter.current()
+        centro.removeDeliveredNotifications(withIdentifiers: ids)
+        centro.removePendingNotificationRequests(withIdentifiers: [idDaSoneca(ocorrencia)])
+    }
+
     // MARK: - Aviso da ação do Trabalho (ADR 2026-09-05n)
 
     /// Namespace próprio, nunca o do compromisso: a projeção da ação no

@@ -6,10 +6,9 @@ import AppIntents
 /// toca e o autor não pode atender AGORA, a única saída era abrir o app — e
 /// abrir o app é justamente o que ninguém faz na fila do banco.
 ///
-/// Um botão, um significado: **cobra de novo daqui a dez minutos.** Vale antes
-/// do compromisso ("me lembra de sair") e depois do aviso ("agora não dá") —
-/// é a mesma frase do "hoje não" do Recordar (ADR 03e): adiar não é falhar
-/// nem acertar, é a hora errada.
+/// Um botão, um significado: **cobra de novo daqui a dez minutos.** Vale só
+/// **antes** do `inicio` ("me lembra de sair"). Depois que começou, o app
+/// recusa e recolhe aviso/soneca — a peça some, não cobra o que já começou.
 ///
 /// ADR 05u: o botão carrega a OCORRÊNCIA (id + início). O app relê o disco
 /// antes de agir, pede a soneca pelo orçamento de avisos (04b) e só anuncia

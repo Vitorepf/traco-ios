@@ -155,9 +155,9 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
         alemDaLista ?? (proximos.count < Self.candidatas ? 0 : nil)
     }
 
-    /// O primeiro que ainda não acabou. O que terminou não é "o próximo".
+    /// O primeiro que ainda não começou. O que já começou não é "o próximo".
     func proximo(agora: Date = .now) -> Proximo? {
-        proximos.first { $0.fim > agora }
+        proximos.first { $0.inicio > agora }
     }
 
     /// O que o widget do próximo mostra num instante. Um estado só, e o
@@ -175,14 +175,14 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
         return .proximo(p)
     }
 
-    /// As datas da linha do tempo do widget: agora, o fim de cada próximo (o
-    /// seguinte entra, ou "nada marcado"), a soneca que passa e o horizonte.
+    /// As datas da linha do tempo do widget: agora, o início de cada próximo
+    /// (some, ou sobe o seguinte), a soneca que passa e o horizonte.
     /// Poucas, reais, nenhuma inventada — e nenhum reload por minuto.
     nonisolated static func transicoes(_ leitura: SuperficieDisco.Leitura, agora: Date) -> [Date] {
         var datas: Set<Date> = [agora]
         if case .disponivel(let s) = leitura {
-            for p in s.proximos where p.fim > agora && p.fim <= s.validoAte {
-                datas.insert(p.fim)
+            for p in s.proximos where p.inicio > agora && p.inicio <= s.validoAte {
+                datas.insert(p.inicio)
                 if let l = p.lembrarEm, l > agora { datas.insert(l) }
             }
             if s.validoAte > agora { datas.insert(s.validoAte) }

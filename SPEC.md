@@ -10728,3 +10728,22 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Prova.** Portão verde no 17e depois da volta inteira (número no commit). Dezenove testes novos, um por defeito, em `GravarSemEdicaoTests`, `AuditoriaCalendarioEspelhoTests`, `SuperficieDasNotasTests`, `RespostaNotasTests`, `ColheitaRestanteTests` e `AuditoriaIntegridadeTests`. O laço infinito foi provado FORA da suíte também: o mesmo trecho, compilado antes e depois, morreu de SIGALRM aos 40 s no código velho e devolveu as partes no novo.
 
 **Não medido e dívidas.** Quatro achados ficaram com conserto proposto e não feito, todos de contrato e não de guarda: endereçar as fontes do pacote com uma marca que não é palavra de português (mexe no contrato de `Pacote.trechos`); o arranque a frio publicar a Superfície sem os compromissos do iPhone (ninguém leu o EventKit ainda); a lista dos arquivos soltos do espelho escrita à mão em dois lugares; e qual pílula de dia inteiro aparece na semana quando há duas (empate arbitrário). Ficam também as dívidas anteriores (ADR 17m, 17n, 17o) e os 59 fluxos maestro em `maestro/a-reescrever/`. Nada disto foi visto na tela nesta volta: a prova é a suíte e o código.
+
+## ADR 2026-09-18a — Próximo some no início
+
+**Causa.** Em 18/09, às 11:29, a bloqueada ainda dizia PRÓXIMO e «1 h 29 min» de um encontro das 10:00. A tesoura era `fim > agora`: o que já tinha começado segurava o cartão, a Live Activity, o widget e o Lembrar. A ADR 04f autorizava soneca depois do aviso; a 08v deixava o cartão «acabou» na bloqueada até o app abrir.
+
+**Decisão.** «Próximo» é o primeiro compromisso que **ainda não começou** (`inicio > agora`). No `inicio` a peça some (flash curto na Ilha no máximo). Substitui 04f/08v neste ponto:
+
+1. Tesoura única na Superfície, na publicação, no revalidar e no widget.
+2. Activity e `staleDate` no `inicio`; `end` imediato — sem cartão «acabou».
+3. Janela viva de 1 h, não 6 h.
+4. Dia inteiro de hoje (início à meia-noite) não tapa horário pontual.
+5. Destaque encerra a própria Activity quando há próximo na janela — não empilha.
+6. Lembrar só antes do `inicio`; aviso entregue e soneca saem no começo.
+
+**Prova.** `ForaDoAppTests`: caso 11:29/10:00, lotada, stale no início, janela de 1 h, dia inteiro, Destaque, widget, Lembrar; `linhaDoTempoCurta`, `snapshotExpirado` e `aIlhaEDoCompromisso` alinhados. `LinhaDoTempoWidgetTests.vesperaInicioEFim` sem o fim.
+
+**Não muda.** Selo, uma Activity de compromisso por vez, relevância da Ilha (compromisso vence se os dois existirem fora da janela). Flash da Ilha continua do sistema.
+
+**Dívida.** Prova na bloqueada do iPhone do dono; o app dormindo ainda depende da linha do tempo e do `staleDate` para cair sem `end` imediato.
