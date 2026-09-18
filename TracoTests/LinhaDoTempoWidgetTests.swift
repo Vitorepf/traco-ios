@@ -119,7 +119,7 @@ struct LinhaDoTempoWidgetTests {
     func linhaCurta() {
         let datas = datas(superficie([proximo("Dentista", daqui: 45), proximo("Revisão", daqui: 180),
                                       proximo("Jantar", daqui: 420)]))
-        // agora + (véspera, início, fim) × 3 + meia-noite + horizonte
+        // agora + (véspera, início) × 3 + meia-noite + horizonte
         #expect(datas.count <= 12)
         #expect(datas.first == agora)
     }

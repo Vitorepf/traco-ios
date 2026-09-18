@@ -245,7 +245,9 @@ private struct BlocoProximo: View {
     var restantes: Restantes = .nenhum
     var grande: Bool = false
 
-    private var iminente: Bool { proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera }
+    private var iminente: Bool {
+        proximo.inicio > agora && proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
