@@ -325,6 +325,7 @@ struct ForaDoAppTests {
         #expect(compromisso.relevanceScore > destaque.relevanceScore)
         #expect(compromisso.relevanceScore == 1 && destaque.relevanceScore == 0)
         #expect(compromisso.staleDate == f.inicio)
+        #expect(ProximoCompromisso.janelaViva == 3600)
         #expect(compromisso.state.titulo == "Dentista" && compromisso.state.recado == nil)
         // o recado (a resposta do intent da tela bloqueada) é um update: mesma prioridade
         let recado = ProximoCompromisso.conteudo(de: f, recado: "avisos desligados")
