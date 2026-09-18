@@ -99,7 +99,12 @@ import Testing
         ("Queria melhorar em ser gente. Fui grosso com o meu irmão hoje sem nenhum motivo e ele nem revidou.", "praticaDeliberada"),
         ("Estou lendo umas coisas sobre luto e chorei na terceira página. Acho que não é sobre o livro.", "leitura"),
         ("Não conhecia esse vazio de agora. É como se eu tivesse desligado por dentro e ninguém notasse.", "palavra"),
-        ("O pior jeito de criar um filho é o que eu fiz hoje, e eu gritei com ele por causa de um copo derrubado.", "premortem"),
+        // A fusão da Inversão no Pré-mortem (leva 3) pôs esta e a do «Imagina
+        // que deu errado» na MESMA porta, e a régua cobra vinte portas
+        // diferentes. A frase não se mexe: ela também bate na Reparação, que é
+        // o método de quem gritou com alguém — e foi por isso que o `gritei`
+        // entrou no roteamento dela, ao lado de «magoei» e «machuquei».
+        ("O pior jeito de criar um filho é o que eu fiz hoje, e eu gritei com ele por causa de um copo derrubado.", "reparacao"),
         ("O outro lado é que ela tem razão. Eu sumi, eu não liguei, e agora quero que ela entenda a minha tristeza.", "steelman"),
         ("Pensei em dez jeitos de sair dessa e todos terminam comigo sozinho num apartamento vazio.", "divergencia"),
         ("É como quando eu tinha doze anos e ninguém veio na minha festa. A mesma vergonha, trinta anos depois.", "analogia"),
@@ -186,7 +191,8 @@ import Testing
     /// ADR 06i — A RÉGUA INVERSA, a que faltava: a nota comum de trabalho
     /// continua achando a sua forma. As 57 acima provam que desabafo não vira
     /// método; NENHUMA provava a outra direção, e foi por isso que a família 1
-    /// larga da 06h passou. **Duas frases por PORTA** das 21 formas de main.
+    /// larga da 06h passou. **Duas frases por PORTA** de TODA forma de main —
+    /// eram 21 na 06i, são 41 desde a colagem da leva 3.
     /// As dez marcadas `[R]` são as do revisor do re-G3 — oito delas eram
     /// regressão limpa em `main` no commit `2d33d63`.
     static let trabalho: [(String, String)] = [
@@ -272,6 +278,39 @@ import Testing
         ("O plano anual sai mais barato na fatura, mas em troca de quê?", "vistoNaoVisto"),
         ("Exame da noite: o que do dia de trabalho eu não repito amanhã.", "exameDaNoite"),
         ("Passei o dia em revista e vou fixar uma regra para a semana.", "exameDaNoite"),
+        // As CATORZE portas da leva 3, duas frases cada. Mesma lei das sete da
+        // M3: nota de trabalho, nenhuma confessa conduta — e cada uma foi
+        // medida chegando na porta, não só casando com a regex dela (a ordem do
+        // catálogo põe as catorze no fim, então qualquer método anterior que
+        // case primeiro rouba a frase).
+        ("Achei um dado contra a regra de reunião curta que eu venho aplicando no time.", "fatoContrario"),
+        ("Esse número do relatório não bate com o que eu venho defendendo sobre a fila.", "fatoContrario"),
+        ("Preciso de uma ordem de grandeza do custo do servidor antes de pedir orçamento.", "ordemDeGrandeza"),
+        ("Nem imagino quanto o time gasta por mês com ferramentas pagas.", "ordemDeGrandeza"),
+        ("Já investi dois anos nesse produto e continuo empurrando ele sem resposta do mercado.", "comecariaHoje"),
+        ("Começaria hoje esse contrato de manutenção, sabendo o que eu sei agora?", "comecariaHoje"),
+        ("Combinei com o fornecedor a entrega de sexta e não escrevi o que conta como pronto.", "combinado"),
+        ("Ele ficou de me mandar a planilha ontem e até agora nada.", "combinado"),
+        ("Discordamos sobre terceirizar o suporte e a reunião já virou a terceira sem saída.", "pontoQueDecide"),
+        ("Estamos em impasse no preço do plano anual e a discussão já deu três voltas.", "pontoQueDecide"),
+        ("Balanço do semestre: três projetos começados, um entregue, e o mesmo motivo nos dois que pararam.", "oQueSeRepetiu"),
+        ("Olhando os últimos meses, aceitei prazo apertado em toda proposta que mandei.", "oQueSeRepetiu"),
+        ("Vou faturar essa hora a mais só dessa vez, porque o cliente atrasou o material.", "regraQueEuFaco"),
+        ("E se todos fizessem o que eu fiz na cobrança do frete, a tabela de preço não valeria nada.", "regraQueEuFaco"),
+        ("Prejudiquei o time ao mudar o escopo na véspera da entrega e preciso acertar isso na retrospectiva.", "reparacao"),
+        ("Deixei ele na mão na apresentação do cliente e agora é reparar o estrago, não explicar.", "reparacao"),
+        ("Está na cara que o fornecedor está enrolando, mas eu só tenho dois e-mails atrasados como prova.", "verAntesDeNomear"),
+        ("Antes de interpretar o silêncio do cliente na reunião, vou escrever o que de fato aconteceu lá.", "verAntesDeNomear"),
+        ("O relatório do trimestre não falou do churn, e é justamente o número que eu pedi.", "oQueNaoEsta"),
+        ("Nada sobre o prazo na proposta do fornecedor, e isso não é esquecimento.", "oQueNaoEsta"),
+        ("O texto da proposta está bom o suficiente para mandar hoje, ou eu reviso mais uma vez?", "estaBom"),
+        ("Fico mexendo na mesma apresentação há três dias e não sei mais o que estou mudando.", "estaBom"),
+        ("Trocar o banco de dados agora não tem volta, e o contrato antigo cai no mesmo dia.", "porta"),
+        ("Dá para experimentar e ver com dez clientes antes de mudar o plano de todo mundo?", "porta"),
+        ("A cobrança por assinatura funcionou para eles no primeiro ano de agência.", "transferencia"),
+        ("Vou fazer igual ao concorrente e cortar o plano intermediário da tabela.", "transferencia"),
+        ("O segredo dele, na entrevista que saiu ontem, foi largar o emprego e apostar tudo num produto só.", "sobrevivente"),
+        ("Toda história de sucesso desse setor começa com um cliente grande no primeiro ano.", "sobrevivente"),
     ]
 
     static func comOsNovos<T>(_ corpo: () throws -> T) rethrows -> T {

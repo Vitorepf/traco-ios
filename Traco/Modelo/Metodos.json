@@ -754,77 +754,6 @@
     "definicao": "um problema que já foi resolvido em outro campo"
   },
   {
-    "id": "inversao",
-    "nome": "Inversão",
-    "origem": "Charlie Munger",
-    "faculdade": "estratégia",
-    "proveniencia": {
-      "fonte": "Charlie Munger, discursos (1986 em diante), sem transcrição de referência localizada, citando uma frase atribuída a Carl Jacobi: inverta, sempre inverta",
-      "funcao": "lente",
-      "adaptacao": "O que quero, como garantir que falhe, logo o que evito; leva ao Pré-mortem.",
-      "evidencia": "Sem evidência específica conhecida; é heurística de prática.",
-      "aplicabilidade": "Serve para um objetivo em que o erro é mais visível que o acerto. Não serve para explorar opções."
-    },
-    "filtro": "Inversão",
-    "reconhecimento": "isto pede ser pensado ao contrário.",
-    "movimento": "Inversão (Munger, de Jacobi). Em vez de \"como consigo X\", \"como GARANTO que X falhe\" — e depois evitar exatamente isso. O passo que se pula é levar a sério a lista de falhas: ela costuma ser mais concreta que a de sucessos. Cobre se cada modo de falha nomeado é algo que quem escreve faz, e o que passa a evitar.",
-    "pergunta": "Como você garantiria que isto falhe — e o que disso você já faz?",
-    "roteamento": [
-      "\\binvers[ãa]o\\b|\\bcomo garantir que (falhe|dê errado)\\b|\\bo que evitar\\b|\\bpior jeito de\\b|\\bao contr[áa]rio\\b"
-    ],
-    "campos": [
-      {
-        "id": "quero",
-        "rotulo": "O que quero"
-      },
-      {
-        "id": "falhe",
-        "rotulo": "Como garantir que falhe"
-      },
-      {
-        "id": "evito",
-        "rotulo": "Logo, o que eu evito"
-      }
-    ],
-    "recordar": {
-      "alvo": [
-        "falhe",
-        "evito"
-      ],
-      "pista": [
-        "quero"
-      ],
-      "pergunta": "Como garantir que falhe — e o que você evita?",
-      "instrucao": "O que você quer fica. O resto some.",
-      "rotuloAlvo": "A INVERSÃO"
-    },
-    "encadeamentos": [
-      {
-        "rotulo": "Virar Pré-mortem",
-        "para": "premortem",
-        "mapa": {
-          "plano": "quero",
-          "falhou": "falhe"
-        },
-        "exige": [
-          "falhe"
-        ]
-      },
-      {
-        "rotulo": "Vigiar o que evito (Se–então)",
-        "para": "seEntao",
-        "mapa": {
-          "se": "falhe",
-          "entao": "evito"
-        },
-        "exige": [
-          "evito"
-        ]
-      }
-    ],
-    "definicao": "pensar ao contrário: como garantir que falhe, para evitar"
-  },
-  {
     "id": "steelman",
     "nome": "Steelman",
     "origem": "Daniel Dennett",
@@ -1801,8 +1730,7 @@
       },
       {
         "id": "resposta",
-        "rotulo": "A minha resposta, quando eu tiver",
-        "soDepois": true
+        "rotulo": "A minha resposta, quando eu tiver"
       }
     ],
     "recordar": {
@@ -1886,8 +1814,7 @@
       },
       {
         "id": "medido",
-        "rotulo": "O número de verdade, quando eu souber",
-        "soDepois": true
+        "rotulo": "O número de verdade, quando eu souber"
       }
     ],
     "recordar": {
@@ -2055,8 +1982,7 @@
       },
       {
         "id": "declarei",
-        "rotulo": "Entregue e declarado satisfeito? O que faltou",
-        "soDepois": true
+        "rotulo": "Entregue e declarado satisfeito? O que faltou"
       }
     ],
     "recordar": {
@@ -2145,8 +2071,7 @@
       },
       {
         "id": "depois",
-        "rotulo": "Depois da conversa: qual era o crux de verdade",
-        "soDepois": true
+        "rotulo": "Depois da conversa: qual era o crux de verdade"
       }
     ],
     "recordar": {
@@ -2370,7 +2295,7 @@
     "movimento": "Teshuvá (Maimônides, Hilchot Teshuvá 2). Dano a outra pessoa não se resolve por dentro: \"mesmo que devolva o dinheiro que deve, tem de apaziguá-lo e pedir que o perdoe\". Primeiro o que ela perdeu — não como você se sente —, depois o que dá para devolver, depois o que você vai dizer e quando. E o critério de que acabou é o mais duro: a mesma situação, com a mesma oportunidade, e você não repete. Sentir-se mal não é reparação; é o começo dela.",
     "pergunta": "O que ELA perdeu — não como você se sente?",
     "roteamento": [
-      "\\bmagoei\\b|\\bmachuquei\\b|\\bprejudiquei\\b|\\bfiz mal (a|ao|à|para)\\b",
+      "\\bmagoei\\b|\\bmachuquei\\b|\\bprejudiquei\\b|\\bgritei\\b|\\bfiz mal (a|ao|à|para)\\b",
       "\\bpreciso pedir desculpa\\b|\\bdevo (desculpas|uma desculpa)\\b|\\bpedir perd[ãa]o\\b|\\bcomo (eu )?reparo\\b",
       "\\bfoi culpa minha\\b|\\bdeixei (ele|ela|eles) na m[ãa]o\\b|\\bquebrei a confian[çc]a\\b"
     ],
@@ -2397,8 +2322,7 @@
       },
       {
         "id": "foi",
-        "rotulo": "Depois: o que aconteceu quando eu disse",
-        "soDepois": true
+        "rotulo": "Depois: o que aconteceu quando eu disse"
       }
     ],
     "recordar": {
@@ -2650,8 +2574,7 @@
       },
       {
         "id": "distancia",
-        "rotulo": "Olhando de novo, com distância: o que eu vejo agora",
-        "soDepois": true
+        "rotulo": "Olhando de novo, com distância: o que eu vejo agora"
       }
     ],
     "recordar": {
