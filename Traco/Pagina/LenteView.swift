@@ -144,10 +144,8 @@ struct LenteView: View {
                 if !l.vazia {
                     if !l.muletas.isEmpty {
                         // ADR 06h: "acho que", "um pouco" e "na verdade" são os
-                        // hedges que o próprio catálogo ensina (os Primeiros
-                        // princípios pedem "o que acho que sei", e a Classe de
-                        // referência roteia por "acho que leva").
-                        // A contagem é verdade; a função, não.
+                        // hedges que o próprio catálogo ensina (a Inversão diz
+                        // "costuma ser"). A contagem é verdade; a função, não.
                         secao("Palavras de apoio", id: "muletas", contagem: l.muletas.count,
                               nota: "contadas por palavra inteira") {
                             ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta, fio: $0.id != l.muletas.last?.id) }

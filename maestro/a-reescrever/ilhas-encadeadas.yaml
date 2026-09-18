@@ -1,12 +1,5 @@
-# ADR 04z: os métodos novos se encadeiam. A Porta ("isso não tem volta")
-# classifica a decisão pela volta e abre a Decisão com as palavras do autor
-# copiadas e a origem ligada.
-#
-# Este fluxo testava a cadeia Inversão → Pré-mortem até a colagem da leva 3,
-# que fundiu a Inversão no Pré-mortem: o texto de gatilho agora abre o
-# Pré-mortem direto, e não sobra encadeamento nenhum para provar. A cadeia
-# Porta → Decisão é a substituta natural — é da mesma leva, tem a mesma forma
-# (dois campos, um botão, os campos copiados no destino) e prova a mesma lei.
+# ADR 04z: os métodos novos se encadeiam. A Inversão ("como garantir que
+# falhe") vira Pré-mortem com as palavras do autor copiadas e a origem ligada.
 appId: app.traco
 ---
 - launchApp:
@@ -19,26 +12,31 @@ appId: app.traco
     text: "Permitir"
     optional: true
 - tapOn: {id: pagina}
-- inputText: "isso não tem volta, preciso pensar antes"
+- inputText: "como garantir que falhe o lançamento do curso"
 - extendedWaitUntil:
     visible: {id: "soltar-forma"}
     timeout: 25000
 - extendedWaitUntil:
-    visible: {id: "forma-porta"}
+    visible: {id: "forma-inversao"}
     timeout: 5000
-- tapOn: {id: "campo-oQue"}
-- inputText: "trocar o banco de dados do app"
-- tapOn: {id: "campo-via"}
-- inputText: "uma via"
+- swipe:
+    direction: DOWN
+- tapOn: {id: "campo-quero"}
+- inputText: "lançar o curso em outubro"
+- swipe:
+    direction: DOWN
+- tapOn: {id: "campo-falhe"}
+- inputText: "não avisar ninguém até a véspera"
 - extendedWaitUntil:
-    visible: "Uma via: abrir a Decisão"
+    visible: "Virar Pré-mortem"
     timeout: 8000
 - assertVisible: "Depois disto"
-- takeScreenshot: /tmp/traco-verify/ciclo/37-porta-depois-disto
-- tapOn: "Uma via: abrir a Decisão"
+- takeScreenshot: /tmp/traco-verify/ciclo/37-inversao-depois-disto
+- tapOn: "Virar Pré-mortem"
 - extendedWaitUntil:
-    visible: {id: "forma-decisao"}
+    visible: {id: "forma-premortem"}
     timeout: 25000
-- assertVisible: "trocar o banco de dados do app"
-- assertVisible: ".*isso não tem volta.*"
-- takeScreenshot: /tmp/traco-verify/ciclo/38-decisao-encadeada
+- assertVisible: "lançar o curso em outubro"
+- assertVisible: "não avisar ninguém até a véspera"
+- assertVisible: ".*como garantir que falhe.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/38-premortem-encadeado

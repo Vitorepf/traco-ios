@@ -1578,13 +1578,6 @@ não conserte a regex, conserte a ordem.
 Uma frase por método, e ela tem de chegar nele e não em outro. **Rodei os 14:
 14/14.** As frases que usei:
 
-> **Correção de 17/09** ([`leva-3-conferencia-17-09.md`](leva-3-conferencia-17-09.md)):
-> era 13/14. A frase da `reparacao` abaixo casa a regex do método e **não
-> roteia** — `lexicoDoSentimento` tem `mago[aeiou]`, a guarda de escrita pessoal
-> acende antes e, abaixo do teto, manda para o silêncio. O método está inteiro
-> (dez dos onze gatilhos chegam); a sonda é que não sondava. A frase que serve é
-> **"como eu reparo isso com ela"**, e é a que o script usa.
-
 | id | frase |
 |---|---|
 | `fatoContrario` | "achei um estudo contra o que eu defendo" |

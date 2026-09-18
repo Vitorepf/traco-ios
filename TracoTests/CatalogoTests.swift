@@ -5,29 +5,19 @@ import Testing
 /// ADR 2026-09-04l: o catálogo é dado. Se o JSON do bundle quebrar, TODA nota
 /// perde os campos — este é o teste que grita antes do autor.
 @Suite(.serialized) struct CatalogoTests {
-    @Test func oBundleTemOsQuarentaEUmMetodos() {
+    @Test func oBundleTemOsVinteEOitoMetodos() {
         let ids = Catalogo.doApp.map(\.id)
-        #expect(ids.count == 41)
+        #expect(ids.count == 28)
         for esperado in ["woop", "seEntao", "spec", "notaPermanente", "destaque", "expressiva", "destilar",
                          "palavra", "decisao", "premortem", "argumento", "leitura", "feynman", "dia",
-                         "analogia", "steelman", "divergencia", "primeirosPrincipios",
+                         "analogia", "inversao", "steelman", "divergencia", "primeirosPrincipios",
                          "praticaDeliberada", "atualizacao"] {
             #expect(ids.contains(esperado), "falta \(esperado)")
         }
-        // A Inversão saiu na colagem da leva 3: mesmo movimento do Pré-mortem,
-        // que faz mais, e a regex dela foi HERDADA por ele — a deleção sem a
-        // herança deixaria cinco frases de gatilho sem dono.
-        #expect(!ids.contains("inversao"))
-        // ADR 2026-09-06e: os métodos da trilha entram no FIM, e a POSIÇÃO é
-        // comportamento — o roteador para no primeiro que casa. Os sete da leva 1
-        // continuam antes dos catorze da leva 3.
-        #expect(Array(ids.suffix(21).prefix(7)) == ["subtracao", "colunaEsquerda", "classeDeReferencia",
-                                                   "cincoPorques", "perguntaHamming", "vistoNaoVisto",
-                                                   "exameDaNoite"])
-        #expect(Array(ids.suffix(14)) == ["fatoContrario", "ordemDeGrandeza", "comecariaHoje", "combinado",
-                                          "pontoQueDecide", "oQueSeRepetiu", "regraQueEuFaco", "reparacao",
-                                          "verAntesDeNomear", "oQueNaoEsta", "estaBom", "porta",
-                                          "transferencia", "sobrevivente"])
+        // ADR 2026-09-06e: os sete da trilha Métodos entram no FIM, e a POSIÇÃO é
+        // comportamento — o roteador para no primeiro que casa.
+        #expect(Array(ids.suffix(7)) == ["subtracao", "colunaEsquerda", "classeDeReferencia", "cincoPorques",
+                                         "perguntaHamming", "vistoNaoVisto", "exameDaNoite"])
     }
 
     @Test func osDezDeOrigemMantemOsCampos() {
@@ -174,7 +164,7 @@ import Testing
                 }
             }
         }
-        #expect(Catalogo.metodo("porta")?.encadeamentos.first?.para == "decisao")
+        #expect(Catalogo.metodo("inversao")?.encadeamentos.first?.para == "premortem")
     }
 
     /// ADR 05x: todo método do app diz de onde vem, com função válida (prática, lente
@@ -235,7 +225,7 @@ import Testing
     /// catálogo não diz nada.
     @Test func oMetodoAusenteTemEstadoParaATela() throws {
         let sumiu = try #require(Gesto(rawValue: "metodoQueSumiu"))
-        #expect(sumiu.estadoDoMetodo == "o método “metodoQueSumiu” não está mais no catálogo; os campos continuam na nota.")
+        #expect(sumiu.estadoDoMetodo == "o método “metodoQueSumiu” saiu da sua pasta; os campos continuam na nota.")
         #expect(sumiu.campos.isEmpty)
         #expect(Gesto.woop.estadoDoMetodo == nil)
         #expect(Gesto.woop.metodoDef.proveniencia?.funcao == .evidencia)
@@ -291,12 +281,11 @@ import Testing
         for (esperado, frase) in casos {
             #expect(id(frase) == esperado, Comment(rawValue: "«\(frase)» foi para \(id(frase) ?? "nada")"))
         }
-        // e nenhum deles rouba os 20 antigos
+        // e nenhum deles rouba os 21 antigos
         #expect(id("vou construir uma função para simplificar o cadastro") == "spec")
         #expect(id("hoje eu preciso fechar a volta e responder o dono") == "dia")
         #expect(id("preciso decidir entre ficar no emprego e abrir a empresa") == "decisao")
-        // a regex herdada da Inversão agora mora no Pré-mortem
-        #expect(id("como garantir que falhe: eu deixaria o método sem origem") == "premortem")
+        #expect(id("como garantir que falhe: eu deixaria o método sem origem") == "inversao")
         #expect(id("quais são as suposições que eu herdei sobre notas") == "primeirosPrincipios")
     }
 
@@ -462,17 +451,6 @@ import Testing
             "exameDaNoite|fui ríspido|silencio",            // ADR 2026-09-06h
             "exameDaNoite|perdi a paciência|silencio",      // ADR 2026-09-06h
             "exameDaNoite|perdi a cabeça|silencio",         // ADR 2026-09-06h
-            // A leva 3, e os quatro são custo DECLARADO, não descuido.
-            // "ideia" da Nota permanente comendo regex específica é o desvio
-            // herdado II.1, medido antes desta colagem e com volta própria:
-            "fatoContrario|derruba a minha ideia|notaPermanente",
-            "fatoContrario|derruba minha ideia|notaPermanente",
-            // a guarda da escrita pessoal cala a sonda — os dois únicos gatilhos
-            // dos catorze que caem nela (`mago[aeiou]` e `arrepend`, os dois em
-            // `lexicoDoSentimento`). Os outros dez da Reparação e os outros oito
-            // da Porta chegam, e é por isso que os dois métodos ficam:
-            "reparacao|magoei|silencio",                    // ADR 2026-09-06h
-            "porta|se eu me arrepender|silencio",           // ADR 2026-09-06h
         ]
         let rabo = " " + String(repeating: ".", count: 140)
         var total = 0

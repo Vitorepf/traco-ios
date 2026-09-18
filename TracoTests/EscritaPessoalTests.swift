@@ -86,7 +86,7 @@ import Testing
     /// dono — "se a sua guarda só passa nas frases que alguém já escreveu, ela
     /// não é guarda, é lista". Cada um bate numa porta DIFERENTE do catálogo
     /// (o `esperadoSemGuarda` é o método que levaria a nota se a guarda não
-    /// existisse), varrendo os métodos antes e depois da Expressiva.
+    /// existisse), varrendo os 21 métodos antes e depois da Expressiva.
     static let minhas: [(String, String)] = [
         ("Quero parar de me anular perto dele. Hoje foi de novo e eu voltei pra casa me sentindo um lixo.", "woop"),
         ("Toda vez que a gente discute eu acabo pedindo desculpa por algo que eu nem fiz. Estou cansado de mim.", "seEntao"),
@@ -99,7 +99,7 @@ import Testing
         ("Queria melhorar em ser gente. Fui grosso com o meu irmão hoje sem nenhum motivo e ele nem revidou.", "praticaDeliberada"),
         ("Estou lendo umas coisas sobre luto e chorei na terceira página. Acho que não é sobre o livro.", "leitura"),
         ("Não conhecia esse vazio de agora. É como se eu tivesse desligado por dentro e ninguém notasse.", "palavra"),
-        ("O pior jeito de criar um filho é o que eu fiz hoje, e eu gritei com ele por causa de um copo derrubado.", "premortem"),
+        ("O pior jeito de criar um filho é o que eu fiz hoje, e eu gritei com ele por causa de um copo derrubado.", "inversao"),
         ("O outro lado é que ela tem razão. Eu sumi, eu não liguei, e agora quero que ela entenda a minha tristeza.", "steelman"),
         ("Pensei em dez jeitos de sair dessa e todos terminam comigo sozinho num apartamento vazio.", "divergencia"),
         ("É como quando eu tinha doze anos e ninguém veio na minha festa. A mesma vergonha, trinta anos depois.", "analogia"),
@@ -223,8 +223,8 @@ import Testing
         ("Vou planejar o dia em três blocos: escrita de manhã, reuniões à tarde, leitura à noite.", "dia"),
         ("Que analogia explica cache pra quem nunca programou? Talvez a despensa de casa.", "analogia"),
         ("Onde isso já foi resolvido em outro campo? Logística deve ter resposta pronta.", "analogia"),
-        ("Qual é o pior jeito de conduzir essa reunião? Começo listando o que evitar.", "premortem"),
-        ("Inversão: como garantir que o lançamento dê errado de propósito?", "premortem"),
+        ("Qual é o pior jeito de conduzir essa reunião? Começo listando o que evitar.", "inversao"),
+        ("Inversão: como garantir que o lançamento dê errado de propósito?", "inversao"),
         ("Quem discorda de mim aqui tem um ponto: o plano grátis traz metade dos usuários.", "steelman"),
         ("Steelman da posição contrária: manter o servidor próprio sai mais barato em três anos.", "steelman"),
         ("Dez jeitos de reduzir o tempo de resposta sem trocar o banco.", "divergencia"),
