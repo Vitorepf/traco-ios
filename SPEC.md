@@ -10736,7 +10736,7 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Decisão.** «Próximo» é o primeiro compromisso que **ainda não começou** (`inicio > agora`). No `inicio` a peça some (flash curto na Ilha no máximo). Substitui 04f/08v neste ponto:
 
 1. Tesoura única na Superfície, na publicação, no revalidar e no widget.
-2. Activity e `staleDate` no `inicio`; `end` imediato — sem cartão «acabou».
+2. Activity e `staleDate` no `inicio`; `end` com saída no `inicio` (e imediato se já passou) — sem cartão «acabou».
 3. Janela viva de 1 h, não 6 h.
 4. Dia inteiro de hoje (início à meia-noite) não tapa horário pontual.
 5. Destaque encerra a própria Activity quando há próximo na janela — não empilha.
