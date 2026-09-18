@@ -246,7 +246,7 @@ nonisolated enum ProximoCompromisso: Sendable {
         let conteudo = conteudo(de: f)
         var viva: Activity<CompromissoAtividade>?
         for a in Activity<CompromissoAtividade>.activities {
-            if viva == nil, a.attributes.chave == f.ocorrencia, a.activityState == .active {
+            if viva == nil, a.attributes.chave == f.ocorrencia, a.activityState != .dismissed {
                 viva = a
             } else {
                 await a.end(nil, dismissalPolicy: .immediate)
@@ -255,10 +255,15 @@ nonisolated enum ProximoCompromisso: Sendable {
         if let viva {
             var atual = viva.content.state
             atual.recado = nil
-            if conteudo.difere(de: atual, relevancia: viva.content.relevanceScore) { await viva.update(conteudo) }
+            if viva.activityState == .active, conteudo.difere(de: atual, relevancia: viva.content.relevanceScore) {
+                await viva.update(conteudo)
+            }
+            await viva.end(conteudo, dismissalPolicy: .after(f.inicio))
             return
         }
-        _ = try? Activity.request(attributes: CompromissoAtividade(chave: f.ocorrencia), content: conteudo)
+        if let criada = try? Activity.request(attributes: CompromissoAtividade(chave: f.ocorrencia), content: conteudo) {
+            await criada.end(conteudo, dismissalPolicy: .after(f.inicio))
+        }
         #endif
     }
 

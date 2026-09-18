@@ -160,6 +160,9 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
         proximos.first { $0.inicio > agora }
     }
 
+    /// Depois do `inicio` a bloqueada não diz «acabou»: a peça some.
+    nonisolated static var rotuloDepoisDoInicio: String? { nil }
+
     /// O que o widget do próximo mostra num instante. Um estado só, e o
     /// "desatualizado" vem ANTES do vazio: depois do horizonte a lista não é
     /// mais a verdade inteira.

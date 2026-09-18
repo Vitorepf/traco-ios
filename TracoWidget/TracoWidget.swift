@@ -1412,9 +1412,11 @@ private struct LinhaDaAcao: View {
 
     var body: some View {
         if velho {
-            Text("acabou")
-                .font(Tema.miudo.weight(.medium))
-                .foregroundStyle(.secondary)
+            if let rotulo = Superficie.rotuloDepoisDoInicio {
+                Text(rotulo)
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
         } else if let recado = estado.recado {
             Label(recado, systemImage: "bell.slash")
                 .font(Tema.miudo.weight(.medium))
@@ -1442,10 +1444,12 @@ struct CompromissoVivo: Widget {
                     Circle()
                         .fill(Tema.ambar)
                         .frame(width: 6, height: 6)
-                    Text("PRÓXIMO")
-                        .font(Tema.label)
-                        .tracking(Tema.trackingLabel)
-                        .foregroundStyle(.secondary)
+                    if !contexto.isStale {
+                        Text("PRÓXIMO")
+                            .font(Tema.label)
+                            .tracking(Tema.trackingLabel)
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer(minLength: 8)
                     if !contexto.state.diaInteiro, !contexto.isStale {
                         Group {
@@ -1530,9 +1534,11 @@ struct CompromissoVivo: Widget {
                     .foregroundStyle(Tema.ambar)
             } compactTrailing: {
                 if contexto.isStale {
-                    Text("acabou")
-                        .font(Tema.miudo.weight(.medium))
-                        .frame(maxWidth: 52)
+                    if let rotulo = Superficie.rotuloDepoisDoInicio {
+                        Text(rotulo)
+                            .font(Tema.miudo.weight(.medium))
+                            .frame(maxWidth: 52)
+                    }
                 } else if contexto.state.diaInteiro {
                     Text(contexto.state.titulo)
                         .font(Tema.miudo.weight(.medium))

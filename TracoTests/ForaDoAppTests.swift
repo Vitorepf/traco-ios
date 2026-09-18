@@ -749,6 +749,7 @@ struct ForaDoAppTests {
         let c = ProximoCompromisso.conteudo(de: f)
         #expect(c.staleDate == f.inicio)
         #expect(c.staleDate != f.fim)
+        #expect(Superficie.rotuloDepoisDoInicio == nil)
     }
 
     @Test("5: janela viva é 1 h, não 6 h")
