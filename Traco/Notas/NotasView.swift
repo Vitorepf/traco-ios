@@ -1088,6 +1088,9 @@ struct NotasView: View {
                     .accessibilityHint("Abre a nota com o campo da volta")
                     .accessibilityIdentifier("volta-notas")
                     .padding(.bottom, Tema.entreCartoes)
+                    // sem régua entre as voltas: aqui elas são CARTÕES com
+                    // respiro (o PR #5 desenhou régua para a sua versão em
+                    // lista; a de HEAD já separa pelo espaço)
                 }
                 if devidas.count > 2 {
                     Button {
@@ -1399,70 +1402,52 @@ struct NotasView: View {
                              texto: nota.texto, campos: nota.campos)
     }
 
-    /// O mesmo menu no cartão da nota e no de «Hora de conferir», que é a mesma nota
-    /// (auditoria 16/09 noite: o toque longo ali abria em vez de mostrar o menu).
+    /// O menu do toque longo de uma nota. Saiu de dentro do `botaoNota`
+    /// porque a MESMA nota aparece em duas linhas da lista — a do mês e a da
+    /// volta, no topo — e só a do mês tinha menu: segurar a linha âmbar não
+    /// abria nada, e "Versões" parecia não existir para aquela nota (report
+    /// do dono, 17/09: a nota de compra que espera conferência).
     @ViewBuilder private func menuDaNota(_ nota: Nota) -> some View {
-        // auditoria 17/09: nove itens numa pilha só; agora em quatro grupos —
-        // levar a nota · as notas em volta · organizar · apagar
-        let aberta = !nota.fechada && nota.gesto != .expressiva
+        if !nota.trancada {
+            Button("Recordar") { sessao.recordarDaNotas(nota) }
+        }
         let fatia = FatiaCorpus.de(nota)
-        Section {
-            if Self.podeRecordar(nota) {
-                Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
+        if !fatia.nuncaSai {
+            Button("Como contexto") {
+                contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
             }
-            if !fatia.nuncaSai {
-                Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
-                    contextoURL = Corpus.urlComoContexto([fatia], nome: Self.nomeDoArquivo(nota.tituloNaLista))
+        }
+        // ADR 02m: a tela pergunta ao disco de quem é a versão, em vez de
+        // repetir a regra. Versão é de TODA nota; só a expressiva — aberta,
+        // selada ou queimada — fica de fora, porque o que se destrói não
+        // sobrevive em cópia.
+        if Versoes.valemPara(gesto: nota.gesto, fechada: nota.fechada) {
+            Button("Versões") { versoesDe = nota }
+            Button("Ligações") { redeDe = nota }
+        }
+        // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
+        if !nota.fechada, nota.gesto != .expressiva {
+            Menu("Domínio") {
+                ForEach(Dominio.allCases) { d in
+                    Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
+                }
+                Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
+                if nota.dominioTravado {
+                    Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
                 }
             }
         }
-        Section {
-            if aberta {
-                Button("Notas ligadas", systemImage: "link") { redeDe = nota }
-            }
-            if Juntas.podeJuntar(fechada: nota.fechada, gesto: nota.gesto, obra: nota.origem.eObra) {
-                Button("Juntar com…", systemImage: "square.on.square") { juntarDe = nota }
-            }
-            if versoes(nota) > 1 {
-                Button("Separar das versões", systemImage: "square.split.2x1") { separar(nota) }
-            }
-            if aberta {
-                // «Versões» são as datas da nota viva; o histórico de edição é «Alterações»
-                Button("Alterações", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
-            }
-            // R3: as quatro linhas juntas, depois do quarto fecho
-            if nota.gesto == .expressiva, nota.serieUUID != nil {
-                Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
-            }
+        // R3: as quatro linhas juntas, depois do quarto fecho
+        if nota.gesto == .expressiva, nota.serieUUID != nil {
+            Button("Ver a série") { serieDe = nota.serieUUID }
         }
-        Section {
-            // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
-            if aberta {
-                Menu("Domínio", systemImage: "tag") {
-                    ForEach(Dominio.allCases) { d in
-                        // o atual leva ✓ (auditoria 17/09: não se via qual estava)
-                        if nota.dominio == d {
-                            Button(d.nome, systemImage: "checkmark") { sessao.escolherDominio(d, na: nota, no: context) }
-                        } else {
-                            Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
-                        }
-                    }
-                    Button("Sem domínio") { sessao.escolherDominio(nil, na: nota, no: context) }
-                    if nota.dominioTravado {
-                        Button("Devolver ao app") { sessao.devolverDominio(nota, no: context) }
-                    }
-                }
-            }
-            Button("Selecionar", systemImage: "checkmark.circle") {
-                Toque.selecao()
-                escolhidas.insert(nota.uuid)
-            }
+        Button("Escolher") {
+            Toque.selecao()
+            escolhidas.insert(nota.uuid)
         }
-        Section {
-            // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
-            Button("Apagar", systemImage: "trash", role: .destructive) {
-                sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
-            }
+        // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
+        Button("Apagar", role: .destructive) {
+            sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
         }
     }
 
